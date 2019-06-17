@@ -13,5 +13,7 @@ private:
 public:
   void Startup();
   GLFWwindow* Window() { return this->window; }
+  
+  void Display();
 };
 #endif // !RENDER_H

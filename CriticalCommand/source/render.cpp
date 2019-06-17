@@ -22,3 +22,7 @@ void Render::Startup(){
 
   printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 }
+
+void Render::Display() {
+  glfwSwapBuffers(this->window);
+}
