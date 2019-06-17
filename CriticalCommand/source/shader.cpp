@@ -1,12 +1,22 @@
 #include "shader.h"
 
+Shaders::Shaders() {
+}
+
 void Shaders::SetShader(const std::string& filepath) {
+  if (filepath == "default") {
+    printf("Shader = %s\n", filepath.c_str());
+    this->sSource = ParseShader("resources/shader/dShader.glsl");
+  }
+  else {
+    printf("Shader = %s\n", filepath.c_str());
+    this->sSource = ParseShader(filepath);
+  }
 
-  ShaderSource sSource = ParseShader(filepath);
-  printf("Vertex Shader\n%s\n", sSource.vSource.c_str());
-  printf("Fragment Shader\n%s\n", sSource.fSource.c_str());
+  printf("Vertex Shader\n%s\n", this->sSource.vSource.c_str());
+  printf("Fragment Shader\n%s\n", this->sSource.fSource.c_str());
 
-  this->shader = CreateShader(sSource.vSource, sSource.fSource);
+  this->shader = CreateShader(this->sSource.vSource, this->sSource.fSource);
   glUseProgram(this->shader);
 }
 
@@ -84,7 +94,6 @@ unsigned int Shaders::CreateShader(const std::string& vertexShader, const std::s
 void Shaders::Shutdown() {
 
   glDeleteProgram(this->shader);
-
 }
 
 

@@ -1,5 +1,8 @@
 #include "render.h"
 
+Render::Render() {
+}
+
 void Render::Startup(){
   /* Initialize the library */
   if (!glfwInit())

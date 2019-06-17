@@ -11,6 +11,8 @@ private:
   GLFWwindow* window;
 
 public:
+  Render();
+
   void Startup();
   GLFWwindow* Window() { return this->window; }
   

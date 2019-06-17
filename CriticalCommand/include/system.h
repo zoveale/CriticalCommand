@@ -10,6 +10,7 @@ private:
   Shaders dShader;
 
 public:
+  System();
   void SystemInit();
   void GameLoop();
   void Shutdown();
