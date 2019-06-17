@@ -2,40 +2,18 @@
 
 #include <iostream>
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-
+#include "render.h"
 
 int main(void)
 {
-  GLFWwindow* window;
+  Render render;
+  render.Startup();
 
 
-
-  /* Initialize the library */
-  if (!glfwInit())
-    return -1;
-
-  /* Create a windowed mode window and its OpenGL context */
-  window = glfwCreateWindow(640, 480, "Welcome To Critical Command", NULL, NULL);
-  if (!window)
-  {
-    glfwTerminate();
-    return -1;
-  }
-
-  /* Make the window's context current */
-  glfwMakeContextCurrent(window);
-
-  if (glewInit() != GLEW_OK) {
-    printf("Error GLEW_OK = %i", GLEW_OK);
-  }
-
-  printf("OpenGl version: %s\n", glGetString(GL_VERSION));
+  
 
   /* Loop until the user closes the window */
-  while (!glfwWindowShouldClose(window))
+  while (!glfwWindowShouldClose(render.Window()))
   {
     /* Render here */
     glClear(GL_COLOR_BUFFER_BIT);
@@ -48,7 +26,7 @@ int main(void)
     glEnd();
 
     /* Swap front and back buffers */
-    glfwSwapBuffers(window);
+    glfwSwapBuffers(render.Window());
 
     /* Poll for and process events */
     glfwPollEvents();

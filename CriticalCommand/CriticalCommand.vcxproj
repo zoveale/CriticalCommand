@@ -131,9 +131,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="render.cpp" />
+    <ClCompile Include="source\render.cpp" />
     <ClCompile Include="source\main.cpp" />
-    <ClCompile Include="system.cpp" />
+    <ClCompile Include="source\system.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\system.h" />
