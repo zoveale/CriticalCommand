@@ -2,10 +2,12 @@
 #define SYSTEM_H
 
 #include "render.h"
+#include "shader.h"
 
 class System {
 private:
   Render render;
+  Shaders dShader;
 
 public:
   void SystemInit();
