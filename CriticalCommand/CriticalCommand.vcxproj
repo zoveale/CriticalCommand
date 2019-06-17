@@ -131,11 +131,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="INCLUDE\SHADER.CPP" />
-    <ClCompile Include="source\shader.cpp" />
     <ClCompile Include="source\input.cpp" />
     <ClCompile Include="source\render.cpp" />
     <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\shader.cpp" />
     <ClCompile Include="source\system.cpp" />
   </ItemGroup>
   <ItemGroup>
