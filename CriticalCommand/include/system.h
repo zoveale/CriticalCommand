@@ -7,7 +7,7 @@
 class System {
 private:
   Render render;
-  Shaders dShader;
+  
 
 public:
   System();
