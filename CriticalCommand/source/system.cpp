@@ -48,7 +48,6 @@ void System::GameLoop(){
     glClear(GL_COLOR_BUFFER_BIT);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
-    //glDrawArrays(GL_TRIANGLES, 0, 6);
     
 
     /* Swap front and back buffers */

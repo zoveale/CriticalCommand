@@ -30,6 +30,15 @@
     <ClCompile Include="source\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\objects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resources\data\default.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="resources\data\level.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\system.h">
@@ -42,6 +51,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\objects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
