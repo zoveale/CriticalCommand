@@ -76,7 +76,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)middleware\glew\include; $(SolutionDir)middleware\glfw\include;  $(SolutionDir)CriticalCommand\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)middleware\glew\include;$(SolutionDir)middleware\glfw\include;$(SolutionDir)CriticalCommand\include;$(SolutionDir)middleware\glm</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLEW_STATIC; _MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -104,7 +104,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)middleware\glew\include; $(SolutionDir)middleware\glfw\include;  $(SolutionDir)CriticalCommand\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)middleware\glew\include;$(SolutionDir)middleware\glfw\include;$(SolutionDir)CriticalCommand\include;$(SolutionDir)middleware\glm</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLEW_STATIC; _MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -131,18 +131,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="resources\data\default.cpp" />
-    <ClCompile Include="resources\data\level.cpp" />
     <ClCompile Include="source\input.cpp" />
-    <ClCompile Include="source\objects.cpp" />
     <ClCompile Include="source\render.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\shader.cpp" />
     <ClCompile Include="source\system.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\data.h" />
-    <ClInclude Include="include\objects.h" />
+    <ClInclude Include="include\old.shader.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\system.h" />
     <ClInclude Include="include\render.h" />
