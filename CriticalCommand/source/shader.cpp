@@ -51,6 +51,11 @@ Shader::Shader(const GLchar* vertexShaderPath, const GLchar* fragmentShaderPath)
   glDeleteShader(fragment);
 }
 
+void Shader::setMat4(const std::string& name, const glm::mat4& mat) const {
+  int location = glGetUniformLocation(ID, name.c_str());
+  glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]);
+}
+
 void Shader::Use() {
   glUseProgram(this->ID);
 }
@@ -101,14 +106,18 @@ void Shader::CheckCompileErrors(GLuint shader, std::string type) {
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (!success) {
       glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-      std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+      std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type
+        << "\n" << infoLog << "\n -- --------------------------------------------------- -- " 
+        << std::endl;
     }
   }
   else {
     glGetProgramiv(shader, GL_LINK_STATUS, &success);
     if (!success) {
       glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-      std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+      std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type 
+        << "\n" << infoLog << "\n -- --------------------------------------------------- -- " 
+        << std::endl;
     }
   }
 }
