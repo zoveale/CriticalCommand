@@ -130,3 +130,71 @@ void Shaders::Shutdown() {
 
 
 */
+
+
+///old.system.cpp
+/* float position[] = {
+       -0.5f, -0.5f,
+        0.5f, -0.5f,
+        0.5f,  0.5f,
+       -0.5f,  0.5f
+
+  };
+
+  unsigned int indices[] = {
+    0,1,2,
+    2,3,0
+
+    glm::vec3 position[] = {
+     glm::vec3(2.0000f, -1.0000f, -2.0000f),
+     glm::vec3(0.0000f, -1.0000f, 0.0000f),
+     glm::vec3(0.0000f, -1.0000f, -2.0000f),
+     glm::vec3(2.0000f, 1.0000f, -2.0000f),
+     glm::vec3(0.0000f, 1.0000f, 0.0000f),
+     glm::vec3(2.0000f, 1.0000f, 0.0000f),
+     glm::vec3(2.0000f, -1.0000f, -2.0000f),
+     glm::vec3(2.0000f, 1.0000f, 0.0000f),
+     glm::vec3(2.0000f, -1.0000f, 0.0000f),
+     glm::vec3(2.0000f, -1.0000f, 0.0000f),
+     glm::vec3(0.0000f, 1.0000f, 0.0000f),
+     glm::vec3(0.0000f, -1.0000f, 0.0000f),
+     glm::vec3(0.0000f, -1.0000f, 0.0000f),
+     glm::vec3(0.0000f, 1.0000f, -2.0000f),
+     glm::vec3(0.0000f, -1.0000f, -2.0000f),
+     glm::vec3(2.0000f, 1.0000f, -2.0000f),
+     glm::vec3(0.0000f, -1.0000f, -2.0000f),
+     glm::vec3(0.0000f, 1.0000f, -2.0000f),
+     glm::vec3(2.0000f, -1.0000f, 0.0000f),
+     glm::vec3(0.0000f, 1.0000f, -2.0000f),
+     glm::vec3(2.0000f, 1.0000f, -2.0000f),
+     glm::vec3(2.0000f, 1.0000f, 0.0000f),
+     glm::vec3(0.0000f, 1.0000f, 0.0000f),
+     glm::vec3(2.0000f, -1.0000f, -2.0000f)
+  };
+
+
+  unsigned short indices[] = {
+     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 0, 18, 1,
+     3, 19, 4, 6, 20, 7, 9, 21, 10, 12, 22, 13, 15, 23, 16
+  };
+
+  Shader dShader("resources/shader/zdVertexShader.glsl", "resources/shader/zdFragmentShader.glsl");
+
+  GLuint buffer;
+  glGenBuffers(1, &buffer);
+  glBindBuffer(GL_ARRAY_BUFFER, buffer);
+  glBufferData(GL_ARRAY_BUFFER, 36, &position[0], GL_STATIC_DRAW);
+
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (const void*)0);
+
+
+  //index Buffers
+  GLuint ibo;
+  glGenBuffers(1, &ibo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER,36 , &indices[0], GL_STATIC_DRAW);
+
+
+  glBindVertexArray(0);
+  }*/

@@ -143,10 +143,14 @@
     <ClInclude Include="include\system.h" />
     <ClInclude Include="include\render.h" />
     <ClInclude Include="include\input.h" />
+    <ClInclude Include="resources\data\testData.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shader\zdFragmentShader.glsl" />
     <None Include="resources\shader\zdVertexShader.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\wall.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

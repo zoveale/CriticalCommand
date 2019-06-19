@@ -8,7 +8,7 @@ int main(void)
 {
   System system;
  
-  int nrAttributes;
+  
   
   system.SystemInit();
   system.GameLoop();
@@ -18,6 +18,7 @@ int main(void)
 }
 
 /*
+int nrAttributes;
 glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
 std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes << std::endl;
 */

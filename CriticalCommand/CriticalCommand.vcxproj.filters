@@ -47,9 +47,17 @@
     <ClInclude Include="include\old.shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resources\data\testData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shader\zdVertexShader.glsl" />
     <None Include="resources\shader\zdFragmentShader.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\wall.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

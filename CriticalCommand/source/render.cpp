@@ -13,7 +13,7 @@ void Render::Startup(){
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   /* Create a windowed mode window and its OpenGL context */
-  window = glfwCreateWindow(640, 480, "Welcome To Critical Command", NULL, NULL);
+  window = glfwCreateWindow(SC.WIDTH, SC.HEIGHT, "Welcome To Critical Command", NULL, NULL);
   if (!window)
   {
     glfwTerminate();

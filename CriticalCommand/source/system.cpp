@@ -1,5 +1,8 @@
 #include "system.h"
+#include "..//resources/data/testData.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "../stb_image/include/stb_image.h"
 
 System::System() {
 }
@@ -12,64 +15,71 @@ void System::SystemInit(){
 void System::GameLoop(){
   Shader dShader("resources/shader/zdVertexShader.glsl", "resources/shader/zdFragmentShader.glsl");
 
-  float position[] = {
-    -0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-    -0.5f,  0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
+  /*
+  texture test
+  */
+  unsigned int texture1;
+  glGenTextures(1, &texture1);
+  glBindTexture(GL_TEXTURE_2D, texture1);
+  // set the texture wrapping/filtering options (on the currently bound texture object)
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  // load and generate the texture
+  int width, height, nrChannels;
+  unsigned char* data = stbi_load("resources/wall.jpg", &width, &height, &nrChannels, 0);
+  if (data) {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+  }
+  else {
+    std::cout << "Failed to load texture" << std::endl;
+  }
+  stbi_image_free(data);
+  
+  /*
+  
+  */
+  unsigned int VBO, VAO, UVBO;
 
-    -0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
-    -0.5f, -0.5f,  0.5f,
-
-    -0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
-
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-
-    -0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f,  0.5f,
-    -0.5f, -0.5f,  0.5f,
-    -0.5f, -0.5f, -0.5f,
-
-    -0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f, -0.5f
-  };
-
-  unsigned int VBO, VAO;
   glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
-
   glBindVertexArray(VAO);
 
+ 
+  glGenBuffers(1, &VBO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW);
-
   // position attribute
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-  dShader.Use();
+  glGenBuffers(1, &UVBO);
+  glBindBuffer(GL_ARRAY_BUFFER, UVBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(uv), uv, GL_STATIC_DRAW);
+  // position attribute
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+
+  glBindVertexArray(0);
+  glUseProgram(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+  glm::vec3 cubePositions[] = {
+  glm::vec3(0.0f,  0.0f,  0.0f),
+  glm::vec3(2.0f,  5.0f, -15.0f),
+  glm::vec3(-1.5f, -2.2f, -2.5f),
+  glm::vec3(-3.8f, -2.0f, -12.3f),
+  glm::vec3(2.4f, -0.4f, -3.5f),
+  glm::vec3(-1.7f,  3.0f, -7.5f),
+  glm::vec3(1.3f, -2.0f, -2.5f),
+  glm::vec3(1.5f,  2.0f, -2.5f),
+  glm::vec3(1.5f,  0.2f, -1.5f),
+  glm::vec3(-1.3f,  1.0f, -1.5f)
+  };
+
   /* Loop until the user closes the window */
   while (!glfwWindowShouldClose(render.Window())) {
 
@@ -81,26 +91,47 @@ void System::GameLoop(){
     // create transformations
     glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
     glm::mat4 view = glm::mat4(1.0f);
+
+    float radius = 10.0f;
+    float camX = sin(glfwGetTime()) * radius;
+    float camZ = cos(glfwGetTime()) * radius;
+   
+    view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+
+    
     glm::mat4 projection = glm::mat4(1.0f);
 
     
-    model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 1.0f, 0.0f));
-    view = glm::translate(view, glm::vec3(1.0f, 0.0f, -4.0f));
-    projection = glm::perspective(glm::radians(45.0f), (float)640 / (float)480, 0.1f, 100.0f);
+    
+    //view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f));
+    projection = glm::perspective(glm::radians(55.0f),(float)1280/(float)720, 0.1f, 100.0f);
     
    
     
 
     // get matrix's uniform location and set matrix
     dShader.Use();
-    dShader.setMat4("model", model);
+    //dShader.setMat4("model", model);
     dShader.setMat4("view", view);
     dShader.setMat4("projection", projection);
 
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, NULL);
+    for (unsigned int i = 0; i < 10; i++) {
+      glm::mat4 model = glm::mat4(1.0f);
+      
+      model = glm::translate(model, cubePositions[i]);
+      float angle = 20.0f * i;
+      model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 1.0f));
+      dShader.setMat4("model", model);
+
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
+
     
+    //glDrawArrays(GL_TRIANGLES, 0, 36);
+    //glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_INT, 0);
+    
+
     ////transform = glm::mat4(1.0f); // reset it to identity matrix
     //model = glm::translate(model, glm::vec3(-0.5f, 0.5f, 0.0f));
     //float scaleAmount = sin(glfwGetTime());
@@ -127,70 +158,3 @@ void System::Shutdown() {
   glfwTerminate();
 }
 
-
-
-/* float position[] = {
-       -0.5f, -0.5f,
-        0.5f, -0.5f,
-        0.5f,  0.5f,
-       -0.5f,  0.5f
-
-  };
-
-  unsigned int indices[] = {
-    0,1,2,
-    2,3,0
-
-    glm::vec3 position[] = {
-     glm::vec3(2.0000f, -1.0000f, -2.0000f),
-     glm::vec3(0.0000f, -1.0000f, 0.0000f),
-     glm::vec3(0.0000f, -1.0000f, -2.0000f),
-     glm::vec3(2.0000f, 1.0000f, -2.0000f),
-     glm::vec3(0.0000f, 1.0000f, 0.0000f),
-     glm::vec3(2.0000f, 1.0000f, 0.0000f),
-     glm::vec3(2.0000f, -1.0000f, -2.0000f),
-     glm::vec3(2.0000f, 1.0000f, 0.0000f),
-     glm::vec3(2.0000f, -1.0000f, 0.0000f),
-     glm::vec3(2.0000f, -1.0000f, 0.0000f),
-     glm::vec3(0.0000f, 1.0000f, 0.0000f),
-     glm::vec3(0.0000f, -1.0000f, 0.0000f),
-     glm::vec3(0.0000f, -1.0000f, 0.0000f),
-     glm::vec3(0.0000f, 1.0000f, -2.0000f),
-     glm::vec3(0.0000f, -1.0000f, -2.0000f),
-     glm::vec3(2.0000f, 1.0000f, -2.0000f),
-     glm::vec3(0.0000f, -1.0000f, -2.0000f),
-     glm::vec3(0.0000f, 1.0000f, -2.0000f),
-     glm::vec3(2.0000f, -1.0000f, 0.0000f),
-     glm::vec3(0.0000f, 1.0000f, -2.0000f),
-     glm::vec3(2.0000f, 1.0000f, -2.0000f),
-     glm::vec3(2.0000f, 1.0000f, 0.0000f),
-     glm::vec3(0.0000f, 1.0000f, 0.0000f),
-     glm::vec3(2.0000f, -1.0000f, -2.0000f)
-  };
-
-
-  unsigned short indices[] = {
-     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 0, 18, 1,
-     3, 19, 4, 6, 20, 7, 9, 21, 10, 12, 22, 13, 15, 23, 16
-  };
-
-  Shader dShader("resources/shader/zdVertexShader.glsl", "resources/shader/zdFragmentShader.glsl");
-
-  GLuint buffer;
-  glGenBuffers(1, &buffer);
-  glBindBuffer(GL_ARRAY_BUFFER, buffer);
-  glBufferData(GL_ARRAY_BUFFER, 36, &position[0], GL_STATIC_DRAW);
-
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (const void*)0);
-
-
-  //index Buffers
-  GLuint ibo;
-  glGenBuffers(1, &ibo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER,36 , &indices[0], GL_STATIC_DRAW);
-
-
-  glBindVertexArray(0);
-  }*/
