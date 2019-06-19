@@ -52,7 +52,4 @@
     <None Include="resources\shader\zdVertexShader.glsl" />
     <None Include="resources\shader\zdFragmentShader.glsl" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="resources\shader\dShader.glsl" />
-  </ItemGroup>
 </Project>

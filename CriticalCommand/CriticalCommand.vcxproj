@@ -148,9 +148,6 @@
     <None Include="resources\shader\zdFragmentShader.glsl" />
     <None Include="resources\shader\zdVertexShader.glsl" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="resources\shader\dShader.glsl" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

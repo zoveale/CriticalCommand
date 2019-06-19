@@ -4,6 +4,8 @@
 #include "render.h"
 #include "shader.h"
 
+#include "gtc/matrix_transform.hpp"
+#include "gtc/type_ptr.hpp"
 class System {
 private:
   Render render;
