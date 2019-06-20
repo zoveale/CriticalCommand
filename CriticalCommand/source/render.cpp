@@ -1,6 +1,7 @@
 #include "render.h"
 
 Render::Render() {
+
 }
 
 void Render::Startup(){

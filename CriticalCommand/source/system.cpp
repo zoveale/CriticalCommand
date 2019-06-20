@@ -28,7 +28,7 @@ void System::GameLoop(){
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   // load and generate the texture
   int width, height, nrChannels;
-  unsigned char* data = stbi_load("resources/wall.jpg", &width, &height, &nrChannels, 0);
+  unsigned char* data = stbi_load("resources/texture/wall.jpg", &width, &height, &nrChannels, 0);
   if (data) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -91,6 +91,7 @@ void System::GameLoop(){
     // create transformations
     glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
     glm::mat4 view = glm::mat4(1.0f);
+    glm::mat4 projection = glm::mat4(1.0f);
 
     float radius = 10.0f;
     float camX = sin(glfwGetTime()) * radius;
@@ -99,7 +100,7 @@ void System::GameLoop(){
     view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 
     
-    glm::mat4 projection = glm::mat4(1.0f);
+    
 
     
     

@@ -22,6 +22,11 @@ private:
                       unsigned int& fragment);
   void CheckCompileErrors(GLuint shader, std::string type);
 
+  std::string LoadShader(const GLchar* shaderPath);
+
+  std::string vertexShader;
+  std::string fragmentShader;
+
 public:
   //Shader ID for glUseProgram
   unsigned int ID;

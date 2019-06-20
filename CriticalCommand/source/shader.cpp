@@ -4,35 +4,10 @@
 
 Shader::Shader(const GLchar* vertexShaderPath, const GLchar* fragmentShaderPath) {
 
-  //get shaders file path
-  std::string vertexShader;
-  std::string fragmentShader;
-  std::ifstream vertexShaderFile;
-  std::ifstream fragmentShaderFile;
-  // ensure ifstream objects can throw exceptions:
-  vertexShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-  fragmentShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-  try {
-    //open files
-    vertexShaderFile.open(vertexShaderPath);
-    fragmentShaderFile.open(fragmentShaderPath);
-    //create string streams to load file data
-    std::stringstream vertexShaderStream;
-    std::stringstream fragmentShaderStream;
-    //load data into streams
-    vertexShaderStream << vertexShaderFile.rdbuf();
-    fragmentShaderStream << fragmentShaderFile.rdbuf();
-    //close files
-    vertexShaderFile.close();
-    fragmentShaderFile.close();
-    //Convert the shader stream into a string
-    vertexShader = vertexShaderStream.str();
-    fragmentShader = fragmentShaderStream.str();
-  }
-  catch (std::ifstream::failure e) {
-    printf("Shader file not read succesfully\n");
-  }
-  //
+  
+  this->vertexShader = LoadShader(vertexShaderPath);
+  this->fragmentShader = LoadShader(fragmentShaderPath);
+
   const char* vertexShaderCode = vertexShader.c_str();
   const char* fragmentShaderCode = fragmentShader.c_str();
 
@@ -90,13 +65,12 @@ void Shader::CreateShaders(unsigned int &vertex, unsigned int &fragment,
 }
 
 void Shader::AttachShaderID(unsigned int& vertex, unsigned int& fragment) {
-  // shader Program
+  //Attach shader Program
   this->ID = glCreateProgram();
   glAttachShader(this->ID, vertex);
   glAttachShader(this->ID, fragment);
   glLinkProgram(this->ID);
   CheckCompileErrors(ID, "PROGRAM");
-
 }
 
 void Shader::CheckCompileErrors(GLuint shader, std::string type) {
@@ -120,4 +94,22 @@ void Shader::CheckCompileErrors(GLuint shader, std::string type) {
         << std::endl;
     }
   }
+}
+
+std::string Shader::LoadShader(const GLchar* shaderPath) {
+  std::string vertexShader;
+  std::ifstream vertexShaderFile;
+  vertexShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+  try {
+    vertexShaderFile.open(shaderPath);
+    std::stringstream vertexShaderStream;
+    vertexShaderStream << vertexShaderFile.rdbuf();
+    vertexShaderFile.close();
+    vertexShader = vertexShaderStream.str();
+  }
+  catch (std::ifstream::failure e) {
+    printf("Shader file not read succesfully\n");
+  }
+
+  return  vertexShader;
 }

@@ -131,6 +131,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\player.cpp" />
+    <ClCompile Include="source\camera.cpp" />
     <ClCompile Include="source\input.cpp" />
     <ClCompile Include="source\render.cpp" />
     <ClCompile Include="source\main.cpp" />
@@ -138,11 +140,13 @@
     <ClCompile Include="source\system.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\camera.h" />
     <ClInclude Include="include\old.shader.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\system.h" />
     <ClInclude Include="include\render.h" />
     <ClInclude Include="include\input.h" />
+    <ClInclude Include="include\player.h" />
     <ClInclude Include="resources\data\testData.h" />
   </ItemGroup>
   <ItemGroup>
@@ -150,7 +154,7 @@
     <None Include="resources\shader\zdVertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="resources\wall.jpg" />
+    <Image Include="resources\texture\wall.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
