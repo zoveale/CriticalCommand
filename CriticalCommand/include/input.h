@@ -1,26 +1,35 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#include <iostream>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+struct KEY_STATE {
+
+  bool W = false;
+  bool S = false;
+  bool A = false;
+  bool D = false;
+};
 
 class Input {
 private:
+  
 public:
-  int Process(GLFWwindow* window) {
+  KEY_STATE KEY;
+  void Process(GLFWwindow* window) {
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-      printf("W ");
-      return glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
-      
-      if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        printf("(W->S) ");
-      }
+      KEY.W = true;
+      //printf("(vW) ");
+    }
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_RELEASE) {
+      KEY.W = false;
+      //printf("(^W) ");
     }
       
-    else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-      printf("S ");
+    
     
     //if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
      

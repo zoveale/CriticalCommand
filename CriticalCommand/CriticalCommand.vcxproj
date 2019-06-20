@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClInclude Include="include\camera.h" />
     <ClInclude Include="include\old.shader.h" />
+    <ClInclude Include="include\playerState.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\system.h" />
     <ClInclude Include="include\render.h" />
