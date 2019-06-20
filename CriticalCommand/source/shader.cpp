@@ -36,6 +36,7 @@ void Shader::Use() {
 }
 
 void Shader::Shutdown() {
+
 }
 
 
@@ -97,19 +98,19 @@ void Shader::CheckCompileErrors(GLuint shader, std::string type) {
 }
 
 std::string Shader::LoadShader(const GLchar* shaderPath) {
-  std::string vertexShader;
-  std::ifstream vertexShaderFile;
-  vertexShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+  std::string shader;
+  std::ifstream shaderFile;
+  shaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
   try {
-    vertexShaderFile.open(shaderPath);
-    std::stringstream vertexShaderStream;
-    vertexShaderStream << vertexShaderFile.rdbuf();
-    vertexShaderFile.close();
-    vertexShader = vertexShaderStream.str();
+    shaderFile.open(shaderPath);
+    std::stringstream shaderStream;
+    shaderStream << shaderFile.rdbuf();
+    shaderFile.close();
+    shader = shaderStream.str();
   }
   catch (std::ifstream::failure e) {
     printf("Shader file not read succesfully\n");
   }
 
-  return  vertexShader;
+  return  shader;
 }

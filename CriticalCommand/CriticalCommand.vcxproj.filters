@@ -24,9 +24,6 @@
     <ClCompile Include="source\system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\input.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

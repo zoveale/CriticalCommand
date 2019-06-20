@@ -6,6 +6,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+
 struct SCREEN {
   static const int WIDTH = 1280;
   static const int HEIGHT = 720;

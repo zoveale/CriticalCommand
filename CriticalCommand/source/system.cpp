@@ -84,10 +84,10 @@ void System::GameLoop(){
   while (!glfwWindowShouldClose(render.Window())) {
 
     /* Render here */
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //clear screen and color background
+    ClearScreen();
 
-    
+    input.Process(render.Window());
     // create transformations
     glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
     glm::mat4 view = glm::mat4(1.0f);
@@ -100,16 +100,9 @@ void System::GameLoop(){
     view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 
     
-    
-
-    
-    
     //view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f));
     projection = glm::perspective(glm::radians(55.0f),(float)1280/(float)720, 0.1f, 100.0f);
     
-   
-    
-
     // get matrix's uniform location and set matrix
     dShader.Use();
     //dShader.setMat4("model", model);
@@ -127,27 +120,13 @@ void System::GameLoop(){
 
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
-
-    
-    //glDrawArrays(GL_TRIANGLES, 0, 36);
-    //glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_INT, 0);
-    
-
-    ////transform = glm::mat4(1.0f); // reset it to identity matrix
-    //model = glm::translate(model, glm::vec3(-0.5f, 0.5f, 0.0f));
-    //float scaleAmount = sin(glfwGetTime());
-    //model = glm::scale(model, glm::vec3(scaleAmount, scaleAmount, scaleAmount));
-    //dShader.setMat4("model", model);
-    //// now with the uniform matrix being replaced with new transformations, draw it again.
-    //glBindVertexArray(VAO);
-    //glDrawArrays(GL_TRIANGLES, 0, 36);
     
     
     /* Swap front and back buffers */
     render.Display();
 
     /* Poll for and process events */
-    glfwPollEvents();
+    input.PollEvents();
   }
 
   
@@ -159,3 +138,8 @@ void System::Shutdown() {
   glfwTerminate();
 }
 
+///private fucntions
+void System::ClearScreen() {
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}

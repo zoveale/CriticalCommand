@@ -3,7 +3,7 @@
 
 #include "render.h"
 #include "shader.h"
-
+#include "input.h"
 
 
 #include "gtc/matrix_transform.hpp"
@@ -11,12 +11,14 @@
 class System {
 private:
   Render render;
-  
+  Input input;
+  void ClearScreen();
 
 public:
   System();
   void SystemInit();
   void GameLoop();
+  
   void Shutdown();
 };
 #endif // !SYSTEM_H
