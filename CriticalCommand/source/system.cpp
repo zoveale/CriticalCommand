@@ -80,8 +80,17 @@ void System::GameLoop(){
   glm::vec3(-1.3f,  1.0f, -1.5f)
   };
 
+
+  float deltaTime = 0.0f;	// Time between current frame and last frame
+  float lastFrame = 0.0f; // Time of last frame
+  float currentFrame = 0.0f;
+
   /* Loop until the user closes the window */
   while (!glfwWindowShouldClose(render.Window())) {
+    currentFrame = glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+
 
     /* Render here */
     //clear screen and color background
@@ -89,20 +98,18 @@ void System::GameLoop(){
 
     input.Process(render.Window());
 
-    player.HandleInput(input);
+    player.HandleInput(input, deltaTime);
 
     // create transformations
     glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
 
-    float radius = 10.0f;
-    float camX = sin(glfwGetTime()) * radius;
-    float camZ = cos(glfwGetTime()) * radius;
+    //float radius = 10.0f;
+    //float camX = sin(glfwGetTime()) * radius;
+    //float camZ = cos(glfwGetTime()) * radius;
    
-    view = glm::lookAt(glm::vec3(camX, 0.0, camZ),
-                       glm::vec3(0.0, 0.0, 0.0),
-                       glm::vec3(0.0, 1.0, 0.0));
+    view = playerCamera.CameraView();
 
     
     //view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f));
@@ -128,7 +135,7 @@ void System::GameLoop(){
     
 
     player.Update();
-    
+    player.AttachCamera(playerCamera);
     /* Swap front and back buffers */
     render.Display();
 
