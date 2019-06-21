@@ -33,6 +33,9 @@
     <ClCompile Include="source\player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\states.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\system.h">
@@ -59,7 +62,7 @@
     <ClInclude Include="include\player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\playerState.h">
+    <ClInclude Include="include\states.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

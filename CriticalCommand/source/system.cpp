@@ -124,6 +124,8 @@ void System::GameLoop(){
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
     
+
+    player.Update();
     
     /* Swap front and back buffers */
     render.Display();
