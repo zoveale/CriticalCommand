@@ -6,7 +6,7 @@ PlayerState::PlayerState() {
 }
 
 void IdelState::HandleInput(Player& player, Input input) {
-  idelTime++;
+  
   //printf("idelTime = %F", idelTime);
 
   if (input.KEY.W) {
@@ -15,15 +15,18 @@ void IdelState::HandleInput(Player& player, Input input) {
     printf("move to forward state->");
     player.state_ = &PlayerState::forwardState;
   }
-  if (idelTime > 1000.0f) {
-    idelTime = 0;
-    player.LongIdel();
-  }
+  
 
 }
 
 void IdelState::Update(Player& player) {
+  idelTime++;
   //printf("UpdateIdleState->");
+  if (idelTime > 1000.0f) {
+    idelTime = 0;
+    player.LongIdel();
+  }
+  
 }
 
 void ForwardState::HandleInput(Player& player, Input input) {
@@ -35,6 +38,7 @@ void ForwardState::HandleInput(Player& player, Input input) {
 }
 
 void ForwardState::Update(Player& player) {
+  //printf("UpdateForwardState->");
   player.MoveForward();
-  printf("UpdateForwardState->");
+  
 }
