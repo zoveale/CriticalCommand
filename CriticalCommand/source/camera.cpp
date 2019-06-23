@@ -51,7 +51,7 @@ void PlayerCamera::SetView(Player& player) {
   this->mouseY *= sensitivity;
 
   yaw += this->mouseX;
-  pitch -= this->mouseY;
+  pitch += this->mouseY;
 
   // Make sure that when pitch is out of bounds, screen doesn't get flipped
   //if (constrainPitch) {
@@ -76,15 +76,7 @@ void Player::AttachCamera(PlayerCamera camera,float xoffset, float yoffset) {
   camera.SetTarget(position, front, right, xoffset, yoffset);
 }
 */
-//FIXME:: dont like this implementation
-glm::vec3 PlayerCamera::GetFront() {
-  return front;
-}
-//FIXME:: dont like this implementation
-glm::vec3 PlayerCamera::GetRight() {
-  return right;
-}
-///
+
 glm::mat4 PlayerCamera::View() {
   //keep camera on the xz plane
   position.y = 0.0f;

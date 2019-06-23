@@ -9,7 +9,7 @@
 
 #include "player.h"
 class PlayerCamera;
-
+//class Player;
 
 class Camera {
 public:
@@ -36,7 +36,7 @@ private:
   const float YAW = -90.0f;
   const float PITCH = 0.0f;
   const float SPEED = 2.5f;
-  const float SENSITIVITY = 0.001f;
+  const float SENSITIVITY = 0.08f;
   const float ZOOM = 45.0f;
 
   //mouse stuff
@@ -57,10 +57,10 @@ public:
 
 
 
-  //FIXME:: dont like this implementation
-  glm::vec3 GetFront();
-  glm::vec3 GetRight();
-  ///
+  ////FIXME:: dont like this implementation
+  //glm::vec3 GetFront();
+  //glm::vec3 GetRight();
+  /////
   glm::mat4 View();
 };
 
@@ -70,29 +70,3 @@ class OverviewCamera : public Camera {
 
 #endif //CAMERA_H
 
-/*
-  glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0),
-  glm::vec3(0.0f, 0.0f, 0.0),
-  glm::vec3(0.0f, 1.0f, 0.0));
-*/
-
-/*
-glm::lookAt(
-      glm::vec3(position->x, position->y, position->z),
-      glm::vec3(position->x +front->x, position->y + front->y, position->z + front->z),
-      glm::vec3(right->x, right->y, right->z)
-    )
-    glm::lookAt(position, position + front, right)
-*/
-
-/*printf("camera position x, y, z : %f, %f, %f\n",
-    this->position->x, this->position->y, this->position->z);*/
-
-/*
- printf("camera position x, y, z : %f, %f, %f\n",
-    this->position.x, this->position.y, this->position.z);
-  printf("camera front x, y, z : %f, %f, %f\n",
-    this->front.x, this->front.y, this->front.z);
-  printf("camera right x, y, z : %f, %f, %f\n",
-    this->right.x, this->right.y, this->right.z);
-*/

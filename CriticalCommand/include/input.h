@@ -5,6 +5,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+
+
 struct KEY_STATE {
 
   bool W = false;
@@ -18,12 +20,35 @@ struct KEY_STATE {
 class Input {
 private:
   
+  GLFWwindow* window;
+
 public:
-  void StartUp(GLFWwindow* window) {
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-  }
   KEY_STATE KEY;
-  void Process(GLFWwindow* window) {
+  double lastX, lastY, xpos, ypos, xoffset, yoffset;
+
+  void StartUp(GLFWwindow* window) {
+    lastX = 1280 / 2;
+    lastY = 720 / 2;
+    this->window = window;
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwGetCursorPos(window, &xpos, &ypos);
+  }
+  /*void MouseInput(Player& player) {
+    
+
+    player.look.x = (float)xoffset;
+    player.look.y = (float)yoffset;
+  }*/
+  void Process() {
+    //Mouse input
+    lastX = xpos;
+    lastY = ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    xoffset = xpos - lastX;
+    yoffset = lastY - ypos;
+    //printf("mouse x, y : %f, %f\n", xpos, ypos);
+    ///
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
       KEY.ESC = true;
     }
@@ -59,8 +84,8 @@ public:
       KEY.SPACE = false;
     }
 
- 
-     
+
+
   }
   void PollEvents() {
     glfwPollEvents();

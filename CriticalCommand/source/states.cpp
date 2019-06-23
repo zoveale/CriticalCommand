@@ -40,7 +40,7 @@ void IdelState::HandleInput(Player& player, Input input) {
 void IdelState::Update(Player& player) {
   idelTime++;
   //printf("UpdateIdleState->");
-  if (idelTime > 1000.0f) {
+  if (idelTime > 100.0f) {
     idelTime = 0;
     player.LongIdel();
   }
@@ -53,7 +53,6 @@ void ForwardState::HandleInput(Player& player, Input input) {
     printf("move to idel state->");
     player.state = &InputState::idel;
   }
-  
 }
 
 void ForwardState::Update(Player& player) {

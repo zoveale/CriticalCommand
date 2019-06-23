@@ -1,8 +1,10 @@
 #ifndef STATES_H
 #define STATES_H
 
+
 #include "input.h"
 #include <cstdio>
+
 
 class Player;
 class IdelState;
@@ -11,7 +13,17 @@ class BackwardState;
 class StrafeLeftState;
 class StrafeRightState;
 
+//States to add
+//class ForwardLeftState
+//class ForwardRightState
+//class BackwardLeftState
+//class BackwardRightState
+///
+
+//FIXME:: change class identifier
 class InputState {
+///
+
 public:
   InputState();
   static IdelState idel;

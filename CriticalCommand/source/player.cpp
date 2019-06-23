@@ -1,4 +1,5 @@
 #include "player.h"
+//#include "input.h"
 
 /*possible player states*/
 IdelState InputState::idel;
@@ -7,19 +8,12 @@ BackwardState InputState::backward;
 StrafeLeftState InputState::left;
 StrafeRightState InputState::right;
 ///
-
+//player camera, FIXME:: add more, "topleft" "topright" etc...
 PlayerCamera Camera::camera;
+///
 
+//Input playerInput;
 
-
-//FIXME:: dont like this implementation
-//void Player::AttachCamera(PlayerCamera camera,float xoffset, float yoffset) {
-//
-//  //FIXME:: dont like this implementation
-//  front = camera.GetFront();
-//  right = camera.GetRight();
-//  camera.SetTarget(position, front, right, xoffset, yoffset);
-//}
 
 Player::Player() {
   position = glm::vec3(0.0f, 0.0f, 3.0f);
@@ -28,50 +22,65 @@ Player::Player() {
   speed = 2.0f;
   dt = 0.0f;
   acc = 1.0f;
+  //input = &playerInput;
   camera = &Camera::camera;
   state = &InputState::idel;
   //printf("move to idel state->");
 }
 
+void Player::StartUp() {
+/*
+
+*/
+}
+
+
+
 void Player::HandleInput(Input input, float dt) {
+  look.x = (float)input.xoffset;
+  look.y = (float)input.yoffset;
+
+  //input.MouseInput(*this);
+  ///
+  //FIXME:: pull delta time from physics based class
   this->dt = dt;
+  ///
   state->HandleInput(*this, input);
 }
 
-void Player::Update(float xoffset, float yoffset) {
-  look.x = xoffset;
-  look.y = yoffset;
+void Player::Update() {
+  //future update(*this) stuff
+  //phyics->update(*this);
+  //graphics->update(*this);
+  ///
+
   camera->SetView(*this);
   state->Update(*this);
 }
 
 void Player::LongIdel() {
+  look.x += 100;
   printf("\nPlayer Long Idel->");
 }
 
 void Player::MoveForward() {
   position += front * (dt * speed);
+  //FIXME:: add possible modes of moving using kinematic equations
   //position += front * (dt * speed + (0.5f * acc * dt * dt));
-  //printf("player front x, y, z : %f, %f, %f\n", front.x, front.y, front.z);
+  ///
+  //printf("player position x, y, z : %f, %f, %f\n", position.x, position.y, position.z);
   //printf("\nPlayer move Forward->");
 }
 
 void Player::MoveBackward() {
-  //position.z += this->dt * speed;
-  position -= this->dt * front * speed;
+  position -= dt * front * speed;
 }
 
-/*
-FIXME:: probably not going to work
-will need to edit camera vec3?
-*/
 void Player::MoveLeft() {
-  //position.x -= this->dt * speed;
-  position -= this->dt * right * speed;
+  position -= dt * right * speed;
 }
 
 void Player::MoveRight() {
-  //position.x += this->dt * speed;
-  position += this->dt * right * speed;
+  position += dt * right * speed;
 }
 

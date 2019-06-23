@@ -1,4 +1,3 @@
-
 #ifndef PLAYER_H
 #define PLAYER_H
 
@@ -7,16 +6,18 @@
 #include "vec2.hpp"
 
 class Camera;
+//class PlayerCamera;
+//class InputState;
+//class Input;
+
 
 class Player {
 private:
-  
-
   float dt;
   float speed;
   float acc;
 public:
-  
+
 
   glm::vec3 position;
   glm::vec3 front;
@@ -24,13 +25,17 @@ public:
 
   glm::vec2 look;//mouse
 
+  //Add pointer to input class
+  //Input* input;
+  ///
   InputState* state;
   Camera* camera;
 
   Player();
+  void StartUp();
   void HandleInput(Input input, float dt);
-  void Update(float xoffset, float yoffset);
-  
+  void Update();
+
   //input componets
   void LongIdel();
   void MoveForward();
