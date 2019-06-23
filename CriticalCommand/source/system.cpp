@@ -8,8 +8,8 @@ System::System() {
 }
 
 void System::SystemInit(){
-  render.Startup();
- 
+  render.StartUp();
+  input.StartUp(render.Window());
 }
 
 void System::GameLoop(){
@@ -85,13 +85,26 @@ void System::GameLoop(){
   float lastFrame = 0.0f; // Time of last frame
   float currentFrame = 0.0f;
 
+  double xpos, ypos;
+  glfwGetCursorPos(render.Window(), &xpos, &ypos);
+  float lastX = 1280/2;
+  float lastY = 720/2;
+
+
   /* Loop until the user closes the window */
-  while (!glfwWindowShouldClose(render.Window())) {
+  while (!input.KEY.ESC) {
+
+    lastX = xpos;
+    lastY = ypos;
+
     currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-
+    glfwGetCursorPos(render.Window(), &xpos, &ypos);
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
+    printf("mouse x, y : %f, %f\n", xpos, ypos);
     /* Render here */
     //clear screen and color background
     ClearScreen();
@@ -101,21 +114,21 @@ void System::GameLoop(){
     player.HandleInput(input, deltaTime);
 
     // create transformations
-    glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+    glm::mat4 model = glm::mat4(1.0f); 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
+    
 
     //float radius = 10.0f;
     //float camX = sin(glfwGetTime()) * radius;
     //float camZ = cos(glfwGetTime()) * radius;
    
-    view = playerCamera.CameraView();
+    
 
-    
-    //view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f));
-    projection = glm::perspective(glm::radians(55.0f),(float)1280/(float)720, 0.1f, 100.0f);
-    
-    // get matrix's uniform location and set matrix
+    player.Update(xpos, ypos);
+    projection = glm::perspective(glm::radians(55.0f), (float)1280 / (float)720, 0.1f, 100.0f);
+    view = playerCamera.View();
+
     dShader.Use();
     //dShader.setMat4("model", model);
     dShader.setMat4("view", view);
@@ -127,15 +140,17 @@ void System::GameLoop(){
       
       model = glm::translate(model, cubePositions[i]);
       float angle = 20.0f * i;
-      model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 1.0f));
+      model = glm::rotate(model, (float)glfwGetTime()/4, glm::vec3(0.0f, 1.0f, 1.0f));
       dShader.setMat4("model", model);
 
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
     
+    //FIXME:: dont like this implementation
+    //player.AttachCamera(playerCamera, xpos, ypos);
 
-    player.Update();
-    player.AttachCamera(playerCamera);
+    
+    
     /* Swap front and back buffers */
     render.Display();
 
@@ -143,6 +158,8 @@ void System::GameLoop(){
     input.PollEvents();
   }
 
+  //FIXME:: quit function
+  glfwWindowShouldClose(render.Window());
   
 }
 

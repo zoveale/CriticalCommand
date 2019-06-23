@@ -7,17 +7,24 @@
 class Player;
 class IdelState;
 class ForwardState;
+class BackwardState;
+class StrafeLeftState;
+class StrafeRightState;
 
-class PlayerState {
+class InputState {
 public:
-  PlayerState();
-  static IdelState idelState;
-  static ForwardState forwardState;
+  InputState();
+  static IdelState idel;
+  static ForwardState forward;
+  static BackwardState backward;
+  static StrafeLeftState left;
+  static StrafeRightState right;
+
   virtual void HandleInput(Player& player, Input input) {}
   virtual void Update(Player& player) {}
 };
 
-class IdelState : public PlayerState {
+class IdelState : public InputState {
 private:
   float idelTime;
 
@@ -27,10 +34,28 @@ public:
   void Update(Player& player);
 };
 
-class ForwardState : public PlayerState {
+class ForwardState : public InputState {
 public:
   void HandleInput(Player& player, Input input);
   void Update(Player& player);
 };
+
+class BackwardState : public InputState {
+public:
+  void HandleInput(Player& player, Input input);
+  void Update(Player& player);
+};
+class StrafeLeftState : public InputState {
+public:
+  void HandleInput(Player& player, Input input);
+  void Update(Player& player);
+};
+class StrafeRightState : public InputState {
+public:
+  void HandleInput(Player& player, Input input);
+  void Update(Player& player);
+};
+
+
 
 #endif // !STATES_H
