@@ -75,4 +75,8 @@
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="resources\shader\vLamp.glsl" />
+    <Text Include="resources\shader\fLamp.glsl" />
+  </ItemGroup>
 </Project>

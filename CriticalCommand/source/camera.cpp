@@ -36,10 +36,6 @@ PlayerCamera::PlayerCamera() {
 
 
 void PlayerCamera::SetView(Player& player) {
-  //player.right = this->right;
-  //player.front = this->front;
-  //player.AttachCamera()
-
   this->position = player.position;
   this->front = player.front;
   this->right = player.right;

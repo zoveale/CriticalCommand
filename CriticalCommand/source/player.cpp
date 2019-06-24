@@ -37,13 +37,16 @@ void Player::StartUp() {
 
 
 void Player::HandleInput(Input input, float dt) {
-  look.x = (float)input.xoffset;
-  look.y = (float)input.yoffset;
+
 
   //input.MouseInput(*this);
+  look.x = (float)input.xoffset;
+  look.y = (float)input.yoffset;
   ///
+  
+  
   //FIXME:: pull delta time from physics based class
-  this->dt = dt;
+  this->dt = dt;  
   ///
   state->HandleInput(*this, input);
 }
@@ -59,7 +62,7 @@ void Player::Update() {
 }
 
 void Player::LongIdel() {
-  look.x += 100;
+  //look.x += 100;
   printf("\nPlayer Long Idel->");
 }
 

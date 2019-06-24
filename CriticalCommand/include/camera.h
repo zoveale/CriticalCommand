@@ -6,21 +6,19 @@
 #include "mat4x4.hpp"
 #include <gtc/matrix_transform.hpp>
 #include "geometric.hpp"
-
 #include "player.h"
+
+
 class PlayerCamera;
-//class Player;
 
 class Camera {
 public:
-  /*virtual void SetTarget(glm::vec3 p, glm::vec3 f, glm::vec3 r,
-    float xoffset, float yoffset) = 0;*/
-
   virtual void SetView(Player& player) = 0;
-
   static PlayerCamera camera;
 };
+/*
 
+*/
 class PlayerCamera : public Camera {
 private:
   static glm::vec3 position;
@@ -50,22 +48,14 @@ private:
   ///
 public:
   PlayerCamera();
-  /*void SetTarget(glm::vec3 p, glm::vec3 f, glm::vec3 r, 
-                 float xoffset, float yoffset);*/
-
   void SetView(Player& player);
-
-
-
-  ////FIXME:: dont like this implementation
-  //glm::vec3 GetFront();
-  //glm::vec3 GetRight();
-  /////
   glm::mat4 View();
 };
 
 class OverviewCamera : public Camera {
-  //void SetTarget();
+  /*
+  
+  */
 };
 
 #endif //CAMERA_H

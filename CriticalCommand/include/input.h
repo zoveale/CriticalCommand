@@ -33,12 +33,16 @@ public:
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwGetCursorPos(window, &xpos, &ypos);
   }
+
+  //Fix for circular class includes
   /*void MouseInput(Player& player) {
     
-
+    
     player.look.x = (float)xoffset;
     player.look.y = (float)yoffset;
   }*/
+  ///
+
   void Process() {
     //Mouse input
     lastX = xpos;
