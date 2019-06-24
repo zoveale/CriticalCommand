@@ -18,7 +18,7 @@ private:
 public:
   Render();
   SCREEN SC;
-  void Startup();
+  void StartUp();
   GLFWwindow* Window() { return this->window; }
   
   void Display();

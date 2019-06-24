@@ -4,7 +4,7 @@ Render::Render() {
 
 }
 
-void Render::Startup(){
+void Render::StartUp(){
   /* Initialize the library */
   if (!glfwInit())
     printf("!glfwInit()");
@@ -28,6 +28,9 @@ void Render::Startup(){
     printf("Error GLEW_OK = %i", GLEW_OK);
   }
 
+
+  //glfwWindowHint(GLFW_SAMPLES, 4);
+  //glEnable(GL_MULTISAMPLE);
   glEnable(GL_DEPTH_TEST);
   //glEnable(GL_CULL_FACE);
   //glCullFace(GL_BACK);

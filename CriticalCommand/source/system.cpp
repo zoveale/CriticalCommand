@@ -8,12 +8,17 @@ System::System() {
 }
 
 void System::SystemInit(){
-  render.Startup();
- 
+  render.StartUp();
+  input.StartUp(render.Window());
+  //player.startup \ or vise versa?
+  //camera.startup /
 }
 
 void System::GameLoop(){
+  //
   Shader dShader("resources/shader/zdVertexShader.glsl", "resources/shader/zdFragmentShader.glsl");
+  Shader lightingShader("resources/shader/vLamp.glsl", "resources/shader/fLamp.glsl");
+  ///
 
   /*
   texture test
@@ -37,11 +42,11 @@ void System::GameLoop(){
     std::cout << "Failed to load texture" << std::endl;
   }
   stbi_image_free(data);
-  
+  ///
   /*
   
   */
-  unsigned int VBO, VAO, UVBO;
+  unsigned int VBO, VAO, UVBO, NormalVB;
 
   glGenVertexArrays(1, &VAO);
   glBindVertexArray(VAO);
@@ -61,14 +66,21 @@ void System::GameLoop(){
   glEnableVertexAttribArray(1);
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
+  glGenBuffers(1, &NormalVB);
+  glBindBuffer(GL_ARRAY_BUFFER, NormalVB);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
+  // position attribute
+  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
 
   glBindVertexArray(0);
   glUseProgram(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
+  //glm::vec3(0.0f,  0.0f,  0.0f),
   glm::vec3 cubePositions[] = {
-  glm::vec3(0.0f,  0.0f,  0.0f),
   glm::vec3(2.0f,  5.0f, -15.0f),
   glm::vec3(-1.5f, -2.2f, -2.5f),
   glm::vec3(-3.8f, -2.0f, -12.3f),
@@ -80,55 +92,94 @@ void System::GameLoop(){
   glm::vec3(-1.3f,  1.0f, -1.5f)
   };
 
-  /* Loop until the user closes the window */
-  while (!glfwWindowShouldClose(render.Window())) {
+  /*
+  lamp light
+  */
+  unsigned int lightVAO;
+  glGenVertexArrays(1, &lightVAO);
+  glBindVertexArray(lightVAO);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+  glEnableVertexAttribArray(0);
+  glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+  ///
 
+  float deltaTime = 0.0f;	// Time between current frame and last frame
+  float lastFrame = 0.0f; // Time of last frame
+  float currentFrame = 0.0f;
+
+ /* double xpos, ypos;
+  glfwGetCursorPos(render.Window(), &xpos, &ypos);
+  float lastX = 1280/2;
+  float lastY = 720/2;
+*/
+  glm::vec3 objectColor = glm::vec3(1.0f, 0.5f, 0.31f);
+  glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+
+  /* Loop until the user closes the window */
+  while (!input.KEY.ESC) {
+
+  
+    input.Process();
+
+    currentFrame = (float)glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+
+   
+    
     /* Render here */
     //clear screen and color background
     ClearScreen();
 
-    input.Process(render.Window());
-
-    player.HandleInput(input);
+    player.HandleInput(input, deltaTime);
 
     // create transformations
-    glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+    glm::mat4 model = glm::mat4(1.0f); 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
-
-    float radius = 10.0f;
-    float camX = sin(glfwGetTime()) * radius;
-    float camZ = cos(glfwGetTime()) * radius;
-   
-    view = glm::lookAt(glm::vec3(camX, 0.0, camZ),
-                       glm::vec3(0.0, 0.0, 0.0),
-                       glm::vec3(0.0, 1.0, 0.0));
-
     
-    //view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f));
-    projection = glm::perspective(glm::radians(55.0f),(float)1280/(float)720, 0.1f, 100.0f);
+    //cool acceleration effect
+    //player.Update(xpos, ypos); 
+    ///
     
-    // get matrix's uniform location and set matrix
+    projection = glm::perspective(glm::radians(55.0f), (float)1280 / (float)720, 0.1f, 100.0f);
+    view = playerCamera.View();
+  
+
     dShader.Use();
     //dShader.setMat4("model", model);
     dShader.setMat4("view", view);
     dShader.setMat4("projection", projection);
+    dShader.setVec3("objectColor", objectColor);
+    dShader.setVec3("lightColor", lightColor);
+    dShader.setVec3("lightPos", lightPos);
 
     glBindVertexArray(VAO);
-    for (unsigned int i = 0; i < 10; i++) {
+    
+    for (unsigned int i = 0; i < 9; i++) {
       glm::mat4 model = glm::mat4(1.0f);
       
       model = glm::translate(model, cubePositions[i]);
       float angle = 20.0f * i;
-      model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 1.0f));
+      //model = glm::rotate(model, (float)glfwGetTime()/4, glm::vec3(0.0f, 1.0f, 1.0f));
       dShader.setMat4("model", model);
 
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
     
+    model = glm::mat4(1.0f);
+    lightingShader.Use();
+    model = glm::scale(model, glm::vec3(.2f));
+    model = glm::translate(model, lightPos);
+    lightingShader.setMat4("model", model);
+    lightingShader.setMat4("view", view);
+    lightingShader.setMat4("projection", projection);
+    
+    glBindVertexArray(lightVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
     player.Update();
-    
     /* Swap front and back buffers */
     render.Display();
 
@@ -136,6 +187,8 @@ void System::GameLoop(){
     input.PollEvents();
   }
 
+  //FIXME:: quit function
+  glfwWindowShouldClose(render.Window());
   
 }
 
@@ -147,6 +200,6 @@ void System::Shutdown() {
 
 ///private fucntions
 void System::ClearScreen() {
-  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
