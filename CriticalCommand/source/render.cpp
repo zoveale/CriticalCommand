@@ -37,7 +37,6 @@ void Render::StartUp(){
   //glEnable(GL_BLEND);
   //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 }
 
 void Render::Display() {

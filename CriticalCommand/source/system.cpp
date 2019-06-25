@@ -5,21 +5,26 @@
 #include "../stb_image/include/stb_image.h"
 
 System::System() {
+
 }
 
 void System::SystemInit(){
+
   render.StartUp();
   input.StartUp(render.Window());
   //player.startup \ or vise versa?
   //camera.startup /
+
+
+  printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 }
 
 void System::GameLoop(){
   //
   Shader dShader("resources/shader/zdVertexShader.glsl", "resources/shader/zdFragmentShader.glsl");
-  Shader lightingShader("resources/shader/vLamp.glsl", "resources/shader/fLamp.glsl");
+  Shader lamp("resources/shader/vLamp.glsl", "resources/shader/fLamp.glsl");
+  //lamp.Print();
   ///
-
   /*
   texture test
   */
@@ -101,7 +106,7 @@ void System::GameLoop(){
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
   glEnableVertexAttribArray(0);
-  glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+  glm::vec3 lightPos(-4.2f, -1.0f, -5.0f);
   ///
 
   float deltaTime = 0.0f;	// Time between current frame and last frame
@@ -113,13 +118,15 @@ void System::GameLoop(){
   float lastX = 1280/2;
   float lastY = 720/2;
 */
-  glm::vec3 objectColor = glm::vec3(1.0f, 0.5f, 0.31f);
+  glm::vec3 objectColor = glm::vec3(1.0f, 1.0f, 1.0f);
   glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
   /* Loop until the user closes the window */
   while (!input.KEY.ESC) {
+    /*lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
+    lightPos.y = sin(glfwGetTime() / 2.0f) * 1.0f;
+    lightColor = glm::vec3(1.0f + sin(glfwGetTime()) * 2.0f, sin(glfwGetTime() / 2.0f) * 1.0f,0.0);*/
 
-  
     input.Process();
 
     currentFrame = (float)glfwGetTime();
@@ -143,19 +150,23 @@ void System::GameLoop(){
     //player.Update(xpos, ypos); 
     ///
     
-    projection = glm::perspective(glm::radians(55.0f), (float)1280 / (float)720, 0.1f, 100.0f);
-    view = playerCamera.View();
-  
+    
+   
+    
 
     dShader.Use();
-    //dShader.setMat4("model", model);
-    dShader.setMat4("view", view);
-    dShader.setMat4("projection", projection);
     dShader.setVec3("objectColor", objectColor);
     dShader.setVec3("lightColor", lightColor);
     dShader.setVec3("lightPos", lightPos);
-
-    glBindVertexArray(VAO);
+    dShader.setVec3("viewPos", player.position);
+   
+    
+    
+    projection = glm::perspective(glm::radians(55.0f), (float)1280 / (float)720, 0.1f, 100.0f);
+    view = playerCamera.View();
+    dShader.setMat4("projection", projection);
+    dShader.setMat4("view", view);
+    
     
     for (unsigned int i = 0; i < 9; i++) {
       glm::mat4 model = glm::mat4(1.0f);
@@ -164,17 +175,20 @@ void System::GameLoop(){
       float angle = 20.0f * i;
       //model = glm::rotate(model, (float)glfwGetTime()/4, glm::vec3(0.0f, 1.0f, 1.0f));
       dShader.setMat4("model", model);
-
+      glBindVertexArray(VAO);
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
     
+   
+    lamp.Use();
     model = glm::mat4(1.0f);
-    lightingShader.Use();
-    model = glm::scale(model, glm::vec3(.2f));
+    
     model = glm::translate(model, lightPos);
-    lightingShader.setMat4("model", model);
-    lightingShader.setMat4("view", view);
-    lightingShader.setMat4("projection", projection);
+    model = glm::scale(model, glm::vec3(0.3));
+    lamp.setVec3("color", lightColor);
+    lamp.setMat4("model", model);
+    lamp.setMat4("view", view);
+    lamp.setMat4("projection", projection);
     
     glBindVertexArray(lightVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);

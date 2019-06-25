@@ -12,11 +12,10 @@ Shader::Shader(const GLchar* vertexShaderPath, const GLchar* fragmentShaderPath)
   this->vertexShader = LoadShader(vertexShaderPath);
   this->fragmentShader = LoadShader(fragmentShaderPath);
 
-  const char* vertexShaderCode = vertexShader.c_str();
-  const char* fragmentShaderCode = fragmentShader.c_str();
+  this->vertexShaderCode = vertexShader.c_str();
+  this->fragmentShaderCode = fragmentShader.c_str();
 
-  printf("Vertex Shader\n%s\n", vertexShaderCode);
-  printf("Fragment Shader\n%s\n", fragmentShaderCode);
+  
 
   unsigned int vertex, fragment;
   
@@ -42,6 +41,11 @@ void Shader::setVec3(const std::string& name, const glm::vec3& vec3) const {
 
 void Shader::Use() {
   glUseProgram(this->ID);
+}
+
+void Shader::Print() {
+  printf("Vertex Shader\n%s\n", vertexShaderCode);
+  printf("Fragment Shader\n%s\n", fragmentShaderCode);
 }
 
 void Shader::Shutdown() {

@@ -2,7 +2,7 @@
 #include "player.h"
 
 InputState::InputState() {
-  printf("InputState Called->");
+  //printf("InputState Called->");
 }
 
 void IdelState::HandleInput(Player& player, Input input) {

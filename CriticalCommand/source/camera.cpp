@@ -75,7 +75,7 @@ void Player::AttachCamera(PlayerCamera camera,float xoffset, float yoffset) {
 
 glm::mat4 PlayerCamera::View() {
   //keep camera on the xz plane
-  position.y = 0.0f;
+ // position.y = 0.0f;
   ///
   return glm::lookAt(position, (position + front), up);
 }

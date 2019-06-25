@@ -27,7 +27,8 @@ private:
 
   std::string vertexShader;
   std::string fragmentShader;
-
+  const char* vertexShaderCode;
+  const char* fragmentShaderCode;
 public:
   //Shader ID for glUseProgram
   unsigned int ID;
@@ -40,7 +41,7 @@ public:
 
   //Select Shader ID
   void Use();
-
+  void Print();
   //Uniform datatype shader functions
   void setMat4(const std::string& name,
                const glm::mat4& mat) const;
