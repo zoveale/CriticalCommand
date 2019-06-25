@@ -33,7 +33,7 @@ void System::GameLoop(){
   Shader lamp("resources/shader/vLamp.glsl", "resources/shader/fLamp.glsl");
   dShader.Use();
   dShader.SetInit("material.diffuse", 0);
-  //dShader.SetInit("material.specular", 1);
+  dShader.SetInit("material.specular", 1);
   dShader.SetInit("material.emission", 2);
   //lamp.Print();
   ///
@@ -155,6 +155,7 @@ void System::GameLoop(){
     dShader.SetVec3("light.direction", player.front);
     dShader.SetFloat("light.cutoff", glm::cos(glm::radians(12.5f)));
 
+    dShader.SetFloat("light.outerCutoff", glm::cos(glm::radians(17.5f)));
     dShader.SetFloat("light.constant", 1.0f);
     dShader.SetFloat("light.linear", 0.09f);
     dShader.SetFloat("light.quadratic", 0.032f);
@@ -179,7 +180,7 @@ void System::GameLoop(){
       model = glm::translate(model, cubePositions[i]);
       float angle = 20.0f * i;
       //model = glm::rotate(model, (float)glfwGetTime()/4, glm::vec3(0.0f, 1.0f, 1.0f));
-      model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+      //model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
       dShader.SetMat4("model", model);
       glBindVertexArray(VAO);
       glDrawArrays(GL_TRIANGLES, 0, 36);

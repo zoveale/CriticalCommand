@@ -12,6 +12,7 @@ struct Light{
 	vec3 position;
 	vec3 direction;
 	float cutoff;
+	float outerCutoff;
 
 	vec3 ambient;
 	vec3 diffuse;
@@ -25,6 +26,7 @@ struct Light{
 	//float attenuation;
 };
 float Attenuation(vec3 pos, Light l);
+float Intensity(float theta, Light light);
 
 uniform Material material;
 uniform Light light;
@@ -45,14 +47,12 @@ uniform sampler2D texture1;
 
 //float ambientStrength = 0.1;
 //float specularStrength = 0.9;
+//vec3 lightDir = normalize(-light.direction);
 
 vec3 norm = normalize(normal);
 vec3 lightDir = normalize(light.position - FragPos); 
 float theta = dot(lightDir, normalize(-light.direction));
-//vec3 lightDir = normalize(-light.direction); 
 float diff = max(dot(norm, lightDir), 0.0);
-
-
 
 vec3 viewDir = normalize(viewPos - FragPos);
 vec3 reflectDir = reflect(-lightDir, norm); 
@@ -65,41 +65,43 @@ vec3 specular = light.specular * spec * texture(material.specular, textureUV).rg
 vec3 emission = texture(material.emission, textureUV).rgb ; 
 
 float attenuation = Attenuation(FragPos, light);
+float intensity = Intensity(theta, light);
 
 
 void main(){
+	diffuse  *= intensity;
+	specular *= intensity;
 
-	if(theta > light.cutoff){  
-		//ambient  *= attenuation;
-		diffuse  *= attenuation;
-		specular *= attenuation;
+	ambient  *= attenuation;
+	diffuse  *= attenuation;
+	specular *= attenuation;
 
-		vec3 result = ambient + diffuse + specular + (emission * 0.3f);
+	if(theta > light.cutoff){
+		vec3 result = ambient + diffuse + specular;// + (emission * 0.3f);
 		color = vec4(result, 1.0);
-    }
-    else{
-		color = vec4(light.ambient * texture(material.diffuse, textureUV).rgb, 1.0);
 	}
+	else{
+		vec3 result = ambient + diffuse + specular;
+		color = vec4(result, 1.0);
+	}
+	
+	//color += vec4(emission * 1.0f, 1.0);
 
-	
-  
-	
-	
-	
-	
 	//color = texture(texture1, textureUV) * vec4(result, 1.0f);
-
-
 	//color = texture(texture1, textureUV) * vec4(lightColor*objectColor, 1.0f);
-	
 	//color =  (vec4(0.4, 0.0, 0.5, 1.0)* (vec4(textureUV, 1.0, 1.0)));
 	//color = texture(texture1, textureUV);// * vec4(lightColor*objectColor,1.0);
 	//color = texture(texture1, textureUV) +  vec4(0.0, 0.0, 0.0, 1.0);
 };
 
-float Attenuation(vec3 pos, Light l){
-		float attenuation;
-		float distance = length(l.position - pos);
-		attenuation = (1.0 / (l.constant + (l.linear * distance) + (l.quadratic * (distance * distance)))); 
+float Attenuation(vec3 pos, Light light){
+		float distance = length(light.position - pos);
+		float attenuation = (1.0 / (light.constant + (light.linear * distance) + (light.quadratic * (distance * distance)))); 
 		return attenuation;
+	}
+
+float Intensity(float theta, Light light){
+		float epsilon   = light.cutoff - light.outerCutoff;
+		float intensity = clamp((theta - light.outerCutoff) / epsilon, 0.0, 1.0); 
+		return intensity;
 	}
