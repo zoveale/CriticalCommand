@@ -1,6 +1,15 @@
 #include "input.h"
 
 
+Input::Input() {
+  lastX = 0.0;
+  lastY = 0.0;
+  xpos = 0.0; 
+  ypos = 0.0;
+  xoffset = 0.0;
+  yoffset = 0.0;
+}
+
 void Input::StartUp(GLFWwindow* window) {
   lastX = 1280 / 2;
   lastY = 720 / 2;

@@ -76,13 +76,14 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)middleware\glew\include;$(SolutionDir)middleware\glfw\include;$(SolutionDir)CriticalCommand\include;$(SolutionDir)middleware\glm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)middleware\glew\include;$(SolutionDir)middleware\glfw\include;$(SolutionDir)CriticalCommand\include;$(SolutionDir)middleware\assimp;$(SolutionDir)middleware\glm</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLEW_STATIC; _MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)middleware\glfw\lib-vc2019;$(SolutionDir)middleware\glew\lib\Release\Win32</AdditionalLibraryDirectories>
-      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib; glfw3.lib; opengl32.lib; glew32s.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)middleware\assimp\lib;$(SolutionDir)middleware\glfw\lib-vc2019;$(SolutionDir)middleware\glew\lib\Release\Win32</AdditionalLibraryDirectories>
+      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib; glfw3.lib; opengl32.lib; glew32s.lib; assimp-vc140-mt.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -104,15 +105,16 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)middleware\glew\include;$(SolutionDir)middleware\glfw\include;$(SolutionDir)CriticalCommand\include;$(SolutionDir)middleware\glm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)middleware\glew\include;$(SolutionDir)middleware\glfw\include;$(SolutionDir)CriticalCommand\include;$(SolutionDir)middleware\assimp;$(SolutionDir)middleware\glm</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLEW_STATIC; _MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)middleware\glfw\lib-vc2019;$(SolutionDir)middleware\glew\lib\Release\Win32</AdditionalLibraryDirectories>
-      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib; glfw3.lib; opengl32.lib; glew32s.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)middleware\assimp\lib;$(SolutionDir)middleware\glfw\lib-vc2019;$(SolutionDir)middleware\glew\lib\Release\Win32</AdditionalLibraryDirectories>
+      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib; glfw3.lib; opengl32.lib; glew32s.lib; assimp-vc140-mt.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -142,7 +144,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\camera.h" />
-    <ClInclude Include="include\old.shader.h" />
+    <ClInclude Include="include\mesh.h" />
+    <ClInclude Include="include\model.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\states.h" />
     <ClInclude Include="include\system.h" />
@@ -152,6 +155,7 @@
     <ClInclude Include="resources\data\testData.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\shader\FmeshTest.glsl" />
     <None Include="resources\shader\zdFragmentShader.glsl" />
     <None Include="resources\shader\zdVertexShader.glsl" />
   </ItemGroup>
@@ -161,6 +165,7 @@
   <ItemGroup>
     <Text Include="resources\shader\fLamp.glsl" />
     <Text Include="resources\shader\vLamp.glsl" />
+    <Text Include="resources\shader\VmeshTest.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

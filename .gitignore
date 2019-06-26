@@ -338,3 +338,7 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/middleware/assimp/assimp
+/CriticalCommand/resources/nanosuit
+/CriticalCommand/resources/dragon
+/CriticalCommand/resources/trebuchet

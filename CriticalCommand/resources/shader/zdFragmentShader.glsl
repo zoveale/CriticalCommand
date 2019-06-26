@@ -51,6 +51,7 @@ uniform Material material;
 uniform SpotLight spotLight;
 uniform DirLight dirLight;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
+uniform sampler2D texture_diffuse1;
 
 //in vec3 position;
 in vec2 textureUV;
