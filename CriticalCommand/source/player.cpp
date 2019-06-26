@@ -62,7 +62,6 @@ void Player::Update() {
 }
 
 void Player::LongIdel() {
-  //look.x += 100;
   printf("\nPlayer Long Idel->");
 }
 

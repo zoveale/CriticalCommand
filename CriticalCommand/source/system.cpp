@@ -3,45 +3,39 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../stb_image/include/stb_image.h"
-
+unsigned int loadTexture(char const* path);
 System::System() {
+
 }
 
 void System::SystemInit(){
+
   render.StartUp();
   input.StartUp(render.Window());
   //player.startup \ or vise versa?
   //camera.startup /
+
+
+  printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 }
 
 void System::GameLoop(){
-  //
-  Shader dShader("resources/shader/zdVertexShader.glsl", "resources/shader/zdFragmentShader.glsl");
-  Shader lightingShader("resources/shader/vLamp.glsl", "resources/shader/fLamp.glsl");
-  ///
-
+ 
   /*
   texture test
   */
-  unsigned int texture1;
-  glGenTextures(1, &texture1);
-  glBindTexture(GL_TEXTURE_2D, texture1);
-  // set the texture wrapping/filtering options (on the currently bound texture object)
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  // load and generate the texture
-  int width, height, nrChannels;
-  unsigned char* data = stbi_load("resources/texture/wall.jpg", &width, &height, &nrChannels, 0);
-  if (data) {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-  }
-  else {
-    std::cout << "Failed to load texture" << std::endl;
-  }
-  stbi_image_free(data);
+  unsigned int texture1 = loadTexture("resources/texture/container2.png");
+  unsigned int testSpec = loadTexture("resources/texture/container2_specular.png");
+  unsigned int glow = loadTexture("resources/texture/matrix.jpg");
+  ///
+   //
+  Shader dShader("resources/shader/zdVertexShader.glsl", "resources/shader/zdFragmentShader.glsl");
+  Shader lamp("resources/shader/vLamp.glsl", "resources/shader/fLamp.glsl");
+  dShader.Use();
+  dShader.SetInit("material.diffuse", 0);
+  dShader.SetInit("material.specular", 1);
+  dShader.SetInit("material.emission", 2);
+  //lamp.Print();
   ///
   /*
   
@@ -92,6 +86,13 @@ void System::GameLoop(){
   glm::vec3(-1.3f,  1.0f, -1.5f)
   };
 
+  glm::vec3 pointLightPositions[] = {
+       glm::vec3(0.7f,  0.2f,  2.0f),
+       glm::vec3(2.3f, -3.3f, -4.0f),
+       glm::vec3(-4.0f,  2.0f, -12.0f),
+       glm::vec3(0.0f,  0.0f, -3.0f)
+  };
+
   /*
   lamp light
   */
@@ -108,18 +109,13 @@ void System::GameLoop(){
   float lastFrame = 0.0f; // Time of last frame
   float currentFrame = 0.0f;
 
- /* double xpos, ypos;
-  glfwGetCursorPos(render.Window(), &xpos, &ypos);
-  float lastX = 1280/2;
-  float lastY = 720/2;
-*/
-  glm::vec3 objectColor = glm::vec3(1.0f, 0.5f, 0.31f);
+  glm::vec3 objectColor = glm::vec3(1.0f, 1.0f, 1.0f);
   glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
   /* Loop until the user closes the window */
   while (!input.KEY.ESC) {
+    //lightPos.z =  -4.0f - sin(glfwGetTime()) * 4.0f;
 
-  
     input.Process();
 
     currentFrame = (float)glfwGetTime();
@@ -143,41 +139,112 @@ void System::GameLoop(){
     //player.Update(xpos, ypos); 
     ///
     
+    dShader.Use();
+    dShader.SetVec3("viewPos", player.position);
+    dShader.SetFloat("material.shininess", 32.0f);
+   // directional light
+    dShader.SetVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+    dShader.SetVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+    dShader.SetVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+    dShader.SetVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+    // point light 1
+    dShader.SetVec3("pointLights[0].position", pointLightPositions[0]);
+    dShader.SetVec3("pointLights[0].ambient", 1.0f * 0.1, 0.0f * 0.1, 0.0f * 0.1);
+    dShader.SetVec3("pointLights[0].diffuse", 1.0f, 0.0f, 0.0f);
+    dShader.SetVec3("pointLights[0].specular", 1.0f, 0.0f, 0.0f);
+    dShader.SetFloat("pointLights[0].constant", 1.0f);
+    dShader.SetFloat("pointLights[0].linear", 0.09);
+    dShader.SetFloat("pointLights[0].quadratic", 0.032);
+    // point light 2
+    dShader.SetVec3("pointLights[1].position", pointLightPositions[1]);
+    dShader.SetVec3("pointLights[1].ambient", 0.0f * 0.1, 1.0f * 0.1, 0.0f * 0.1);
+    dShader.SetVec3("pointLights[1].diffuse", 0.0f, 1.0f, 0.0f);
+    dShader.SetVec3("pointLights[1].specular", 0.0f, 1.0f, 0.0f);
+    dShader.SetFloat("pointLights[1].constant", 1.0f);
+    dShader.SetFloat("pointLights[1].linear", 0.09);
+    dShader.SetFloat("pointLights[1].quadratic", 0.032);
+    // point light 3
+    dShader.SetVec3("pointLights[2].position", pointLightPositions[2]);
+    dShader.SetVec3("pointLights[2].ambient", 0.0f * 0.1, 0.0f * 0.1, 1.0f * 0.1);
+    dShader.SetVec3("pointLights[2].diffuse", 0.0f, 0.0f, 1.0f);
+    dShader.SetVec3("pointLights[2].specular", 0.0f, 0.0f, 1.0f);
+    dShader.SetFloat("pointLights[2].constant", 1.0f);
+    dShader.SetFloat("pointLights[2].linear", 0.09);
+    dShader.SetFloat("pointLights[2].quadratic", 0.032);
+    // point light 4
+    dShader.SetVec3("pointLights[3].position", pointLightPositions[3]);
+    dShader.SetVec3("pointLights[3].ambient", 0.05f, 0.05f, 0.05f);
+    dShader.SetVec3("pointLights[3].diffuse", 0.8f, 0.8f, 0.8f);
+    dShader.SetVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
+    dShader.SetFloat("pointLights[3].constant", 1.0f);
+    dShader.SetFloat("pointLights[3].linear", 0.09);
+    dShader.SetFloat("pointLights[3].quadratic", 0.032);
+    // spotLight
+    dShader.SetVec3("spotLight.position", player.position);
+    dShader.SetVec3("spotLight.direction", player.front);
+    dShader.SetVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+    dShader.SetVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+    dShader.SetVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+    dShader.SetFloat("spotLight.constant", 1.0f);
+    dShader.SetFloat("spotLight.linear", 0.09);
+    dShader.SetFloat("spotLight.quadratic", 0.032);
+    dShader.SetFloat("spotLight.cutoff", glm::cos(glm::radians(12.5f)));
+    dShader.SetFloat("spotLight.outerCutoff", glm::cos(glm::radians(15.0f)));
+   
+
+    
     projection = glm::perspective(glm::radians(55.0f), (float)1280 / (float)720, 0.1f, 100.0f);
     view = playerCamera.View();
-  
-
-    dShader.Use();
-    //dShader.setMat4("model", model);
-    dShader.setMat4("view", view);
-    dShader.setMat4("projection", projection);
-    dShader.setVec3("objectColor", objectColor);
-    dShader.setVec3("lightColor", lightColor);
-    dShader.setVec3("lightPos", lightPos);
+    dShader.SetMat4("projection", projection);
+    dShader.SetMat4("view", view);
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, testSpec);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, glow);
 
     glBindVertexArray(VAO);
-    
     for (unsigned int i = 0; i < 9; i++) {
       glm::mat4 model = glm::mat4(1.0f);
-      
+     
       model = glm::translate(model, cubePositions[i]);
       float angle = 20.0f * i;
       //model = glm::rotate(model, (float)glfwGetTime()/4, glm::vec3(0.0f, 1.0f, 1.0f));
-      dShader.setMat4("model", model);
-
+      //model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+      dShader.SetMat4("model", model);
+      
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
     
-    model = glm::mat4(1.0f);
-    lightingShader.Use();
-    model = glm::scale(model, glm::vec3(.2f));
-    model = glm::translate(model, lightPos);
-    lightingShader.setMat4("model", model);
-    lightingShader.setMat4("view", view);
-    lightingShader.setMat4("projection", projection);
-    
+   
+    // also draw the lamp object(s)
+    lamp.Use();
+    lamp.SetMat4("projection", projection);
+    lamp.SetMat4("view", view);
+
+    // we now draw as many light bulbs as we have point lights.
     glBindVertexArray(lightVAO);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    for (unsigned int i = 0; i < 4; i++) {
+      model = glm::mat4(1.0f);
+      model = glm::translate(model, pointLightPositions[i]);
+      model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
+      if (i == 0) {
+        lamp.SetVec3("color", 1.0, 0.0, 0.0);
+      }
+      else if (i == 1) {
+        lamp.SetVec3("color", 0.0, 1.0, 0.0);
+      }
+      else if (i == 2) {
+        lamp.SetVec3("color", 0.0, 0.0, 1.0);
+      }
+      else {
+        lamp.SetVec3("color", 1.0, 1.0, 1.0);
+      }
+      lamp.SetMat4("model", model);
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
 
     player.Update();
     /* Swap front and back buffers */
@@ -203,3 +270,65 @@ void System::ClearScreen() {
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
+
+unsigned int loadTexture(char const* path) {
+  unsigned int textureID;
+  glGenTextures(1, &textureID);
+
+  int width, height, nrComponents;
+  unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
+  if (data) {
+    GLenum format;
+    if (nrComponents == 1)
+      format = GL_RED;
+    else if (nrComponents == 3)
+      format = GL_RGB;
+    else if (nrComponents == 4)
+      format = GL_RGBA;
+
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    stbi_image_free(data);
+  }
+  else {
+    std::cout << "Texture failed to load at path: " << path << std::endl;
+    stbi_image_free(data);
+  }
+
+  return textureID;
+}
+
+/*
+
+    dShader.Use();
+    dShader.SetVec3("objectColor", objectColor);
+    dShader.SetVec3("lightColor", lightColor);
+
+
+    dShader.SetVec3("viewPos", player.position);
+
+    dShader.SetVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+    dShader.SetVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+    dShader.SetVec3("material.specular", 0.5f, 0.5f, 0.5f);
+    dShader.SetFloat("material.shininess", 32.0f);
+
+    dShader.SetVec3("light.ambient", 0.1f, 0.1f, 0.1f);
+    dShader.SetVec3("light.diffuse", 0.8f, 0.8f, 0.8f);
+    dShader.SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
+    dShader.SetVec3("light.position", player.position);
+    dShader.SetVec3("light.direction", player.front);
+    dShader.SetFloat("light.cutoff", glm::cos(glm::radians(12.5f)));
+
+    dShader.SetFloat("light.outerCutoff", glm::cos(glm::radians(17.5f)));
+    dShader.SetFloat("light.constant", 1.0f);
+    dShader.SetFloat("light.linear", 0.09f);
+    dShader.SetFloat("light.quadratic", 0.032f);
+*/

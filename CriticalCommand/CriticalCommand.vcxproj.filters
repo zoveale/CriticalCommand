@@ -36,6 +36,9 @@
     <ClCompile Include="source\states.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\input.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\system.h">
