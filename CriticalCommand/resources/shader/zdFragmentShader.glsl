@@ -77,12 +77,12 @@ vec3 emission = texture(material.emission, textureUV).rgb ;
 //float attenuation = Attenuation(FragPos, light);
 //float intensity = Intensity(theta, light);
 
-vec3 result = CalcDirLight(dirLight, material, norm, lightDir);
+
 /*
 
 */
 void main(){
-
+	vec3 result = CalcDirLight(dirLight, material, norm, lightDir);
 	for(int i = 0; i < NR_POINT_LIGHTS; i++){
 		result += CalcPointLight(pointLights[i], material, norm, FragPos, lightDir); 
 	}
