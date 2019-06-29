@@ -14,36 +14,7 @@
 #include <iostream>
 #include <vector>
 using namespace std;
-//
-#define NUM_BONES_PER_VEREX 4
-#define INVALID_MATERIAL 0xFFFFFFFF
-struct VertexBoneData {
-  unsigned int IDs[NUM_BONES_PER_VEREX];
-  float Weights[NUM_BONES_PER_VEREX];
-};
-struct BoneInfo {
-  aiMatrix4x4 BoneOffset;
-  aiMatrix4x4 FinalTransformation;
-  /*
-  BoneInfo() {
-    BoneOffset = 0;
-    FinalTransformation.SetZero();
-  }*/
-};
-struct MeshEntry {
-  MeshEntry() {
-    NumIndices = 0;
-    BaseVertex = 0;
-    BaseIndex = 0;
-    MaterialIndex = INVALID_MATERIAL;
-  }
 
-  unsigned int NumIndices;
-  unsigned int BaseVertex;
-  unsigned int BaseIndex;
-  unsigned int MaterialIndex;
-};
-///
 struct Vertex {
   // position
   glm::vec3 Position;
@@ -70,9 +41,6 @@ public:
   vector<Vertex> vertices;
   vector<unsigned int> indices;
   vector<Texture> textures;
-  //FIXME::add bones
-  vector<VertexBoneData> Bones;
-  ///
   unsigned int VAO;
 
   /*  Functions  */

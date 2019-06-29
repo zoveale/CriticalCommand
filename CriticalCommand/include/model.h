@@ -101,16 +101,12 @@ private:
     vector<unsigned int> indices;
     vector<Texture> textures;
     //
-    unsigned int m_NumBones;
-    vector<BoneInfo> m_BoneInfo;
-    ///
     if (mesh->HasTextureCoords(0)) {
       printf("has texture coordinates!\n");
       
     }else printf("no texture coordinates!\n");
 
     if (mesh->HasBones()) {
-      m_NumBones = mesh->mNumBones;
       printf("has %i bones!\n", mesh->mNumBones);
       for (unsigned int i = 0; i < mesh->mNumBones; i++) {
         //unsigned int BoneIndex = 0;
@@ -169,31 +165,7 @@ private:
       for (unsigned int j = 0; j < face.mNumIndices; j++)
         indices.push_back(face.mIndices[j]);
     }
-    //FIXME::BONE STUFF
-    for (unsigned int i = 0; i < mesh->mNumBones; i++) {
-      unsigned int BoneIndex = 0;
-      string BoneName(mesh->mBones[i]->mName.data);
-      map<string, unsigned int> m_BoneMapping;
-      if (m_BoneMapping.find(BoneName) == m_BoneMapping.end()) {
-        BoneIndex = m_NumBones;
-        m_NumBones++;
-        BoneInfo bi;
-        m_BoneInfo.push_back(bi);
-      }
-      else {
-        BoneIndex = m_BoneMapping[BoneName];
-      }
-
-      m_BoneMapping[BoneName] = BoneIndex;
-      m_BoneInfo[BoneIndex].BoneOffset = mesh->mBones[i]->mOffsetMatrix;
-
-      for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
-        unsigned int VertexID = m_Entries[MeshIndex].BaseVertex + pMesh->mBones[i]->mWeights[j].mVertexId;
-        float Weight = pMesh->mBones[i]->mWeights[j].mWeight;
-        Bones[VertexID].AddBoneData(BoneIndex, Weight);
-      }
-    }
-    ///
+    
 
     // process materials
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
