@@ -14,7 +14,36 @@
 #include <iostream>
 #include <vector>
 using namespace std;
+//
+#define NUM_BONES_PER_VEREX 4
+#define INVALID_MATERIAL 0xFFFFFFFF
+struct VertexBoneData {
+  unsigned int IDs[NUM_BONES_PER_VEREX];
+  float Weights[NUM_BONES_PER_VEREX];
+};
+struct BoneInfo {
+  aiMatrix4x4 BoneOffset;
+  aiMatrix4x4 FinalTransformation;
+  /*
+  BoneInfo() {
+    BoneOffset = 0;
+    FinalTransformation.SetZero();
+  }*/
+};
+struct MeshEntry {
+  MeshEntry() {
+    NumIndices = 0;
+    BaseVertex = 0;
+    BaseIndex = 0;
+    MaterialIndex = INVALID_MATERIAL;
+  }
 
+  unsigned int NumIndices;
+  unsigned int BaseVertex;
+  unsigned int BaseIndex;
+  unsigned int MaterialIndex;
+};
+///
 struct Vertex {
   // position
   glm::vec3 Position;
@@ -28,6 +57,7 @@ struct Vertex {
   glm::vec3 Bitangent;
 };
 
+
 struct Texture {
   unsigned int id;
   string type;
@@ -40,6 +70,9 @@ public:
   vector<Vertex> vertices;
   vector<unsigned int> indices;
   vector<Texture> textures;
+  //FIXME::add bones
+  vector<VertexBoneData> Bones;
+  ///
   unsigned int VAO;
 
   /*  Functions  */
@@ -48,6 +81,8 @@ public:
     this->vertices = vertices;
     this->indices = indices;
     this->textures = textures;
+    //FIXME::add bones
+    //this->Bones = bones;
 
     // now that we have all the required data, set the vertex buffers and its attribute pointers.
     setupMesh();
@@ -128,7 +163,14 @@ private:
     // vertex bitangent
     glEnableVertexAttribArray(4);
     glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
-
+    //vertex bones
+    //FIXME::add bones
+   /*
+    glEnableVertexAttribArray(BONE_ID_LOCATION);
+    glVertexAttribIPointer(BONE_ID_LOCATION, 5, GL_INT, sizeof(VertexBoneData), (const GLvoid*)0);
+    glEnableVertexAttribArray(BONE_WEIGHT_LOCATION);
+    glVertexAttribPointer(BONE_WEIGHT_LOCATION, 6, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData), (const GLvoid*)16);*/
+    ///
     glBindVertexArray(0);
   }
 };

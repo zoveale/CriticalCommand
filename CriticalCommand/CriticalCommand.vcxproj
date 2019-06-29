@@ -156,6 +156,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shader\FmeshTest.glsl" />
+    <None Include="resources\shader\modelFS.glsl" />
+    <None Include="resources\shader\modelVS.glsl" />
     <None Include="resources\shader\zdFragmentShader.glsl" />
     <None Include="resources\shader\zdVertexShader.glsl" />
   </ItemGroup>

@@ -39,27 +39,43 @@ public:
 
   // draws the model, and thus all its meshes
   void Draw(Shader shader) {
-    for (unsigned int i = 0; i < meshes.size(); i++)
+    for (unsigned int i = 0; i < meshes.size(); i++) {
       meshes[i].Draw(shader);
+      //printf("mesh[%i]\n", i);
+    }
+      
   }
 
 private:
+  //
+  aiMatrix4x4 inverseRootNode;
+  const aiScene* scene;
+  ///
   /*  Functions   */
   // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
   void loadModel(string const& path) {
     // read file via ASSIMP
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    printf("(1)Read Assimp file\n");
+    //FIXME:: need static scene?
+    this->scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    
     // check for errors
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
     {
       cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
       return;
     }
+    
     // retrieve the directory path of the filepath
     directory = path.substr(0, path.find_last_of('/'));
-
+    //FIXME::why tho
+    //inverse root node
+    this->inverseRootNode = scene->mRootNode->mTransformation;
+    inverseRootNode.Inverse();
+    ///
     // process ASSIMP's root node recursively
+    printf("(2)processNodes\n");
     processNode(scene->mRootNode, scene);
   }
 
@@ -84,12 +100,31 @@ private:
     vector<Vertex> vertices;
     vector<unsigned int> indices;
     vector<Texture> textures;
+    //
+    unsigned int m_NumBones;
+    vector<BoneInfo> m_BoneInfo;
+    ///
+    if (mesh->HasTextureCoords(0)) {
+      printf("has texture coordinates!\n");
+      
+    }else printf("no texture coordinates!\n");
 
+    if (mesh->HasBones()) {
+      m_NumBones = mesh->mNumBones;
+      printf("has %i bones!\n", mesh->mNumBones);
+      for (unsigned int i = 0; i < mesh->mNumBones; i++) {
+        //unsigned int BoneIndex = 0;
+        printf("\t%s\n", mesh->mBones[i]->mName.data);
+      }
+    }else printf("no bones!\n"); 
+
+    printf("# of vertices in mesh: %i\n", mesh->mNumVertices);
     // Walk through each of the mesh's vertices
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
       Vertex vertex;
       glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
       // positions
+      //FIXME:: swapping y and z because of dae file.
       vector.x = mesh->mVertices[i].x;
       vector.y = mesh->mVertices[i].y;
       vector.z = mesh->mVertices[i].z;
@@ -99,8 +134,10 @@ private:
       vector.y = mesh->mNormals[i].y;
       vector.z = mesh->mNormals[i].z;
       vertex.Normal = vector;
+      
       // texture coordinates
-      if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
+      
+      if (mesh->HasTextureCoords(0)) // does the mesh contain texture coordinates?
       {
         glm::vec2 vec;
         // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't 
@@ -109,8 +146,9 @@ private:
         vec.y = mesh->mTextureCoords[0][i].y;
         vertex.TexCoords = vec;
       }
-      else
+      else {
         vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+      }
       // tangent
       vector.x = mesh->mTangents[i].x;
       vector.y = mesh->mTangents[i].y;
@@ -123,6 +161,7 @@ private:
       vertex.Bitangent = vector;
       vertices.push_back(vertex);
     }
+    
     // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
       aiFace face = mesh->mFaces[i];
@@ -130,6 +169,32 @@ private:
       for (unsigned int j = 0; j < face.mNumIndices; j++)
         indices.push_back(face.mIndices[j]);
     }
+    //FIXME::BONE STUFF
+    for (unsigned int i = 0; i < mesh->mNumBones; i++) {
+      unsigned int BoneIndex = 0;
+      string BoneName(mesh->mBones[i]->mName.data);
+      map<string, unsigned int> m_BoneMapping;
+      if (m_BoneMapping.find(BoneName) == m_BoneMapping.end()) {
+        BoneIndex = m_NumBones;
+        m_NumBones++;
+        BoneInfo bi;
+        m_BoneInfo.push_back(bi);
+      }
+      else {
+        BoneIndex = m_BoneMapping[BoneName];
+      }
+
+      m_BoneMapping[BoneName] = BoneIndex;
+      m_BoneInfo[BoneIndex].BoneOffset = mesh->mBones[i]->mOffsetMatrix;
+
+      for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
+        unsigned int VertexID = m_Entries[MeshIndex].BaseVertex + pMesh->mBones[i]->mWeights[j].mVertexId;
+        float Weight = pMesh->mBones[i]->mWeights[j].mWeight;
+        Bones[VertexID].AddBoneData(BoneIndex, Weight);
+      }
+    }
+    ///
+
     // process materials
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
     // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
@@ -151,10 +216,13 @@ private:
     // 4. height maps
     std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
-
+    // 5. bones?
+    // 6. bone weight?
     // return a mesh object created from the extracted mesh data
-    return Mesh(vertices, indices, textures);
+    //FIXME::add bones
+    return Mesh(vertices, indices, textures);//bones)
   }
+  ///
 
   // checks all material textures of a given type and loads the textures if they're not loaded yet.
   // the required info is returned as a Texture struct.
@@ -183,6 +251,7 @@ private:
     }
     return textures;
   }
+  ///
 };
 
 unsigned int TextureFromFile(const char* path, const string& directory, bool gamma) {
