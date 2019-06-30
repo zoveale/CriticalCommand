@@ -71,6 +71,9 @@
     <ClInclude Include="include\mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\bone.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shader\zdVertexShader.glsl" />

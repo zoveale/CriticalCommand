@@ -17,8 +17,10 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <map>
+
 #include <vector>
+
+#include <map>
 using namespace std;
 
 unsigned int TextureFromFile(const char* path, const string& directory, bool gamma = false);
@@ -74,27 +76,38 @@ private:
     this->inverseRootNode = scene->mRootNode->mTransformation;
     inverseRootNode.Inverse();
     ///
+    printf("Root node named: %s\n",scene->mRootNode->mName.data);
+    /*if (scene->mRootNode->FindNode("Armature_Torso")) {
+      printf("find node named: %s\n", scene->mRootNode->FindNode("Armature_Torso"));
+    }*/
     // process ASSIMP's root node recursively
     printf("(2)processNodes\n");
     processNode(scene->mRootNode, scene);
+    
   }
 
   // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
   void processNode(aiNode* node, const aiScene* scene) {
     // process each mesh located at the current node
+    printf("node name: %s, num of children: %i, number of meshes: %i\n", node->mName.data, node->mNumChildren, node->mNumMeshes);
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
       // the node object only contains indices to index the actual objects in the scene. 
       // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
       aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+      printf("mesh name: %s\n", mesh->mName.data);
       meshes.push_back(processMesh(mesh, scene));
     }
     // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
     for (unsigned int i = 0; i < node->mNumChildren; i++) {
+      printf("\tchild name: %s\n", node->mChildren[i]->mName.data);
+    }
+    for (unsigned int i = 0; i < node->mNumChildren; i++) {
       processNode(node->mChildren[i], scene);
     }
+    
 
   }
-
+ 
   Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
     // data to fill
     vector<Vertex> vertices;
@@ -105,14 +118,29 @@ private:
       printf("has texture coordinates!\n");
       
     }else printf("no texture coordinates!\n");
-
+    
     if (mesh->HasBones()) {
-      printf("has %i bones!\n", mesh->mNumBones);
+      
+      printf("has %i bones:\n", mesh->mNumBones);
       for (unsigned int i = 0; i < mesh->mNumBones; i++) {
         //unsigned int BoneIndex = 0;
-        printf("\t%s\n", mesh->mBones[i]->mName.data);
+        printf("\t%s : ", mesh->mBones[i]->mName.data);
+        if (scene->mRootNode->FindNode(mesh->mBones[i]->mName.data)) {
+          printf("bone[%i] is in the scene's hierarchy\n", i);
+        }
+        else { printf("\n"); }
       }
     }else printf("no bones!\n"); 
+    struct BoneData {
+      aiMatrix4x4 offest;
+      unsigned int index;
+      BoneData(aiMatrix4x4 m, unsigned int i) {
+        offest = m;
+        index = i;
+      }
+    };
+
+    
 
     printf("# of vertices in mesh: %i\n", mesh->mNumVertices);
     // Walk through each of the mesh's vertices
@@ -121,6 +149,12 @@ private:
       glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
       // positions
       //FIXME:: swapping y and z because of dae file.
+      /*
+      vector.x = mesh->mVertices[i].x;
+      vector.y = mesh->mVertices[i].z;
+      vector.z = -mesh->mVertices[i].y;
+      vertex.Position = vector;
+      */
       vector.x = mesh->mVertices[i].x;
       vector.y = mesh->mVertices[i].y;
       vector.z = mesh->mVertices[i].z;

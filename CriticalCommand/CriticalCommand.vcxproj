@@ -143,6 +143,7 @@
     <ClCompile Include="source\system.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\bone.h" />
     <ClInclude Include="include\camera.h" />
     <ClInclude Include="include\mesh.h" />
     <ClInclude Include="include\model.h" />

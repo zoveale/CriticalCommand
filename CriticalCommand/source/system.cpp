@@ -23,8 +23,6 @@ void System::GameLoop(){
  //assimp test
   Shader ourShader("resources/shader/VmeshTest.glsl", "resources/shader/FmeshTest.glsl");
   Model ourModel("resources/skeleton/Skeleton2/CharacterRunning.dae");
-  //Shader ourShader("resources/shader/VmeshTest.glsl", "resources/shader/FmeshTest.glsl");
-  //Model ourModel2("resources/skeleton/skeleton2/skele2.obj");
  ///
 
 
