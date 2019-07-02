@@ -22,7 +22,8 @@ void System::SystemInit(){
 void System::GameLoop(){
  //assimp test
   Shader ourShader("resources/shader/VmeshTest.glsl", "resources/shader/FmeshTest.glsl");
-  Model ourModel("resources/skeleton/Skeleton2/CharacterRunning.dae");
+  Model ourModel_0("resources/skeleton/Skeleton2/CharacterRunning.dae");
+  //Model ourModel_1("resources/skeleton/Skeleton2/skele2.obj");
  ///
 
 
@@ -65,7 +66,8 @@ void System::GameLoop(){
     model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
     model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
     ourShader.SetMat4("model", model);
-    ourModel.Draw(ourShader);
+    ourModel_0.Draw(ourShader);
+    //ourModel_1.Draw(ourShader);
 
 
     player.Update();

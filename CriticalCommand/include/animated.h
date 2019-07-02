@@ -1,5 +1,5 @@
-#ifndef MESH_H
-#define MESH_H
+#ifndef ANIMATED_H
+#define ANIMATED_H
 
 #include <GL/glew.h> 
 
@@ -9,49 +9,58 @@
 #include "shader.h"
 #include "modelUtility.h"
 
-
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <vector>
+
 using namespace std;
 
 
-class Mesh {
+class Animated {
 public:
   /*  Mesh Data  */
   vector<Vertex> vertices;
   vector<unsigned int> indices;
   vector<Texture> textures;
   unsigned int VAO;
-  
+
+  //vector<Joints> joints;
+  //Joints joints;
+  Joint rootJoint;
+
 
   /*  Functions  */
-  
+
   typedef vector<Vertex> vec;
   typedef vector<unsigned int> iVec;
   typedef vector<Texture> tVec;
+  //typedef vector<Joints> jVec;
 
   // constructor
-  Mesh(vec vertices, iVec indices, tVec textures) {
+  Animated(vec vertices, iVec indices, tVec textures, Joints joints) {
     this->vertices = vertices;
     this->indices = indices;
     this->textures = textures;
     //FIXME::add joint
+    this->rootJoint = joints.root;
+    rootJoint.index = 0;
+    this->jointCount = joints.jointCount;
 
-    // now that we have all the required data, set the vertex buffers and its attribute pointers.
-    setupMesh();
+    setupAnimated();
   }
 
   // render the mesh
   void Draw(Shader shader) {
+    //printf("animated class\n");
     // bind appropriate textures
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
     unsigned int normalNr = 1;
     unsigned int heightNr = 1;
     for (unsigned int i = 0; i < textures.size(); i++) {
+      printf("texture size :%i\n", textures.size());
       glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
       // retrieve texture number (the N in diffuse_textureN)
       string number;
@@ -83,10 +92,14 @@ public:
 private:
   /*  Render data  */
   unsigned int VBO, EBO;
-
+  unsigned int jointCount;
   /*  Functions    */
   // initializes all the buffer objects/arrays
-  void setupMesh() {
+  void setupAnimated() {
+    rootJoint.InverseBindMatrix(glm::mat4(1.0));
+    //printf("root joint: %s\n", (rootJoint.name).c_str());
+
+
     // create buffers/arrays
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -122,10 +135,29 @@ private:
     glEnableVertexAttribArray(4);
     glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
     //vertex Joints
+
     //FIXME::add Joints
-    
+    //FIXME::Changed from use of struct to class
+    glEnableVertexAttribArray(5);
+    glVertexAttribIPointer(5, 5, GL_INT, sizeof(Joint), (const GLvoid*)0);
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, 6, GL_FLOAT, GL_FALSE, sizeof(Joint), (const GLvoid*)16);
     ///
     glBindVertexArray(0);
   }
+
+  //get array of all model space transfors of the joints
+  glm::mat4 GetJointTransforms() {
+               //FIXME::need to change size of joints dynamaically 
+    glm::mat4 jointMatrices[16] = { glm::mat4(1.0) };
+    AddJointsToArray(rootJoint, jointMatrices);
+  }
+  void AddJointsToArray(Joint root, glm::mat4 jointMatrices[]) {
+    jointMatrices[root.index] = root.animateTransform;
+
+    for (unsigned int i = 0; i < root.children.size(); i++) {
+      AddJointsToArray(root.children[i], jointMatrices);
+    }
+  }
 };
-#endif
+#endif //!ANIMATED_H

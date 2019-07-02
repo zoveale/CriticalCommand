@@ -143,10 +143,12 @@
     <ClCompile Include="source\system.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\bone.h" />
+    <ClInclude Include="include\animated.h" />
+    <ClInclude Include="include\joint.h" />
     <ClInclude Include="include\camera.h" />
     <ClInclude Include="include\mesh.h" />
     <ClInclude Include="include\model.h" />
+    <ClInclude Include="include\modelUtility.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\states.h" />
     <ClInclude Include="include\system.h" />

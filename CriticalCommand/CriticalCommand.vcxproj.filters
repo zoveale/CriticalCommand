@@ -71,7 +71,13 @@
     <ClInclude Include="include\mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\bone.h">
+    <ClInclude Include="include\joint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\animated.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\modelUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
