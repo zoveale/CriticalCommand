@@ -33,6 +33,8 @@ public:
   vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
   vector<Mesh> meshes;
   vector<Animated> animatedMeshes;
+  vector<Joint> jointTest;
+
   string directory;
   bool gammaCorrection;
   bool isAnimated;
@@ -166,6 +168,11 @@ private:
 
     Joints joints;
     ///
+    
+    LoadBones(mesh, joints);
+    ///
+    vector <Joint> jointTest;
+    
     if (mesh->HasTextureCoords(0)) {
       printf("has texture coordinates!\n");
 
@@ -173,9 +180,6 @@ private:
     else printf("no texture coordinates!\n");
 
     //
-    LoadBones(mesh, joints);
-    ///
-
     printf("# of vertices in mesh: %i\n", mesh->mNumVertices);
     // Walk through each of the mesh's vertices
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
@@ -262,19 +266,21 @@ private:
   }
   //FIXME::Joint Loading
   void LoadBones(aiMesh* mesh, Joints& joints) {
-    if (mesh->HasBones()) {
-      const char* boneName = scene->mRootNode->FindNode(mesh->mBones[0]->mName.data)->mName.data;
-      joints.root.name = boneName;
-      joints.jointCount = mesh->mNumBones;
-      //printf("root joint: %s\n", joints.root.name.c_str());
-      const aiNode* bones = scene->mRootNode;
-      //const char* boneName = joints.root.name.c_str();
 
-      printf("has %i bones:\n", mesh->mNumBones);
-      PrintBones(bones, boneName, mesh);
+    const char* rootBoneName = scene->mRootNode->FindNode(mesh->mBones[0]->mName.data)->mName.data;
+    joints.root.name = rootBoneName;
+    joints.jointCount = mesh->mNumBones;
+    
+    const aiNode* bones = scene->mRootNode;
 
-    }
-    else printf("no bones!\n");
+    /*for (unsigned int i = 0; i < joints.jointCount; i++) {
+      
+      printf("joint name: %s\n", jointTest.at(i).name.c_str());
+    }*/
+
+    printf("has %i bones:\n", mesh->mNumBones);
+    PrintBones(bones, mesh);//FIXME::also loads bones in joint test
+    
   }
   ///
   //
@@ -382,21 +388,26 @@ private:
   ///
   
   //
-  void PrintBones(const aiNode* bones, const char* boneName, aiMesh* mesh) {
+  void PrintBones(const aiNode* bones,  aiMesh* mesh) {
     for (unsigned int i = 0; i < mesh->mNumBones; i++) {
-      //unsigned int BoneIndex = 0;
+      const char* boneName;
       printf("\t%s :", mesh->mBones[i]->mName.data);
+      glm::mat4 offset = ai4x4ToGlmMat4x4(mesh->mBones[i]->mOffsetMatrix);
       boneName = mesh->mBones[i]->mName.data;
-      if (bones->FindNode(boneName)) {
+      jointTest.push_back(Joint(i, boneName, offset));
+      if (bones->FindNode(jointTest.at(i).name.c_str())) {
         printf("is in the scene's hierarchy\n");
-        if (bones->FindNode(boneName)->mChildren) {
-          unsigned int numChildren = bones->FindNode(boneName)->mNumChildren;
+        if (bones->FindNode(jointTest.at(i).name.c_str())->mChildren) {
+          unsigned int numChildren = bones->FindNode(jointTest.at(i).name.c_str())->mNumChildren;
           if (numChildren == 1)
             printf("\t\thas %i child :", numChildren);
           else
             printf("\t\thas %i children :", numChildren);
           for (unsigned int j = 0; j < numChildren; j++) {
-            printf(" %s, ", bones->FindNode(boneName)->mChildren[j]->mName.data);
+            const char* childBoneName = bones->FindNode(boneName)->mChildren[j]->mName.data;
+            
+            jointTest.at(i).children.push_back(Joint(j, childBoneName, glm::mat4(1.0)));
+            printf(" %s, ", jointTest.at(i).children.at(j).name.c_str());
           }
           printf("\n");
         }
