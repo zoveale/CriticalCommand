@@ -22,7 +22,7 @@ void System::SystemInit(){
 void System::GameLoop(){
  //assimp test
   Shader ourShader("resources/shader/VmeshTest.glsl", "resources/shader/FmeshTest.glsl");
-  Model ourModel_0("resources/skeleton/Skeleton2/CharacterRunning.dae");
+  Model ourModel_0("resources/skeleton/Skeleton2/CharacterRunning4.dae");
   //Model ourModel_1("resources/skeleton/Skeleton2/skele2.obj");
  ///
 

@@ -1,14 +1,8 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "../stb_image/include/stb_image.h"
 
-#include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+
 
 #include "mesh.h"
 #include "animated.h"
@@ -20,9 +14,7 @@
 #include <sstream>
 #include <iostream>
 
-#include <vector>
 
-#include <map>
 using namespace std;
 
 unsigned int TextureFromFile(const char* path, const string& directory, bool gamma = false);
@@ -33,7 +25,6 @@ public:
   vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
   vector<Mesh> meshes;
   vector<Animated> animatedMeshes;
-  vector<Joint> jointTest;
 
   string directory;
   bool gammaCorrection;
@@ -60,10 +51,14 @@ public:
       
   }
 
+  static const unsigned int MAX_BONES = 30;
 private:
   //
   aiMatrix4x4 inverseRootNode;
   const aiScene* scene;
+  std::map<std::string, unsigned int> boneMap;
+  std::vector<BoneData> boneData;
+  unsigned int numBones = 0;
   ///
   /*  Functions   */
   // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
@@ -111,9 +106,11 @@ private:
     printf("(2)processNodes\n");
     if(scene->HasAnimations()){
       isAnimated = true;
+      printf("\t(2a)Process Animated Node\n");
       ProcessAnimatedNode(scene->mRootNode, scene);
     }
     else {
+      printf("\t(2a)Process non-animated node\n");
       processNode(scene->mRootNode, scene);
     }
     
@@ -138,27 +135,7 @@ private:
 
 
   }
-  // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
-  void processNode(aiNode* node, const aiScene* scene) {
-    // process each mesh located at the current node
-    //printf("node name: %s, num of children: %i, number of meshes: %i\n", node->mName.data, node->mNumChildren, node->mNumMeshes);
-    for (unsigned int i = 0; i < node->mNumMeshes; i++) {
-      // the node object only contains indices to index the actual objects in the scene. 
-      // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
-      aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-      //printf("mesh name: %s\n", mesh->mName.data);
-      meshes.push_back(processMesh(mesh, scene));
-    }
-    // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
-    /*for (unsigned int i = 0; i < node->mNumChildren; i++) {
-      printf("\tchild name: %s\n", node->mChildren[i]->mName.data);
-    }*/
-    for (unsigned int i = 0; i < node->mNumChildren; i++) {
-      processNode(node->mChildren[i], scene);
-    }
-    
-
-  }
+  
   Animated ProcessAnimatedMesh(aiMesh* mesh, const aiScene* scene) {
     printf("(3)processMesh\n");
     // data to fill
@@ -166,13 +143,15 @@ private:
     vector<unsigned int> indices;
     vector<Texture> textures;
 
-    Joints joints;
     ///
-    
-    LoadBones(mesh, joints);
+    //PrintAnimationInfo(scene);
     ///
-    vector <Joint> jointTest;
-    
+    //
+    std::vector<VertexBoneData> weights;
+    weights.resize(mesh->mNumVertices);
+    LoadBones(mesh, weights);
+    ///
+    printf("\n");
     if (mesh->HasTextureCoords(0)) {
       printf("has texture coordinates!\n");
 
@@ -186,7 +165,7 @@ private:
       Vertex vertex;
       glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
       // positions
-      //FIXME:: swapping y and z because of dae file.
+      //FIXME:: swapping y and z because of .dae file.
       /*
       vector.x = mesh->mVertices[i].x;
       vector.y = mesh->mVertices[i].z;
@@ -233,6 +212,7 @@ private:
     // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
       aiFace face = mesh->mFaces[i];
+      //printf("face #: %i\n", face.mNumIndices);
       // retrieve all indices of the face and store them in the indices vector
       for (unsigned int j = 0; j < face.mNumIndices; j++)
         indices.push_back(face.mIndices[j]);
@@ -262,28 +242,64 @@ private:
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
     // return a mesh object created from the extracted mesh data
 
-    return Animated(vertices, indices, textures, joints);
+  
+    
+
+    return Animated(vertices, indices, textures, weights);
   }
   //FIXME::Joint Loading
-  void LoadBones(aiMesh* mesh, Joints& joints) {
-
-    const char* rootBoneName = scene->mRootNode->FindNode(mesh->mBones[0]->mName.data)->mName.data;
-    joints.root.name = rootBoneName;
-    joints.jointCount = mesh->mNumBones;
+  void LoadBones(aiMesh* mesh, std::vector<VertexBoneData>& weights) {
     
-    const aiNode* bones = scene->mRootNode;
+    for (unsigned int i = 0; i < mesh->mNumBones; i++) {
+      unsigned index = 0;
+      std::string name(mesh->mBones[i]->mName.data);
+      printf("bone name: %s\n", name.c_str());
 
-    /*for (unsigned int i = 0; i < joints.jointCount; i++) {
-      
-      printf("joint name: %s\n", jointTest.at(i).name.c_str());
-    }*/
+      if (boneMap.find(name) == boneMap.end()) {
 
-    printf("has %i bones:\n", mesh->mNumBones);
-    PrintBones(bones, mesh);//FIXME::also loads bones in joint test
-    
+        index = numBones;
+        numBones++;
+        BoneData bd;
+        
+        boneData.push_back(bd);
+        boneData[index].offsetTransform = ai4x4ToGlm4x4(mesh->mBones[i]->mOffsetMatrix);
+        boneMap[name] = index;
+      }
+      else {
+        index = boneMap[name];
+      }
+      for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
+
+        
+        unsigned int vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
+        float weight = mesh->mBones[i]->mWeights[j].mWeight;
+        
+        weights[vertexID].addVertexBoneData(index, weight);
+      }
+    }
   }
   ///
   //
+  
+  /*
+  /
+  /
+  /non animated meshes below
+  */
+
+  // processes a node in a recursive fashion. Processes 
+  // each individual mesh located at the node and repeats 
+  // this process on its children nodes (if any).
+  void processNode(aiNode* node, const aiScene* scene) {
+    for (unsigned int i = 0; i < node->mNumMeshes; i++) {
+      aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+      meshes.push_back(processMesh(mesh, scene));
+    }
+    for (unsigned int i = 0; i < node->mNumChildren; i++) {
+      processNode(node->mChildren[i], scene);
+    }
+  }
+
   Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
     printf("(3)processMesh\n");
     // data to fill
@@ -389,31 +405,7 @@ private:
   
   //
   void PrintBones(const aiNode* bones,  aiMesh* mesh) {
-    for (unsigned int i = 0; i < mesh->mNumBones; i++) {
-      const char* boneName;
-      printf("\t%s :", mesh->mBones[i]->mName.data);
-      glm::mat4 offset = ai4x4ToGlmMat4x4(mesh->mBones[i]->mOffsetMatrix);
-      boneName = mesh->mBones[i]->mName.data;
-      jointTest.push_back(Joint(i, boneName, offset));
-      if (bones->FindNode(jointTest.at(i).name.c_str())) {
-        printf("is in the scene's hierarchy\n");
-        if (bones->FindNode(jointTest.at(i).name.c_str())->mChildren) {
-          unsigned int numChildren = bones->FindNode(jointTest.at(i).name.c_str())->mNumChildren;
-          if (numChildren == 1)
-            printf("\t\thas %i child :", numChildren);
-          else
-            printf("\t\thas %i children :", numChildren);
-          for (unsigned int j = 0; j < numChildren; j++) {
-            const char* childBoneName = bones->FindNode(boneName)->mChildren[j]->mName.data;
-            
-            jointTest.at(i).children.push_back(Joint(j, childBoneName, glm::mat4(1.0)));
-            printf(" %s, ", jointTest.at(i).children.at(j).name.c_str());
-          }
-          printf("\n");
-        }
-      }
-      else { printf("\n"); }
-    }
+    
   }
   ///
 
@@ -448,62 +440,6 @@ private:
   }
   ///
 
-  //
-  glm::mat3 ai3x3ToGlmMat3x3(const aiMatrix3x3& load) {
-    glm::mat3 store;
-    //row major to column major
-    store[0][0] = load.a1; store[1][0] = load.a2; store[2][0] = load.a3;
-    store[0][1] = load.b1; store[1][1] = load.b2; store[2][1] = load.b3;
-    store[0][2] = load.c1; store[1][2] = load.c2; store[2][2] = load.c3;
-    return store;
-  }
-
-  glm::mat4 ai4x4ToGlmMat4x4(const aiMatrix4x4& load) {
-    glm::mat4 store;
-    //row major to column major
-    store[0][0] = load.a1; store[1][0] = load.a2; store[2][0] = load.a3; store[3][0] = load.a4;
-    store[0][1] = load.b1; store[1][1] = load.b2; store[2][1] = load.b3; store[3][1] = load.b4;
-    store[0][2] = load.c1; store[1][2] = load.c2; store[2][2] = load.c3; store[3][2] = load.c4;
-    store[0][3] = load.d1; store[1][3] = load.d2; store[2][3] = load.d3; store[3][3] = load.d4;
-    return store;
-  }
-  ///
 };
 
-unsigned int TextureFromFile(const char* path, const string& directory, bool gamma) {
-  string filename = string(path);
-  filename = directory + '/' + filename;
-
-  unsigned int textureID;
-  glGenTextures(1, &textureID);
-
-  int width, height, nrComponents;
-  unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-  if (data) {
-    GLenum format;
-    if (nrComponents == 1)
-      format = GL_RED;
-    else if (nrComponents == 3)
-      format = GL_RGB;
-    else if (nrComponents == 4)
-      format = GL_RGBA;
-
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    stbi_image_free(data);
-  }
-  else {
-    std::cout << "Texture failed to load at path: " << path << std::endl;
-    stbi_image_free(data);
-  }
-
-  return textureID;
-}
 #endif //MODEL_H
