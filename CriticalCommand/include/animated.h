@@ -24,6 +24,7 @@ public:
   vector<Vertex> vertices;
   vector<unsigned int> indices;
   vector<Texture> textures;
+  vector<VertexBoneData> bones;
   unsigned int VAO;
 
   /*  Functions  */
@@ -37,26 +38,27 @@ public:
     this->vertices = vertices;
     this->indices = indices;
     this->textures = textures;
+    this->bones = weights;
     //FIXME::add joint
-
+    
     setupAnimated();
   }
 
   // render the mesh
   void Draw(Shader shader) {
+
     
     // draw mesh
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
-
     // always good practice to set everything back to defaults once configured.
     glActiveTexture(GL_TEXTURE0);
   }
 
 private:
   /*  Render data  */
-  unsigned int VBO, EBO;
+  unsigned int VBO, EBO, BONES;
 
   /*  Functions    */
   // initializes all the buffer objects/arrays
@@ -70,6 +72,7 @@ private:
     glBindVertexArray(VAO);
     // load data into vertex buffers
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
     // A great thing about structs is that their memory layout is sequential for all its items.
     // The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
     // again translates to 3/2 floats which translates to a byte array.
@@ -100,10 +103,16 @@ private:
 
     //FIXME::add Joints
     ////FIXME::Changed from use of struct to class
-    //glEnableVertexAttribArray(5);
-    //glVertexAttribIPointer(5, 5, GL_INT, sizeof(Joint), (const GLvoid*)0);
-    //glEnableVertexAttribArray(6);
-    //glVertexAttribPointer(6, 6, GL_FLOAT, GL_FALSE, sizeof(Joint), (const GLvoid*)16);
+
+    glGenBuffers(1, &BONES);
+    glBindBuffer(GL_ARRAY_BUFFER, BONES);
+    glBufferData(GL_ARRAY_BUFFER, bones.size() * sizeof(bones[0]), &bones[0], GL_STATIC_DRAW);
+    glEnableVertexAttribArray(5);
+    glVertexAttribIPointer(5, 4, GL_INT, sizeof(VertexBoneData), (void*)0);
+    //weights
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData),
+                                 (void*)offsetof(VertexBoneData, weights));
     ///
     glBindVertexArray(0);
   }

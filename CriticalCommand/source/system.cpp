@@ -26,7 +26,6 @@ void System::GameLoop(){
   //Model ourModel_1("resources/skeleton/Skeleton2/skele2.obj");
  ///
 
-
   float deltaTime = 0.0f;	// Time between current frame and last frame
   float lastFrame = 0.0f; // Time of last frame
   float currentFrame = 0.0f;
@@ -65,6 +64,7 @@ void System::GameLoop(){
     // render the loaded model
     model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
     model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+    
     ourShader.SetMat4("model", model);
     ourModel_0.Draw(ourShader);
     //ourModel_1.Draw(ourShader);

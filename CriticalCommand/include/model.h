@@ -92,7 +92,7 @@ private:
     if (scene->HasMaterials()) {
       aiString name;
       printf("it has %i material\n", scene->mNumMaterials);
-      for (int i = 0; i < scene->mNumMaterials; i++) {
+      for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
         scene->mMaterials[i]->Get(AI_MATKEY_NAME, name);
         printf("\tname: %s\n", name.C_Str());
         scene->mMaterials[i]->Get(AI_MATKEY_COLOR_DIFFUSE, name);
@@ -253,7 +253,7 @@ private:
     for (unsigned int i = 0; i < mesh->mNumBones; i++) {
       unsigned index = 0;
       std::string name(mesh->mBones[i]->mName.data);
-      printf("bone name: %s\n", name.c_str());
+      //printf("bone name: %s\n", name.c_str());
 
       if (boneMap.find(name) == boneMap.end()) {
 

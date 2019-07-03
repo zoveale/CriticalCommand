@@ -16,7 +16,7 @@ Shader::Shader(const GLchar* vertexShaderPath, const GLchar* fragmentShaderPath)
   this->fragmentShaderCode = fragmentShader.c_str();
 
   
-
+  //Print();
   unsigned int vertex, fragment;
   
   CreateShaders(vertex, fragment, vertexShaderCode, fragmentShaderCode);
