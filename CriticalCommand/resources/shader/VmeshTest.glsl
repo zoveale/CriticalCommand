@@ -10,7 +10,7 @@ layout (location = 6) in vec4 inWeights;
 out vec2 TexCoords;
 out vec4 weights;
 out ivec4 jointIndex;
-
+//normals
 
 const int MAX_BONES = 100;
 uniform mat4 model;

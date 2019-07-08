@@ -37,21 +37,40 @@ public:
 
   // draws the model, and thus all its meshes
   void Draw(Shader shader) {
-    if(isAnimated)
-      for (unsigned int i = 0; i < animatedMeshes.size(); i++) {
-        animatedMeshes[i].Draw(shader);
-        //printf("animatedMesh[%i]\n", i);
-      }
-    else {
+    //if(isAnimated)
+    //  for (unsigned int i = 0; i < animatedMeshes.size(); i++) {
+    //    animatedMeshes[i].Draw(shader);
+    //    //printf("animatedMesh[%i]\n", i);
+    //  }
+    //else {
       for (unsigned int i = 0; i < meshes.size(); i++) {
         meshes[i].Draw(shader);
         //printf("mesh[%i]\n", i);
       }
-    }
+    //}
       
   }
+  void Animate(Shader shader) {
+    /*
+    vector<aiMatrix4x4> transforms;
+	  boneTransform((double) SDL_GetTicks() / 1000.0f, transforms);
 
-  static const unsigned int MAX_BONES = 30;
+	  for (uint i = 0; i < transforms.size(); i++) // move all matrices for actual model position to shader
+	    {
+		glUniformMatrix4fv(m_bone_location[i], 1, GL_TRUE, (const GLfloat*)&transforms[i]);
+	  }
+    */
+    vector<glm::mat4> transforms;
+    float gameTime = 0.0f;
+    BoneTransform(gameTime, transforms);
+
+
+    for (unsigned int i = 0; i < animatedMeshes.size(); i++) {
+      animatedMeshes[i].Draw(shader);
+      //printf("animatedMesh[%i]\n", i);
+    }
+  }
+
 private:
   //
   aiMatrix4x4 inverseRootNode;
@@ -59,6 +78,11 @@ private:
   std::map<std::string, unsigned int> boneMap;
   std::vector<BoneData> boneData;
   unsigned int numBones = 0;
+  //FIXME::make an array for multiple animations
+  //ticksPerSecond[MAX_ANIMATIONS], animationDuration[MAX_ANIMATIONS]... etc
+  static const unsigned int MAX_ANIMATIONS = 10;
+  double ticksPerSecond;
+  double animationDuration;
   ///
   /*  Functions   */
   // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
@@ -105,11 +129,18 @@ private:
     // process ASSIMP's root node recursively
     printf("(2)processNodes\n");
     if(scene->HasAnimations()){
+      //FIXME::array of different ticks for other animations?
+      for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
+        ticksPerSecond = scene->mAnimations[i]->mTicksPerSecond;
+        animationDuration = scene->mAnimations[i]->mDuration;
+      }
+
       isAnimated = true;
       printf("\t(2a)Process Animated Node\n");
       ProcessAnimatedNode(scene->mRootNode, scene);
     }
     else {
+      //ticksPerSecond = 25.0f;
       printf("\t(2a)Process non-animated node\n");
       processNode(scene->mRootNode, scene);
     }
@@ -144,7 +175,7 @@ private:
     vector<Texture> textures;
 
     ///
-    //PrintAnimationInfo(scene);
+    PrintAnimationInfo(scene);
     ///
     //
     std::vector<VertexBoneData> weights;
@@ -440,6 +471,23 @@ private:
   }
   ///
 
+  void BoneTransform(double timeInSec, vector<glm::mat4>& transforms) {
+    
+    double timeInTicks = timeInSec * ticksPerSecond;
+    //FIXME:: have array of durations for different animations
+    float animationTime = fmod(timeInTicks, animationDuration);
+
+    ReadNodeHierarchy(animationTime, scene->mRootNode, glm::mat4(1.0));
+
+    transforms.resize(numBones);
+
+    for (unsigned int i = 0; i < numBones; i++) {
+      transforms[i] = boneData[i].finalTransform;
+    }
+  }
+  void ReadNodeHierarchy(float animationTime, const aiNode* parent, glm::mat4 pTransform) {
+
+  }
 };
 
 #endif //MODEL_H

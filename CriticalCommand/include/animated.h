@@ -29,18 +29,19 @@ public:
 
   /*  Functions  */
 
-  typedef std::vector<Vertex> vec;
+  typedef std::vector<Vertex> Vec;
   typedef std::vector<unsigned int> iVec;
   typedef std::vector<Texture> tVec;
   typedef std::vector<VertexBoneData> bVec;
   // constructor
-  Animated(vec vertices, iVec indices, tVec textures, bVec weights) {
+  Animated(Vec vertices, iVec indices, tVec textures, bVec weights) {
     this->vertices = vertices;
     this->indices = indices;
     this->textures = textures;
     this->bones = weights;
     //FIXME::add joint
-    
+    indentity = glm::mat4(1.0);
+
     setupAnimated();
   }
 
@@ -56,9 +57,19 @@ public:
     glActiveTexture(GL_TEXTURE0);
   }
 
+  glm::mat4 BoneTransform(float timeInSec, std::vector<glm::mat4>& transforms) {
+    
+
+  }
+
 private:
+  glm::mat4 indentity;
   /*  Render data  */
   unsigned int VBO, EBO, BONES;
+  
+  static const int MAX_BONES = 100;
+  unsigned int bonesGPU[MAX_BONES];
+
 
   /*  Functions    */
   // initializes all the buffer objects/arrays
@@ -66,6 +77,8 @@ private:
    
     // create buffers/arrays
     glGenVertexArrays(1, &VAO);
+    InitializeBones(&VAO);
+
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
 
@@ -117,6 +130,13 @@ private:
     glBindVertexArray(0);
   }
 
-  
+  //FIXME::might as well do this for all uniforms in the shader
+  void InitializeBones(unsigned int* VAO) {
+    for (unsigned int i = 0; i < MAX_BONES; i++) // get location all matrices of bones
+    {
+      string name = "gBones[" + to_string(i) + "]";// name like in shader
+      bonesGPU[i] = glGetUniformLocation((GLuint)VAO, name.c_str());
+    }
+  }
 };
 #endif //!ANIMATED_H

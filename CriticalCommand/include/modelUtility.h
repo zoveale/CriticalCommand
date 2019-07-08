@@ -135,6 +135,8 @@ glm::mat4 ai4x4ToGlm4x4(const aiMatrix4x4& load) {
   store[0][1] = load.b1; store[1][1] = load.b2; store[2][1] = load.b3; store[3][1] = load.b4;
   store[0][2] = load.c1; store[1][2] = load.c2; store[2][2] = load.c3; store[3][2] = load.c4;
   store[0][3] = load.d1; store[1][3] = load.d2; store[2][3] = load.d3; store[3][3] = load.d4;
+  //FIXME:: change to transposed glm
+  //store = glm::transpose(glm::make_mat4(&load));
   return store;
 }
 
@@ -150,6 +152,11 @@ glm::quat aiQuatToGlmQuat(const aiQuaternion& quat) {
 }
 void PrintAnimationInfo(const aiScene* scene) {
   printf("animation amount : %i\n", scene->mNumAnimations);
+  for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
+    printf("mTicksPerSecond[%i]: %f\t", i, scene->mAnimations[i]->mTicksPerSecond);
+    printf("mDuration[%i]: %f\n", i, scene->mAnimations[i]->mDuration);
+  }
+  scene->mAnimations[0]->mTicksPerSecond;
   for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
     printf("animation channels : %i", scene->mAnimations[i]->mNumChannels);
     for (unsigned int j = 0; j < scene->mAnimations[i]->mNumChannels; j++) {
