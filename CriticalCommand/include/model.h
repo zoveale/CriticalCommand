@@ -50,12 +50,14 @@ public:
     //}
       
   }
+  
   void Animate(Shader shader) {
     /*
     vector<aiMatrix4x4> transforms;
 	  boneTransform((double) SDL_GetTicks() / 1000.0f, transforms);
 
-	  for (uint i = 0; i < transforms.size(); i++) // move all matrices for actual model position to shader
+	  for (uint i = 0; i < transforms.size(); i++) // move all matrices for actual model position to 
+
 	    {
 		glUniformMatrix4fv(m_bone_location[i], 1, GL_TRUE, (const GLfloat*)&transforms[i]);
 	  }
@@ -64,10 +66,20 @@ public:
     float gameTime = 0.0f;
     BoneTransform(gameTime, transforms);
 
+    for (unsigned int i = 0; i < transforms.size(); i++) {
+      shader.SetMat4(bonesGPU[i], transforms[i]); 
+    }
 
     for (unsigned int i = 0; i < animatedMeshes.size(); i++) {
       animatedMeshes[i].Draw(shader);
       //printf("animatedMesh[%i]\n", i);
+    }
+  }
+  void InitializeBones(Shader shader) {
+    for (unsigned int i = 0; i < MAX_BONES; i++) // get location all matrices of bones
+    {
+      string name = "gBones[" + to_string(i) + "]";// name like in shader
+      bonesGPU[i] = shader.GetUniform(name);
     }
   }
 
@@ -83,6 +95,9 @@ private:
   static const unsigned int MAX_ANIMATIONS = 10;
   double ticksPerSecond;
   double animationDuration;
+  //
+  static const int MAX_BONES = 100;
+  unsigned int bonesGPU[MAX_BONES];
   ///
   /*  Functions   */
   // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
@@ -488,6 +503,7 @@ private:
   void ReadNodeHierarchy(float animationTime, const aiNode* parent, glm::mat4 pTransform) {
 
   }
+  
 };
 
 #endif //MODEL_H

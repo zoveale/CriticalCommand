@@ -45,14 +45,18 @@ public:
   void Print();
   //Uniform datatype shader functions
   void SetInit(const std::string& name, int value) const;
-  void SetMat4(const std::string& name,
-               const glm::mat4& mat) const;
+
+  void SetMat4(const std::string& name, const glm::mat4& mat) const;
+  void SetMat4(unsigned int name, const glm::mat4& mat) const;
+
   void SetVec3(const std::string& name,
                const glm::vec3& vec3) const;
   void SetVec3(const std::string& name,
                float x, float y, float z) const;
+
   void SetFloat(const std::string& name, float f) const;
 
+  unsigned int GetUniform(const std::string& name);
   ///
   void Shutdown();
 };

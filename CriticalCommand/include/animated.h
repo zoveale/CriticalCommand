@@ -77,7 +77,6 @@ private:
    
     // create buffers/arrays
     glGenVertexArrays(1, &VAO);
-    InitializeBones(&VAO);
 
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -131,12 +130,6 @@ private:
   }
 
   //FIXME::might as well do this for all uniforms in the shader
-  void InitializeBones(unsigned int* VAO) {
-    for (unsigned int i = 0; i < MAX_BONES; i++) // get location all matrices of bones
-    {
-      string name = "gBones[" + to_string(i) + "]";// name like in shader
-      bonesGPU[i] = glGetUniformLocation((GLuint)VAO, name.c_str());
-    }
-  }
+  
 };
 #endif //!ANIMATED_H

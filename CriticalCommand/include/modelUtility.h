@@ -151,13 +151,15 @@ glm::quat aiQuatToGlmQuat(const aiQuaternion& quat) {
   return glm::quat(quat.x, quat.y, quat.z, quat.w);
 }
 void PrintAnimationInfo(const aiScene* scene) {
+  
   printf("animation amount : %i\n", scene->mNumAnimations);
   for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
     printf("mTicksPerSecond[%i]: %f\t", i, scene->mAnimations[i]->mTicksPerSecond);
     printf("mDuration[%i]: %f\n", i, scene->mAnimations[i]->mDuration);
   }
-  scene->mAnimations[0]->mTicksPerSecond;
+  
   for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
+    printf("animation name : %s\n", scene->mAnimations[i]->mName.data);
     printf("animation channels : %i", scene->mAnimations[i]->mNumChannels);
     for (unsigned int j = 0; j < scene->mAnimations[i]->mNumChannels; j++) {
       printf("\nanimation node : %s\n", scene->mAnimations[i]->mChannels[j]->mNodeName.data);

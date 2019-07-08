@@ -23,8 +23,13 @@ void System::GameLoop(){
  //assimp test
   Shader ourShader("resources/shader/VmeshTest.glsl", "resources/shader/FmeshTest.glsl");
   Model ourModel_0("resources/skeleton/Skeleton2/CharacterRunning4.dae");
+  ourModel_0.InitializeBones(ourShader);
   //Model ourModel_1("resources/skeleton/Skeleton2/skele2.obj");
  ///
+  // create transformations
+  glm::mat4 model = glm::mat4(1.0f);
+  glm::mat4 view = glm::mat4(1.0f);
+  glm::mat4 projection = glm::mat4(1.0f);
 
   float deltaTime = 0.0f;	// Time between current frame and last frame
   float lastFrame = 0.0f; // Time of last frame
@@ -40,20 +45,24 @@ void System::GameLoop(){
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-   // printf("time: %f\n", currentFrame);
+    /*printf("currentFrame: %f\t", currentFrame);
+    printf("lastFrame: %f\t", lastFrame);
+    printf("deltaTime: %f\n", deltaTime);*/
     /* Render here */
     //clear screen and color background
     ClearScreen();
 
     player.HandleInput(input, deltaTime);
 
-    // create transformations
-    glm::mat4 model = glm::mat4(1.0f); 
-    glm::mat4 view = glm::mat4(1.0f);
-    glm::mat4 projection = glm::mat4(1.0f);
+    
     
     //cool acceleration effect
     //player.Update(xpos, ypos); 
+    ///
+    //reset models
+    model = glm::mat4(1.0f);
+    view = glm::mat4(1.0f);
+    projection = glm::mat4(1.0f);
     ///
     ourShader.Use();
     projection = glm::perspective(glm::radians(55.0f), (float)1280 / (float)720, 0.1f, 100.0f);
