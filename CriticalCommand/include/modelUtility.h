@@ -140,7 +140,7 @@ glm::mat4 ai4x4ToGlm4x4(const aiMatrix4x4& load) {
   return store;
 }
 
-glm::vec3 aiVec3ToGlmVec4(const aiVector3D& vec){
+glm::vec3 aiVec3ToGlmVec3(const aiVector3D& vec){
   /*glm::vec3 store;
   store = glm::vec3(vec.x, vec.y, vec.z);*/
   return glm::vec3(vec.x, vec.y, vec.z);
@@ -150,6 +150,17 @@ glm::quat aiQuatToGlmQuat(const aiQuaternion& quat) {
   store = glm::quat(quat.x, quat.y, quat.z, quat.w);*/
   return glm::quat(quat.x, quat.y, quat.z, quat.w);
 }
+//const aiQuaternion& GlmQuatToAiQuat(glm::quat quat) {
+//  /*glm::quat store;
+//  store = glm::quat(quat.x, quat.y, quat.z, quat.w);*/
+//  aiQuaternion& test = aiQuaternion();
+// 
+//  test.x = quat.x;
+//  test.y = quat.y;
+//  test.z = quat.z;
+//  test.w = quat.w;
+//  return test;
+//}
 void PrintAnimationInfo(const aiScene* scene) {
   
   printf("animation amount : %i\n", scene->mNumAnimations);

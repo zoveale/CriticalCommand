@@ -25,8 +25,8 @@ void main()
     BoneTransform += gBones[inBoneIDs[1]] * inWeights[1];
     BoneTransform += gBones[inBoneIDs[2]] * inWeights[2];
     BoneTransform += gBones[inBoneIDs[3]] * inWeights[3];
-
+	vec4 position = BoneTransform * vec4(aPos, 1.0);
 	weights = inWeights;
     TexCoords = aTexCoords;    
-    gl_Position = projection * view * model * vec4(aPos, 1.0);
+    gl_Position = projection * view * model * position;
 }

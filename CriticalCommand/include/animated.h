@@ -57,10 +57,7 @@ public:
     glActiveTexture(GL_TEXTURE0);
   }
 
-  glm::mat4 BoneTransform(float timeInSec, std::vector<glm::mat4>& transforms) {
-    
-
-  }
+  //glm::mat4 BoneTransform(float timeInSec, std::vector<glm::mat4>& transforms) {}
 
 private:
   glm::mat4 indentity;

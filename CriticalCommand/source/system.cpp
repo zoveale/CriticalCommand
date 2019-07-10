@@ -76,7 +76,8 @@ void System::GameLoop(){
     model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
 
     ourShader.SetMat4("model", model);
-    ourModel_0.Animate(ourShader);
+    //FIXME:: how to pass in current time?
+    ourModel_0.Animate(ourShader, currentFrame);
     //ourModel_1.Draw(ourShader);
 
 
