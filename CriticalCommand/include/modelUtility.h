@@ -72,12 +72,18 @@ struct VertexBoneData {
 
   void addVertexBoneData(unsigned int bone_id, float weight) {
     for (unsigned int i = 0; i < NUM_BONES_PER_VEREX; i++) {
+      
       if (weights[i] == 0.0f) {
+       
         ids[i] = bone_id;
         weights[i] = weight;
+        printf("\t i = %i, weight = %f\n", bone_id, weight);
         return;
       }
     }
+    
+    printf("assert(0)\t");
+    printf("\t i = %i, weight = %f\n", bone_id, weight);
   }
 };
 

@@ -19,8 +19,8 @@ uniform mat4 projection;
 uniform mat4 gBones[MAX_BONES];
 
 
-void main()
-{	
+void main(){
+
 	mat4 BoneTransform = gBones[inBoneIDs[0]] * inWeights[0];
     BoneTransform += gBones[inBoneIDs[1]] * inWeights[1];
     BoneTransform += gBones[inBoneIDs[2]] * inWeights[2];

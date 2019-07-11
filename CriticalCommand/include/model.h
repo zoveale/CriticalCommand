@@ -15,6 +15,7 @@
 #include <iostream>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <gtx/quaternion.hpp>
+#include <gtx/string_cast.hpp>
 
 using namespace std;
 
@@ -47,15 +48,14 @@ public:
   void Animate(Shader shader, float time) {
 
     vector<glm::mat4> transforms;
-    BoneTransform(time, transforms);
-
+    //FIXME:: time is slower
+    BoneTransform(time/5.0f, transforms);
+    
     for (unsigned int i = 0; i < transforms.size(); i++) {
-      shader.SetMat4(bonesGPU[i], transforms[i]); 
+      shader.SetMat4(bonesGPU[i], transforms[i]);
     }
-
     for (unsigned int i = 0; i < animatedMeshes.size(); i++) {
       animatedMeshes[i].Draw(shader);
-      //printf("animatedMesh[%i]\n", i);
     }
   }
   void InitializeBones(Shader shader) {
@@ -286,24 +286,25 @@ private:
       //printf("bone name: %s\n", name.c_str());
 
       if (boneMap.find(name) == boneMap.end()) {
-
         index = numBones;
         numBones++;
+
         BoneData bd;
-        
         boneData.push_back(bd);
-        boneData[index].offsetTransform = ai4x4ToGlm4x4(mesh->mBones[i]->mOffsetMatrix);
-        boneMap[name] = index;
       }
       else {
         index = boneMap[name];
       }
-      for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
 
-        
+      boneMap[name] = index;
+      boneData[index].offsetTransform = ai4x4ToGlm4x4(mesh->mBones[i]->mOffsetMatrix);
+
+      for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
+        //printf("%i, %s\n", j, mesh->mBones[i]->mName.data);
         unsigned int vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
         float weight = mesh->mBones[i]->mWeights[j].mWeight;
-        
+
+        //if (weight <= 0.1f) continue;
         weights[vertexID].addVertexBoneData(index, weight);
       }
     }
@@ -489,12 +490,8 @@ private:
     
     //get parent node name as string
     string nodeName = parent->mName.data;
-    glm::mat4 nodeTransform(1.0);
+    glm::mat4 nodeTransform(ai4x4ToGlm4x4(parent->mTransformation));
     
-    if (!scene->mAnimations[0]) {
-      string error = importer.GetErrorString();
-      printf("error: %s\n", error.c_str());
-    }
     //FIXME: support multiple animations!
     //FIXME:: make static
     const aiAnimation* parentAnimation = scene->mAnimations[0];
@@ -506,30 +503,31 @@ private:
     //if nodeAnimation does not return nullptr
     if (nodeAnimation) {
       //FIXME:: make static
-      glm::vec3 scaling;
+      glm::vec3 scaling(0.0f);
       CalcInterpolatedScaling(scaling, animationTime, nodeAnimation);
       glm::mat4 scalingMatrix = glm::scale(glm::mat4(1.0), scaling);
       //FIXME:: make static
-      glm::quat rotation;
-      CalcInterpolatedRotation(rotation, animationTime, nodeAnimation);
+      glm::quat rotation(0.0f, 0.0f, 0.0f, 0.0f);
+      //CalcInterpolatedRotation(rotation, animationTime, nodeAnimation);
       glm::mat4 rotationMatrix = glm::toMat4(rotation);
       //FIXME:: make static
-      glm::vec3 traslation;
+      glm::vec3 traslation(0.0f);
       CalcInterpolatedPosition(traslation, animationTime, nodeAnimation);
       glm::mat4 traslationMatrix = glm::translate(glm::mat4(1.0), traslation);
-      
       //FIXME::may need to reverse * order because of glm
-      nodeTransform = traslationMatrix * rotationMatrix * scalingMatrix;
+      nodeTransform = traslationMatrix *rotationMatrix* scalingMatrix;
       //nodeTransform = scalingMatrix * rotationMatrix * traslationMatrix;
     }
     //FIXME::may need to reverse * order because of glm
-    glm::mat4 globalTransform = pTransform * nodeTransform;
+    glm::mat4 globalTransform =  pTransform * nodeTransform;
 
     if (boneMap.find(nodeName) != boneMap.end()) {
       unsigned int index = boneMap[nodeName];
 
       //FIXME:: dont need to inverse because of glm?
-      boneData[index].finalTransform =   globalTransform * boneData[index].offsetTransform;
+      boneData[index].finalTransform = globalTransform * boneData[index].offsetTransform;
+      //printf("node name: %s\n", nodeName.c_str());
+     //printf("node finalTransform: %s\n",glm::to_string(boneData[index].finalTransform));
     }
 
     for (unsigned int i = 0; i < parent->mNumChildren; i++) {
@@ -549,8 +547,10 @@ private:
   typedef const aiNodeAnim* aiAnim;
   void CalcInterpolatedScaling(glm::vec3& scaling, float animationTime, aiAnim parent) {
     const aiVector3D& out = parent->mScalingKeys[0].mValue;
+    //FIXME:: test0x00
     if (parent->mNumScalingKeys == 1) {
       scaling = aiVec3ToGlmVec3(out);
+      return;
     }
     unsigned int index = FindScaling(animationTime, parent);
     unsigned int nextIndex = index + 1;
@@ -562,12 +562,14 @@ private:
     const aiVector3D& end = parent->mScalingKeys[nextIndex].mValue;
     const aiVector3D& delta = end - start;
     scaling = aiVec3ToGlmVec3(start + factor * delta);
-    //printf("scaling x,y,z : %f, %f, %f\n", scaling.x, scaling.y, scaling.z);
+    //printf("scaleing : %s\n", glm::to_string(scaling));
   }
   void CalcInterpolatedRotation(glm::quat& rotation, float animationTime, aiAnim parent) {
     aiQuaternion out = parent->mRotationKeys[0].mValue;
+    //FIXME:: test0x00
     if (parent->mNumPositionKeys == 1) {
       rotation = aiQuatToGlmQuat(out);
+      return;
     }
     out.x = rotation.x;
     out.y = rotation.y;
@@ -584,14 +586,18 @@ private:
     const aiQuaternion& start = parent->mRotationKeys[index].mValue;
     const aiQuaternion& end = parent->mRotationKeys[nextIndex].mValue;
     aiQuaternion::Interpolate(out, start, end, factor);
-    out.Normalize();
+    //out.Normalize();
+
     rotation = aiQuatToGlmQuat(out);
-    //printf("rotation x,y,z, w : %f, %f, %f, %f\n", rotation.x, rotation.y, rotation.z, rotation.w);
+    glm::normalize(rotation);
+    //printf("rotation : %s\n", glm::to_string(rotation));
   }
   void CalcInterpolatedPosition(glm::vec3& translation, float animationTime, aiAnim parent) {
-    const aiVector3D& out = parent->mScalingKeys[0].mValue;
+    const aiVector3D& out = parent->mPositionKeys[0].mValue;
+    //FIXME:: test0x00
     if (parent->mNumPositionKeys == 1) {
       translation = aiVec3ToGlmVec3(out);
+      return;
     }
     unsigned int index = FindPosition(animationTime, parent);
     unsigned int nextIndex = index + 1;
@@ -602,9 +608,11 @@ private:
     const aiVector3D& start = parent->mPositionKeys[index].mValue;
     const aiVector3D& end = parent->mPositionKeys[nextIndex].mValue;
     const aiVector3D& delta = end - start;
-    translation = aiVec3ToGlmVec3(start + factor * delta);
-    //printf("translation x,y,z : %f, %f, %f\n", translation.x, translation.y, translation.z);
+
+    translation = aiVec3ToGlmVec3((start + (factor * delta)));
+    //printf("translation : %s\n", glm::to_string(translation));
   }
+  //
   unsigned int FindScaling(float animationTime, aiAnim parent) {
     assert(parent->mNumScalingKeys > 0);
 
