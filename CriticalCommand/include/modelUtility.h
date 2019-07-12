@@ -42,10 +42,10 @@ struct Texture {
 
 struct BoneData {
   glm::mat4 offsetTransform; //<-assimp mOffsetMatrix
-  glm::mat4 finalTransform; //<-assimp 
+  glm::mat4 finalTransform; //
   BoneData() {
-    offsetTransform = glm::mat4(1.0);
-    finalTransform = glm::mat4(1.0);
+    offsetTransform = glm::mat4(0.0f);
+    finalTransform = glm::mat4(0.0f);
   }
   BoneData(const aiMatrix4x4 offset, const aiMatrix4x4 final) {
     this->offsetTransform = ai4x4ToGlm4x4(offset);
@@ -54,36 +54,26 @@ struct BoneData {
 };
 
 
+//unsigned int count = 0;
 struct VertexBoneData {
   // we have 4 bone ids for EACH vertex & 4 weights for EACH vertex
   unsigned int ids[NUM_BONES_PER_VEREX];   
   float weights[NUM_BONES_PER_VEREX];
 
-  VertexBoneData() {
-    weights[0] = 0.0f;
-    weights[1] = 0.0f;
-    weights[2] = 0.0f;
-    weights[3] = 0.0f;
-    ids[0] = 0;
-    ids[1] = 0;
-    ids[2] = 0;
-    ids[3] = 0;
-  }
-
+ 
   void addVertexBoneData(unsigned int bone_id, float weight) {
-    for (unsigned int i = 0; i < NUM_BONES_PER_VEREX; i++) {
+    for (unsigned int i = 0; i < sizeof(ids)/sizeof(unsigned int); i++) {
       
       if (weights[i] == 0.0f) {
        
         ids[i] = bone_id;
         weights[i] = weight;
-        printf("\t i = %i, weight = %f\n", bone_id, weight);
         return;
       }
     }
-    
-    printf("assert(0)\t");
-    printf("\t i = %i, weight = %f\n", bone_id, weight);
+    // should never get here - more bones than we have space for
+    /*count++;
+    printf("assert(0) %i times\n", count);*/
   }
 };
 
@@ -143,6 +133,11 @@ glm::mat4 ai4x4ToGlm4x4(const aiMatrix4x4& load) {
   store[0][3] = load.d1; store[1][3] = load.d2; store[2][3] = load.d3; store[3][3] = load.d4;
   //FIXME:: change to transposed glm
   //store = glm::transpose(glm::make_mat4(&load));
+  /*for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      store[i][j] = load[i][j];
+    }
+  }*/
   return store;
 }
 
@@ -154,7 +149,7 @@ glm::vec3 aiVec3ToGlmVec3(const aiVector3D& vec){
 glm::quat aiQuatToGlmQuat(const aiQuaternion& quat) {
   /*glm::quat store;
   store = glm::quat(quat.x, quat.y, quat.z, quat.w);*/
-  return glm::quat(quat.x, quat.y, quat.z, quat.w);
+  return glm::quat(quat.w, quat.x, quat.y, quat.z);
 }
 //const aiQuaternion& GlmQuatToAiQuat(glm::quat quat) {
 //  /*glm::quat store;
@@ -191,7 +186,8 @@ void PrintAnimationInfo(const aiScene* scene) {
         //printf("\t keys: %f", scene->mAnimations[i]->mChannels[j]->mRotationKeys[k]);
         printf("\t\t x: %f", scene->mAnimations[i]->mChannels[j]->mRotationKeys[k].mValue.x);
         printf(" y: %f", scene->mAnimations[i]->mChannels[j]->mRotationKeys[k].mValue.y);
-        printf(" z: %f\n", scene->mAnimations[i]->mChannels[j]->mRotationKeys[k].mValue.z);
+        printf(" z: %f", scene->mAnimations[i]->mChannels[j]->mRotationKeys[k].mValue.z);
+        printf(" w: %f\n", scene->mAnimations[i]->mChannels[j]->mRotationKeys[k].mValue.w);
       }
       printf("\n\t num scaleing keys: %i\n", scene->mAnimations[i]->mChannels[j]->mNumScalingKeys);
       for (unsigned int k = 0; k < scene->mAnimations[i]->mChannels[j]->mNumScalingKeys; k++) {

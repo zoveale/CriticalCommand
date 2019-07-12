@@ -35,6 +35,7 @@ public:
   void StartUp();
   void HandleInput(Input input, float dt);
   void Update();
+  void Draw();
 
   //input componets
   void LongIdel();

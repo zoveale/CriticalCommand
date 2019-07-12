@@ -20,24 +20,20 @@ void System::SystemInit(){
 }
 
 void System::GameLoop(){
- //assimp test
   Shader ourShader("resources/shader/VmeshTest.glsl", "resources/shader/FmeshTest.glsl");
   Model ourModel_0("resources/skeleton/Skeleton2/CharacterRunning4.dae");
-  ourModel_0.InitializeBones(ourShader);
-  //Model ourModel_1("resources/skeleton/Skeleton2/skele2.obj");
- ///
-  // create transformations
+  Model ourModel_1("resources/skeleton/Skeleton2/CharacterRunning5.dae");
+
   glm::mat4 model = glm::mat4(1.0f);
   glm::mat4 view = glm::mat4(1.0f);
   glm::mat4 projection = glm::mat4(1.0f);
 
-  float deltaTime = 0.0f;	// Time between current frame and last frame
-  float lastFrame = 0.0f; // Time of last frame
+  float deltaTime = 0.0f;	
+  float lastFrame = 0.0f; 
   float currentFrame = 0.0f;
 
   /* Loop until the user closes the window */
   while (!input.KEY.ESC) {
-    //lightPos.z =  -4.0f - sin(glfwGetTime()) * 4.0f;
 
     input.Process();
 
@@ -45,9 +41,7 @@ void System::GameLoop(){
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    /*printf("currentFrame: %f\t", currentFrame);
-    printf("lastFrame: %f\t", lastFrame);
-    printf("deltaTime: %f\n", deltaTime);*/
+    
     /* Render here */
     //clear screen and color background
     ClearScreen();
@@ -70,15 +64,21 @@ void System::GameLoop(){
     ourShader.SetMat4("projection", projection);
     ourShader.SetMat4("view", view);
     // render the loaded model
-    model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
+    // translate it down so it's at the center of the scene
+    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
     model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+    ourShader.SetMat4("PVM", projection * view * model);
+    //ourShader.SetMat4("MVP", model * view * projection);
+
     //FIXME:: .dae files load with incorrect y and z values. 
     //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
     ourShader.SetMat4("model", model);
     //FIXME:: how to pass in current time?
     ourModel_0.Animate(ourShader, currentFrame);
-    //ourModel_1.Draw(ourShader);
+    ourModel_1.Draw(ourShader);
+    
+    
 
 
     player.Update();

@@ -27,7 +27,7 @@ public:
   vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
   vector<Mesh> meshes;
   vector<Animated> animatedMeshes;
-
+  float baseVertexIDs;
   string directory;
   bool gammaCorrection;
   bool isAnimated;
@@ -49,15 +49,18 @@ public:
 
     vector<glm::mat4> transforms;
     //FIXME:: time is slower
-    BoneTransform(time/5.0f, transforms);
+    BoneTransform(time, transforms);
     
     for (unsigned int i = 0; i < transforms.size(); i++) {
-      shader.SetMat4(bonesGPU[i], transforms[i]);
+      //FIXME::
+      string name = "gBones[" + to_string(i) + "]";
+      shader.SetMat4(name, transforms[i]);
     }
     for (unsigned int i = 0; i < animatedMeshes.size(); i++) {
       animatedMeshes[i].Draw(shader);
     }
   }
+  //FIXME::
   void InitializeBones(Shader shader) {
     for (unsigned int i = 0; i < MAX_BONES; i++){
       string name = "gBones[" + to_string(i) + "]";// name like in shader
@@ -92,7 +95,10 @@ private:
     
     printf("(1)Read Assimp file : %s\n", path.c_str());
     //FIXME:: need static scene?
-    this->scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    this->scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs |
+      aiProcess_CalcTangentSpace);// | aiProcess_GenSmoothNormals |
+      //aiProcess_JoinIdenticalVertices | aiProcess_FindDegenerates |
+      //aiProcess_ValidateDataStructure);
     
     // check for errors
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
@@ -106,7 +112,7 @@ private:
     //FIXME::why tho
     //inverse root node
     this->inverseRootNode = ai4x4ToGlm4x4(scene->mRootNode->mTransformation);
-    
+    inverseRootNode = glm::inverse(inverseRootNode);
     ///
     //printf("Root node named: %s\n",scene->mRootNode->mName.data);
     /*if (scene->mRootNode->FindNode("Armature_Torso")) {
@@ -152,8 +158,10 @@ private:
       // the node object only contains indices to index the actual objects in the scene. 
       // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
       aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+
       //printf("mesh name: %s\n", mesh->mName.data);
       animatedMeshes.push_back(ProcessAnimatedMesh(mesh, scene));
+      //baseVertexIDs =
     }
     // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
     /*for (unsigned int i = 0; i < node->mNumChildren; i++) {
@@ -214,8 +222,7 @@ private:
 
       // texture coordinates
 
-      if (mesh->HasTextureCoords(0)) // does the mesh contain texture coordinates?
-      {
+      if (mesh->HasTextureCoords(0)){
         glm::vec2 vec;
         // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't 
         // use models where a vertex can have multiple texture coordinates so we always take the first set (0).
@@ -226,6 +233,7 @@ private:
       else {
         vertex.TexCoords = glm::vec2(0.0f, 0.0f);
       }
+      if (mesh->HasTangentsAndBitangents()) {
       // tangent
       vector.x = mesh->mTangents[i].x;
       vector.y = mesh->mTangents[i].y;
@@ -237,6 +245,20 @@ private:
       vector.z = mesh->mBitangents[i].z;
       vertex.Bitangent = vector;
       vertices.push_back(vertex);
+      }
+      else {
+        // tangent
+        vector.x = 0.0f;
+        vector.y = 0.0f;
+        vector.z = 0.0f;
+        vertex.Tangent = vector;
+        // bitangent
+        vector.x = 0.0f;
+        vector.y = 0.0f;
+        vector.z = 0.0f;
+        vertex.Bitangent = vector;
+        vertices.push_back(vertex);
+      }
     }
 
     // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
@@ -257,7 +279,7 @@ private:
     // diffuse: texture_diffuseN
     // specular: texture_specularN
     // normal: texture_normalN
-
+    
     // 1. diffuse maps
     vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
     textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
@@ -272,43 +294,11 @@ private:
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
     // return a mesh object created from the extracted mesh data
 
-  
-    
+
 
     return Animated(vertices, indices, textures, weights);
   }
-  //FIXME::Joint Loading
-  void LoadBones(aiMesh* mesh, std::vector<VertexBoneData>& weights) {
-    
-    for (unsigned int i = 0; i < mesh->mNumBones; i++) {
-      unsigned index = 0;
-      std::string name(mesh->mBones[i]->mName.data);
-      //printf("bone name: %s\n", name.c_str());
-
-      if (boneMap.find(name) == boneMap.end()) {
-        index = numBones;
-        numBones++;
-
-        BoneData bd;
-        boneData.push_back(bd);
-      }
-      else {
-        index = boneMap[name];
-      }
-
-      boneMap[name] = index;
-      boneData[index].offsetTransform = ai4x4ToGlm4x4(mesh->mBones[i]->mOffsetMatrix);
-
-      for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
-        //printf("%i, %s\n", j, mesh->mBones[i]->mName.data);
-        unsigned int vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
-        float weight = mesh->mBones[i]->mWeights[j].mWeight;
-
-        //if (weight <= 0.1f) continue;
-        weights[vertexID].addVertexBoneData(index, weight);
-      }
-    }
-  }
+  
   ///
   //
   
@@ -385,17 +375,32 @@ private:
       else {
         vertex.TexCoords = glm::vec2(0.0f, 0.0f);
       }
-      // tangent
-      vector.x = mesh->mTangents[i].x;
-      vector.y = mesh->mTangents[i].y;
-      vector.z = mesh->mTangents[i].z;
-      vertex.Tangent = vector;
-      // bitangent
-      vector.x = mesh->mBitangents[i].x;
-      vector.y = mesh->mBitangents[i].y;
-      vector.z = mesh->mBitangents[i].z;
-      vertex.Bitangent = vector;
-      vertices.push_back(vertex);
+      if (mesh->HasTangentsAndBitangents()) {
+        // tangent
+        vector.x = mesh->mTangents[i].x;
+        vector.y = mesh->mTangents[i].y;
+        vector.z = mesh->mTangents[i].z;
+        vertex.Tangent = vector;
+        // bitangent
+        vector.x = mesh->mBitangents[i].x;
+        vector.y = mesh->mBitangents[i].y;
+        vector.z = mesh->mBitangents[i].z;
+        vertex.Bitangent = vector;
+        vertices.push_back(vertex);
+      }
+      else {
+        // tangent
+        vector.x = 0.0f;
+        vector.y = 0.0f;
+        vector.z = 0.0f;
+        vertex.Tangent = vector;
+        // bitangent
+        vector.x = 0.0f;
+        vector.y = 0.0f;
+        vector.z = 0.0f;
+        vertex.Bitangent = vector;
+        vertices.push_back(vertex);
+      }
     }
     
     // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
@@ -436,7 +441,28 @@ private:
   
   //
   void PrintBones(const aiNode* bones,  aiMesh* mesh) {
-    
+    for (unsigned int i = 0; i < mesh->mNumBones; i++) {
+      const char* boneName;
+      printf("\t%s :", mesh->mBones[i]->mName.data);
+      boneName = mesh->mBones[i]->mName.data;
+      if (bones->FindNode(boneName)) {
+        printf("is in the scene's hierarchy\n");
+        if (bones->FindNode(boneName)->mChildren) {
+          unsigned int numChildren = bones->FindNode(boneName)->mNumChildren;
+          if (numChildren == 1)
+            printf("\t\thas %i child :", numChildren);
+          else
+            printf("\t\thas %i children :", numChildren);
+          for (unsigned int j = 0; j < numChildren; j++) {
+            const char* childBoneName = bones->FindNode(boneName)->mChildren[j]->mName.data;
+;
+            printf(" %s, ", childBoneName);
+          }
+          printf("\n");
+        }
+      }
+      else { printf("\n"); }
+    }
   }
   ///
 
@@ -470,10 +496,42 @@ private:
     return textures;
   }
   ///
+  //FIXME::Joint Loading
+  void LoadBones(aiMesh* mesh, std::vector<VertexBoneData>& weights) {
 
+    for (unsigned int i = 0; i < mesh->mNumBones; i++) {
+      unsigned index = 0;
+      std::string name(mesh->mBones[i]->mName.data);
+
+      if (boneMap.find(name) == boneMap.end()) {
+        index = numBones;
+        numBones++;
+
+        BoneData bd;
+        boneData.push_back(bd);
+        boneMap[name] = index;
+        boneData[index].offsetTransform = glm::mat4(ai4x4ToGlm4x4(mesh->mBones[i]->mOffsetMatrix));
+        
+      }
+      else {
+        index = boneMap[name];
+      }
+      for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
+        unsigned int vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
+        float weight = mesh->mBones[i]->mWeights[j].mWeight;
+       
+        if (index > numBones) assert(0);
+        if (weight <= 0.1f) continue;
+        weights[vertexID].addVertexBoneData(index, weight);
+       
+      }
+    }
+    
+  }
   //
   void BoneTransform(double timeInSec, vector<glm::mat4>& transforms) {
     
+    const double ticksPerSecond = scene->mAnimations[0]->mTicksPerSecond != 0 ? scene->mAnimations[0]->mTicksPerSecond : 25.0f;
     double timeInTicks = timeInSec * ticksPerSecond;
     //FIXME:: have array of durations for different animations
     double animationTime = fmod(timeInTicks, animationDuration);
@@ -486,58 +544,55 @@ private:
       transforms[i] = boneData[i].finalTransform;
     }
   }
+
   void ReadNodeHierarchy(float animationTime, const aiNode* parent, glm::mat4 pTransform) {
     
     //get parent node name as string
     string nodeName = parent->mName.data;
     glm::mat4 nodeTransform(ai4x4ToGlm4x4(parent->mTransformation));
-    
     //FIXME: support multiple animations!
-    //FIXME:: make static
+    //FIXME:: make static?
     const aiAnimation* parentAnimation = scene->mAnimations[0];
     
-    //FIXME:: make static
+    //FIXME:: make static?
     const aiNodeAnim* nodeAnimation = FindNodeAnim(parentAnimation, nodeName);
 
-   
+    
     //if nodeAnimation does not return nullptr
     if (nodeAnimation) {
       //FIXME:: make static
-      glm::vec3 scaling(0.0f);
-      CalcInterpolatedScaling(scaling, animationTime, nodeAnimation);
-      glm::mat4 scalingMatrix = glm::scale(glm::mat4(1.0), scaling);
+      glm::mat4 scalingMatrix(1.0);
+      glm::mat4 rotationMatrix(1.0);
+      glm::mat4 traslationMatrix(1.0);
       //FIXME:: make static
-      glm::quat rotation(0.0f, 0.0f, 0.0f, 0.0f);
-      //CalcInterpolatedRotation(rotation, animationTime, nodeAnimation);
-      glm::mat4 rotationMatrix = glm::toMat4(rotation);
-      //FIXME:: make static
-      glm::vec3 traslation(0.0f);
-      CalcInterpolatedPosition(traslation, animationTime, nodeAnimation);
-      glm::mat4 traslationMatrix = glm::translate(glm::mat4(1.0), traslation);
-      //FIXME::may need to reverse * order because of glm
-      nodeTransform = traslationMatrix *rotationMatrix* scalingMatrix;
-      //nodeTransform = scalingMatrix * rotationMatrix * traslationMatrix;
-    }
-    //FIXME::may need to reverse * order because of glm
-    glm::mat4 globalTransform =  pTransform * nodeTransform;
+      aiVector3D scaling;
+      aiQuaternion rotation;
+      aiVector3D traslation;
 
+      CalcInterpolatedScaling(scaling, animationTime, nodeAnimation);
+      CalcInterpolatedRotation(rotation, animationTime, nodeAnimation);
+      CalcInterpolatedPosition(traslation, animationTime, nodeAnimation);
+      scalingMatrix = glm::scale(scalingMatrix, glm::vec3(scaling.x, scaling.y, scaling.z));
+      rotationMatrix = glm::toMat4(aiQuatToGlmQuat(rotation));
+      traslationMatrix = glm::translate(traslationMatrix, glm::vec3(traslation.x, traslation.y, traslation.z));
+   
+      nodeTransform = traslationMatrix *  rotationMatrix * scalingMatrix;
+      
+    }
+    glm::mat4 globalTransform = pTransform * nodeTransform;
+    
     if (boneMap.find(nodeName) != boneMap.end()) {
       unsigned int index = boneMap[nodeName];
-
-      //FIXME:: dont need to inverse because of glm?
-      boneData[index].finalTransform = globalTransform * boneData[index].offsetTransform;
-      //printf("node name: %s\n", nodeName.c_str());
-     //printf("node finalTransform: %s\n",glm::to_string(boneData[index].finalTransform));
+      boneData[index].finalTransform = globalTransform *boneData[index].offsetTransform;
     }
-
     for (unsigned int i = 0; i < parent->mNumChildren; i++) {
-      ReadNodeHierarchy(animationTime, parent->mChildren[i], globalTransform);
+      ReadNodeHierarchy(animationTime, parent->mChildren[i],globalTransform);
     }
   }
   //HelperFunction for ReadNodeHierarchy
   const aiNodeAnim* FindNodeAnim(const aiAnimation* parent, const string name) {
     for (unsigned int i = 0; i < parent->mNumChannels; i++) {
-      if (parent->mChannels[i]->mNodeName.data == name) {
+      if (std::string(parent->mChannels[i]->mNodeName.data) == name) {
         return parent->mChannels[i];
       }
     }
@@ -545,72 +600,77 @@ private:
   }
   ///
   typedef const aiNodeAnim* aiAnim;
-  void CalcInterpolatedScaling(glm::vec3& scaling, float animationTime, aiAnim parent) {
-    const aiVector3D& out = parent->mScalingKeys[0].mValue;
-    //FIXME:: test0x00
+  void CalcInterpolatedScaling(aiVector3D& scaling, float animationTime, aiAnim parent) {
     if (parent->mNumScalingKeys == 1) {
-      scaling = aiVec3ToGlmVec3(out);
+      scaling = parent->mScalingKeys[0].mValue;
       return;
     }
-    unsigned int index = FindScaling(animationTime, parent);
-    unsigned int nextIndex = index + 1;
-    assert(nextIndex < parent->mNumScalingKeys);
-    float deltaTime = (float)(parent->mScalingKeys[nextIndex].mTime - parent->mScalingKeys[index].mTime);
-    float factor = (animationTime - parent->mScalingKeys[index].mTime) / deltaTime;
+
+    auto scaling_index = FindScaling(animationTime, parent);
+    auto nex_sca_index = scaling_index + 1;
+
+    assert(nex_sca_index < parent->mNumScalingKeys);
+
+    float delta_time = (float)(parent->mScalingKeys[nex_sca_index].mTime - parent->mScalingKeys[scaling_index].mTime);
+
+    float factor = (animationTime - (float)parent->mScalingKeys[scaling_index].mTime) / delta_time;
+
     assert(factor >= 0.0f && factor <= 1.0f);
-    const aiVector3D& start = parent->mScalingKeys[index].mValue;
-    const aiVector3D& end = parent->mScalingKeys[nextIndex].mValue;
-    const aiVector3D& delta = end - start;
-    scaling = aiVec3ToGlmVec3(start + factor * delta);
-    //printf("scaleing : %s\n", glm::to_string(scaling));
+
+    const aiVector3D& start = parent->mScalingKeys[scaling_index].mValue;
+    const aiVector3D& end = parent->mScalingKeys[nex_sca_index].mValue;
+
+    scaling = start + factor * (end - start);
   }
-  void CalcInterpolatedRotation(glm::quat& rotation, float animationTime, aiAnim parent) {
-    aiQuaternion out = parent->mRotationKeys[0].mValue;
-    //FIXME:: test0x00
-    if (parent->mNumPositionKeys == 1) {
-      rotation = aiQuatToGlmQuat(out);
+  void CalcInterpolatedRotation(aiQuaternion& rotation, float animationTime, aiAnim parent) {
+    if (parent->mNumRotationKeys == 1) {
+      // There is only one Position.
+      rotation = parent->mRotationKeys[0].mValue;
       return;
     }
-    out.x = rotation.x;
-    out.y = rotation.y;
-    out.z = rotation.z;
-    out.w = rotation.w;
 
-    unsigned int index = FindRotation(animationTime, parent);
-    unsigned int nextIndex = index + 1;
-    assert(nextIndex < parent->mNumRotationKeys);
+    unsigned int rotation_index = FindRotation(animationTime, parent);
+    unsigned int next_rot_index = rotation_index + 1;
+    assert(next_rot_index < parent->mNumRotationKeys);
 
-    float deltaTime = (float)(parent->mRotationKeys[nextIndex].mTime - parent->mRotationKeys[index].mTime);
-    float factor = (animationTime - parent->mRotationKeys[index].mTime) / deltaTime;
+    // The Difference between two key frames.
+    float delta_time = (float)(parent->mRotationKeys[next_rot_index].mTime - parent->mRotationKeys[rotation_index].mTime);
+
+    // The Factor by which the current frame has transitioned into the next frame.
+    float factor = (animationTime - (float)parent->mRotationKeys[rotation_index].mTime) / delta_time;
+
     assert(factor >= 0.0f && factor <= 1.0f);
-    const aiQuaternion& start = parent->mRotationKeys[index].mValue;
-    const aiQuaternion& end = parent->mRotationKeys[nextIndex].mValue;
-    aiQuaternion::Interpolate(out, start, end, factor);
-    //out.Normalize();
 
-    rotation = aiQuatToGlmQuat(out);
-    glm::normalize(rotation);
-    //printf("rotation : %s\n", glm::to_string(rotation));
+    const aiQuaternion& start = parent->mRotationKeys[rotation_index].mValue;
+    const aiQuaternion& end = parent->mRotationKeys[next_rot_index].mValue;
+
+    aiQuaternion::Interpolate(rotation, start, end, factor);
+
+    rotation = rotation.Normalize();
   }
-  void CalcInterpolatedPosition(glm::vec3& translation, float animationTime, aiAnim parent) {
-    const aiVector3D& out = parent->mPositionKeys[0].mValue;
-    //FIXME:: test0x00
+  void CalcInterpolatedPosition(aiVector3D& translation, float animationTime, aiAnim parent) {
     if (parent->mNumPositionKeys == 1) {
-      translation = aiVec3ToGlmVec3(out);
+      // There is only one Position.
+      translation = parent->mPositionKeys[0].mValue;
       return;
     }
+
     unsigned int index = FindPosition(animationTime, parent);
-    unsigned int nextIndex = index + 1;
-    assert(nextIndex < parent->mNumPositionKeys);
-    float deltaTime = (float)(parent->mPositionKeys[nextIndex].mTime - parent->mPositionKeys[index].mTime);
-    float factor = (animationTime - parent->mPositionKeys[index].mTime) / deltaTime;
-    assert(factor >= 0.0f && factor <= 1.0f);
-    const aiVector3D& start = parent->mPositionKeys[index].mValue;
-    const aiVector3D& end = parent->mPositionKeys[nextIndex].mValue;
-    const aiVector3D& delta = end - start;
+    unsigned int next_pos_index = index + 1;
+    assert(next_pos_index < parent->mNumPositionKeys);
 
-    translation = aiVec3ToGlmVec3((start + (factor * delta)));
-    //printf("translation : %s\n", glm::to_string(translation));
+    // The Difference between two key frames.
+    float delta_time = (float)(parent->mPositionKeys[next_pos_index].mTime - parent->mPositionKeys[index].mTime);
+
+    // The Factor by which the current frame has transitioned into the next frame.
+    float factor = (animationTime - (float)parent->mPositionKeys[index].mTime) / delta_time;
+
+    assert(factor >= 0.0f && factor <= 1.0f);
+
+    const aiVector3D& start = parent->mPositionKeys[index].mValue;
+    const aiVector3D& end = parent->mPositionKeys[next_pos_index].mValue;
+
+    translation = start + factor * (end - start);
   }
   //
   unsigned int FindScaling(float animationTime, aiAnim parent) {
@@ -640,6 +700,7 @@ private:
     return 0;
   }
   unsigned int FindPosition(float animationTime, aiAnim parent) {
+    assert(parent->mNumPositionKeys > 0);
     for (unsigned int i = 0; i < parent->mNumPositionKeys - 1; i++) {
       if (animationTime < (float)parent->mPositionKeys[i + 1].mTime) {
         return i;
