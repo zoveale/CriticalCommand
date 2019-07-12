@@ -121,14 +121,14 @@ private:
     if (scene->HasMaterials()) {
       aiString name;
       printf("it has %i material\n", scene->mNumMaterials);
-      for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
+    /*  for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
         scene->mMaterials[i]->Get(AI_MATKEY_NAME, name);
         printf("\tname: %s\n", name.C_Str());
         scene->mMaterials[i]->Get(AI_MATKEY_COLOR_DIFFUSE, name);
         printf("\tDiffuse: %s\n", name.C_Str());
         scene->mMaterials[i]->Get(AI_MATKEY_COLOR_SPECULAR, name);
         printf("\tSpecular: %s\n", name.C_Str());
-      }
+      }*/
 
     }
     // process ASSIMP's root node recursively
@@ -182,7 +182,7 @@ private:
     vector<Texture> textures;
 
     ///
-    PrintAnimationInfo(scene);
+    //PrintAnimationInfo(scene);
     ///
     //
     std::vector<VertexBoneData> weights;
@@ -440,38 +440,14 @@ private:
   ///
   
   //
-  void PrintBones(const aiNode* bones,  aiMesh* mesh) {
-    for (unsigned int i = 0; i < mesh->mNumBones; i++) {
-      const char* boneName;
-      printf("\t%s :", mesh->mBones[i]->mName.data);
-      boneName = mesh->mBones[i]->mName.data;
-      if (bones->FindNode(boneName)) {
-        printf("is in the scene's hierarchy\n");
-        if (bones->FindNode(boneName)->mChildren) {
-          unsigned int numChildren = bones->FindNode(boneName)->mNumChildren;
-          if (numChildren == 1)
-            printf("\t\thas %i child :", numChildren);
-          else
-            printf("\t\thas %i children :", numChildren);
-          for (unsigned int j = 0; j < numChildren; j++) {
-            const char* childBoneName = bones->FindNode(boneName)->mChildren[j]->mName.data;
-;
-            printf(" %s, ", childBoneName);
-          }
-          printf("\n");
-        }
-      }
-      else { printf("\n"); }
-    }
-  }
   ///
 
   // checks all material textures of a given type and loads the textures if they're not loaded yet.
   // the required info is returned as a Texture struct.
   vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName) {
     vector<Texture> textures;
-    printf("texture count %i\n", mat->GetTextureCount(type));
-    printf("texture name %s\n", typeName.c_str());
+    /*printf("texture count %i\n", mat->GetTextureCount(type));
+    printf("texture name %s\n", typeName.c_str());*/
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
       aiString str;
       mat->GetTexture(type, i, &str);

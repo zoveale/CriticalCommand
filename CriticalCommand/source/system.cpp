@@ -22,7 +22,6 @@ void System::SystemInit(){
 void System::GameLoop(){
   Shader ourShader("resources/shader/VmeshTest.glsl", "resources/shader/FmeshTest.glsl");
   Model ourModel_0("resources/skeleton/Skeleton2/CharacterRunning4.dae");
-  Model ourModel_1("resources/skeleton/Skeleton2/CharacterRunning5.dae");
 
   glm::mat4 model = glm::mat4(1.0f);
   glm::mat4 view = glm::mat4(1.0f);
@@ -76,7 +75,6 @@ void System::GameLoop(){
     ourShader.SetMat4("model", model);
     //FIXME:: how to pass in current time?
     ourModel_0.Animate(ourShader, currentFrame);
-    ourModel_1.Draw(ourShader);
     
     
 
