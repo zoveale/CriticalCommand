@@ -343,3 +343,6 @@ healthchecksdb
 /CriticalCommand/resources/dragon
 /CriticalCommand/resources/trebuchet
 /CriticalCommand/resources/skeleton
+/CriticalCommand/resources/watchtower
+/CriticalCommand/resources/surface
+/CriticalCommand/resources/cowboy

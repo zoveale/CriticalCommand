@@ -44,6 +44,7 @@ public:
   void Use();
   void Print();
   //Uniform datatype shader functions
+  //void SetPVM(const glm::vec3& projection, const glm::vec3& view, const glm::vec3& model);
   void SetInit(const std::string& name, int value) const;
 
   void SetMat4(const std::string& name, const glm::mat4& mat) const;

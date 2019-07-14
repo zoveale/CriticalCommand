@@ -144,7 +144,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\animated.h" />
-    <ClInclude Include="include\joint.h" />
     <ClInclude Include="include\camera.h" />
     <ClInclude Include="include\mesh.h" />
     <ClInclude Include="include\model.h" />
@@ -158,9 +157,9 @@
     <ClInclude Include="resources\data\testData.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shader\FmeshTest.glsl" />
-    <None Include="resources\shader\modelFS.glsl" />
-    <None Include="resources\shader\modelVS.glsl" />
+    <None Include="resources\shader\Fanimated.glsl" />
+    <None Include="resources\shader\Fmodel.glsl" />
+    <None Include="resources\shader\Vmodel.glsl" />
     <None Include="resources\shader\zdFragmentShader.glsl" />
     <None Include="resources\shader\zdVertexShader.glsl" />
   </ItemGroup>
@@ -168,9 +167,7 @@
     <Image Include="resources\texture\wall.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="resources\shader\fLamp.glsl" />
-    <Text Include="resources\shader\vLamp.glsl" />
-    <Text Include="resources\shader\VmeshTest.glsl" />
+    <Text Include="resources\shader\Vanimated.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

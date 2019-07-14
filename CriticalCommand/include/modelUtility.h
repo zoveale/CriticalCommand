@@ -14,11 +14,10 @@
 #include <vector>
 #include <map>
 
-#include "joint.h"
 
 #define NUM_BONES_PER_VEREX 4
-glm::mat4 ai4x4ToGlm4x4(const aiMatrix4x4& load);
-glm::mat3 ai3x3ToGlm3x3(const aiMatrix3x3& load);
+glm::mat4 aiToGlm(const aiMatrix4x4& load);
+glm::mat3 aiToGlm(const aiMatrix3x3& load);
 
 struct Vertex {
   // position
@@ -48,8 +47,8 @@ struct BoneData {
     finalTransform = glm::mat4(0.0f);
   }
   BoneData(const aiMatrix4x4 offset, const aiMatrix4x4 final) {
-    this->offsetTransform = ai4x4ToGlm4x4(offset);
-    this->finalTransform = ai4x4ToGlm4x4(final);
+    this->offsetTransform = aiToGlm(offset);
+    this->finalTransform = aiToGlm(final);
   }
 };
 
@@ -115,7 +114,7 @@ unsigned int TextureFromFile(const char* path, const std::string& directory, boo
   return textureID;
 }
 
-glm::mat3 ai3x3ToGlm3x3(const aiMatrix3x3& load) {
+glm::mat3 aiToGlm(const aiMatrix3x3& load) {
   glm::mat3 store;
   //row major to column major
   store[0][0] = load.a1; store[1][0] = load.a2; store[2][0] = load.a3;
@@ -124,7 +123,7 @@ glm::mat3 ai3x3ToGlm3x3(const aiMatrix3x3& load) {
   return store;
 }
 
-glm::mat4 ai4x4ToGlm4x4(const aiMatrix4x4& load) {
+glm::mat4 aiToGlm(const aiMatrix4x4& load) {
   glm::mat4 store;
   //row major to column major
   store[0][0] = load.a1; store[1][0] = load.a2; store[2][0] = load.a3; store[3][0] = load.a4;
@@ -141,12 +140,12 @@ glm::mat4 ai4x4ToGlm4x4(const aiMatrix4x4& load) {
   return store;
 }
 
-glm::vec3 aiVec3ToGlmVec3(const aiVector3D& vec){
+glm::vec3 aiToGlm(const aiVector3D& vec){
   /*glm::vec3 store;
   store = glm::vec3(vec.x, vec.y, vec.z);*/
   return glm::vec3(vec.x, vec.y, vec.z);
 }
-glm::quat aiQuatToGlmQuat(const aiQuaternion& quat) {
+glm::quat aiToGlm(const aiQuaternion& quat) {
   /*glm::quat store;
   store = glm::quat(quat.x, quat.y, quat.z, quat.w);*/
   return glm::quat(quat.w, quat.x, quat.y, quat.z);

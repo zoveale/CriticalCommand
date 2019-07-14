@@ -8,7 +8,7 @@ layout (location = 5) in ivec4 inBoneIDs;
 layout (location = 6) in vec4 inWeights;
 
 out vec2 TexCoords;
-out vec4 weights; 
+//out vec4 weights; 
 
 //normals
 const int MAX_WEIGHTS = 4;
@@ -28,7 +28,7 @@ void main(){
 			BoneTransform += localPos * inWeights[i];
 		}
 	
-		weights = inWeights;
+		
 		TexCoords = aTexCoords;    
 		gl_Position = PVM * BoneTransform;//vec4(aPos, 1.0);//
 	}

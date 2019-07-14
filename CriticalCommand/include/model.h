@@ -41,7 +41,6 @@ public:
   void Draw(Shader shader) {
       for (unsigned int i = 0; i < meshes.size(); i++) {
         meshes[i].Draw(shader);
-        //printf("mesh[%i]\n", i);
       }
   }
   
@@ -111,7 +110,7 @@ private:
     directory = path.substr(0, path.find_last_of('/'));
     //FIXME::why tho
     //inverse root node
-    this->inverseRootNode = ai4x4ToGlm4x4(scene->mRootNode->mTransformation);
+    this->inverseRootNode = aiToGlm(scene->mRootNode->mTransformation);
     inverseRootNode = glm::inverse(inverseRootNode);
     ///
     //printf("Root node named: %s\n",scene->mRootNode->mName.data);
@@ -356,9 +355,16 @@ private:
       vector.z = mesh->mVertices[i].z;
       vertex.Position = vector;
       // normals
-      vector.x = mesh->mNormals[i].x;
-      vector.y = mesh->mNormals[i].y;
-      vector.z = mesh->mNormals[i].z;
+      if (mesh->HasNormals()) {
+        vector.x = mesh->mNormals[i].x;
+        vector.y = mesh->mNormals[i].y;
+        vector.z = mesh->mNormals[i].z;
+      }
+      else {
+        vector.x = 0.0f;
+        vector.y = 0.0f;
+        vector.z = 0.0f;
+      }
       vertex.Normal = vector;
       
       // texture coordinates
@@ -486,7 +492,7 @@ private:
         BoneData bd;
         boneData.push_back(bd);
         boneMap[name] = index;
-        boneData[index].offsetTransform = glm::mat4(ai4x4ToGlm4x4(mesh->mBones[i]->mOffsetMatrix));
+        boneData[index].offsetTransform = glm::mat4(aiToGlm(mesh->mBones[i]->mOffsetMatrix));
         
       }
       else {
@@ -525,7 +531,7 @@ private:
     
     //get parent node name as string
     string nodeName = parent->mName.data;
-    glm::mat4 nodeTransform(ai4x4ToGlm4x4(parent->mTransformation));
+    glm::mat4 nodeTransform(aiToGlm(parent->mTransformation));
     //FIXME: support multiple animations!
     //FIXME:: make static?
     const aiAnimation* parentAnimation = scene->mAnimations[0];
@@ -549,7 +555,7 @@ private:
       CalcInterpolatedRotation(rotation, animationTime, nodeAnimation);
       CalcInterpolatedPosition(traslation, animationTime, nodeAnimation);
       scalingMatrix = glm::scale(scalingMatrix, glm::vec3(scaling.x, scaling.y, scaling.z));
-      rotationMatrix = glm::toMat4(aiQuatToGlmQuat(rotation));
+      rotationMatrix = glm::toMat4(aiToGlm(rotation));
       traslationMatrix = glm::translate(traslationMatrix, glm::vec3(traslation.x, traslation.y, traslation.z));
    
       nodeTransform = traslationMatrix *  rotationMatrix * scalingMatrix;

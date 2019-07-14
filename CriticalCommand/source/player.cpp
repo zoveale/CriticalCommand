@@ -61,6 +61,11 @@ void Player::Update() {
   state->Update(*this);
 }
 
+void Player::Draw() {
+  //FIXME::
+  //player->draw(*this)...
+}
+
 void Player::LongIdel() {
   printf("\nPlayer Long Idel->");
 }

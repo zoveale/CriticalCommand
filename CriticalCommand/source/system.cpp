@@ -20,8 +20,12 @@ void System::SystemInit(){
 }
 
 void System::GameLoop(){
-  Shader ourShader("resources/shader/VmeshTest.glsl", "resources/shader/FmeshTest.glsl");
-  Model ourModel_0("resources/skeleton/Skeleton2/CharacterRunning4.dae");
+  Shader animated("resources/shader/Vanimated.glsl", "resources/shader/Fanimated.glsl");
+  Model ourModel_0("resources/cowboy/CharacterRunning4.dae");
+
+  Shader fixed("resources/shader/Vmodel.glsl", "resources/shader/Fmodel.glsl");
+  Model ourModel_1("resources/watchtower/tower.obj");
+  //Model surface("resources/surface/surface.obj");
 
   glm::mat4 model = glm::mat4(1.0f);
   glm::mat4 view = glm::mat4(1.0f);
@@ -57,29 +61,32 @@ void System::GameLoop(){
     view = glm::mat4(1.0f);
     projection = glm::mat4(1.0f);
     ///
-    ourShader.Use();
+    animated.Use();
     projection = glm::perspective(glm::radians(55.0f), (float)1280 / (float)720, 0.1f, 100.0f);
     view = playerCamera.View();
-    ourShader.SetMat4("projection", projection);
-    ourShader.SetMat4("view", view);
-    // render the loaded model
-    // translate it down so it's at the center of the scene
+    animated.SetMat4("projection", projection);
+    animated.SetMat4("view", view);
     model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
     model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
-    ourShader.SetMat4("PVM", projection * view * model);
-    //ourShader.SetMat4("MVP", model * view * projection);
-
-    //FIXME:: .dae files load with incorrect y and z values. 
-    //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-    ourShader.SetMat4("model", model);
+    animated.SetMat4("PVM", projection * view * model);
+    animated.SetMat4("model", model);
     //FIXME:: how to pass in current time?
-    ourModel_0.Animate(ourShader, currentFrame);
-    
-    
+    ourModel_0.Animate(animated, currentFrame);
 
+    //model = glm::mat4(1.0f);
+    //view = glm::mat4(1.0f);
+    //projection = glm::mat4(1.0f);
+
+    fixed.Use();
+    
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
+    fixed.SetMat4("PVM", projection * view * model);
+    ourModel_1.Draw(fixed);
 
     player.Update();
+
+
     /* Swap front and back buffers */
     render.Display();
 
