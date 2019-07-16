@@ -7,18 +7,17 @@ layout (location = 4) in vec3 bitTangent;
 layout (location = 5) in ivec4 inBoneIDs;
 layout (location = 6) in vec4 inWeights;
 
-out vec2 TexCoords;
-//out vec4 weights; 
+out vec2 textureUV;
+out vec3 FragPos;
+out vec3 normal;
 
-//normals
 const int MAX_WEIGHTS = 4;
 const int MAX_BONES = 100;
+
+
 uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
 uniform mat4 gBones[MAX_BONES];
 uniform mat4 PVM;
-uniform mat4 MVP;
 
 vec4 BoneTransform = vec4(0.0);
 void main(){
@@ -28,7 +27,14 @@ void main(){
 			BoneTransform += localPos * inWeights[i];
 		}
 	
-		
-		TexCoords = aTexCoords;    
+		FragPos = vec3(model* BoneTransform);
+		textureUV = aTexCoords;    
 		gl_Position = PVM * BoneTransform;//vec4(aPos, 1.0);//
 	}
+
+
+/*
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+*/

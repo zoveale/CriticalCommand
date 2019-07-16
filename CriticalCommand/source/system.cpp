@@ -25,7 +25,8 @@ void System::GameLoop(){
 
   Shader fixed("resources/shader/Vmodel.glsl", "resources/shader/Fmodel.glsl");
   Model ourModel_1("resources/watchtower/tower.obj");
-  //Model surface("resources/surface/surface.obj");
+
+  Model surface("resources/testScene/scenespot.dae");
 
   glm::mat4 model = glm::mat4(1.0f);
   glm::mat4 view = glm::mat4(1.0f);
@@ -78,11 +79,16 @@ void System::GameLoop(){
     //projection = glm::mat4(1.0f);
 
     fixed.Use();
-    
     model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
     fixed.SetMat4("PVM", projection * view * model);
     ourModel_1.Draw(fixed);
+
+    fixed.Use();
+    model = glm::translate(model, glm::vec3(5.0f, 0.5f, 0.0f));
+    //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
+    fixed.SetMat4("PVM", projection * view * model);
+    surface.Draw(fixed);
 
     player.Update();
 

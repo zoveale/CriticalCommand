@@ -32,6 +32,13 @@ struct Vertex {
   glm::vec3 Bitangent;
 };
 
+struct Lights {
+  glm::vec3 position;
+  glm::vec3 ambient;
+  glm::vec3 diffuse;
+  glm::vec3 specular;
+  glm::vec3 direction;
+};
 
 struct Texture {
   unsigned int id;

@@ -42,6 +42,9 @@ public:
       for (unsigned int i = 0; i < meshes.size(); i++) {
         meshes[i].Draw(shader);
       }
+      for (unsigned int i = 0; i < scene->mNumLights; i++) {
+        //meshes[i].Lights(shader);
+      }
   }
   
   void Animate(Shader shader, float time) {
@@ -114,24 +117,30 @@ private:
     inverseRootNode = glm::inverse(inverseRootNode);
     ///
     //printf("Root node named: %s\n",scene->mRootNode->mName.data);
-    /*if (scene->mRootNode->FindNode("Armature_Torso")) {
-      printf("find node named: %s\n", scene->mRootNode->FindNode("Armature_Torso"));
+    /*if (scene->mRootNode->FindNode("TestSpot")) {
+      printf("find node named: %s\n", scene->mRootNode->FindNode("TestSpot")->mName.data);
     }*/
     if (scene->HasMaterials()) {
       aiString name;
       printf("it has %i material\n", scene->mNumMaterials);
-    /*  for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
+      for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
         scene->mMaterials[i]->Get(AI_MATKEY_NAME, name);
         printf("\tname: %s\n", name.C_Str());
         scene->mMaterials[i]->Get(AI_MATKEY_COLOR_DIFFUSE, name);
         printf("\tDiffuse: %s\n", name.C_Str());
         scene->mMaterials[i]->Get(AI_MATKEY_COLOR_SPECULAR, name);
         printf("\tSpecular: %s\n", name.C_Str());
-      }*/
+        scene->mMaterials[i]->Get(AI_MATKEY_COLOR_EMISSIVE, name);
+        printf("\tEmissive: %s\n", name.C_Str());
+      }
 
     }
     // process ASSIMP's root node recursively
     printf("(2)processNodes\n");
+    if (scene->HasLights()) {
+      printf("\t(2a)Process Lights\n");
+      ProcessLights(scene);
+    }
     if(scene->HasAnimations()){
       //FIXME::array of different ticks for other animations?
       for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
@@ -140,15 +149,26 @@ private:
       }
 
       isAnimated = true;
-      printf("\t(2a)Process Animated Node\n");
+      printf("\t(2b)Process Animated Node\n");
       ProcessAnimatedNode(scene->mRootNode, scene);
     }
     else {
       //ticksPerSecond = 25.0f;
-      printf("\t(2a)Process non-animated node\n");
+      printf("\t(2b)Process non-animated node\n");
       processNode(scene->mRootNode, scene);
     }
+   
     
+  }
+  void ProcessLights(const aiScene* scene) {
+    std::vector<aiLight*> lights;
+    for (unsigned int i = 0; i < scene->mNumLights; i++) {
+      lights.push_back(scene->mLights[i]);
+    }
+    
+    aiNode* light = scene->mRootNode->FindNode("TestSpot");
+    light;
+    glm::vec4(aiToGlm(light->mTransformation) * glm::vec4(aiToGlm(lights[0]->mPosition), 1.0));
   }
   void ProcessAnimatedNode(aiNode* node, const aiScene* scene) {
     // process each mesh located at the current node
@@ -202,25 +222,21 @@ private:
       Vertex vertex;
       glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
       // positions
-      //FIXME:: swapping y and z because of .dae file.
-      /*
-      vector.x = mesh->mVertices[i].x;
-      vector.y = mesh->mVertices[i].z;
-      vector.z = -mesh->mVertices[i].y;
-      vertex.Position = vector;
-      */
       vector.x = mesh->mVertices[i].x;
       vector.y = mesh->mVertices[i].y;
       vector.z = mesh->mVertices[i].z;
       vertex.Position = vector;
       // normals
-      vector.x = mesh->mNormals[i].x;
-      vector.y = mesh->mNormals[i].y;
-      vector.z = mesh->mNormals[i].z;
+      if (mesh->HasNormals()) {
+        vector.x = mesh->mNormals[i].x;
+        vector.y = mesh->mNormals[i].y;
+        vector.z = mesh->mNormals[i].z;
+      }
+      else {
+        vector = glm::vec3(0.0);
+      }
       vertex.Normal = vector;
-
       // texture coordinates
-
       if (mesh->HasTextureCoords(0)){
         glm::vec2 vec;
         // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't 
@@ -247,14 +263,8 @@ private:
       }
       else {
         // tangent
-        vector.x = 0.0f;
-        vector.y = 0.0f;
-        vector.z = 0.0f;
+        vector = glm::vec3(0.0);
         vertex.Tangent = vector;
-        // bitangent
-        vector.x = 0.0f;
-        vector.y = 0.0f;
-        vector.z = 0.0f;
         vertex.Bitangent = vector;
         vertices.push_back(vertex);
       }
@@ -409,7 +419,8 @@ private:
       }
     }
     
-    // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
+    // now wak through each of the mesh's faces (a face is a mesh its triangle)
+    // and retrieve the corresponding vertex indices.
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
       aiFace face = mesh->mFaces[i];
       // retrieve all indices of the face and store them in the indices vector
@@ -428,7 +439,7 @@ private:
     // normal: texture_normalN
 
     // 1. diffuse maps
-    vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+    vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "material.texture_diffuse");
     textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
     // 2. specular maps
     vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
@@ -440,6 +451,7 @@ private:
     vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
     // return a mesh object created from the extracted mesh data
+    
 
     return Mesh(vertices, indices, textures);
   }

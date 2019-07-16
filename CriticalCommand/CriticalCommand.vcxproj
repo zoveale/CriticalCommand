@@ -145,6 +145,7 @@
   <ItemGroup>
     <ClInclude Include="include\animated.h" />
     <ClInclude Include="include\camera.h" />
+    <ClInclude Include="include\lightFactory.h" />
     <ClInclude Include="include\mesh.h" />
     <ClInclude Include="include\model.h" />
     <ClInclude Include="include\modelUtility.h" />
@@ -160,8 +161,6 @@
     <None Include="resources\shader\Fanimated.glsl" />
     <None Include="resources\shader\Fmodel.glsl" />
     <None Include="resources\shader\Vmodel.glsl" />
-    <None Include="resources\shader\zdFragmentShader.glsl" />
-    <None Include="resources\shader\zdVertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg" />
