@@ -1,9 +1,5 @@
 #include "system.h"
-#include "..//resources/data/testData.h"
-//assimp test
-#include "model.h"
-///
-//unsigned int loadTexture(char const* path);
+
 System::System() {
 
 }
@@ -15,18 +11,18 @@ void System::SystemInit(){
   //player.startup \ or vise versa?
   //camera.startup /
 
-
+  //sceneLights;
   printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 }
 
 void System::GameLoop(){
   Shader animated("resources/shader/Vanimated.glsl", "resources/shader/Fanimated.glsl");
-  Model ourModel_0("resources/cowboy/CharacterRunning4.dae");
+  Model ourModel_0("resources/cowboy/CharacterRunning4.dae", sceneLights);
 
   Shader fixed("resources/shader/Vmodel.glsl", "resources/shader/Fmodel.glsl");
-  Model ourModel_1("resources/watchtower/tower.obj");
+  Model ourModel_1("resources/watchtower/tower.obj", sceneLights);
 
-  Model surface("resources/testScene/scenespot.dae");
+  Model surface("resources/surface/floor.dae", sceneLights);
 
   glm::mat4 model = glm::mat4(1.0f);
   glm::mat4 view = glm::mat4(1.0f);
@@ -85,8 +81,8 @@ void System::GameLoop(){
     ourModel_1.Draw(fixed);
 
     fixed.Use();
-    model = glm::translate(model, glm::vec3(5.0f, 0.5f, 0.0f));
-    //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
+    model = glm::translate(model, glm::vec3(5.0f, 0.25f, 0.0f));
+    model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
     fixed.SetMat4("PVM", projection * view * model);
     surface.Draw(fixed);
 

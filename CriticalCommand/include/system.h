@@ -6,9 +6,12 @@
 #include "input.h"
 #include "player.h"
 #include "camera.h"
+#include "model.h"
+#include "lightFactory.h"
 
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
+
 
 class System {
 private:
@@ -16,6 +19,7 @@ private:
   PlayerCamera playerCamera;
   Render render;
   Input input;
+  LightFactory sceneLights;
 
   void ClearScreen();
 

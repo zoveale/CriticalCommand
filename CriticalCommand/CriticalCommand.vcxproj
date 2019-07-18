@@ -134,6 +134,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\input.cpp" />
+    <ClCompile Include="source\lightFactory.cpp" />
+    <ClCompile Include="source\model.cpp" />
     <ClCompile Include="source\player.cpp" />
     <ClCompile Include="source\camera.cpp" />
     <ClCompile Include="source\render.cpp" />
