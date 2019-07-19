@@ -6,8 +6,8 @@ struct Material{
 	sampler2D texture_specular1;
 	sampler2D texture_normal1;
 	sampler2D texture_height1;
-	
-	sampler2D emission;
+	sampler2D texture_emission1;
+
 	float shininess;
 };
 struct DirLight{
@@ -69,24 +69,23 @@ in VS_OUT {
 
 in vec2 textureUV;
 
-//in vec4 weights;
-
-uniform vec3 objectColor;
-uniform vec3 lightColor;
 uniform vec3 viewPos;
 
 vec3 norm = normalize(fs_in.normal);
-vec3 lightDir = normalize(viewPos - fs_in.FragPos); 
-vec3 emission = texture(material.emission, textureUV).rgb ; 
+vec3 viewDir = normalize(viewPos - fs_in.FragPos);
+vec3 result = vec3(0.0);
+//vec3 emission = texture(material.texture_emission1, textureUV).rgb ; 
 
-void main(){    
-	
-    FragColor = vec4(texture(material.texture_diffuse1, textureUV).rgb, 1.0);
+void main(){   
+	for(int i = 0; i < 1; i++){
+        result += CalcPointLight(pointLights[i], material, norm, fs_in.FragPos, viewDir); 
+		}
+	FragColor = vec4(result, 1.0);
 }
 
 float Attenuation(vec3 pos, PointLight light){
-		float distance = length(light.position - pos);
-		float attenuation = (1.0 / (light.constant + (light.linear * distance) + (light.quadratic * (distance * distance)))); 
+		float dis = length(light.position - pos);
+		float attenuation = (1.0 / (light.constant + (light.linear * dis) + (light.quadratic * (dis * dis)))); 
 		return attenuation;
 	}
 
@@ -101,6 +100,7 @@ vec3 CalcDirLight(DirLight light, Material material,  vec3 normal, vec3 viewDir)
     vec3 ambient  = light.ambient  * vec3(texture(material.texture_diffuse1, textureUV));
     vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.texture_diffuse1, textureUV));
     vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, textureUV));
+
     return (ambient + diffuse + specular);
 }  
 

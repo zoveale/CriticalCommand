@@ -91,6 +91,8 @@
     <None Include="resources\shader\Fanimated.glsl" />
     <None Include="resources\shader\Fmodel.glsl" />
     <None Include="resources\shader\Vmodel.glsl" />
+    <None Include="resources\shader\lampF.glsl" />
+    <None Include="resources\shader\lampV.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">

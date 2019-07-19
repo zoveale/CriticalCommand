@@ -7,17 +7,25 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <vector>
+#include "shader.h"
 
 class PointLight;
 class SpotLight;
 
 class LightFactory {
+private:
+  
 public:
   //FIXME:: make static
-  std::vector<PointLight> pointLights;
-  std::vector<SpotLight> spotLights;
+  static std::vector<PointLight> pointLights;
+  static std::vector<SpotLight> spotLights;
   LightFactory();
   void AddLights(aiLight* light, aiNode* node);
+  glm::vec3 GetPointLightPos(unsigned int i);
+  glm::mat4 GetPointLightTransformation(unsigned int i);
+  glm::vec3 GetSpotLightPos();
+  unsigned int NumPointLights();
+  void Draw(Shader shader);
   //virtual void Transformation();
 };
 
@@ -27,7 +35,7 @@ private:
   glm::vec3 ambient;
   glm::vec3 diffuse;
   glm::vec3 specular;
-
+  glm::mat4 transformation;
   float constant;
   float linear;
   float quadratic;
@@ -35,8 +43,9 @@ private:
 public:
   PointLight();
   PointLight(aiLight* light, aiNode* node);
-
-  //void Transformation();
+  void Draw(Shader shader, unsigned int i);
+  glm::vec3 Position();
+  glm::mat4 Transformation();
 };
 
 class SpotLight : LightFactory {
@@ -55,6 +64,8 @@ private:
 public:
   SpotLight();
   SpotLight(aiLight* light, aiNode* node);
+  void Draw(Shader shader, unsigned int i);
+  glm::vec3 Position();
   //SpotLight Data();
   //void Transformation();
 };
