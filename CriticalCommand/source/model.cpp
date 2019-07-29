@@ -92,7 +92,7 @@ void Model::InitializeBones(Shader shader) {
     // process ASSIMP's root node recursively
     printf("(2)processNodes\n");
     if (scene->HasLights()) {
-      printf("\t(2a)Process Lights\n");
+      printf("\t(2a)Process %i Lights\n", scene->mNumLights);
       ProcessLights(scene, light);
     }
     if (scene->HasAnimations()) {

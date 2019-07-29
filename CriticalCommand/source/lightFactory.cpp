@@ -26,20 +26,37 @@ glm::mat4 LightFactory::GetPointLightTransformation(unsigned int i) {
   return pointLights[i].Transformation();
 }
 
-glm::vec3 LightFactory::GetSpotLightPos() {
-  return glm::vec3();
+glm::vec3 LightFactory::GetSpotLightPos(unsigned int i) {
+  return spotLights[i].Position();
+}
+
+glm::mat4 LightFactory::GetSpotLightTransformation(unsigned int i) {
+  return spotLights[i].Transformation();
+}
+
+unsigned int LightFactory::NumSpotLights() {
+  return spotLights.size();
 }
 
 unsigned int LightFactory::NumPointLights() {
   return pointLights.size();
 }
 
-void LightFactory::Draw(Shader shader) {
+void LightFactory::Set(Shader shader) {
   for (unsigned int i = 0; i < pointLights.size(); i++) {
-    pointLights[i].Draw(shader, i);
+    pointLights[i].Set(shader, i);
   }
   for (unsigned int i = 0; i < spotLights.size(); i++) {
-    spotLights[i].Draw(shader, i);
+    spotLights[i].Set(shader, i);
+  }
+}
+
+void LightFactory::Draw(Shader shader) {
+  for (unsigned int i = 0; i < NumPointLights(); i++) {
+    /*model = GetPointLightTransformation(i);
+    model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+    shader.SetMat4("PVM", projection * view * model);
+    pointLamp.Draw(lamp);*/
   }
 }
 
@@ -49,16 +66,20 @@ PointLight::PointLight() {
 
 PointLight::PointLight(aiLight* light, aiNode* node) {
   transformation = aiToGlm(node->mTransformation);
+  
+  /*position = glm::vec3(-transformation[3][0],
+                       transformation[3][2],
+                      -transformation[3][1]);*/
+  
+  
+  position = glm::vec3(transformation[3][0],
+                       transformation[3][1],
+                       transformation[3][2]);
+  transformation = glm::mat4(1.0f);
+  transformation[3][0] = position.x;
+  transformation[3][1] = position.y;
+  transformation[3][2] = position.z;
 
-  /*position = glm::vec3(node->mTransformation.a4,
-                       node->mTransformation.c4,
-                      -node->mTransformation.b4);*/
-  
-  
-  position = glm::vec3(node->mTransformation.a4,
-                       node->mTransformation.b4,
-                       node->mTransformation.c4);
-  
   ambient = glm::vec3(light->mColorAmbient.r,
                       light->mColorAmbient.g,
                       light->mColorAmbient.b);
@@ -75,31 +96,18 @@ PointLight::PointLight(aiLight* light, aiNode* node) {
 
 }
 
-void PointLight::Draw(Shader shader, unsigned int i) {
+void PointLight::Set(Shader shader, unsigned int i) {
   std::string name = "pointLights[";
   name += std::to_string(i);
   name += "]";
   
     shader.SetVec3(name + ".position", this->position);
-    //shader.SetVec3("pointLights[0].position", glm::vec3(1.0f, 1.0f, 1.0f));
-
-    //FIXME:: amdient values = vec3(0.0) for some reason
-    //shader.SetVec3(name + ".ambient", this->ambient);
-    //shader.SetVec3(name + ".ambient", 0.5f, 0.5f, 0.5f);
-
+    shader.SetVec3(name + ".ambient", this->ambient);
     shader.SetVec3(name + ".diffuse", this->diffuse);
     shader.SetVec3(name + ".specular", this->specular);
     shader.SetFloat(name + ".constant", this->constant);
     shader.SetFloat(name + ".linear", this->linear);
     shader.SetFloat(name + ".quadratic", this->quadratic);
-  
-   
-    /*if(i == 1){
-      shader.SetVec3(name + ".ambient", 0.0f, 0.0f, 0.5f);
-    }
-    else{ 
-      shader.SetVec3(name + ".ambient", 0.5f, 0.0f, 0.0f); }*/
-    
 }
 
 glm::vec3 PointLight::Position() {
@@ -114,10 +122,18 @@ SpotLight::SpotLight() {
 }
 
 SpotLight::SpotLight(aiLight* light, aiNode* node) {
+  transformation = aiToGlm(node->mTransformation);
+
+  position = glm::vec3(transformation[3][0],
+                       transformation[3][1],
+                       transformation[3][2]);
   
-  position = glm::vec3(node->mTransformation.a4,
-                       node->mTransformation.b4,
-                       node->mTransformation.c4);
+  direction = glm::vec3(transformation[2][0],
+                        transformation[2][1],
+                        transformation[2][2]);
+  
+  //glm::quat d = direction;
+
   ambient = glm::vec3(light->mColorAmbient.r,
                       light->mColorAmbient.g,
                       light->mColorAmbient.b);
@@ -131,10 +147,36 @@ SpotLight::SpotLight(aiLight* light, aiNode* node) {
   constant = light->mAttenuationConstant;
   linear = light->mAttenuationLinear;
   quadratic = light->mAttenuationQuadratic;
-
+  
   innerCut = light->mAngleInnerCone;
   outerCut = light->mAngleOuterCone;
+  //innerCut = glm::cos(glm::radians(17.5));
+  //outerCut = glm::cos(glm::radians(12.5));
 }
 
-void SpotLight::Draw(Shader shader, unsigned int i) {
+void SpotLight::Set(Shader shader, unsigned int i) {
+  std::string name = "spotLights[";
+  name += std::to_string(i);
+  name += "]";
+
+  shader.SetVec3(name + ".position", this->position);
+  shader.SetVec3(name + ".direction", this->direction);
+
+  shader.SetVec3(name + ".ambient", this->ambient);
+  shader.SetVec3(name + ".diffuse", this->diffuse);
+  shader.SetVec3(name + ".specular", this->specular);
+  shader.SetFloat(name + ".constant", this->constant);
+  shader.SetFloat(name + ".linear", this->linear);
+  shader.SetFloat(name + ".quadratic", this->quadratic);
+  shader.SetFloat(name + ".cutoff", this->innerCut);
+  shader.SetFloat(name + ".outerCutoff", this->outerCut);
+
+}
+
+glm::vec3 SpotLight::Position() {
+  return position;
+}
+
+glm::mat4 SpotLight::Transformation() {
+  return transformation;
 }

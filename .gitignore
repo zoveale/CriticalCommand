@@ -346,3 +346,4 @@ healthchecksdb
 /CriticalCommand/resources/watchtower
 /CriticalCommand/resources/surface
 /CriticalCommand/resources/cowboy
+/CriticalCommand/resources/default

@@ -23,8 +23,13 @@ public:
   void AddLights(aiLight* light, aiNode* node);
   glm::vec3 GetPointLightPos(unsigned int i);
   glm::mat4 GetPointLightTransformation(unsigned int i);
-  glm::vec3 GetSpotLightPos();
   unsigned int NumPointLights();
+
+  glm::vec3 GetSpotLightPos(unsigned int i);
+  glm::mat4 GetSpotLightTransformation(unsigned int i);
+  unsigned int NumSpotLights();
+  
+  void Set(Shader shader);
   void Draw(Shader shader);
   //virtual void Transformation();
 };
@@ -43,7 +48,7 @@ private:
 public:
   PointLight();
   PointLight(aiLight* light, aiNode* node);
-  void Draw(Shader shader, unsigned int i);
+  void Set(Shader shader, unsigned int i);
   glm::vec3 Position();
   glm::mat4 Transformation();
 };
@@ -55,6 +60,7 @@ private:
   glm::vec3 ambient;
   glm::vec3 diffuse;
   glm::vec3 specular;
+  glm::mat4 transformation;
   float constant;
   float linear;
   float quadratic;
@@ -64,8 +70,9 @@ private:
 public:
   SpotLight();
   SpotLight(aiLight* light, aiNode* node);
-  void Draw(Shader shader, unsigned int i);
+  void Set(Shader shader, unsigned int i);
   glm::vec3 Position();
+  glm::mat4 Transformation();
   //SpotLight Data();
   //void Transformation();
 };
