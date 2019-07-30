@@ -132,7 +132,6 @@ SpotLight::SpotLight(aiLight* light, aiNode* node) {
                         transformation[2][1],
                         transformation[2][2]);
   
-  //glm::quat d = direction;
 
   ambient = glm::vec3(light->mColorAmbient.r,
                       light->mColorAmbient.g,
@@ -148,10 +147,8 @@ SpotLight::SpotLight(aiLight* light, aiNode* node) {
   linear = light->mAttenuationLinear;
   quadratic = light->mAttenuationQuadratic;
   
-  innerCut = light->mAngleInnerCone;
-  outerCut = light->mAngleOuterCone;
-  //innerCut = glm::cos(glm::radians(17.5));
-  //outerCut = glm::cos(glm::radians(12.5));
+  innerCut = glm::cos(light->mAngleInnerCone);
+  outerCut = glm::cos(light->mAngleOuterCone);
 }
 
 void SpotLight::Set(Shader shader, unsigned int i) {

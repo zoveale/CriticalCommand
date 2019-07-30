@@ -23,7 +23,7 @@ void System::GameLoop(){
   Model ourModel_1("resources/watchtower/tower.obj", sceneLights);
 
   //Model surface("resources/surface/floor.dae", sceneLights);
-  Model default_0("resources/default/default4.dae", sceneLights);
+  Model default_0("resources/default/default2.dae", sceneLights);
   //Lamp models
   Shader lamp("resources/shader/lampV.glsl", "resources/shader/lampF.glsl");
   Model pointLamp("resources/surface/pointLamp.dae", sceneLights);
@@ -38,12 +38,11 @@ void System::GameLoop(){
   float currentFrame = 0.0f;
   fixed.Use();
   fixed.SetFloat("material.shininess", 32.0f);
-
+  
   /* Loop until the user closes the window */
   while (!input.KEY.ESC) {
 
     input.Process();
-
     currentFrame = (float)glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
@@ -82,8 +81,8 @@ void System::GameLoop(){
     
     fixed.SetVec3("viewPos", player.position);
     
-    model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, -1.0, 0.0));
-    model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
+    //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, -1.0, 0.0));
+    //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
     //model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
     
     fixed.SetMat4("model", model);
@@ -95,20 +94,21 @@ void System::GameLoop(){
 
     lamp.Use();
     for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
-      model = glm::mat4(1.0f);
-      model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, -1.0, 0.0));
-      model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
-      model = glm::translate(model, sceneLights.GetPointLightPos(i));
+      model = sceneLights.GetPointLightTransformation(i);
+      //model = glm::mat4(1.0f);
+      //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, -1.0, 0.0));
+      //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
+      //model = glm::translate(model, sceneLights.GetPointLightPos(i));
       //model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
       lamp.SetMat4("PVM", projection * view * model);
       pointLamp.Draw(lamp);
     }
     for (unsigned int i = 0; i < sceneLights.NumSpotLights(); i++) {
-      model = glm::mat4(1.0f);
-      model = glm::mat4(1.0f);
-      model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, -1.0, 0.0));
-      model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
-      model = glm::translate(model, sceneLights.GetSpotLightPos(i));
+      model = sceneLights.GetSpotLightTransformation(i);
+      //model = glm::mat4(1.0f);
+      //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, -1.0, 0.0));
+      //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
+      //model = glm::translate(model, sceneLights.GetSpotLightPos(i));
       //model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
       lamp.SetMat4("PVM", projection * view * model);
       spotLamp.Draw(lamp);
@@ -138,7 +138,7 @@ void System::Shutdown() {
 
 ///private fucntions
 void System::ClearScreen() {
-  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  glClearColor(0.0f, 0.05f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

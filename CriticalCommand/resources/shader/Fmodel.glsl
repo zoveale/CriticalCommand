@@ -80,7 +80,7 @@ vec3 result = vec3(0.0);
 
 void main(){   
 	for(int i = 0; i < 2; i++){
-        //result += CalcPointLight(pointLights[i], material, norm, fs_in.FragPos, viewDir); 
+        result += CalcPointLight(pointLights[i], material, norm, fs_in.FragPos, viewDir); 
 	}
 	for(int i = 0; i < 2; i++){
         result += CalcSpotLight(spotLights[i], material, norm, fs_in.FragPos, viewDir); 
