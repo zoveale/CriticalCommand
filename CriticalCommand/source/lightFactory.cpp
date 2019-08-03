@@ -79,6 +79,8 @@ PointLight::PointLight(aiLight* light, aiNode* node) {
   transformation[3][0] = position.x;
   transformation[3][1] = position.y;
   transformation[3][2] = position.z;
+  //FIXME:: Blender export rotates wrong way
+  transformation = glm::rotate(transformation, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
 
   ambient = glm::vec3(light->mColorAmbient.r,
                       light->mColorAmbient.g,
@@ -127,28 +129,35 @@ SpotLight::SpotLight(aiLight* light, aiNode* node) {
   position = glm::vec3(transformation[3][0],
                        transformation[3][1],
                        transformation[3][2]);
-  
+  //direction = glm::rotate(direction, glm::radians(90.0f), glm::vec3(1.0, 1.0, 0.0));
+  //direction = glm::rotateX(direction, 90.0f);
+  //FIXME:: Blender export rotates wrong way
+  transformation = glm::rotate(transformation, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
   direction = glm::vec3(transformation[2][0],
                         transformation[2][1],
                         transformation[2][2]);
-  
-
+  transformation = glm::rotate(transformation, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
+  ///
   ambient = glm::vec3(light->mColorAmbient.r,
                       light->mColorAmbient.g,
                       light->mColorAmbient.b);
   diffuse = glm::vec3(light->mColorDiffuse.r,
                       light->mColorDiffuse.g,
                       light->mColorDiffuse.b);
+  diffuse /= 10000.0f;
   specular = glm::vec3(light->mColorSpecular.r,
                        light->mColorSpecular.g,
                        light->mColorSpecular.b);
-
+  specular /= 10000.0f;
   constant = light->mAttenuationConstant;
   linear = light->mAttenuationLinear;
   quadratic = light->mAttenuationQuadratic;
   
-  innerCut = glm::cos(light->mAngleInnerCone);
-  outerCut = glm::cos(light->mAngleOuterCone);
+  //FIXME::Note creates neagative light space
+ /* innerCut = glm::cos(light->mAngleInnerCone/1);
+  outerCut = glm::cos(light->mAngleOuterCone/4);*/
+  innerCut = glm::cos(light->mAngleInnerCone / 4);
+  outerCut = glm::cos(light->mAngleOuterCone / 4);
 }
 
 void SpotLight::Set(Shader shader, unsigned int i) {

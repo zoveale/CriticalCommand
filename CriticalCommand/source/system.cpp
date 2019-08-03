@@ -23,7 +23,7 @@ void System::GameLoop(){
   Model ourModel_1("resources/watchtower/tower.obj", sceneLights);
 
   //Model surface("resources/surface/floor.dae", sceneLights);
-  Model default_0("resources/default/default2.dae", sceneLights);
+  Model default_0("resources/default/default3.dae", sceneLights);
   //Lamp models
   Shader lamp("resources/shader/lampV.glsl", "resources/shader/lampF.glsl");
   Model pointLamp("resources/surface/pointLamp.dae", sceneLights);
@@ -66,14 +66,14 @@ void System::GameLoop(){
     ///
     projection = glm::perspective(glm::radians(55.0f), (float)1280 / (float)720, 0.1f, 100.0f);
     view = playerCamera.View();
-    //animated.Use();
-    //animated.SetMat4("projection", projection);
-    //animated.SetMat4("view", view);
-    //model = glm::translate(model, glm::vec3(4.0f, 0.0f, 0.0f));
-    //model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	
-    //animated.SetMat4("PVM", projection * view * model);
-    //animated.SetMat4("model", model);
-    //ourModel_0.Animate(animated, currentFrame);
+    animated.Use();
+    animated.SetMat4("projection", projection);
+    animated.SetMat4("view", view);
+    model = glm::translate(model, glm::vec3(4.0f, 0.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	
+    animated.SetMat4("PVM", projection * view * model);
+    animated.SetMat4("model", model);
+    ourModel_0.Animate(animated, currentFrame);
 
     model = glm::mat4(1.0f);
 

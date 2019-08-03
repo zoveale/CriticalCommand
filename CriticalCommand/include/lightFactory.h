@@ -2,6 +2,8 @@
 #define LIGHTFACTORY_H
 
 #include <glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <gtx/rotate_vector.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>

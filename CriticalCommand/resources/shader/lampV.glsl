@@ -13,7 +13,9 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 PVM;
 
+out vec3 normal;
 void main()
 {
+	normal = aNormal;
 	gl_Position = PVM * vec4(position, 1.0);
 }
