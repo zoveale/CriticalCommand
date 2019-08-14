@@ -23,7 +23,7 @@ void System::GameLoop(){
   Model ourModel_1("resources/watchtower/tower.obj", sceneLights);
 
   //Model surface("resources/surface/floor.dae", sceneLights);
-  Model default_0("resources/default/default3.dae", sceneLights);
+  Model default_0("resources/default/default4.dae", sceneLights);
   //Lamp models
   Shader lamp("resources/shader/lampV.glsl", "resources/shader/lampF.glsl");
   Model pointLamp("resources/surface/pointLamp.dae", sceneLights);

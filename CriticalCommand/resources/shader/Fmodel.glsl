@@ -55,7 +55,7 @@ uniform DirLight dirLight;
 
 #define NR_SPOT_LIGHTS 3 
 uniform SpotLight spotLights[NR_SPOT_LIGHTS];
-#define NR_POINT_LIGHTS 4 
+#define NR_POINT_LIGHTS 5 
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 
 
@@ -79,10 +79,10 @@ vec3 result = vec3(0.0);
 //vec3 emission = texture(material.texture_emission1, textureUV).rgb ; 
 
 void main(){   
-	for(int i = 0; i < 2; i++){
+	for(int i = 0; i < 5; i++){
         result += CalcPointLight(pointLights[i], material, norm, fs_in.FragPos, viewDir); 
 	}
-	for(int i = 0; i <3; i++){
+	for(int i = 0; i <2; i++){
         result += CalcSpotLight(spotLights[i], material, norm, fs_in.FragPos, viewDir); 
 	}
 	FragColor =  vec4(result, 1.0);
@@ -150,7 +150,7 @@ vec3 CalcSpotLight(SpotLight light, Material material, vec3 normal, vec3 fragPos
     float theta = dot(lightDir, normalize(-light.direction));
 
 	//FIXME:: need to solve right scales between blender/dae and assimp/dae 
-	//if(theta < light.cutoff) {return vec3(0.0);}
+	if(theta < light.cutoff) {return vec3(0.0);}
 
     float intensity = Intensity(theta, light);
     // combine results

@@ -91,6 +91,9 @@ PointLight::PointLight(aiLight* light, aiNode* node) {
   specular = glm::vec3(light->mColorSpecular.r,
                        light->mColorSpecular.g,
                        light->mColorSpecular.b);
+  ambient /= 1000.0f;
+  diffuse /= 1000.0f;
+  specular /= 1000.0f;
 
   constant = light->mAttenuationConstant;
   linear = light->mAttenuationLinear;
