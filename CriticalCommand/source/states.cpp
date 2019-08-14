@@ -98,3 +98,4 @@ void StrafeRightState::HandleInput(Player& player, Input input) {
 void StrafeRightState::Update(Player& player) {
   player.MoveRight();
 }
+

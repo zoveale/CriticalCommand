@@ -12,7 +12,7 @@ out vec3 FragPos;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-
+uniform mat4 PVM;
 
 void main(){
 	
@@ -21,5 +21,5 @@ void main(){
 
 	//normal = normals;
 	normal = mat3(transpose(inverse(model))) * normals;
-	gl_Position =  projection * view  *  model *  vec4(position, 1.0f);
+	gl_Position =  PVM *  vec4(position, 1.0f);
 };

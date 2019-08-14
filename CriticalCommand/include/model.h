@@ -1,25 +1,20 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-
-
-
 #include "mesh.h"
 #include "animated.h"
 #include "shader.h"
-#include "modelUtility.h"
+
+#include "lightFactory.h"
 
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <gtx/quaternion.hpp>
-#include <gtx/string_cast.hpp>
 
-using namespace std;
 
-unsigned int TextureFromFile(const char* path, const string& directory, bool gamma = false);
+
+
 
 class Model {
 public:
@@ -28,49 +23,23 @@ public:
   vector<Mesh> meshes;
   vector<Animated> animatedMeshes;
   float baseVertexIDs;
-  string directory;
+  std::string directory;
   bool gammaCorrection;
   bool isAnimated;
   /*  Functions   */
   // constructor, expects a filepath to a 3D model.
-  Model(string const& path, bool gamma = false) : gammaCorrection(gamma) {
-    loadModel(path);
+  Model(std::string const& path, LightFactory& light, bool gamma = false) : gammaCorrection(gamma) {
+    loadModel(path, light);
   }
 
   // draws the model, and thus all its meshes
-  void Draw(Shader shader) {
-      for (unsigned int i = 0; i < meshes.size(); i++) {
-        meshes[i].Draw(shader);
-        //printf("mesh[%i]\n", i);
-      }
-  }
+  void Draw(Shader shader);
   
-  void Animate(Shader shader, float time) {
-
-    vector<glm::mat4> transforms;
-    //FIXME:: time is slower
-    BoneTransform(time, transforms);
-    
-    for (unsigned int i = 0; i < transforms.size(); i++) {
-      //FIXME::
-      string name = "gBones[" + to_string(i) + "]";
-      shader.SetMat4(name, transforms[i]);
-    }
-    for (unsigned int i = 0; i < animatedMeshes.size(); i++) {
-      animatedMeshes[i].Draw(shader);
-    }
-  }
+  void Animate(Shader shader, float time);
   //FIXME::
-  void InitializeBones(Shader shader) {
-    for (unsigned int i = 0; i < MAX_BONES; i++){
-      string name = "gBones[" + to_string(i) + "]";// name like in shader
-      bonesGPU[i] = shader.GetUniform(name);
-    }
-  }
+  void InitializeBones(Shader shader);
 
 private:
-  //
-  //aiMatrix4x4 inverseRootNode;
   glm::mat4 inverseRootNode;
   Assimp::Importer importer;
   const aiScene* scene;
@@ -88,216 +57,12 @@ private:
   ///
   /*  Functions   */
   // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-  void loadModel(string const& path) {
-    //FIXME::add type file reading, so if .obj it isnt animated
-    isAnimated = false;
-    // read file via ASSIMP
-    
-    printf("(1)Read Assimp file : %s\n", path.c_str());
-    //FIXME:: need static scene?
-    this->scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs |
-      aiProcess_CalcTangentSpace);// | aiProcess_GenSmoothNormals |
-      //aiProcess_JoinIdenticalVertices | aiProcess_FindDegenerates |
-      //aiProcess_ValidateDataStructure);
-    
-    // check for errors
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
-    {
-      cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
-      return;
-    }
-    
-    // retrieve the directory path of the filepath
-    directory = path.substr(0, path.find_last_of('/'));
-    //FIXME::why tho
-    //inverse root node
-    this->inverseRootNode = ai4x4ToGlm4x4(scene->mRootNode->mTransformation);
-    inverseRootNode = glm::inverse(inverseRootNode);
-    ///
-    //printf("Root node named: %s\n",scene->mRootNode->mName.data);
-    /*if (scene->mRootNode->FindNode("Armature_Torso")) {
-      printf("find node named: %s\n", scene->mRootNode->FindNode("Armature_Torso"));
-    }*/
-    if (scene->HasMaterials()) {
-      aiString name;
-      printf("it has %i material\n", scene->mNumMaterials);
-    /*  for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
-        scene->mMaterials[i]->Get(AI_MATKEY_NAME, name);
-        printf("\tname: %s\n", name.C_Str());
-        scene->mMaterials[i]->Get(AI_MATKEY_COLOR_DIFFUSE, name);
-        printf("\tDiffuse: %s\n", name.C_Str());
-        scene->mMaterials[i]->Get(AI_MATKEY_COLOR_SPECULAR, name);
-        printf("\tSpecular: %s\n", name.C_Str());
-      }*/
+  void loadModel(std::string const& path, LightFactory& light);
 
-    }
-    // process ASSIMP's root node recursively
-    printf("(2)processNodes\n");
-    if(scene->HasAnimations()){
-      //FIXME::array of different ticks for other animations?
-      for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
-        ticksPerSecond = scene->mAnimations[i]->mTicksPerSecond;
-        animationDuration = scene->mAnimations[i]->mDuration;
-      }
-
-      isAnimated = true;
-      printf("\t(2a)Process Animated Node\n");
-      ProcessAnimatedNode(scene->mRootNode, scene);
-    }
-    else {
-      //ticksPerSecond = 25.0f;
-      printf("\t(2a)Process non-animated node\n");
-      processNode(scene->mRootNode, scene);
-    }
-    
-  }
-  void ProcessAnimatedNode(aiNode* node, const aiScene* scene) {
-    // process each mesh located at the current node
-    //printf("node name: %s, num of children: %i, number of meshes: %i\n", node->mName.data, node->mNumChildren, node->mNumMeshes);
-    for (unsigned int i = 0; i < node->mNumMeshes; i++) {
-      // the node object only contains indices to index the actual objects in the scene. 
-      // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
-      aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-
-      //printf("mesh name: %s\n", mesh->mName.data);
-      animatedMeshes.push_back(ProcessAnimatedMesh(mesh, scene));
-      //baseVertexIDs =
-    }
-    // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
-    /*for (unsigned int i = 0; i < node->mNumChildren; i++) {
-      printf("\tchild name: %s\n", node->mChildren[i]->mName.data);
-    }*/
-    for (unsigned int i = 0; i < node->mNumChildren; i++) {
-      ProcessAnimatedNode(node->mChildren[i], scene);
-    }
-
-
-  }
+  void ProcessLights(const aiScene* scene, LightFactory& lights);
+  void ProcessAnimatedNode(aiNode* node, const aiScene* scene);
   
-  Animated ProcessAnimatedMesh(aiMesh* mesh, const aiScene* scene) {
-    printf("(3)processMesh\n");
-    // data to fill
-    vector<Vertex> vertices;
-    vector<unsigned int> indices;
-    vector<Texture> textures;
-
-    ///
-    //PrintAnimationInfo(scene);
-    ///
-    //
-    std::vector<VertexBoneData> weights;
-    weights.resize(mesh->mNumVertices);
-    LoadBones(mesh, weights);
-    ///
-    printf("\n");
-    if (mesh->HasTextureCoords(0)) {
-      printf("has texture coordinates!\n");
-
-    }
-    else printf("no texture coordinates!\n");
-
-    //
-    printf("# of vertices in mesh: %i\n", mesh->mNumVertices);
-    // Walk through each of the mesh's vertices
-    for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-      Vertex vertex;
-      glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
-      // positions
-      //FIXME:: swapping y and z because of .dae file.
-      /*
-      vector.x = mesh->mVertices[i].x;
-      vector.y = mesh->mVertices[i].z;
-      vector.z = -mesh->mVertices[i].y;
-      vertex.Position = vector;
-      */
-      vector.x = mesh->mVertices[i].x;
-      vector.y = mesh->mVertices[i].y;
-      vector.z = mesh->mVertices[i].z;
-      vertex.Position = vector;
-      // normals
-      vector.x = mesh->mNormals[i].x;
-      vector.y = mesh->mNormals[i].y;
-      vector.z = mesh->mNormals[i].z;
-      vertex.Normal = vector;
-
-      // texture coordinates
-
-      if (mesh->HasTextureCoords(0)){
-        glm::vec2 vec;
-        // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't 
-        // use models where a vertex can have multiple texture coordinates so we always take the first set (0).
-        vec.x = mesh->mTextureCoords[0][i].x;
-        vec.y = mesh->mTextureCoords[0][i].y;
-        vertex.TexCoords = vec;
-      }
-      else {
-        vertex.TexCoords = glm::vec2(0.0f, 0.0f);
-      }
-      if (mesh->HasTangentsAndBitangents()) {
-      // tangent
-      vector.x = mesh->mTangents[i].x;
-      vector.y = mesh->mTangents[i].y;
-      vector.z = mesh->mTangents[i].z;
-      vertex.Tangent = vector;
-      // bitangent
-      vector.x = mesh->mBitangents[i].x;
-      vector.y = mesh->mBitangents[i].y;
-      vector.z = mesh->mBitangents[i].z;
-      vertex.Bitangent = vector;
-      vertices.push_back(vertex);
-      }
-      else {
-        // tangent
-        vector.x = 0.0f;
-        vector.y = 0.0f;
-        vector.z = 0.0f;
-        vertex.Tangent = vector;
-        // bitangent
-        vector.x = 0.0f;
-        vector.y = 0.0f;
-        vector.z = 0.0f;
-        vertex.Bitangent = vector;
-        vertices.push_back(vertex);
-      }
-    }
-
-    // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
-    for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-      aiFace face = mesh->mFaces[i];
-      //printf("face #: %i\n", face.mNumIndices);
-      // retrieve all indices of the face and store them in the indices vector
-      for (unsigned int j = 0; j < face.mNumIndices; j++)
-        indices.push_back(face.mIndices[j]);
-    }
-
-
-    // process materials
-    aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-    // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
-    // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
-    // Same applies to other texture as the following list summarizes:
-    // diffuse: texture_diffuseN
-    // specular: texture_specularN
-    // normal: texture_normalN
-    
-    // 1. diffuse maps
-    vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-    textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-    // 2. specular maps
-    vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-    textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-    // 3. normal maps
-    std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-    textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-    // 4. height maps
-    std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
-    textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
-    // return a mesh object created from the extracted mesh data
-
-
-
-    return Animated(vertices, indices, textures, weights);
-  }
+  Animated ProcessAnimatedMesh(aiMesh* mesh, const aiScene* scene);
   
   ///
   //
@@ -311,132 +76,9 @@ private:
   // processes a node in a recursive fashion. Processes 
   // each individual mesh located at the node and repeats 
   // this process on its children nodes (if any).
-  void processNode(aiNode* node, const aiScene* scene) {
-    for (unsigned int i = 0; i < node->mNumMeshes; i++) {
-      aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-      meshes.push_back(processMesh(mesh, scene));
-    }
-    for (unsigned int i = 0; i < node->mNumChildren; i++) {
-      processNode(node->mChildren[i], scene);
-    }
-  }
+  void processNode(aiNode* node, const aiScene* scene);
 
-  Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
-    printf("(3)processMesh\n");
-    // data to fill
-    vector<Vertex> vertices;
-    vector<unsigned int> indices;
-    vector<Texture> textures;
-
-    ///
-    if (mesh->HasTextureCoords(0)) {
-      printf("has texture coordinates!\n");
-      
-    }else printf("no texture coordinates!\n");
-    
-    //
-    //LoadBones(mesh, joints);
-    ///
-
-    printf("# of vertices in mesh: %i\n", mesh->mNumVertices);
-    // Walk through each of the mesh's vertices
-    for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-      Vertex vertex;
-      glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
-      // positions
-      //FIXME:: swapping y and z because of dae file.
-      /*
-      vector.x = mesh->mVertices[i].x;
-      vector.y = mesh->mVertices[i].z;
-      vector.z = -mesh->mVertices[i].y;
-      vertex.Position = vector;
-      */
-      vector.x = mesh->mVertices[i].x;
-      vector.y = mesh->mVertices[i].y;
-      vector.z = mesh->mVertices[i].z;
-      vertex.Position = vector;
-      // normals
-      vector.x = mesh->mNormals[i].x;
-      vector.y = mesh->mNormals[i].y;
-      vector.z = mesh->mNormals[i].z;
-      vertex.Normal = vector;
-      
-      // texture coordinates
-      
-      if (mesh->HasTextureCoords(0)) // does the mesh contain texture coordinates?
-      {
-        glm::vec2 vec;
-        // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't 
-        // use models where a vertex can have multiple texture coordinates so we always take the first set (0).
-        vec.x = mesh->mTextureCoords[0][i].x;
-        vec.y = mesh->mTextureCoords[0][i].y;
-        vertex.TexCoords = vec;
-      }
-      else {
-        vertex.TexCoords = glm::vec2(0.0f, 0.0f);
-      }
-      if (mesh->HasTangentsAndBitangents()) {
-        // tangent
-        vector.x = mesh->mTangents[i].x;
-        vector.y = mesh->mTangents[i].y;
-        vector.z = mesh->mTangents[i].z;
-        vertex.Tangent = vector;
-        // bitangent
-        vector.x = mesh->mBitangents[i].x;
-        vector.y = mesh->mBitangents[i].y;
-        vector.z = mesh->mBitangents[i].z;
-        vertex.Bitangent = vector;
-        vertices.push_back(vertex);
-      }
-      else {
-        // tangent
-        vector.x = 0.0f;
-        vector.y = 0.0f;
-        vector.z = 0.0f;
-        vertex.Tangent = vector;
-        // bitangent
-        vector.x = 0.0f;
-        vector.y = 0.0f;
-        vector.z = 0.0f;
-        vertex.Bitangent = vector;
-        vertices.push_back(vertex);
-      }
-    }
-    
-    // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
-    for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-      aiFace face = mesh->mFaces[i];
-      // retrieve all indices of the face and store them in the indices vector
-      for (unsigned int j = 0; j < face.mNumIndices; j++)
-        indices.push_back(face.mIndices[j]);
-    }
-    
-
-    // process materials
-    aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-    // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
-    // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
-    // Same applies to other texture as the following list summarizes:
-    // diffuse: texture_diffuseN
-    // specular: texture_specularN
-    // normal: texture_normalN
-
-    // 1. diffuse maps
-    vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-    textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-    // 2. specular maps
-    vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-    textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-    // 3. normal maps
-    vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-    textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-    // 4. height maps
-    vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
-    textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
-    // return a mesh object created from the extracted mesh data
-
-    return Mesh(vertices, indices, textures);
-  }
+  Mesh processMesh(aiMesh* mesh, const aiScene* scene);
   ///
   
   //
@@ -444,249 +86,25 @@ private:
 
   // checks all material textures of a given type and loads the textures if they're not loaded yet.
   // the required info is returned as a Texture struct.
-  vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName) {
-    vector<Texture> textures;
-    /*printf("texture count %i\n", mat->GetTextureCount(type));
-    printf("texture name %s\n", typeName.c_str());*/
-    for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
-      aiString str;
-      mat->GetTexture(type, i, &str);
-      // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
-      bool skip = false;
-      for (unsigned int j = 0; j < textures_loaded.size(); j++) {
-        if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0) {
-          textures.push_back(textures_loaded[j]);
-          skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
-          break;
-        }
-      }
-      if (!skip) {   // if texture hasn't been loaded already, load it
-        Texture texture;
-        texture.id = TextureFromFile(str.C_Str(), this->directory);
-        texture.type = typeName;
-        texture.path = str.C_Str();
-        textures.push_back(texture);
-        textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
-      }
-    }
-    return textures;
-  }
+  vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
   ///
   //FIXME::Joint Loading
-  void LoadBones(aiMesh* mesh, std::vector<VertexBoneData>& weights) {
-
-    for (unsigned int i = 0; i < mesh->mNumBones; i++) {
-      unsigned index = 0;
-      std::string name(mesh->mBones[i]->mName.data);
-
-      if (boneMap.find(name) == boneMap.end()) {
-        index = numBones;
-        numBones++;
-
-        BoneData bd;
-        boneData.push_back(bd);
-        boneMap[name] = index;
-        boneData[index].offsetTransform = glm::mat4(ai4x4ToGlm4x4(mesh->mBones[i]->mOffsetMatrix));
-        
-      }
-      else {
-        index = boneMap[name];
-      }
-      for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
-        unsigned int vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
-        float weight = mesh->mBones[i]->mWeights[j].mWeight;
-       
-        if (index > numBones) assert(0);
-        if (weight <= 0.1f) continue;
-        weights[vertexID].addVertexBoneData(index, weight);
-       
-      }
-    }
-    
-  }
+  void LoadBones(aiMesh* mesh, std::vector<VertexBoneData>& weights);
   //
-  void BoneTransform(double timeInSec, vector<glm::mat4>& transforms) {
-    
-    const double ticksPerSecond = scene->mAnimations[0]->mTicksPerSecond != 0 ? scene->mAnimations[0]->mTicksPerSecond : 25.0f;
-    double timeInTicks = timeInSec * ticksPerSecond;
-    //FIXME:: have array of durations for different animations
-    double animationTime = fmod(timeInTicks, animationDuration);
+  void BoneTransform(double timeInSec, vector<glm::mat4>& transforms);
 
-    ReadNodeHierarchy((float)animationTime, scene->mRootNode, glm::mat4(1.0));
-
-    transforms.resize(numBones);
-
-    for (unsigned int i = 0; i < numBones; i++) {
-      transforms[i] = boneData[i].finalTransform;
-    }
-  }
-
-  void ReadNodeHierarchy(float animationTime, const aiNode* parent, glm::mat4 pTransform) {
-    
-    //get parent node name as string
-    string nodeName = parent->mName.data;
-    glm::mat4 nodeTransform(ai4x4ToGlm4x4(parent->mTransformation));
-    //FIXME: support multiple animations!
-    //FIXME:: make static?
-    const aiAnimation* parentAnimation = scene->mAnimations[0];
-    
-    //FIXME:: make static?
-    const aiNodeAnim* nodeAnimation = FindNodeAnim(parentAnimation, nodeName);
-
-    
-    //if nodeAnimation does not return nullptr
-    if (nodeAnimation) {
-      //FIXME:: make static
-      glm::mat4 scalingMatrix(1.0);
-      glm::mat4 rotationMatrix(1.0);
-      glm::mat4 traslationMatrix(1.0);
-      //FIXME:: make static
-      aiVector3D scaling;
-      aiQuaternion rotation;
-      aiVector3D traslation;
-
-      CalcInterpolatedScaling(scaling, animationTime, nodeAnimation);
-      CalcInterpolatedRotation(rotation, animationTime, nodeAnimation);
-      CalcInterpolatedPosition(traslation, animationTime, nodeAnimation);
-      scalingMatrix = glm::scale(scalingMatrix, glm::vec3(scaling.x, scaling.y, scaling.z));
-      rotationMatrix = glm::toMat4(aiQuatToGlmQuat(rotation));
-      traslationMatrix = glm::translate(traslationMatrix, glm::vec3(traslation.x, traslation.y, traslation.z));
-   
-      nodeTransform = traslationMatrix *  rotationMatrix * scalingMatrix;
-      
-    }
-    glm::mat4 globalTransform = pTransform * nodeTransform;
-    
-    if (boneMap.find(nodeName) != boneMap.end()) {
-      unsigned int index = boneMap[nodeName];
-      boneData[index].finalTransform = globalTransform *boneData[index].offsetTransform;
-    }
-    for (unsigned int i = 0; i < parent->mNumChildren; i++) {
-      ReadNodeHierarchy(animationTime, parent->mChildren[i],globalTransform);
-    }
-  }
+  void ReadNodeHierarchy(float animationTime, const aiNode* parent, glm::mat4 pTransform);
   //HelperFunction for ReadNodeHierarchy
-  const aiNodeAnim* FindNodeAnim(const aiAnimation* parent, const string name) {
-    for (unsigned int i = 0; i < parent->mNumChannels; i++) {
-      if (std::string(parent->mChannels[i]->mNodeName.data) == name) {
-        return parent->mChannels[i];
-      }
-    }
-    return nullptr;
-  }
+  const aiNodeAnim* FindNodeAnim(const aiAnimation* parent, const std::string name);
   ///
   typedef const aiNodeAnim* aiAnim;
-  void CalcInterpolatedScaling(aiVector3D& scaling, float animationTime, aiAnim parent) {
-    if (parent->mNumScalingKeys == 1) {
-      scaling = parent->mScalingKeys[0].mValue;
-      return;
-    }
-
-    auto scaling_index = FindScaling(animationTime, parent);
-    auto nex_sca_index = scaling_index + 1;
-
-    assert(nex_sca_index < parent->mNumScalingKeys);
-
-    float delta_time = (float)(parent->mScalingKeys[nex_sca_index].mTime - parent->mScalingKeys[scaling_index].mTime);
-
-    float factor = (animationTime - (float)parent->mScalingKeys[scaling_index].mTime) / delta_time;
-
-    assert(factor >= 0.0f && factor <= 1.0f);
-
-    const aiVector3D& start = parent->mScalingKeys[scaling_index].mValue;
-    const aiVector3D& end = parent->mScalingKeys[nex_sca_index].mValue;
-
-    scaling = start + factor * (end - start);
-  }
-  void CalcInterpolatedRotation(aiQuaternion& rotation, float animationTime, aiAnim parent) {
-    if (parent->mNumRotationKeys == 1) {
-      // There is only one Position.
-      rotation = parent->mRotationKeys[0].mValue;
-      return;
-    }
-
-    unsigned int rotation_index = FindRotation(animationTime, parent);
-    unsigned int next_rot_index = rotation_index + 1;
-    assert(next_rot_index < parent->mNumRotationKeys);
-
-    // The Difference between two key frames.
-    float delta_time = (float)(parent->mRotationKeys[next_rot_index].mTime - parent->mRotationKeys[rotation_index].mTime);
-
-    // The Factor by which the current frame has transitioned into the next frame.
-    float factor = (animationTime - (float)parent->mRotationKeys[rotation_index].mTime) / delta_time;
-
-    assert(factor >= 0.0f && factor <= 1.0f);
-
-    const aiQuaternion& start = parent->mRotationKeys[rotation_index].mValue;
-    const aiQuaternion& end = parent->mRotationKeys[next_rot_index].mValue;
-
-    aiQuaternion::Interpolate(rotation, start, end, factor);
-
-    rotation = rotation.Normalize();
-  }
-  void CalcInterpolatedPosition(aiVector3D& translation, float animationTime, aiAnim parent) {
-    if (parent->mNumPositionKeys == 1) {
-      // There is only one Position.
-      translation = parent->mPositionKeys[0].mValue;
-      return;
-    }
-
-    unsigned int index = FindPosition(animationTime, parent);
-    unsigned int next_pos_index = index + 1;
-    assert(next_pos_index < parent->mNumPositionKeys);
-
-    // The Difference between two key frames.
-    float delta_time = (float)(parent->mPositionKeys[next_pos_index].mTime - parent->mPositionKeys[index].mTime);
-
-    // The Factor by which the current frame has transitioned into the next frame.
-    float factor = (animationTime - (float)parent->mPositionKeys[index].mTime) / delta_time;
-
-    assert(factor >= 0.0f && factor <= 1.0f);
-
-    const aiVector3D& start = parent->mPositionKeys[index].mValue;
-    const aiVector3D& end = parent->mPositionKeys[next_pos_index].mValue;
-
-    translation = start + factor * (end - start);
-  }
+  void CalcInterpolatedScaling(aiVector3D& scaling, float animationTime, aiAnim parent);
+  void CalcInterpolatedRotation(aiQuaternion& rotation, float animationTime, aiAnim parent);
+  void CalcInterpolatedPosition(aiVector3D& translation, float animationTime, aiAnim parent);
   //
-  unsigned int FindScaling(float animationTime, aiAnim parent) {
-    assert(parent->mNumScalingKeys > 0);
-
-    for (unsigned int i = 0; i < parent->mNumScalingKeys - 1; i++) {
-      if (animationTime < (float)parent->mScalingKeys[i + 1].mTime) {
-        return i;
-      }
-    }
-
-    assert(0);
-
-    return 0;
-  }
-  unsigned int FindRotation(float animationTime, aiAnim parent) {
-    assert(parent->mNumRotationKeys > 0);
-
-    for (unsigned int i = 0; i < parent->mNumRotationKeys - 1; i++) {
-      if (animationTime < (float)parent->mRotationKeys[i + 1].mTime) {
-        return i;
-      }
-    }
-
-    assert(0);
-
-    return 0;
-  }
-  unsigned int FindPosition(float animationTime, aiAnim parent) {
-    assert(parent->mNumPositionKeys > 0);
-    for (unsigned int i = 0; i < parent->mNumPositionKeys - 1; i++) {
-      if (animationTime < (float)parent->mPositionKeys[i + 1].mTime) {
-        return i;
-      }
-    }
-
-    assert(0);
-
-    return 0;
-  }
+  unsigned int FindScaling(float animationTime, aiAnim parent);
+  unsigned int FindRotation(float animationTime, aiAnim parent);
+  unsigned int FindPosition(float animationTime, aiAnim parent);
 };
 
 #endif //MODEL_H

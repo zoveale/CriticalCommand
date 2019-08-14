@@ -1,9 +1,5 @@
 #include "system.h"
-#include "..//resources/data/testData.h"
-//assimp test
-#include "model.h"
-///
-//unsigned int loadTexture(char const* path);
+
 System::System() {
 
 }
@@ -15,13 +11,23 @@ void System::SystemInit(){
   //player.startup \ or vise versa?
   //camera.startup /
 
-
+  //sceneLights;
   printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 }
 
 void System::GameLoop(){
-  Shader ourShader("resources/shader/VmeshTest.glsl", "resources/shader/FmeshTest.glsl");
-  Model ourModel_0("resources/skeleton/Skeleton2/CharacterRunning4.dae");
+  Shader animated("resources/shader/Vanimated.glsl", "resources/shader/Fanimated.glsl");
+  Model ourModel_0("resources/cowboy/CharacterRunning4.dae", sceneLights);
+
+  Shader fixed("resources/shader/Vmodel.glsl", "resources/shader/Fmodel.glsl");
+  Model ourModel_1("resources/watchtower/tower.obj", sceneLights);
+
+  //Model surface("resources/surface/floor.dae", sceneLights);
+  Model default_0("resources/default/default4.dae", sceneLights);
+  //Lamp models
+  Shader lamp("resources/shader/lampV.glsl", "resources/shader/lampF.glsl");
+  Model pointLamp("resources/surface/pointLamp.dae", sceneLights);
+  Model spotLamp("resources/surface/spotLight.dae", sceneLights);
 
   glm::mat4 model = glm::mat4(1.0f);
   glm::mat4 view = glm::mat4(1.0f);
@@ -30,12 +36,13 @@ void System::GameLoop(){
   float deltaTime = 0.0f;	
   float lastFrame = 0.0f; 
   float currentFrame = 0.0f;
-
+  fixed.Use();
+  fixed.SetFloat("material.shininess", 32.0f);
+  
   /* Loop until the user closes the window */
   while (!input.KEY.ESC) {
 
     input.Process();
-
     currentFrame = (float)glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
@@ -57,29 +64,60 @@ void System::GameLoop(){
     view = glm::mat4(1.0f);
     projection = glm::mat4(1.0f);
     ///
-    ourShader.Use();
     projection = glm::perspective(glm::radians(55.0f), (float)1280 / (float)720, 0.1f, 100.0f);
     view = playerCamera.View();
-    ourShader.SetMat4("projection", projection);
-    ourShader.SetMat4("view", view);
-    // render the loaded model
-    // translate it down so it's at the center of the scene
-    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
-    ourShader.SetMat4("PVM", projection * view * model);
-    //ourShader.SetMat4("MVP", model * view * projection);
+    animated.Use();
+    animated.SetMat4("projection", projection);
+    animated.SetMat4("view", view);
+    model = glm::translate(model, glm::vec3(4.0f, 0.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	
+    animated.SetMat4("PVM", projection * view * model);
+    animated.SetMat4("model", model);
+    ourModel_0.Animate(animated, currentFrame);
 
-    //FIXME:: .dae files load with incorrect y and z values. 
-    //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    model = glm::mat4(1.0f);
 
-    ourShader.SetMat4("model", model);
-    //FIXME:: how to pass in current time?
-    ourModel_0.Animate(ourShader, currentFrame);
+    fixed.Use();
+    
+    fixed.SetVec3("viewPos", player.position);
+    
+    //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, -1.0, 0.0));
+    //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
+    //model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+    
+    fixed.SetMat4("model", model);
+    fixed.SetMat4("PVM", projection * view * model);
+    sceneLights.Set(fixed);
+    default_0.Draw(fixed);
     
     
 
-
+    lamp.Use();
+    for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
+      model = sceneLights.GetPointLightTransformation(i);
+      //model = glm::mat4(1.0f);
+      //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, -1.0, 0.0));
+      //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
+      //model = glm::translate(model, sceneLights.GetPointLightPos(i));
+      //model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+      lamp.SetMat4("PVM", projection * view * model);
+      pointLamp.Draw(lamp);
+    }
+    for (unsigned int i = 0; i < sceneLights.NumSpotLights(); i++) {
+      model = sceneLights.GetSpotLightTransformation(i);
+      //model = glm::mat4(1.0f);
+      //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, -1.0, 0.0));
+      //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
+      //model = glm::translate(model, sceneLights.GetSpotLightPos(i));
+      //model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+      lamp.SetMat4("PVM", projection * view * model);
+      spotLamp.Draw(lamp);
+    }
+    
+    
     player.Update();
+
+
     /* Swap front and back buffers */
     render.Display();
 
@@ -100,7 +138,7 @@ void System::Shutdown() {
 
 ///private fucntions
 void System::ClearScreen() {
-  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  glClearColor(0.0f, 0.05f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

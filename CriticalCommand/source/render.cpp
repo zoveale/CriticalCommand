@@ -40,5 +40,6 @@ void Render::StartUp(){
 }
 
 void Render::Display() {
+  
   glfwSwapBuffers(this->window);
 }

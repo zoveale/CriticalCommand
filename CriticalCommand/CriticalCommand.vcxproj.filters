@@ -39,6 +39,12 @@
     <ClCompile Include="source\input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\lightFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\system.h">
@@ -71,22 +77,22 @@
     <ClInclude Include="include\mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\joint.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\animated.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\modelUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\lightFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shader\zdVertexShader.glsl" />
-    <None Include="resources\shader\zdFragmentShader.glsl" />
-    <None Include="resources\shader\FmeshTest.glsl" />
-    <None Include="resources\shader\modelVS.glsl" />
-    <None Include="resources\shader\modelFS.glsl" />
+    <None Include="resources\shader\Fanimated.glsl" />
+    <None Include="resources\shader\Fmodel.glsl" />
+    <None Include="resources\shader\Vmodel.glsl" />
+    <None Include="resources\shader\lampF.glsl" />
+    <None Include="resources\shader\lampV.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">
@@ -94,8 +100,6 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="resources\shader\vLamp.glsl" />
-    <Text Include="resources\shader\fLamp.glsl" />
-    <Text Include="resources\shader\VmeshTest.glsl" />
+    <Text Include="resources\shader\Vanimated.glsl" />
   </ItemGroup>
 </Project>

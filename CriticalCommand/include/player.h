@@ -30,6 +30,8 @@ public:
   ///
   InputState* state;
   Camera* camera;
+  //Graphics* graphic
+  //model* draw
 
   Player();
   void StartUp();

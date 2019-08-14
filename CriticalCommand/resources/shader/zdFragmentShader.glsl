@@ -63,7 +63,6 @@ uniform vec3 lightColor;
 uniform vec3 viewPos;
 
 
-uniform sampler2D texture1;
 
 //float ambientStrength = 0.1;
 //float specularStrength = 0.9;
