@@ -90,7 +90,7 @@ void main(){
 
 float Attenuation(vec3 pos, PointLight light){
 		float dis = length(light.position - pos);
-		float attenuation = (1.0 / (light.constant + (light.linear * dis) + (light.quadratic * (dis * dis)))); 
+		float attenuation = (1.0 / (1 + (light.quadratic * (dis * dis)))); 
 		return attenuation;
 	}
 
@@ -150,7 +150,7 @@ vec3 CalcSpotLight(SpotLight light, Material material, vec3 normal, vec3 fragPos
     float theta = dot(lightDir, normalize(-light.direction));
 
 	//FIXME:: need to solve right scales between blender/dae and assimp/dae 
-	if(theta < light.cutoff) {return vec3(0.0);}
+	//if(theta < light.cutoff) {return vec3(0.0);}
 
     float intensity = Intensity(theta, light);
     // combine results

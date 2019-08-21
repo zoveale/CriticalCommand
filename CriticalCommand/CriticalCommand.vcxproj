@@ -78,12 +78,11 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\DevLibs\nvidiaPhysX\PhysX\pxshared\include;C:\DevLibs\nvidiaPhysX\PhysX\physx\include;$(SolutionDir)middleware\glew\include;$(SolutionDir)middleware\glfw\include;$(SolutionDir)CriticalCommand\include;$(SolutionDir)middleware\assimp;$(SolutionDir)middleware\glm</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLEW_STATIC; _MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.mt\debug;$(SolutionDir)middleware\assimp\lib;$(SolutionDir)middleware\glfw\lib-vc2019;$(SolutionDir)middleware\glew\lib\Release\Win32</AdditionalLibraryDirectories>
-      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib; glfw3.lib; opengl32.lib; glew32s.lib; assimp-vc140-mt.lib</AdditionalDependencies>
+      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib;glfw3.lib;opengl32.lib;glew32s.lib;assimp-vc140-mt.lib;PhysX_32.lib;PhysXCommon_32.lib;PhysXFoundation_32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

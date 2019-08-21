@@ -152,6 +152,8 @@ SpotLight::SpotLight(aiLight* light, aiNode* node) {
                        light->mColorSpecular.g,
                        light->mColorSpecular.b);
   specular /= 10000.0f;
+
+
   constant = light->mAttenuationConstant;
   linear = light->mAttenuationLinear;
   quadratic = light->mAttenuationQuadratic;

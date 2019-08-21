@@ -1,10 +1,10 @@
 #include "physics.h"
 
-Physics::Physics() {
-
-}
-
-void Physics::StartUp() {
-  
-
-}
+//Physics::Physics() {
+//  
+//}
+//
+//void Physics::StartUp() {
+//  
+//
+//}
