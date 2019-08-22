@@ -8,6 +8,7 @@
 #include "camera.h"
 #include "model.h"
 #include "lightFactory.h"
+#include "physics.h"
 
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
@@ -20,6 +21,8 @@ private:
   Render render;
   Input input;
   LightFactory sceneLights;
+
+  Physics scenePhysics;
 
   void ClearScreen();
 

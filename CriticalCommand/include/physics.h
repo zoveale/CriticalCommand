@@ -1,7 +1,8 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
 
-//#define NDEBUG
+//#define _DEBUG
+#include "PxConfig.h"
 #include "PxPhysicsAPI.h"
 
 
@@ -20,10 +21,13 @@
 //};
 
 class Physics {
-  Physics() {
-  
-  }
+public:
+  Physics();
   void StartUp();
+  void AddActor(physx::PxActor* actor);
+  void StepPhysics();
+  
+  void CleanUp();
 
 private:
 

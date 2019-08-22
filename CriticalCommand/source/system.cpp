@@ -10,7 +10,7 @@ void System::SystemInit(){
   input.StartUp(render.Window());
   //player.startup \ or vise versa?
   //camera.startup /
-
+  scenePhysics.StartUp();
   //sceneLights;
   printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 }
@@ -115,6 +115,7 @@ void System::GameLoop(){
     }
     
     
+    scenePhysics.StepPhysics();
     player.Update();
 
 

@@ -26,6 +26,7 @@ Player::Player() {
   camera = &Camera::camera;
   state = &InputState::idel;
   //printf("move to idel state->");
+  
 }
 
 void Player::StartUp() {
