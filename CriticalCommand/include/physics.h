@@ -4,7 +4,7 @@
 //#define _DEBUG
 #include "PxConfig.h"
 #include "PxPhysicsAPI.h"
-
+#define PVD_HOST "127.0.0.1"
 
 //class PxAllocatorCallback {
 //public:
@@ -19,8 +19,10 @@
 //  virtual void reportError(physx::PxErrorCode::Enum code,
 //    const char* message, const char* file, int line) {}
 //};
+namespace physx { class Physics; }
 
-class Physics {
+class physx::Physics {
+  
 public:
   Physics();
   void StartUp();
@@ -28,14 +30,19 @@ public:
   void StepPhysics();
   
   void CleanUp();
-
+  void CreateStack(const physx::PxTransform& t,
+    PxU32 size, 
+    physx::PxReal halfExtent);
 private:
 
+  //TODO:: make static
   physx::PxDefaultAllocator	gAllocator;
   physx::PxDefaultErrorCallback	gErrorCallback;
 
+
   physx::PxFoundation* gFoundation;
   physx::PxPhysics* gPhysics;
+  physx::PxCooking* gCooking;
 
   physx::PxDefaultCpuDispatcher* gDispatcher;
   physx::PxScene* gScene;
@@ -43,5 +50,11 @@ private:
   physx::PxMaterial* gMaterial;
 
   physx::PxPvd* gPvd;
+  /*
+  TODO:: remove test variables 
+  */
+
+  physx::PxReal stackZ = 10.0f;
 };
+
 #endif // !PHYSICS_H

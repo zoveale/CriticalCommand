@@ -22,7 +22,7 @@ private:
   Input input;
   LightFactory sceneLights;
 
-  Physics scenePhysics;
+  physx::Physics scenePhysics;
 
   void ClearScreen();
 

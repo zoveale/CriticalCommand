@@ -99,6 +99,13 @@
     <None Include="resources\shader\Vmodel.glsl" />
     <None Include="resources\shader\lampF.glsl" />
     <None Include="resources\shader\lampV.glsl" />
+    <None Include="PhysXGpu_32.dll" />
+    <None Include="assimp-vc140-mt.dll" />
+    <None Include="PhysX_32.dll" />
+    <None Include="PhysXCommon_32.dll" />
+    <None Include="PhysXCooking_32.dll" />
+    <None Include="PhysXDevice.dll" />
+    <None Include="PhysXFoundation_32.dll" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">

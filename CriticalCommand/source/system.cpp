@@ -23,7 +23,7 @@ void System::GameLoop(){
   Model ourModel_1("resources/watchtower/tower.obj", sceneLights);
 
   //Model surface("resources/surface/floor.dae", sceneLights);
-  Model default_0("resources/default/default4.dae", sceneLights);
+  Model default_0("resources/default/default5.dae", sceneLights);
   //Lamp models
   Shader lamp("resources/shader/lampV.glsl", "resources/shader/lampF.glsl");
   Model pointLamp("resources/surface/pointLamp.dae", sceneLights);
@@ -66,14 +66,14 @@ void System::GameLoop(){
     ///
     projection = glm::perspective(glm::radians(55.0f), (float)1280 / (float)720, 0.1f, 100.0f);
     view = playerCamera.View();
-    animated.Use();
+   /* animated.Use();
     animated.SetMat4("projection", projection);
     animated.SetMat4("view", view);
     model = glm::translate(model, glm::vec3(4.0f, 0.0f, 0.0f));
     model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	
     animated.SetMat4("PVM", projection * view * model);
     animated.SetMat4("model", model);
-    ourModel_0.Animate(animated, currentFrame);
+    ourModel_0.Animate(animated, currentFrame);*/
 
     model = glm::mat4(1.0f);
 
@@ -99,7 +99,7 @@ void System::GameLoop(){
       //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, -1.0, 0.0));
       //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
       //model = glm::translate(model, sceneLights.GetPointLightPos(i));
-      //model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+      model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
       lamp.SetMat4("PVM", projection * view * model);
       pointLamp.Draw(lamp);
     }
@@ -109,7 +109,7 @@ void System::GameLoop(){
       //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, -1.0, 0.0));
       //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
       //model = glm::translate(model, sceneLights.GetSpotLightPos(i));
-      //model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+      model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
       lamp.SetMat4("PVM", projection * view * model);
       spotLamp.Draw(lamp);
     }
@@ -132,7 +132,7 @@ void System::GameLoop(){
 }
 
 void System::Shutdown() {
-
+  scenePhysics.CleanUp();
   //dShader.Shutdown();
   glfwTerminate();
 }

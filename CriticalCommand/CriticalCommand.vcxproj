@@ -95,15 +95,18 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\DevLibs\nvidiaPhysX\PhysX\pxshared\include;C:\DevLibs\nvidiaPhysX\PhysX\physx\include;$(SolutionDir)middleware\glew\include;$(SolutionDir)middleware\glfw\include;$(SolutionDir)CriticalCommand\include;$(SolutionDir)middleware\assimp;$(SolutionDir)middleware\glm</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GLEW_STATIC; _MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)CriticalCommand\CriticalCommand;C:\DevLibs\nvidiaPhysX\PhysX\pxshared\include;C:\DevLibs\nvidiaPhysX\PhysX\physx\include;$(SolutionDir)middleware\glew\include;$(SolutionDir)middleware\glfw\include;$(SolutionDir)CriticalCommand\include;$(SolutionDir)middleware\assimp;$(SolutionDir)middleware\glm</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GLEW_STATIC;_MBCS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -213,6 +216,13 @@
     <ClInclude Include="resources\data\testData.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assimp-vc140-mt.dll" />
+    <None Include="PhysXCommon_32.dll" />
+    <None Include="PhysXCooking_32.dll" />
+    <None Include="PhysXDevice.dll" />
+    <None Include="PhysXFoundation_32.dll" />
+    <None Include="PhysXGpu_32.dll" />
+    <None Include="PhysX_32.dll" />
     <None Include="resources\shader\Fanimated.glsl" />
     <None Include="resources\shader\Fmodel.glsl" />
     <None Include="resources\shader\lampF.glsl" />
