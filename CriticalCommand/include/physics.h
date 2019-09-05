@@ -1,7 +1,15 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
 
-//#define _DEBUG
+//#define _DEBUG 
+///added to project config
+#include <iostream>
+#include <vector>
+
+#include <geometric.hpp>
+#include <vec3.hpp>
+#include <mat4x4.hpp>
+
 #include "PxConfig.h"
 #include "PxPhysicsAPI.h"
 #define PVD_HOST "127.0.0.1"
@@ -19,42 +27,73 @@
 //  virtual void reportError(physx::PxErrorCode::Enum code,
 //    const char* message, const char* file, int line) {}
 //};
+#define MAX_ACTOR 1<<8
 namespace physx { class Physics; }
+
+
 
 class physx::Physics {
   
 public:
   Physics();
   void StartUp();
-  void AddActor(physx::PxActor* actor);
+  void AddActor(PxActor* actor);
+  void GetActors(/*PxActor** actor*/);
   void StepPhysics();
   
   void CleanUp();
-  void CreateStack(const physx::PxTransform& t,
+  void CreateStack(const PxTransform& t,
     PxU32 size, 
-    physx::PxReal halfExtent);
-private:
+    PxReal halfExtent);
+
+  //TODO:: test functions
+  void AddCubeActor(glm::vec3 pos, float scale = 1.0f);
+  glm::vec3 GetAPosition(int i);
+  glm::mat4 GetAPose(int i);
+  void ShootBall(glm::vec3 front, glm::vec3 pos);
+
+  void CreateTriangleMesh(PxU32 numVertices,
+                    const PxVec3* vertices, 
+                          PxU32 numTriangles,
+                    const PxU32* indices);
+
+  PxTriangleMesh* createMeshGround();
+  private:
 
   //TODO:: make static
-  physx::PxDefaultAllocator	gAllocator;
-  physx::PxDefaultErrorCallback	gErrorCallback;
+  PxDefaultAllocator	gAllocator;
+  PxDefaultErrorCallback	gErrorCallback;
 
 
-  physx::PxFoundation* gFoundation;
-  physx::PxPhysics* gPhysics;
-  physx::PxCooking* gCooking;
+  PxFoundation* gFoundation;
+  PxPhysics* gPhysics;
+  PxCooking* gCooking;
 
-  physx::PxDefaultCpuDispatcher* gDispatcher;
-  physx::PxScene* gScene;
+  PxDefaultCpuDispatcher* gDispatcher;
+  PxScene* gScene;
 
-  physx::PxMaterial* gMaterial;
+  PxMaterial* gMaterial;
 
-  physx::PxPvd* gPvd;
+  PxPvd* gPvd;
   /*
   TODO:: remove test variables 
   */
+  PxMat44 globalPoseArray[MAX_ACTOR];
+  PxMat44 globalPose;
 
-  physx::PxReal stackZ = 10.0f;
+  PxVec3 pos[MAX_ACTOR];
+  PxReal stackZ = 10.0f;
+  
+  PxTriangleMesh* triMesh;
+  PxRigidStatic* meshActor;
+
+  /*
+  static const PxVec3 convexVerts[] = {PxVec3(0,1,0),PxVec3(1,0,0),PxVec3(-1,0,0),PxVec3(0,0,1),
+    PxVec3(0,0,-1)};
+    */
 };
+//test Data
+
+
 
 #endif // !PHYSICS_H

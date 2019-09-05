@@ -90,5 +90,10 @@ void Player::MoveLeft() {
 
 void Player::MoveRight() {
   position += dt * right * speed;
+  ShootBall();
+}
+
+void Player::ShootBall() {
+  
 }
 

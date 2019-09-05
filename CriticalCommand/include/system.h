@@ -10,6 +10,7 @@
 #include "lightFactory.h"
 #include "physics.h"
 
+#include "gtx/matrix_decompose.hpp"
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
 

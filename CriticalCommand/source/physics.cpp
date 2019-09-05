@@ -7,6 +7,9 @@ physx::Physics::Physics() {
   gScene = NULL;
   gMaterial = NULL;
   gPvd = NULL;
+  triMesh = NULL;
+  meshActor = NULL;
+
 }
 
 void physx::Physics::StartUp() {
@@ -14,45 +17,95 @@ void physx::Physics::StartUp() {
 
   //Physx Visual Debugger TODO:: understand this better
   gPvd = PxCreatePvd(*gFoundation);
-  physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
-  gPvd->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
+  PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+  gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
 
-  gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, physx::PxTolerancesScale(), true, gPvd);
+  gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
 
   //Can make new scale
   //pass in new scale for cenitmeters 
-  physx::PxTolerancesScale scale;
+  PxTolerancesScale scale;
   scale.length = 100;
   scale.speed = 981;
   ///
 
   //we pass in defualt scale
   gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation,
-    physx::PxTolerancesScale(), true, NULL);
+    PxTolerancesScale(), true, NULL);
 
   gCooking = PxCreateCooking(PX_PHYSICS_VERSION, *gFoundation,
-    physx::PxCookingParams(physx::PxTolerancesScale()));
+    PxCookingParams(PxTolerancesScale()));
 
-  //if (!gCooking) TODO::error class
+  //if (&gCooking) // TODO::error class
     //fatalError("PxCreateCooking failed!");
 
-  physx::PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
-  sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
-  gDispatcher = physx::PxDefaultCpuDispatcherCreate(2);
+  PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
+  sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+  gDispatcher = PxDefaultCpuDispatcherCreate(2);
   sceneDesc.cpuDispatcher = gDispatcher;
-  sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+  sceneDesc.filterShader = PxDefaultSimulationFilterShader;
   gScene = gPhysics->createScene(sceneDesc);
-
- 
+  //TODO:: remove testing physx code
   gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
-  CreateStack(physx::PxTransform(physx::PxVec3(0, 0, stackZ -= 10.0f)), 10, 2.0f);
-  physx::PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, physx::PxPlane(0, 1, 0, 0), *gMaterial);
+  //CreateStack(PxTransform(PxVec3(0, 15, stackZ -= 10.0f)), 10, 2.0f);
+  PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
+
   gScene->addActor(*groundPlane);
+
+  {
+    const PxVec3 testTris[] = {
+                physx::PxVec3(-1.000000, -1.000000, 1.000000),
+                physx::PxVec3(-1.000000, 1.000000, 1.000000),
+                physx::PxVec3(-1.000000, -1.000000, -1.000000),
+                physx::PxVec3(-1.000000, 1.000000, -1.000000),
+                physx::PxVec3(1.000000, -1.000000, 1.000000),
+                physx::PxVec3(1.000000, 1.000000, 1.000000),
+                physx::PxVec3(1.000000, -1.000000, -1.000000),
+                physx::PxVec3(1.000000, 1.000000, -1.000000)
+    };
+    PxU32 numVerts = 8;
+
+    PxU32 numTris = 12;
+    PxU32* indices = new PxU32[numTris * 3];
+
+    this->CreateTriangleMesh(numVerts, testTris, numTris, indices);
+  }
 }
 
-void physx::Physics::AddActor(physx::PxActor* actor) {
+void physx::Physics::AddActor(PxActor* actor) {
   gScene->addActor(*actor);
 }
+
+void physx::Physics::GetActors(/*PxActor** actor*/) {
+  typedef PxActorTypeFlag FLAG;
+  
+  PxU32 nbActors = gScene->getNbActors(FLAG::eRIGID_DYNAMIC | FLAG::eRIGID_STATIC);
+  /*printf("# of actors = %i\n", nbActors);
+  std::cout << "# of actors = " << nbActors << std::endl;*/
+
+  std::vector<PxRigidActor*> actors(nbActors);
+  
+  gScene->getActors(FLAG::eRIGID_DYNAMIC | FLAG::eRIGID_STATIC,
+    reinterpret_cast<PxActor * *>(&actors[0]), nbActors);
+
+  for(int i = 0; i < nbActors; i++){
+    globalPoseArray[i] = actors[i]->getGlobalPose();
+    globalPose = actors[i]->getGlobalPose();
+    pos[i] = globalPose.getPosition();
+  }
+  
+
+  
+}
+/*
+TODO:: use for cube shapes??
+case PxGeometryType::eBOX:
+    {
+      const PxBoxGeometry& boxGeom = static_cast<const PxBoxGeometry&>(geom);
+      glScalef(boxGeom.halfExtents.x, boxGeom.halfExtents.y, boxGeom.halfExtents.z);
+      glutSolidCube(2);
+    }
+*/
 
 void physx::Physics::StepPhysics() {
   gScene->simulate(1.0f / 60.0f);
@@ -62,8 +115,21 @@ void physx::Physics::StepPhysics() {
 
 
 void physx::Physics::CleanUp() {
+  /*
+  Must be in this order to exit correctly with out errors
+  */
+  gScene->release();
+  gDispatcher->release();
   gPhysics->release();
+
+  if (gPvd) {
+    PxPvdTransport* transport = gPvd->getTransport();
+    gPvd->release();	gPvd = NULL;
+    transport->release();
+  }
   gFoundation->release();
+
+  printf("\n----------\nPHYSX DONE.\n----------\n");
 }
 
 
@@ -71,18 +137,204 @@ void physx::Physics::CleanUp() {
 TODO::remove test funcitons
 */
 
-void physx::Physics::CreateStack(const physx::PxTransform& t,
-                                physx::PxU32 size,
-                                physx::PxReal halfExtent) {
-  physx::PxShape* shape = gPhysics->createShape(physx::PxBoxGeometry(halfExtent, halfExtent, halfExtent), *gMaterial);
-  for (physx::PxU32 i = 0; i < size; i++) {
-    for (physx::PxU32 j = 0; j < size - i; j++) {
-      physx::PxTransform localTm(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 + 1), 0) * halfExtent);
-      physx::PxRigidDynamic* body = gPhysics->createRigidDynamic(t.transform(localTm));
+void physx::Physics::CreateStack(const PxTransform& t,
+                                PxU32 size,
+                                PxReal halfExtent) {
+  /*
+  PxSphereGeometry(radius)
+  PxBoxGeometry(PxVec3(halfExtent))
+  PxCapsuleGeometry(radius, halfExtent)
+  PxPlaneGeometry
+    */
+  PxShape* shape = gPhysics->createShape(PxSphereGeometry(halfExtent), *gMaterial);
+  for (PxU32 i = 0; i < size; i++) {
+    for (PxU32 j = 0; j < size - i; j++) {
+      PxTransform localTm(PxVec3(PxReal(j * 2) - PxReal(size - i), PxReal(i * 2), i) * halfExtent);
+      PxRigidDynamic* body = gPhysics->createRigidDynamic(t.transform(localTm));
       body->attachShape(*shape);
-      physx::PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+      PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
       gScene->addActor(*body);
+      
     }
   }
   shape->release();
 }
+
+void physx::Physics::AddCubeActor(glm::vec3 pos, float scale) {
+  PxShape* shape = gPhysics->createShape(PxBoxGeometry(scale/2, scale/2, scale/2), *gMaterial);
+  
+  PxTransform localTm(PxVec3(pos.x, pos.y, pos.z));
+
+  PxRigidDynamic* body_0 = gPhysics->createRigidDynamic(localTm);
+  body_0->attachShape(*shape);
+  PxRigidBodyExt::updateMassAndInertia(*body_0, 10.0f);
+  body_0->setLinearVelocity(PxVec3(0.0f, 0.0, 100.0f));
+  PxActor* cube_0 = body_0;
+  gScene->addActor(*body_0);
+  shape->release();
+}
+
+glm::vec3 physx::Physics::GetAPosition(int i) {
+  return glm::vec3(pos[i].x, pos[i].y, pos[i].z);
+}
+
+glm::mat4 physx::Physics::GetAPose(int i) {
+
+ 
+
+  return glm::mat4(globalPoseArray[i].column0.x,
+    globalPoseArray[i].column0.y,
+    globalPoseArray[i].column0.z,
+    globalPoseArray[i].column0.w,
+                   globalPoseArray[i].column1.x,
+    globalPoseArray[i].column1.y,
+    globalPoseArray[i].column1.z,
+    globalPoseArray[i].column1.w, 
+                   globalPoseArray[i].column2.x,
+    globalPoseArray[i].column2.y,
+    globalPoseArray[i].column2.z,
+    globalPoseArray[i].column2.w,
+                   globalPoseArray[i].column3.x,
+    globalPoseArray[i].column3.y,
+    globalPoseArray[i].column3.z,
+    globalPoseArray[i].column3.w);
+}
+
+void physx::Physics::ShootBall(glm::vec3 front, glm::vec3 pos) {
+
+  PxShape* shape = gPhysics->createShape(PxBoxGeometry(PxVec3(1.0)), *gMaterial);
+
+  PxTransform localTm(PxVec3(pos.x, pos.y, pos.z));
+
+  PxRigidDynamic* body_0 = gPhysics->createRigidDynamic(localTm);
+  body_0->attachShape(*shape);
+  PxRigidBodyExt::updateMassAndInertia(*body_0, 100.0f);
+  body_0->setAngularDamping(0.5f);
+  glm::vec3 dot = glm::cross(front, pos);
+  body_0->setLinearVelocity(25*PxVec3(dot.x, dot.y, dot.z));
+  PxActor* cube_0 = body_0;
+  //TODO:: cube or body?
+  gScene->addActor(*cube_0);
+  shape->release();
+}
+
+void physx::Physics::CreateTriangleMesh(PxU32 numVertices,
+                                  const PxVec3* vertices,
+                                        PxU32 numTriangles,
+                                  const PxU32* indices) {
+
+  
+//  PxU32 meshSize = 0;
+//
+//
+//  PxCookingParams params = gCooking->getParams();
+//  PxTolerancesScale scalex = PxTolerancesScale();
+//  params.midphaseDesc = PxMeshMidPhase::eBVH33;
+//  params.scale = scalex;
+//  params.midphaseDesc.mBVH33Desc.meshCookingHint = PxMeshCookingHint::eSIM_PERFORMANCE;
+//  //params.midphaseDesc.mBVH33Desc.meshSizePerformanceTradeOff = 1.0f;
+//
+//  
+//
+//  PxTriangleMeshDesc meshDesc;
+//  meshDesc.points.count = numVertices;
+//  meshDesc.points.data = vertices;
+//  meshDesc.points.stride = sizeof(PxVec3);
+//  meshDesc.triangles.count = numTriangles;
+//  meshDesc.triangles.data = indices;
+//  meshDesc.triangles.stride = 3 * sizeof(PxU32);
+//
+//  gCooking->setParams(params);
+//#ifdef _DEBUG
+//  // mesh should be validated before cooked without the mesh cleaning
+//  bool res = gCooking->validateTriangleMesh(meshDesc);
+//  PX_ASSERT(res);
+//#endif
+//
+//  PxDefaultMemoryOutputStream memoryBuffer;
+//  //PxTriangleMeshCookingResult::Enum result
+//
+//  //int status = 
+//  gCooking->cookTriangleMesh(meshDesc, memoryBuffer);
+//  //if (status) {}else {}
+//  
+//  PxDefaultMemoryInputData memoryStream(memoryBuffer.getData(), memoryBuffer.getSize());
+//  meshSize = memoryBuffer.getSize();
+//
+//
+  //triMesh = gPhysics->createTriangleMesh(memoryStream);
+  PxTriangleMesh* mesh = createMeshGround();
+  triMesh = mesh;
+
+  PxTriangleMeshGeometry triGeo(triMesh);
+  //triGeo.triangleMesh = triMesh;
+
+  PxTransform pos(PxVec3(0.0f, 10.0f, 0.0f));
+  PxRigidStatic* staticActor = gPhysics->createRigidStatic(pos);
+  
+  
+  PxShape* triMeshShape = gPhysics->createShape(triGeo, *gMaterial);
+  staticActor->attachShape(*triMeshShape);
+  gScene->addActor(*staticActor);
+
+}
+
+physx::PxTriangleMesh* physx::Physics::createMeshGround() {
+  struct Triangle {
+    PxU32 ind0, ind1, ind2;
+  };
+  const PxU32 gridSize = 8;
+
+  PxVec3 verts[gridSize * gridSize];
+
+  const PxU32 nbTriangles = 2 * (gridSize - 1) * (gridSize - 1);
+
+  Triangle indices[nbTriangles];
+
+  //updateVertices(verts);
+
+  for (PxU32 a = 0; a < (gridSize - 1); ++a) {
+    for (PxU32 b = 0; b < (gridSize - 1); ++b) {
+      Triangle& tri0 = indices[(a * (gridSize - 1) + b) * 2];
+      Triangle& tri1 = indices[((a * (gridSize - 1) + b) * 2) + 1];
+
+      tri0.ind0 = a * gridSize + b + 1;
+      tri0.ind1 = a * gridSize + b;
+      tri0.ind2 = (a + 1) * gridSize + b + 1;
+
+      tri1.ind0 = (a + 1) * gridSize + b + 1;
+      tri1.ind1 = a * gridSize + b;
+      tri1.ind2 = (a + 1) * gridSize + b;
+    }
+  }
+
+  PxTriangleMeshDesc meshDesc;
+  meshDesc.points.data = verts;
+  meshDesc.points.count = gridSize * gridSize;
+  meshDesc.points.stride = sizeof(PxVec3);
+  meshDesc.triangles.count = nbTriangles;
+  meshDesc.triangles.data = indices;
+  meshDesc.triangles.stride = sizeof(Triangle);
+
+  PxTriangleMeshCookingResult::Enum result;
+  PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback());
+  
+  return triMesh;
+}
+/* return glm::mat4(
+    globalPoseArray[i].column0.x,
+    globalPoseArray[i].column1.x,
+    globalPoseArray[i].column2.x,
+    globalPoseArray[i].column3.x,
+    globalPoseArray[i].column0.y,
+    globalPoseArray[i].column1.y,
+    globalPoseArray[i].column2.y,
+    globalPoseArray[i].column3.y,
+    globalPoseArray[i].column0.z,
+    globalPoseArray[i].column1.z,
+    globalPoseArray[i].column2.z,
+    globalPoseArray[i].column3.z,
+    globalPoseArray[i].column0.w,
+    globalPoseArray[i].column1.w,
+    globalPoseArray[i].column2.w,
+    globalPoseArray[i].column3.w);*/

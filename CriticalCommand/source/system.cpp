@@ -10,7 +10,11 @@ void System::SystemInit(){
   input.StartUp(render.Window());
   //player.startup \ or vise versa?
   //camera.startup /
+  
   scenePhysics.StartUp();
+  //scenePhysics.GetActors();
+  //scenePhysics.AddCubeActor(glm::vec3(0.0f, 50.0f, 0.0f), 10.0f);
+  
   //sceneLights;
   printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 }
@@ -21,9 +25,15 @@ void System::GameLoop(){
 
   Shader fixed("resources/shader/Vmodel.glsl", "resources/shader/Fmodel.glsl");
   Model ourModel_1("resources/watchtower/tower.obj", sceneLights);
-
+  
+  //TODO:: PHYSX testing
+  Model ico_80("resources/default/ico_80.dae", sceneLights);
+  Model ico_80_Big("resources/default/ico_80.dae", sceneLights);
+  
+  ///
   //Model surface("resources/surface/floor.dae", sceneLights);
   Model default_0("resources/default/default5.dae", sceneLights);
+  
   //Lamp models
   Shader lamp("resources/shader/lampV.glsl", "resources/shader/lampF.glsl");
   Model pointLamp("resources/surface/pointLamp.dae", sceneLights);
@@ -38,8 +48,28 @@ void System::GameLoop(){
   float currentFrame = 0.0f;
   fixed.Use();
   fixed.SetFloat("material.shininess", 32.0f);
+  float x = 1.0;
+
+
+  glm::vec3 scale(0.0f);
   
+  glm::quat thisRotation[MAX_ACTOR];
+  glm::quat lastRotation[MAX_ACTOR];
+  glm::quat rotation[MAX_ACTOR];
+  for (int i = 0; i < 55; i++) {
+    thisRotation[i] = (1.0f, glm::vec3(0.0f));
+    rotation[i] = (1.0f, glm::vec3(0.0f));
+    lastRotation[i] = (1.0f, glm::vec3(0.0f));
+  }
+
+  glm::vec3 translation(0.0f);
+  glm::vec3 skew(0.0f);
+  glm::vec4 perspective(0.0f);
   /* Loop until the user closes the window */
+
+  //scenePhysics.ShootBall(player.front, player.position);
+
+
   while (!input.KEY.ESC) {
 
     input.Process();
@@ -47,15 +77,10 @@ void System::GameLoop(){
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    
     /* Render here */
     //clear screen and color background
     ClearScreen();
-
     player.HandleInput(input, deltaTime);
-
-    
-    
     //cool acceleration effect
     //player.Update(xpos, ypos); 
     ///
@@ -75,23 +100,57 @@ void System::GameLoop(){
     animated.SetMat4("model", model);
     ourModel_0.Animate(animated, currentFrame);*/
 
-    model = glm::mat4(1.0f);
+    
 
     fixed.Use();
-    
     fixed.SetVec3("viewPos", player.position);
-    
     //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, -1.0, 0.0));
     //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
     //model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+    model = glm::translate(model, glm::vec3(0.0f, -10.0f, 0.0f));
+    fixed.SetMat4("model", model);
+    fixed.SetMat4("PVM", projection * view * model);
+    default_0.Draw(fixed);
+    
+    
+    /*model = glm::mat4(1.0f);
+    model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
+    model = glm::translate(model, scenePhysics.GetAPosition(56));
     
     fixed.SetMat4("model", model);
     fixed.SetMat4("PVM", projection * view * model);
     sceneLights.Set(fixed);
-    default_0.Draw(fixed);
-    
-    
+    ico_80_Big.Draw(fixed);*/
 
+    //model = glm::rotate(model, glm::radians(x), glm::vec3(0.0, 1.0, 0.0));
+    x++;
+    for (int i = 0; i <55; i++) {
+      model = glm::mat4(1.0f);
+       
+      /*glm::decompose(scenePhysics.GetAPose(i), scale, thisRotation[i], translation, skew, perspective);
+      rotation[i] =glm::mix(thisRotation[i], lastRotation[i], 0.5f);
+      lastRotation[i] = thisRotation[i];*/
+
+      model = scenePhysics.GetAPose(i); 
+      /*model = glm::translate(model, glm::vec3(0.0f, 3.0f, 0.0f));*/
+      model = glm::scale(model, glm::vec3(2.0));
+
+      //model = glm::translate(model, scenePhysics.GetAPosition(i));
+      //glm::toMat4(rotation[i])
+     /* 
+      model = glm::translate(model, translation);
+      model *= glm::toMat4(rotation[i]);
+      model = glm::scale(model, glm::vec3(2.0));*/
+      //model = glm::rotate(model, glm::radians(x), glm::vec3(1.0f, 0.0f, 0.0f));
+      //model = glm::rotate(model, glm::angle(rotation), glm::vec3(1.0f, 0.0f, 0.0f));
+      
+      fixed.SetMat4("model", model);
+      fixed.SetMat4("PVM", projection * view * model);
+      sceneLights.Set(fixed);
+      ico_80.Draw(fixed);
+    }
+
+  
     lamp.Use();
     for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
       model = sceneLights.GetPointLightTransformation(i);
@@ -114,7 +173,7 @@ void System::GameLoop(){
       spotLamp.Draw(lamp);
     }
     
-    
+    scenePhysics.GetActors();
     scenePhysics.StepPhysics();
     player.Update();
 

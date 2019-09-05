@@ -3,14 +3,13 @@
 
 #include "states.h"
 #include "camera.h"
-#include "vec2.hpp"
 #include "physics.h"
 
 class Camera;
 //class PlayerCamera;
 //class InputState;
 //class Input;
-
+#include "vec2.hpp"
 
 class Player {
 private:
@@ -30,6 +29,7 @@ public:
   //Add pointer to input class
   //Input* input;
   ///
+  physx::Physics* physics;
   InputState* state;
   Camera* camera;
   //Graphics* graphic
@@ -47,6 +47,7 @@ public:
   void MoveBackward();
   void MoveLeft();
   void MoveRight();
+  void ShootBall();
   ///
 };
 
