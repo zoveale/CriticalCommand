@@ -44,7 +44,7 @@ void Model::InitializeBones(Shader shader) {
 //private
   /*  Functions   */
   // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-  void Model::loadModel(string const& path, LightFactory& light) {
+  void Model::loadModel(string const& path, LightFactory& light, physx::Physics& physicsScene) {
     //FIXME::add type file reading, so if .obj it isnt animated
     isAnimated = false;
     // read file via ASSIMP
@@ -109,7 +109,7 @@ void Model::InitializeBones(Shader shader) {
     else {
       //ticksPerSecond = 25.0f;
       printf("\t(2b)Process non-animated node\n");
-      processNode(scene->mRootNode, scene);
+      processNode(scene->mRootNode, scene, physicsScene/*, pass in physx again*/);
     }
 
 
@@ -277,23 +277,24 @@ void Model::InitializeBones(Shader shader) {
   // processes a node in a recursive fashion. Processes 
   // each individual mesh located at the node and repeats 
   // this process on its children nodes (if any).
-  void Model::processNode(aiNode* node, const aiScene* scene) {
+  void Model::processNode(aiNode* node, const aiScene* scene, physx::Physics& physicsScene/*, again*/) {
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
       aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-      meshes.push_back(processMesh(mesh, scene));
+      meshes.push_back(processMesh(mesh, scene, physicsScene/*, again*/));
+      
     }
     for (unsigned int i = 0; i < node->mNumChildren; i++) {
-      processNode(node->mChildren[i], scene);
+      processNode(node->mChildren[i], scene, physicsScene/*, again*/);
     }
   }
 
-  Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
+  Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& physicsScene/*, again*/) {
     printf("(3)processMesh\n");
     // data to fill
     vector<Vertex> vertices;
     vector<unsigned int> indices;
     vector<Texture> textures;
-
+    vector<float> triMeshPos;
     ///
     if (mesh->HasTextureCoords(0)) {
       printf("has texture coordinates!\n");
@@ -302,26 +303,7 @@ void Model::InitializeBones(Shader shader) {
     else printf("no texture coordinates!\n");
 
     
-    if (0/*mesh->HasFaces()*/) {
-      printf("mesh->mNumFaces = %u\n", mesh->mNumFaces);
-      printf("mesh->mFaces->mNumIndices =  %u\n", mesh->mFaces->mNumIndices);
-      printf("mesh->mFaces->mIndices[0] = %u\n", mesh->mFaces->mIndices[0]);
-      printf("mesh->mFaces[0].mNumIndices = %u\n", mesh->mFaces[0].mNumIndices);
-      mesh->mNumFaces;
-      mesh->mFaces->mNumIndices;
-      mesh->mFaces->mIndices[0];
-      mesh->mFaces[0].mIndices[0];
-      for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-        for (unsigned int j = 0 ; j < mesh->mFaces[i].mNumIndices; j ++){
-          printf("mesh->mFaces[%u].mIndices[%u] %u\n", i, j, mesh->mFaces[i].mIndices[j]);
-        }
-      }
-      /*for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-        printf("mesh->mFaces[%u].mNumIndices = %u\n", i, mesh->mFaces[i].mNumIndices);
-      }
-      all = to 3
-      */
-    }
+    
 
     printf("# of vertices in mesh: %i\n", mesh->mNumVertices);
     // Walk through each of the mesh's vertices
@@ -340,6 +322,17 @@ void Model::InitializeBones(Shader shader) {
       vector.y = mesh->mVertices[i].y;
       vector.z = mesh->mVertices[i].z;
       vertex.Position = vector;
+      //TODO:: TRIMESH FOR PHYSICS
+      triMeshPos.push_back(vector.x);
+      triMeshPos.push_back(vector.y);
+      triMeshPos.push_back(vector.z);
+      /* 
+      PxTriangleMeshDesc meshDesc;
+      meshDesc.points.data = PxVec3((float)vector.x, (float)vector.y, (float)vector.z);
+      meshDesc.points.count = (unsigned int)mesh->mNumVertices;
+      meshDesc.points.stride = sizeof(PxVec3);
+      */
+      ///
       // normals
       if (mesh->HasNormals()) {
         vector.x = mesh->mNormals[i].x;
@@ -394,16 +387,28 @@ void Model::InitializeBones(Shader shader) {
         vertices.push_back(vertex);
       }
     }
-
+    
     // now wak through each of the mesh's faces (a face is a mesh its triangle)
     // and retrieve the corresponding vertex indices.
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
       aiFace face = mesh->mFaces[i];
       // retrieve all indices of the face and store them in the indices vector
-      for (unsigned int j = 0; j < face.mNumIndices; j++)
+      for (unsigned int j = 0; j < face.mNumIndices; j++) {
         indices.push_back(face.mIndices[j]);
+      }
+      //std::vector<Triangles> trimesh
+      //trimesh[i].pushback(mesh->mFaces[i].mIndices)
     }
-
+    /*
+    meshDesc.triangles.count = mesh->mNumFaces;
+    meshDesc.triangles.data = indices;
+    meshDesc.triangles.stride = 3*  sizeof(indices);
+    */
+    //TODO:: TRIMESH FOR PHYSICS
+    if (collisions) {
+      physicsScene.AddStaticTriangleMesh(triMeshPos, mesh->mFaces->mIndices, mesh->mNumFaces);
+    }
+    ///
 
     // process materials
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];

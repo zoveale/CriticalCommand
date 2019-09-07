@@ -20,24 +20,24 @@ void System::SystemInit(){
 }
 
 void System::GameLoop(){
-  Shader animated("resources/shader/Vanimated.glsl", "resources/shader/Fanimated.glsl");
-  Model ourModel_0("resources/cowboy/CharacterRunning4.dae", sceneLights);
+ /* Shader animated("resources/shader/Vanimated.glsl", "resources/shader/Fanimated.glsl");
+  Model ourModel_0("resources/cowboy/CharacterRunning4.dae", sceneLights,scenePhysics);
 
+  ;
+  Model ourModel_1("resources/watchtower/tower.obj", sceneLights, scenePhysics);*/
   Shader fixed("resources/shader/Vmodel.glsl", "resources/shader/Fmodel.glsl");
-  Model ourModel_1("resources/watchtower/tower.obj", sceneLights);
-  
   //TODO:: PHYSX testing
-  Model ico_80("resources/default/ico_80.dae", sceneLights);
-  Model ico_80_Big("resources/default/ico_80.dae", sceneLights);
+  Model ico_80("resources/default/ico_80.dae", sceneLights, scenePhysics, true);
+  //Model ico_80_Big("resources/default/ico_80.dae", sceneLights, scenePhysics);
   
   ///
   //Model surface("resources/surface/floor.dae", sceneLights);
-  Model default_0("resources/default/default5.dae", sceneLights);
+  Model default_0("resources/default/default5.dae", sceneLights, scenePhysics);
   
   //Lamp models
   Shader lamp("resources/shader/lampV.glsl", "resources/shader/lampF.glsl");
-  Model pointLamp("resources/surface/pointLamp.dae", sceneLights);
-  Model spotLamp("resources/surface/spotLight.dae", sceneLights);
+  Model pointLamp("resources/surface/pointLamp.dae", sceneLights, scenePhysics);
+  Model spotLamp("resources/surface/spotLight.dae", sceneLights, scenePhysics);
 
   glm::mat4 model = glm::mat4(1.0f);
   glm::mat4 view = glm::mat4(1.0f);

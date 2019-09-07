@@ -6,7 +6,7 @@
 #include "shader.h"
 
 #include "lightFactory.h"
-
+#include "physics.h"
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -26,10 +26,17 @@ public:
   std::string directory;
   bool gammaCorrection;
   bool isAnimated;
+  bool collisions;
   /*  Functions   */
   // constructor, expects a filepath to a 3D model.
-  Model(std::string const& path, LightFactory& light, bool gamma = false) : gammaCorrection(gamma) {
-    loadModel(path, light);
+  Model(std::string const& path, 
+        LightFactory& light,
+        physx::Physics& scene,
+        bool physics = false,
+        bool gamma = false) 
+        :collisions(physics),gammaCorrection(gamma) {
+
+    loadModel(path, light, scene);
   }
 
   // draws the model, and thus all its meshes
@@ -57,7 +64,7 @@ private:
   ///
   /*  Functions   */
   // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-  void loadModel(std::string const& path, LightFactory& light);
+  void loadModel(std::string const& path, LightFactory& light, physx::Physics& physicsScene);
 
   void ProcessLights(const aiScene* scene, LightFactory& lights);
   void ProcessAnimatedNode(aiNode* node, const aiScene* scene);
@@ -76,9 +83,9 @@ private:
   // processes a node in a recursive fashion. Processes 
   // each individual mesh located at the node and repeats 
   // this process on its children nodes (if any).
-  void processNode(aiNode* node, const aiScene* scene);
+  void processNode(aiNode* node, const aiScene* scene, physx::Physics& physicsScene);
 
-  Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+  Mesh processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& physicsScene);
   ///
   
   //

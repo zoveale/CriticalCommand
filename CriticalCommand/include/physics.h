@@ -47,16 +47,19 @@ public:
     PxU32 size, 
     PxReal halfExtent);
 
+  void AddStaticTriangleMesh(const std::vector<float> vertex,
+                             const unsigned int*          indices,
+                             const unsigned int       indicesSize);
+
   //TODO:: test functions
   void AddCubeActor(glm::vec3 pos, float scale = 1.0f);
   //glm::vec3 GetAPosition(int i);
   glm::mat4 GetAPose(int i);
   void ShootBall(glm::vec3 front, glm::vec3 pos);
 
-  void CreateTriangleMesh(PxU32 numVertices,
-                    const PxVec3* vertices, 
-                          PxU32 numTriangles,
-                    const PxU32* indices);
+  PxTriangleMesh* CreateTriangleMesh(const std::vector<float> vertex,
+                          const unsigned int*          indices,
+                          const unsigned int           numFaces);
 
   static PxTriangleMesh* createMeshGround();
   static void updateVertices(PxVec3* verts, float amplitude);
@@ -90,6 +93,11 @@ public:
   PxTriangleMesh* triMesh;
   PxRigidStatic* meshActor;
   struct Triangle {
+   /* Triangle(unsigned int* i) {
+      ind0 = i[0];
+      ind1 = i[0];
+      ind2 = i[0];
+    }*/
     PxU32 ind0, ind1, ind2;
   };
 
