@@ -1,5 +1,13 @@
 #include "physics.h"
 
+physx::PxDefaultAllocator physx::Physics::gAllocator;
+physx::PxDefaultErrorCallback physx::Physics::gErrorCallback;
+
+physx::PxFoundation* physx::Physics::gFoundation;
+physx::PxPhysics*    physx::Physics::gPhysics;
+physx::PxCooking*    physx::Physics::gCooking;
+
+
 physx::Physics::Physics() {
   gFoundation = NULL;
   gPhysics = NULL;
@@ -13,46 +21,45 @@ physx::Physics::Physics() {
 }
 
 void physx::Physics::StartUp() {
-  gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
-  //Physx Visual Debugger TODO:: understand this better
+  //Can make new scale
+  PxTolerancesScale scale = PxTolerancesScale();
+  /*pass in new scale for cenitmeters for example
+  scale.length = 100;
+  scale.speed = 981;*/
+  ///
+
+  //Initialization of physx data types
+  gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+  
+
+
+  //Physx Visual Debugger info, TODO:: understand this better
   gPvd = PxCreatePvd(*gFoundation);
   PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
   gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
 
-  gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
+  gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, scale, true, gPvd);
+  gCooking = PxCreateCooking(PX_PHYSICS_VERSION, *gFoundation, PxCookingParams(scale));
 
-  //Can make new scale
-  //pass in new scale for cenitmeters 
-  PxTolerancesScale scale;
-  scale.length = 100;
-  scale.speed = 981;
-  ///
 
-  //we pass in defualt scale
-  gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation,
-    PxTolerancesScale(), true, NULL);
 
-  gCooking = PxCreateCooking(PX_PHYSICS_VERSION, *gFoundation,
-    PxCookingParams(PxTolerancesScale()));
-
-  //if (&gCooking) // TODO::error class
-    //fatalError("PxCreateCooking failed!");
-
+  //TODO::TEST SCENE remove testing physx code
   PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
   sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
   gDispatcher = PxDefaultCpuDispatcherCreate(2);
   sceneDesc.cpuDispatcher = gDispatcher;
   sceneDesc.filterShader = PxDefaultSimulationFilterShader;
   gScene = gPhysics->createScene(sceneDesc);
-  //TODO:: remove testing physx code
+
+  //TODO:: create default material
   gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
-  //CreateStack(PxTransform(PxVec3(0, 15, stackZ -= 10.0f)), 10, 2.0f);
+  CreateStack(PxTransform(PxVec3(0, 15, stackZ -= 10.0f)), 10, 2.0f);
   PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
 
   gScene->addActor(*groundPlane);
-
-  {
+  //test vaiables for tri mesh
+  
     const PxVec3 testTris[] = {
                 physx::PxVec3(-1.000000, -1.000000, 1.000000),
                 physx::PxVec3(-1.000000, 1.000000, 1.000000),
@@ -67,9 +74,11 @@ void physx::Physics::StartUp() {
 
     PxU32 numTris = 12;
     PxU32* indices = new PxU32[numTris * 3];
+  
+  /// 
 
-    this->CreateTriangleMesh(numVerts, testTris, numTris, indices);
-  }
+  
+  this->CreateTriangleMesh(numVerts, testTris, numTris, indices);
 }
 
 void physx::Physics::AddActor(PxActor* actor) {
@@ -90,8 +99,8 @@ void physx::Physics::GetActors(/*PxActor** actor*/) {
 
   for(int i = 0; i < nbActors; i++){
     globalPoseArray[i] = actors[i]->getGlobalPose();
-    globalPose = actors[i]->getGlobalPose();
-    pos[i] = globalPose.getPosition();
+    //globalPose = actors[i]->getGlobalPose();
+    //pos[i] = globalPose.getPosition();
   }
   
 
@@ -174,9 +183,9 @@ void physx::Physics::AddCubeActor(glm::vec3 pos, float scale) {
   shape->release();
 }
 
-glm::vec3 physx::Physics::GetAPosition(int i) {
-  return glm::vec3(pos[i].x, pos[i].y, pos[i].z);
-}
+//glm::vec3 physx::Physics::GetAPosition(int i) {
+//  return glm::vec3(1.0f);//glm::vec3(pos[i].x, pos[i].y, pos[i].z);
+//}
 
 glm::mat4 physx::Physics::GetAPose(int i) {
 
@@ -203,7 +212,7 @@ glm::mat4 physx::Physics::GetAPose(int i) {
 void physx::Physics::ShootBall(glm::vec3 front, glm::vec3 pos) {
 
   PxShape* shape = gPhysics->createShape(PxBoxGeometry(PxVec3(1.0)), *gMaterial);
-
+ 
   PxTransform localTm(PxVec3(pos.x, pos.y, pos.z));
 
   PxRigidDynamic* body_0 = gPhysics->createRigidDynamic(localTm);
@@ -266,24 +275,42 @@ void physx::Physics::CreateTriangleMesh(PxU32 numVertices,
   PxTriangleMesh* mesh = createMeshGround();
   triMesh = mesh;
 
-  PxTriangleMeshGeometry triGeo(triMesh);
+  PxTriangleMeshGeometry triGeo(mesh);
+  triGeo.isValid();
   //triGeo.triangleMesh = triMesh;
 
   PxTransform pos(PxVec3(0.0f, 10.0f, 0.0f));
   PxRigidStatic* staticActor = gPhysics->createRigidStatic(pos);
   
   
-  PxShape* triMeshShape = gPhysics->createShape(triGeo, *gMaterial);
+  /*PxShape* triMeshShape = gPhysics->createShape(triGeo, *gMaterial, true);
   staticActor->attachShape(*triMeshShape);
   gScene->addActor(*staticActor);
-
+  triMeshShape->release();*/
+  
+  PxRigidActorExt::createExclusiveShape(*staticActor, triGeo, *gMaterial);
+  gScene->addActor(*staticActor);
+  ///same as commented above
 }
+void physx::Physics::updateVertices(PxVec3* verts, float amplitude = 10.0f) {
+  const PxU32 gridSize = GRID_SIZE;
+  const PxReal gridStep = GRID_STEP;
 
+  for (PxU32 a = 0; a < gridSize; a++) {
+    const float coeffA = float(a) / float(gridSize);
+    for (PxU32 b = 0; b < gridSize; b++) {
+      const float coeffB = float(b) / float(gridSize);
+
+      const float y = 20.0f + sinf(coeffA * PxTwoPi) * cosf(coeffB * PxTwoPi) * amplitude;
+      //floats h and k effect position
+      float h = -25.0f, k = -25.0f;
+      verts[a * gridSize + b] = PxVec3(h + b * gridStep, y, k + a * gridStep);
+    }
+  }
+}
 physx::PxTriangleMesh* physx::Physics::createMeshGround() {
-  struct Triangle {
-    PxU32 ind0, ind1, ind2;
-  };
-  const PxU32 gridSize = 8;
+  
+  const PxU32 gridSize = GRID_SIZE;
 
   PxVec3 verts[gridSize * gridSize];
 
@@ -291,8 +318,8 @@ physx::PxTriangleMesh* physx::Physics::createMeshGround() {
 
   Triangle indices[nbTriangles];
 
-  //updateVertices(verts);
-
+  updateVertices(verts);
+  
   for (PxU32 a = 0; a < (gridSize - 1); ++a) {
     for (PxU32 b = 0; b < (gridSize - 1); ++b) {
       Triangle& tri0 = indices[(a * (gridSize - 1) + b) * 2];
@@ -307,6 +334,14 @@ physx::PxTriangleMesh* physx::Physics::createMeshGround() {
       tri1.ind2 = (a + 1) * gridSize + b;
     }
   }
+ 
+  PxCookingParams params = gCooking->getParams();
+  //PxTolerancesScale scalex = PxTolerancesScale();
+  params.midphaseDesc = PxMeshMidPhase::eBVH33;
+  params.scale = gPhysics->getTolerancesScale();
+  params.midphaseDesc.mBVH33Desc.meshCookingHint = PxMeshCookingHint::eSIM_PERFORMANCE;
+  params.midphaseDesc.mBVH33Desc.meshSizePerformanceTradeOff = 0.5f;
+  gCooking->setParams(params);
 
   PxTriangleMeshDesc meshDesc;
   meshDesc.points.data = verts;
@@ -316,11 +351,15 @@ physx::PxTriangleMesh* physx::Physics::createMeshGround() {
   meshDesc.triangles.data = indices;
   meshDesc.triangles.stride = sizeof(Triangle);
 
+  gCooking->validateTriangleMesh(meshDesc);
+  
   PxTriangleMeshCookingResult::Enum result;
-  PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback());
+  PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback(),&result);
   
   return triMesh;
 }
+
+
 /* return glm::mat4(
     globalPoseArray[i].column0.x,
     globalPoseArray[i].column1.x,

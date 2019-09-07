@@ -30,7 +30,8 @@
 #define MAX_ACTOR 1<<8
 namespace physx { class Physics; }
 
-
+static const physx::PxU32 GRID_SIZE = 8;
+static const physx::PxReal GRID_STEP = 56.0f / physx::PxReal(GRID_SIZE - 1);
 
 class physx::Physics {
   
@@ -48,7 +49,7 @@ public:
 
   //TODO:: test functions
   void AddCubeActor(glm::vec3 pos, float scale = 1.0f);
-  glm::vec3 GetAPosition(int i);
+  //glm::vec3 GetAPosition(int i);
   glm::mat4 GetAPose(int i);
   void ShootBall(glm::vec3 front, glm::vec3 pos);
 
@@ -57,17 +58,19 @@ public:
                           PxU32 numTriangles,
                     const PxU32* indices);
 
-  PxTriangleMesh* createMeshGround();
+  static PxTriangleMesh* createMeshGround();
+  static void updateVertices(PxVec3* verts, float amplitude);
   private:
 
   //TODO:: make static
-  PxDefaultAllocator	gAllocator;
-  PxDefaultErrorCallback	gErrorCallback;
+  static PxDefaultAllocator	gAllocator;
+  static PxDefaultErrorCallback	gErrorCallback;
 
 
-  PxFoundation* gFoundation;
-  PxPhysics* gPhysics;
-  PxCooking* gCooking;
+
+  static PxFoundation* gFoundation;
+  static PxPhysics* gPhysics;
+  static PxCooking* gCooking;
 
   PxDefaultCpuDispatcher* gDispatcher;
   PxScene* gScene;
@@ -79,14 +82,18 @@ public:
   TODO:: remove test variables 
   */
   PxMat44 globalPoseArray[MAX_ACTOR];
-  PxMat44 globalPose;
+  //PxMat44 globalPose;
 
-  PxVec3 pos[MAX_ACTOR];
+  //PxVec3 pos[MAX_ACTOR];
   PxReal stackZ = 10.0f;
   
   PxTriangleMesh* triMesh;
   PxRigidStatic* meshActor;
+  struct Triangle {
+    PxU32 ind0, ind1, ind2;
+  };
 
+  
   /*
   static const PxVec3 convexVerts[] = {PxVec3(0,1,0),PxVec3(1,0,0),PxVec3(-1,0,0),PxVec3(0,0,1),
     PxVec3(0,0,-1)};

@@ -301,9 +301,27 @@ void Model::InitializeBones(Shader shader) {
     }
     else printf("no texture coordinates!\n");
 
-    //
-    //LoadBones(mesh, joints);
-    ///
+    
+    if (0/*mesh->HasFaces()*/) {
+      printf("mesh->mNumFaces = %u\n", mesh->mNumFaces);
+      printf("mesh->mFaces->mNumIndices =  %u\n", mesh->mFaces->mNumIndices);
+      printf("mesh->mFaces->mIndices[0] = %u\n", mesh->mFaces->mIndices[0]);
+      printf("mesh->mFaces[0].mNumIndices = %u\n", mesh->mFaces[0].mNumIndices);
+      mesh->mNumFaces;
+      mesh->mFaces->mNumIndices;
+      mesh->mFaces->mIndices[0];
+      mesh->mFaces[0].mIndices[0];
+      for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+        for (unsigned int j = 0 ; j < mesh->mFaces[i].mNumIndices; j ++){
+          printf("mesh->mFaces[%u].mIndices[%u] %u\n", i, j, mesh->mFaces[i].mIndices[j]);
+        }
+      }
+      /*for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+        printf("mesh->mFaces[%u].mNumIndices = %u\n", i, mesh->mFaces[i].mNumIndices);
+      }
+      all = to 3
+      */
+    }
 
     printf("# of vertices in mesh: %i\n", mesh->mNumVertices);
     // Walk through each of the mesh's vertices
