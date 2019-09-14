@@ -79,7 +79,7 @@ PointLight::PointLight(aiLight* light, aiNode* node) {
   transformation[3][0] = position.x;
   transformation[3][1] = position.y;
   transformation[3][2] = position.z;
-  //FIXME:: Blender export rotates wrong way
+  //TODO:: Blender export rotates wrong way
   transformation = glm::rotate(transformation, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
 
   ambient = glm::vec3(light->mColorAmbient.r,
@@ -91,8 +91,10 @@ PointLight::PointLight(aiLight* light, aiNode* node) {
   specular = glm::vec3(light->mColorSpecular.r,
                        light->mColorSpecular.g,
                        light->mColorSpecular.b);
-  ambient /= 1000.0f;
+
+  //TODO:: light example in blender is much brighter than in opengl rendering
   diffuse /= 1000.0f;
+  ambient /= 1000.0f;
   specular /= 1000.0f;
 
   constant = light->mAttenuationConstant;
@@ -134,7 +136,7 @@ SpotLight::SpotLight(aiLight* light, aiNode* node) {
                        transformation[3][2]);
   //direction = glm::rotate(direction, glm::radians(90.0f), glm::vec3(1.0, 1.0, 0.0));
   //direction = glm::rotateX(direction, 90.0f);
-  //FIXME:: Blender export rotates wrong way
+  //TODO:: Blender export rotates wrong way
   transformation = glm::rotate(transformation, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
   direction = glm::vec3(transformation[2][0],
                         transformation[2][1],
@@ -147,12 +149,14 @@ SpotLight::SpotLight(aiLight* light, aiNode* node) {
   diffuse = glm::vec3(light->mColorDiffuse.r,
                       light->mColorDiffuse.g,
                       light->mColorDiffuse.b);
-  diffuse /= 10000.0f;
+  
   specular = glm::vec3(light->mColorSpecular.r,
                        light->mColorSpecular.g,
                        light->mColorSpecular.b);
-  specular /= 10000.0f;
-
+  //TODO:: light example in blender is much brighter than in opengl rendering
+  diffuse /= 1000.0f;
+  specular /= 1000.0f;
+  ambient /= 1000.0f;
 
   constant = light->mAttenuationConstant;
   linear = light->mAttenuationLinear;

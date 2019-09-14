@@ -10,6 +10,10 @@ StrafeRightState InputState::right;
 ///
 //player camera, FIXME:: add more, "topleft" "topright" etc...
 PlayerCamera Camera::camera;
+//PlayerCamera Camera::1stPerson;
+//PlayerCamera Camera::3rdPerson;
+//PlayerCamera Camera::OverheadDiabloStyle;
+//PlayerCamera Camera::Overview;
 ///
 
 //Input playerInput;
@@ -19,13 +23,13 @@ Player::Player() {
   position = glm::vec3(12.5f, 1.0f, -15.5f);
   front = glm::vec3(1.0f, 0.0f, 0.0f);
   right = glm::vec3(0.0f, 1.0f, 0.0f);
-  speed = 10.0f;
+  speed = 20.0f;
   dt = 0.0f;
   acc = 1.0f;
-  //input = &playerInput;
+  
   camera = &Camera::camera;
   state = &InputState::idel;
-  //printf("move to idel state->");
+  
   
 }
 
@@ -46,7 +50,7 @@ void Player::HandleInput(Input input, float dt) {
   ///
   
   
-  //FIXME:: pull delta time from physics based class
+  //TODO:: pull delta time from physics based class
   this->dt = dt;  
   ///
   state->HandleInput(*this, input);
@@ -56,8 +60,6 @@ void Player::Update() {
   //future update(*this) stuff
   //phyics->update(*this);
   //graphics->update(*this);
-  ///
-
   camera->SetView(*this);
   state->Update(*this);
 }
@@ -71,6 +73,7 @@ void Player::LongIdel() {
   printf("\nPlayer Long Idel->");
 }
 
+//TODO:: change to have state class update velocity
 void Player::MoveForward() {
   position += front * (dt * speed);
   //FIXME:: add possible modes of moving using kinematic equations
@@ -90,7 +93,6 @@ void Player::MoveLeft() {
 
 void Player::MoveRight() {
   position += dt * right * speed;
-  ShootBall();
 }
 
 void Player::ShootBall() {

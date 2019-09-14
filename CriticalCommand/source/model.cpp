@@ -67,8 +67,8 @@ void Model::InitializeBones(Shader shader) {
     directory = path.substr(0, path.find_last_of('/'));
     //FIXME::why tho
     //inverse root node
-    this->inverseRootNode = aiToGlm(scene->mRootNode->mTransformation);
-    inverseRootNode = glm::inverse(inverseRootNode);
+    /*this->inverseRootNode = aiToGlm(scene->mRootNode->mTransformation);
+    inverseRootNode = glm::inverse(inverseRootNode);*/
     ///
     //printf("Root node named: %s\n",scene->mRootNode->mName.data);
     /*if (scene->mRootNode->FindNode("TestSpot")) {
@@ -109,6 +109,7 @@ void Model::InitializeBones(Shader shader) {
     else {
       //ticksPerSecond = 25.0f;
       printf("\t(2b)Process non-animated node\n");
+      
       processNode(scene->mRootNode, scene, physicsScene/*, pass in physx again*/);
     }
 
@@ -277,6 +278,7 @@ void Model::InitializeBones(Shader shader) {
   // processes a node in a recursive fashion. Processes 
   // each individual mesh located at the node and repeats 
   // this process on its children nodes (if any).
+  //TODO:: remove physics comments
   void Model::processNode(aiNode* node, const aiScene* scene, physx::Physics& physicsScene/*, again*/) {
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
       aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -291,9 +293,11 @@ void Model::InitializeBones(Shader shader) {
   Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& physicsScene/*, again*/) {
     printf("(3)processMesh\n");
     // data to fill
+    
     vector<Vertex> vertices;
     vector<unsigned int> indices;
     vector<Texture> textures;
+    //TODO:: possibly switch to a set of pre allocated arrays with max limit
     vector<float> triMeshPos;
     ///
     if (mesh->HasTextureCoords(0)) {
@@ -406,7 +410,16 @@ void Model::InitializeBones(Shader shader) {
     */
     //TODO:: TRIMESH FOR PHYSICS
     if (collisions) {
-      physicsScene.AddStaticTriangleMesh(triMeshPos, mesh->mFaces->mIndices, mesh->mNumFaces);
+      &mesh->mFaces->mIndices[0];
+      //get all indices
+      std::vector<unsigned int> indices;
+      for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+        for (unsigned int j = 0; j < mesh->mFaces[i].mNumIndices; j++) {
+          indices.push_back(mesh->mFaces[i].mIndices[j]);
+        }
+      }
+      indices;
+      physicsScene.AddStaticTriangleMesh(triMeshPos, indices, mesh->mNumFaces);
     }
     ///
 

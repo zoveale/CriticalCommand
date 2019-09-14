@@ -54,31 +54,15 @@ void physx::Physics::StartUp() {
 
   //TODO:: create default material
   gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
-  CreateStack(PxTransform(PxVec3(0, 25, stackZ -= 10.0f)), 10, 2.0f);
-  PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 1), *gMaterial);
-  
-  gScene->addActor(*groundPlane);
-  //test vaiables for tri mesh
-  
-    const PxVec3 testTris[] = {
-                physx::PxVec3(-1.000000, -1.000000, 1.000000),
-                physx::PxVec3(-1.000000, 1.000000, 1.000000),
-                physx::PxVec3(-1.000000, -1.000000, -1.000000),
-                physx::PxVec3(-1.000000, 1.000000, -1.000000),
-                physx::PxVec3(1.000000, -1.000000, 1.000000),
-                physx::PxVec3(1.000000, 1.000000, 1.000000),
-                physx::PxVec3(1.000000, -1.000000, -1.000000),
-                physx::PxVec3(1.000000, 1.000000, -1.000000)
-    };
-    PxU32 numVerts = 8;
+  CreateStack(PxTransform(PxVec3(0, 10, stackZ -= 10.0f)), 10, 2.0f);
 
-    PxU32 numTris = 12;
-    PxU32* indices = new PxU32[numTris * 3];
+  //PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 1), *gMaterial);
+  //gScene->addActor(*groundPlane);
   
   /// 
 
   
-  //this->CreateTriangleMesh(numVerts, testTris, numTris, indices);
+    //createMeshGround();
 }
 
 void physx::Physics::AddActor(PxActor* actor) {
@@ -86,8 +70,8 @@ void physx::Physics::AddActor(PxActor* actor) {
 }
 
 void physx::Physics::GetActors(/*PxActor** actor*/) {
+
   typedef PxActorTypeFlag FLAG;
-  
   PxU32 nbActors = gScene->getNbActors(FLAG::eRIGID_DYNAMIC | FLAG::eRIGID_STATIC);
   /*printf("# of actors = %i\n", nbActors);
   std::cout << "# of actors = " << nbActors << std::endl;*/
@@ -133,7 +117,8 @@ void physx::Physics::CleanUp() {
   gCooking->release();
   if (gPvd) {
     PxPvdTransport* transport = gPvd->getTransport();
-    gPvd->release();	gPvd = NULL;
+    gPvd->release();	
+    gPvd = NULL;
     transport->release();
   }
   gFoundation->release();
@@ -170,7 +155,7 @@ void physx::Physics::CreateStack(const PxTransform& t,
 }
 
 void physx::Physics::AddStaticTriangleMesh(const std::vector<float> vertex,
-                                           const unsigned int*          indices,
+  const std::vector<unsigned int>          indices,
                                            const unsigned int           indicesSize) {
   printf("process tri mesh for shapes\n");
 
@@ -182,7 +167,7 @@ void physx::Physics::AddStaticTriangleMesh(const std::vector<float> vertex,
   triGeo.isValid();
   //triGeo.triangleMesh = triMesh;
 
-  PxTransform pos(PxVec3(0.0f, 10.0f, 0.0f));
+  PxTransform pos(PxVec3(0.0f, 0.0f, 0.0f));
   PxRigidStatic* staticActor = gPhysics->createRigidStatic(pos);
   //TODO:: can triangle meshes only be used on rigid static actors
   //PxRigidDynamic* staticActor = gPhysics->createRigidDynamic(pos);
@@ -257,14 +242,15 @@ void physx::Physics::ShootBall(glm::vec3 front, glm::vec3 pos) {
 }
 
 physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(const std::vector<float> vertex,
-                                        const unsigned int*          indices,
-                                        const unsigned int           numFaces) {
+                                                   const std::vector<unsigned int> indices,
+                                                      const unsigned int           numFaces) {
+
   PxCookingParams params = gCooking->getParams();
   //PxTolerancesScale scalex = PxTolerancesScale();
   params.midphaseDesc = PxMeshMidPhase::eBVH33;
   params.scale = gPhysics->getTolerancesScale();
   params.midphaseDesc.mBVH33Desc.meshCookingHint = PxMeshCookingHint::eSIM_PERFORMANCE;
-  params.midphaseDesc.mBVH33Desc.meshSizePerformanceTradeOff = 0.5f;
+  params.midphaseDesc.mBVH33Desc.meshSizePerformanceTradeOff = 1.0f;
   gCooking->setParams(params);
 
   PxTriangleMeshDesc meshDesc;

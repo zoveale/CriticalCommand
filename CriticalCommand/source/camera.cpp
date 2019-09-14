@@ -6,9 +6,8 @@ glm::vec3 PlayerCamera::up;
 glm::vec3 PlayerCamera::worldUp;
 
 inline void PlayerCamera::Update() {
-  //calculate the new front vector
-  //glm::vec3 direction;
 
+  //calculate the new front vector
   front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
   front.y = sin(glm::radians(pitch));
   front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
@@ -62,16 +61,6 @@ void PlayerCamera::SetView(Player& player) {
   player.front = this->front;
   player.right = this->right;
 }
-
-/*
-void Player::AttachCamera(PlayerCamera camera,float xoffset, float yoffset) {
-
-  //FIXME:: dont like this implementation
-  front = camera.GetFront();
-  right = camera.GetRight();
-  camera.SetTarget(position, front, right, xoffset, yoffset);
-}
-*/
 
 glm::mat4 PlayerCamera::View() {
   //keep camera on the xz plane

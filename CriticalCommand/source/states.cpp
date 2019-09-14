@@ -56,9 +56,7 @@ void ForwardState::HandleInput(Player& player, Input input) {
 }
 
 void ForwardState::Update(Player& player) {
-  //printf("UpdateForwardState->");hey 
   player.MoveForward();
-  
 }
 
 void BackwardState::HandleInput(Player& player, Input input) {

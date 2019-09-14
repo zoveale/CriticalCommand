@@ -1,15 +1,21 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+
+#include "vec2.hpp"
+
 #include "states.h"
-#include "camera.h"
+
 #include "physics.h"
 
 class Camera;
+#include "camera.h"
+
+
 //class PlayerCamera;
 //class InputState;
 //class Input;
-#include "vec2.hpp"
+
 
 class Player {
 private:

@@ -15,7 +15,6 @@ void System::SystemInit(){
   //scenePhysics.GetActors();
   //scenePhysics.AddCubeActor(glm::vec3(0.0f, 50.0f, 0.0f), 10.0f);
   
-  //sceneLights;
   printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 }
 
@@ -27,12 +26,12 @@ void System::GameLoop(){
   Model ourModel_1("resources/watchtower/tower.obj", sceneLights, scenePhysics);*/
   Shader fixed("resources/shader/Vmodel.glsl", "resources/shader/Fmodel.glsl");
   //TODO:: PHYSX testing
-  Model ico_80("resources/default/ico_80.dae", sceneLights, scenePhysics, true);
+  Model ico_80("resources/default/ico_80.dae", sceneLights, scenePhysics);
   //Model ico_80_Big("resources/default/ico_80.dae", sceneLights, scenePhysics);
   
   ///
   //Model surface("resources/surface/floor.dae", sceneLights);
-  Model default_0("resources/default/default5.dae", sceneLights, scenePhysics);
+  Model default_0("resources/default/default6.dae", sceneLights, scenePhysics , true);
   
   //Lamp models
   Shader lamp("resources/shader/lampV.glsl", "resources/shader/lampF.glsl");
@@ -51,9 +50,9 @@ void System::GameLoop(){
   float x = 1.0;
 
 
-  glm::vec3 scale(0.0f);
   
-  glm::quat thisRotation[MAX_ACTOR];
+  //quatitrion stuff
+ /* glm::quat thisRotation[MAX_ACTOR];
   glm::quat lastRotation[MAX_ACTOR];
   glm::quat rotation[MAX_ACTOR];
   for (int i = 0; i < 55; i++) {
@@ -62,12 +61,11 @@ void System::GameLoop(){
     lastRotation[i] = (1.0f, glm::vec3(0.0f));
   }
 
+  glm::vec3 scale(0.0f);
   glm::vec3 translation(0.0f);
   glm::vec3 skew(0.0f);
-  glm::vec4 perspective(0.0f);
-  /* Loop until the user closes the window */
-
-  //scenePhysics.ShootBall(player.front, player.position);
+  glm::vec4 perspective(0.0f);*/
+  ///
 
 
   while (!input.KEY.ESC) {
@@ -107,9 +105,10 @@ void System::GameLoop(){
     //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, -1.0, 0.0));
     //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
     //model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-    model = glm::translate(model, glm::vec3(0.0f, -10.0f, 0.0f));
+    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
     fixed.SetMat4("model", model);
     fixed.SetMat4("PVM", projection * view * model);
+    sceneLights.Set(fixed);
     default_0.Draw(fixed);
     
     
@@ -123,7 +122,7 @@ void System::GameLoop(){
     ico_80_Big.Draw(fixed);*/
 
     //model = glm::rotate(model, glm::radians(x), glm::vec3(0.0, 1.0, 0.0));
-    x++;
+    //x++;
     for (int i = 0; i <55; i++) {
       model = glm::mat4(1.0f);
        

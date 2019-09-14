@@ -10,6 +10,9 @@
 #include <vec3.hpp>
 #include <mat4x4.hpp>
 
+
+
+
 #include "PxConfig.h"
 #include "PxPhysicsAPI.h"
 #define PVD_HOST "127.0.0.1"
@@ -27,6 +30,7 @@
 //  virtual void reportError(physx::PxErrorCode::Enum code,
 //    const char* message, const char* file, int line) {}
 //};
+
 #define MAX_ACTOR 1<<8
 namespace physx { class Physics; }
 
@@ -48,7 +52,7 @@ public:
     PxReal halfExtent);
 
   void AddStaticTriangleMesh(const std::vector<float> vertex,
-                             const unsigned int*          indices,
+    const std::vector<unsigned int>          indices,
                              const unsigned int       indicesSize);
 
   //TODO:: test functions
@@ -58,7 +62,7 @@ public:
   void ShootBall(glm::vec3 front, glm::vec3 pos);
 
   PxTriangleMesh* CreateTriangleMesh(const std::vector<float> vertex,
-                          const unsigned int*          indices,
+    const std::vector<unsigned int> indices,
                           const unsigned int           numFaces);
 
   static PxTriangleMesh* createMeshGround();
