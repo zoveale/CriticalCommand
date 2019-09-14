@@ -10,9 +10,8 @@
 #include <gtc/matrix_transform.hpp>
 #include "geometric.hpp"
 
-class Player;
 #include "player.h"
-
+class Player;
 
 class PlayerCamera;
 class OverviewCamera;

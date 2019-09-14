@@ -4,13 +4,18 @@
 
 #include "vec2.hpp"
 
+
+
+
+
 #include "states.h"
+class InputState;
 
 #include "physics.h"
+class physx::Physics;
 
-class Camera;
 #include "camera.h"
-
+class Camera;
 
 //class PlayerCamera;
 //class InputState;
