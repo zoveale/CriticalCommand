@@ -31,7 +31,9 @@ void System::GameLoop(){
   
   ///
   //Model surface("resources/surface/floor.dae", sceneLights);
-  Model default_0("resources/default/default6.dae", sceneLights, scenePhysics , true);
+  //TODO:: warning : TriangleMesh: triangles are too big, 
+  //reduce their size to increase simulation stability!
+  Model default_0("resources/default/default5.dae", sceneLights, scenePhysics , true);
   
   //Lamp models
   Shader lamp("resources/shader/lampV.glsl", "resources/shader/lampF.glsl");
@@ -47,6 +49,8 @@ void System::GameLoop(){
   float currentFrame = 0.0f;
   fixed.Use();
   fixed.SetFloat("material.shininess", 32.0f);
+  sceneLights.SetFixedAttributes(fixed);
+
   float x = 1.0;
 
 
@@ -108,7 +112,7 @@ void System::GameLoop(){
     model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
     fixed.SetMat4("model", model);
     fixed.SetMat4("PVM", projection * view * model);
-    sceneLights.Set(fixed);
+    sceneLights.SetDynamicAttributes(fixed);
     default_0.Draw(fixed);
     
     
@@ -145,7 +149,7 @@ void System::GameLoop(){
       
       fixed.SetMat4("model", model);
       fixed.SetMat4("PVM", projection * view * model);
-      sceneLights.Set(fixed);
+      sceneLights.SetDynamicAttributes(fixed);
       ico_80.Draw(fixed);
     }
 

@@ -42,12 +42,24 @@ unsigned int LightFactory::NumPointLights() {
   return pointLights.size();
 }
 
-void LightFactory::Set(Shader shader) {
+void LightFactory::SetDynamicAttributes(Shader shader) {
   for (unsigned int i = 0; i < pointLights.size(); i++) {
-    pointLights[i].Set(shader, i);
+    pointLights[i].SetDynamicAttributes(shader, i);
   }
   for (unsigned int i = 0; i < spotLights.size(); i++) {
-    spotLights[i].Set(shader, i);
+    spotLights[i].SetDynamicAttributes(shader, i);
+  }
+}
+
+void LightFactory::SetFixedAttributes(Shader shader) {
+  shader.SetUnsignedInt("numSpotLights", spotLights.size());
+  shader.SetUnsignedInt("numPointLights", pointLights.size());
+
+  for (unsigned int i = 0; i < pointLights.size(); i++) {
+    pointLights[i].SetFixedAttributes(shader, i);
+  }
+  for (unsigned int i = 0; i < spotLights.size(); i++) {
+    spotLights[i].SetFixedAttributes(shader, i);
   }
 }
 
@@ -103,18 +115,26 @@ PointLight::PointLight(aiLight* light, aiNode* node) {
 
 }
 
-void PointLight::Set(Shader shader, unsigned int i) {
+void PointLight::SetFixedAttributes(Shader shader, unsigned int i) {
+  std::string name = "pointLights[";
+  name += std::to_string(i);
+  name += "]";
+
+
+  shader.SetVec3(name + ".ambient", this->ambient);
+  shader.SetVec3(name + ".diffuse", this->diffuse);
+  shader.SetVec3(name + ".specular", this->specular);
+  shader.SetFloat(name + ".constant", this->constant);
+  shader.SetFloat(name + ".linear", this->linear);
+  shader.SetFloat(name + ".quadratic", this->quadratic);
+}
+
+void PointLight::SetDynamicAttributes(Shader shader, unsigned int i) {
   std::string name = "pointLights[";
   name += std::to_string(i);
   name += "]";
   
     shader.SetVec3(name + ".position", this->position);
-    shader.SetVec3(name + ".ambient", this->ambient);
-    shader.SetVec3(name + ".diffuse", this->diffuse);
-    shader.SetVec3(name + ".specular", this->specular);
-    shader.SetFloat(name + ".constant", this->constant);
-    shader.SetFloat(name + ".linear", this->linear);
-    shader.SetFloat(name + ".quadratic", this->quadratic);
 }
 
 glm::vec3 PointLight::Position() {
@@ -169,13 +189,10 @@ SpotLight::SpotLight(aiLight* light, aiNode* node) {
   outerCut = glm::cos(light->mAngleOuterCone / 4);
 }
 
-void SpotLight::Set(Shader shader, unsigned int i) {
+void SpotLight::SetFixedAttributes(Shader shader, unsigned int i) {
   std::string name = "spotLights[";
   name += std::to_string(i);
   name += "]";
-
-  shader.SetVec3(name + ".position", this->position);
-  shader.SetVec3(name + ".direction", this->direction);
 
   shader.SetVec3(name + ".ambient", this->ambient);
   shader.SetVec3(name + ".diffuse", this->diffuse);
@@ -185,6 +202,17 @@ void SpotLight::Set(Shader shader, unsigned int i) {
   shader.SetFloat(name + ".quadratic", this->quadratic);
   shader.SetFloat(name + ".cutoff", this->innerCut);
   shader.SetFloat(name + ".outerCutoff", this->outerCut);
+}
+
+void SpotLight::SetDynamicAttributes(Shader shader, unsigned int i) {
+  std::string name = "spotLights[";
+  name += std::to_string(i);
+  name += "]";
+
+  shader.SetVec3(name + ".position", this->position);
+  shader.SetVec3(name + ".direction", this->direction);
+
+  
 
 }
 

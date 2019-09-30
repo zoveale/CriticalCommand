@@ -21,11 +21,11 @@ void Model::Draw(Shader shader) {
 void Model::Animate(Shader shader, float time) {
 
   vector<glm::mat4> transforms;
-  //FIXME:: time is slower
+  //TODO:: time is slower
   BoneTransform(time, transforms);
 
   for (unsigned int i = 0; i < transforms.size(); i++) {
-    //FIXME::
+    //TODO::
     string name = "gBones[" + to_string(i) + "]";
     shader.SetMat4(name, transforms[i]);
   }
@@ -33,11 +33,15 @@ void Model::Animate(Shader shader, float time) {
     animatedMeshes[i].Draw(shader);
   }
 }
-//FIXME::
+//TODO::
 void Model::InitializeBones(Shader shader) {
   for (unsigned int i = 0; i < MAX_BONES; i++) {
-    string name = "gBones[" + to_string(i) + "]";// name like in shader
-    bonesGPU[i] = shader.GetUniform(name);
+    string name = "gBones[" + to_string(i) + "]";
+    if(shader.GetUniform(name) != -1)
+      bonesGPU[i] = shader.GetUniform(name);
+    else {
+      //TODO::print error
+    }
   }
 }
 
@@ -52,9 +56,15 @@ void Model::InitializeBones(Shader shader) {
     printf("(1)Read Assimp file : %s\n", path.c_str());
     //FIXME:: need static scene?
     this->scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs |
-      aiProcess_CalcTangentSpace);// | aiProcess_GenSmoothNormals |
+      aiProcess_CalcTangentSpace | aiProcess_SplitLargeMeshes);// | aiProcess_GenSmoothNormals |
       //aiProcess_JoinIdenticalVertices | aiProcess_FindDegenerates |
       //aiProcess_ValidateDataStructure);
+
+    //TODO:: this Property corresponds to the aiProcess_SplitLargeMeshes post process
+    //It should help physx when making a triangle mesh out of larger meshes.
+    //Need more testing to see if it is needed to change the default value.
+    //importer.SetPropertyInteger(AI_CONFIG_PP_SLM_VERTEX_LIMIT, )
+    ///
 
     // check for errors
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
@@ -65,15 +75,6 @@ void Model::InitializeBones(Shader shader) {
 
     // retrieve the directory path of the filepath
     directory = path.substr(0, path.find_last_of('/'));
-    //FIXME::why tho
-    //inverse root node
-    /*this->inverseRootNode = aiToGlm(scene->mRootNode->mTransformation);
-    inverseRootNode = glm::inverse(inverseRootNode);*/
-    ///
-    //printf("Root node named: %s\n",scene->mRootNode->mName.data);
-    /*if (scene->mRootNode->FindNode("TestSpot")) {
-      printf("find node named: %s\n", scene->mRootNode->FindNode("TestSpot")->mName.data);
-    }*/
     if (scene->HasMaterials()) {
       aiString name;
       printf("it has %i material\n", scene->mNumMaterials);
@@ -96,7 +97,7 @@ void Model::InitializeBones(Shader shader) {
       ProcessLights(scene, light);
     }
     if (scene->HasAnimations()) {
-      //FIXME::array of different ticks for other animations?
+      //TODO::array of different ticks for other animations?
       for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
         ticksPerSecond = scene->mAnimations[i]->mTicksPerSecond;
         animationDuration = scene->mAnimations[i]->mDuration;
@@ -110,7 +111,7 @@ void Model::InitializeBones(Shader shader) {
       //ticksPerSecond = 25.0f;
       printf("\t(2b)Process non-animated node\n");
       
-      processNode(scene->mRootNode, scene, physicsScene/*, pass in physx again*/);
+      processNode(scene->mRootNode, scene, physicsScene);
     }
 
 
@@ -124,26 +125,12 @@ void Model::InitializeBones(Shader shader) {
       lightNode.push_back(scene->mRootNode->FindNode(light[i]->mName.data));
       lights.AddLights(light[i], lightNode[i]);
     }
-
-
-    // glm::vec4(aiToGlm(light->mTransformation) * glm::vec4(aiToGlm(lights[0]->mPosition), 1.0));
   }
   void Model::ProcessAnimatedNode(aiNode* node, const aiScene* scene) {
-    // process each mesh located at the current node
-    //printf("node name: %s, num of children: %i, number of meshes: %i\n", node->mName.data, node->mNumChildren, node->mNumMeshes);
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
-      // the node object only contains indices to index the actual objects in the scene. 
-      // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
       aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-
-      //printf("mesh name: %s\n", mesh->mName.data);
       animatedMeshes.push_back(ProcessAnimatedMesh(mesh, scene));
-      //baseVertexIDs =
     }
-    // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
-    /*for (unsigned int i = 0; i < node->mNumChildren; i++) {
-      printf("\tchild name: %s\n", node->mChildren[i]->mName.data);
-    }*/
     for (unsigned int i = 0; i < node->mNumChildren; i++) {
       ProcessAnimatedNode(node->mChildren[i], scene);
     }
@@ -282,17 +269,18 @@ void Model::InitializeBones(Shader shader) {
   void Model::processNode(aiNode* node, const aiScene* scene, physx::Physics& physicsScene/*, again*/) {
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
       aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-      meshes.push_back(processMesh(mesh, scene, physicsScene/*, again*/));
+      meshes.push_back(processMesh(mesh, scene, physicsScene));
       
     }
     for (unsigned int i = 0; i < node->mNumChildren; i++) {
-      processNode(node->mChildren[i], scene, physicsScene/*, again*/);
+      processNode(node->mChildren[i], scene, physicsScene);
     }
   }
 
   Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& physicsScene/*, again*/) {
     printf("(3)processMesh\n");
     // data to fill
+    printf("%s\n", mesh->mName.C_Str());
     
     vector<Vertex> vertices;
     vector<unsigned int> indices;
@@ -410,7 +398,6 @@ void Model::InitializeBones(Shader shader) {
     */
     //TODO:: TRIMESH FOR PHYSICS
     if (collisions) {
-      &mesh->mFaces->mIndices[0];
       //get all indices
       std::vector<unsigned int> indices;
       for (unsigned int i = 0; i < mesh->mNumFaces; i++) {

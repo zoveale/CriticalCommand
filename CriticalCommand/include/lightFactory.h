@@ -31,7 +31,8 @@ public:
   glm::mat4 GetSpotLightTransformation(unsigned int i);
   unsigned int NumSpotLights();
   
-  void Set(Shader shader);
+  void SetDynamicAttributes(Shader shader);
+  void SetFixedAttributes(Shader shader);
   void Draw(Shader shader);
   //virtual void Transformation();
 };
@@ -50,7 +51,8 @@ private:
 public:
   PointLight();
   PointLight(aiLight* light, aiNode* node);
-  void Set(Shader shader, unsigned int i);
+  void SetFixedAttributes(Shader shader, unsigned int i);
+  void SetDynamicAttributes(Shader shader, unsigned int i);
   glm::vec3 Position();
   glm::mat4 Transformation();
 };
@@ -72,7 +74,8 @@ private:
 public:
   SpotLight();
   SpotLight(aiLight* light, aiNode* node);
-  void Set(Shader shader, unsigned int i);
+  void SetFixedAttributes(Shader shader, unsigned int i);
+  void SetDynamicAttributes(Shader shader, unsigned int i);
   glm::vec3 Position();
   glm::mat4 Transformation();
   //SpotLight Data();

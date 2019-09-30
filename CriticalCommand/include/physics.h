@@ -82,36 +82,23 @@ public:
   PxDefaultCpuDispatcher* gDispatcher;
   PxScene* gScene;
 
-  PxMaterial* gMaterial;
+  PxMaterial* defaultMaterial;
 
   PxPvd* gPvd;
   /*
   TODO:: remove test variables 
   */
-  PxMat44 globalPoseArray[MAX_ACTOR];
-  //PxMat44 globalPose;
-
-  //PxVec3 pos[MAX_ACTOR];
+  static PxMat44 globalPoseArray[MAX_ACTOR];
+  static PxRigidActor* actors[MAX_ACTOR];
   PxReal stackZ = 10.0f;
   
   PxTriangleMesh* triMesh;
   PxRigidStatic* meshActor;
   struct Triangle {
-   /* Triangle(unsigned int* i) {
-      ind0 = i[0];
-      ind1 = i[0];
-      ind2 = i[0];
-    }*/
     PxU32 ind0, ind1, ind2;
   };
 
-  
-  /*
-  static const PxVec3 convexVerts[] = {PxVec3(0,1,0),PxVec3(1,0,0),PxVec3(-1,0,0),PxVec3(0,0,1),
-    PxVec3(0,0,-1)};
-    */
 };
-//test Data
 
 
 

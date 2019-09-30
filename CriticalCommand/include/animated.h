@@ -39,7 +39,7 @@ public:
     this->indices = indices;
     this->textures = textures;
     this->bones = weights;
-    //FIXME::add joint
+    
     indentity = glm::mat4(1.0);
 
     setupAnimated();
@@ -95,11 +95,6 @@ private:
   /*  Functions    */
   // initializes all the buffer objects/arrays
   void setupAnimated() {
-   /* for (int i = 0; i < bones.size(); i++) {
-      for (int j = 0; j < 4; j++) {
-        printf("bone[%i]:id[%i]: weight: %f\n", i, bones[i].ids[j], bones[i].weights[j]);
-      }
-    }*/
     // create buffers/arrays
     glGenVertexArrays(1, &VAO);
 

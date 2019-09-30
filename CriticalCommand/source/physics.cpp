@@ -6,14 +6,15 @@ physx::PxDefaultErrorCallback physx::Physics::gErrorCallback;
 physx::PxFoundation* physx::Physics::gFoundation;
 physx::PxPhysics*    physx::Physics::gPhysics;
 physx::PxCooking*    physx::Physics::gCooking;
-
+physx::PxMat44       physx::Physics::globalPoseArray[MAX_ACTOR];
+physx::PxRigidActor* physx::Physics::actors[MAX_ACTOR];
 
 physx::Physics::Physics() {
   gFoundation = NULL;
   gPhysics = NULL;
   gDispatcher = NULL;
   gScene = NULL;
-  gMaterial = NULL;
+  defaultMaterial = NULL;
   gPvd = NULL;
   triMesh = NULL;
   meshActor = NULL;
@@ -53,16 +54,13 @@ void physx::Physics::StartUp() {
   gScene = gPhysics->createScene(sceneDesc);
 
   //TODO:: create default material
-  gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
+  defaultMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
   CreateStack(PxTransform(PxVec3(0, 10, stackZ -= 10.0f)), 10, 2.0f);
 
-  //PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 1), *gMaterial);
+  //PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *defaultMaterial);
   //gScene->addActor(*groundPlane);
   
   /// 
-
-  
-    //createMeshGround();
 }
 
 void physx::Physics::AddActor(PxActor* actor) {
@@ -75,8 +73,12 @@ void physx::Physics::GetActors(/*PxActor** actor*/) {
   PxU32 nbActors = gScene->getNbActors(FLAG::eRIGID_DYNAMIC | FLAG::eRIGID_STATIC);
   /*printf("# of actors = %i\n", nbActors);
   std::cout << "# of actors = " << nbActors << std::endl;*/
-
-  std::vector<PxRigidActor*> actors(nbActors);
+  if (nbActors > MAX_ACTOR) {
+    printf("\n # of actors > MAX_ACTORS\n");
+    int i;
+    scanf_s("%d", &i);
+  }
+  //std::vector<PxRigidActor*> actors(nbActors);
   
   gScene->getActors(FLAG::eRIGID_DYNAMIC | FLAG::eRIGID_STATIC,
     reinterpret_cast<PxActor * *>(&actors[0]), nbActors);
@@ -136,11 +138,13 @@ void physx::Physics::CreateStack(const PxTransform& t,
                                 PxReal halfExtent) {
   /*
   PxSphereGeometry(radius)
+  plane geo PxBoxGeometry(PxVec3(halfExtent, halfExtent, 0.01f or 0.1f)
+  
   PxBoxGeometry(PxVec3(halfExtent))
   PxCapsuleGeometry(radius, halfExtent)
   PxPlaneGeometry
     */
-  PxShape* shape = gPhysics->createShape(PxSphereGeometry(halfExtent), *gMaterial);
+  PxShape* shape = gPhysics->createShape(PxSphereGeometry(halfExtent), *defaultMaterial);
   for (PxU32 i = 0; i < size; i++) {
     for (PxU32 j = 0; j < size - i; j++) {
       PxTransform localTm(PxVec3(PxReal(j * 2) - PxReal(size - i), PxReal(i * 2), i) * halfExtent);
@@ -172,19 +176,19 @@ void physx::Physics::AddStaticTriangleMesh(const std::vector<float> vertex,
   //TODO:: can triangle meshes only be used on rigid static actors
   //PxRigidDynamic* staticActor = gPhysics->createRigidDynamic(pos);
 
-  /*PxShape* triMeshShape = gPhysics->createShape(triGeo, *gMaterial, true);
+  /*PxShape* triMeshShape = gPhysics->createShape(triGeo, *defaultMaterial, true);
   staticActor->attachShape(*triMeshShape);
   gScene->addActor(*staticActor);
   triMeshShape->release();*/
-
-  PxRigidActorExt::createExclusiveShape(*staticActor, triGeo, *gMaterial);
+  PxMaterial* material = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
+  PxRigidActorExt::createExclusiveShape(*staticActor, triGeo, *material);
   gScene->addActor(*staticActor);
   ///same as commented above
 
 }
 
 void physx::Physics::AddCubeActor(glm::vec3 pos, float scale) {
-  PxShape* shape = gPhysics->createShape(PxBoxGeometry(scale/2, scale/2, scale/2), *gMaterial);
+  PxShape* shape = gPhysics->createShape(PxBoxGeometry(scale/2, scale/2, scale/2), *defaultMaterial);
   
   PxTransform localTm(PxVec3(pos.x, pos.y, pos.z));
 
@@ -225,7 +229,7 @@ glm::mat4 physx::Physics::GetAPose(int i) {
 
 void physx::Physics::ShootBall(glm::vec3 front, glm::vec3 pos) {
 
-  PxShape* shape = gPhysics->createShape(PxBoxGeometry(PxVec3(1.0)), *gMaterial);
+  PxShape* shape = gPhysics->createShape(PxBoxGeometry(PxVec3(1.0)), *defaultMaterial);
  
   PxTransform localTm(PxVec3(pos.x, pos.y, pos.z));
 
@@ -247,20 +251,26 @@ physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(const std::vector<floa
 
   PxCookingParams params = gCooking->getParams();
   //PxTolerancesScale scalex = PxTolerancesScale();
-  params.midphaseDesc = PxMeshMidPhase::eBVH33;
-  params.scale = gPhysics->getTolerancesScale();
+  /*params.midphaseDesc = PxMeshMidPhase::eBVH33;
   params.midphaseDesc.mBVH33Desc.meshCookingHint = PxMeshCookingHint::eSIM_PERFORMANCE;
   params.midphaseDesc.mBVH33Desc.meshSizePerformanceTradeOff = 1.0f;
+*/
+
+
+  params.midphaseDesc = PxMeshMidPhase::eBVH34;
+  params.midphaseDesc.mBVH34Desc.numPrimsPerLeaf = 4; //default = 4, max = 15
+
+  params.scale = gPhysics->getTolerancesScale();
   gCooking->setParams(params);
 
   PxTriangleMeshDesc meshDesc;
   meshDesc.points.data = &vertex[0];
   meshDesc.points.count = vertex.size();
-  meshDesc.points.stride = sizeof(float) * 3;
+  meshDesc.points.stride = sizeof(vertex[0]) * 3;
 
   meshDesc.triangles.data = &indices[0];
   meshDesc.triangles.count = numFaces;
-  meshDesc.triangles.stride = 3 * sizeof(unsigned int);
+  meshDesc.triangles.stride = sizeof(indices[0]) * 3;
 
   gCooking->validateTriangleMesh(meshDesc);
 
@@ -270,6 +280,7 @@ physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(const std::vector<floa
   return triMesh;
   //TODO:: change to CreateTriangleMesh only
 }
+
 void physx::Physics::updateVertices(PxVec3* verts, float amplitude = 10.0f) {
   const PxU32 gridSize = GRID_SIZE;
   const PxReal gridStep = GRID_STEP;
@@ -286,6 +297,7 @@ void physx::Physics::updateVertices(PxVec3* verts, float amplitude = 10.0f) {
     }
   }
 }
+
 physx::PxTriangleMesh* physx::Physics::createMeshGround() {
   
   const PxU32 gridSize = GRID_SIZE;
