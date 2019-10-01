@@ -399,14 +399,23 @@ void Model::InitializeBones(Shader shader) {
     //TODO:: TRIMESH FOR PHYSICS
     if (collisions) {
       //get all indices
-      std::vector<unsigned int> indices;
-      for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-        for (unsigned int j = 0; j < mesh->mFaces[i].mNumIndices; j++) {
-          indices.push_back(mesh->mFaces[i].mIndices[j]);
+      //TODO:: make enum of physx IDs for model to process
+      std::string trimeshID("_STM_");
+      std::string name = mesh->mName.C_Str();
+      //std::size_t found = name.find(trimeshID);
+      if (name.find(trimeshID) != std::string::npos) {
+        printf("");
+        std::vector<unsigned int> indices;
+        for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+          for (unsigned int j = 0; j < mesh->mFaces[i].mNumIndices; j++) {
+            indices.push_back(mesh->mFaces[i].mIndices[j]);
+          }
         }
+        indices;
+        physicsScene.AddStaticTriangleMesh(triMeshPos, indices, mesh->mNumFaces);
       }
-      indices;
-      physicsScene.AddStaticTriangleMesh(triMeshPos, indices, mesh->mNumFaces);
+      
+      
     }
     ///
 

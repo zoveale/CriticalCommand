@@ -33,7 +33,7 @@ void System::GameLoop(){
   //Model surface("resources/surface/floor.dae", sceneLights);
   //TODO:: warning : TriangleMesh: triangles are too big, 
   //reduce their size to increase simulation stability!
-  Model default_0("resources/default/default5.dae", sceneLights, scenePhysics , true);
+  Model default_0("resources/default/default7.dae", sceneLights, scenePhysics , true);
   
   //Lamp models
   Shader lamp("resources/shader/lampV.glsl", "resources/shader/lampF.glsl");
