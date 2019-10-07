@@ -287,6 +287,9 @@ void Model::InitializeBones(Shader shader) {
     vector<Texture> textures;
     //TODO:: possibly switch to a set of pre allocated arrays with max limit
     vector<float> triMeshPos;
+    //
+    float maxY = 0.0f;
+    float minY = 0.0f;
     ///
     if (mesh->HasTextureCoords(0)) {
       printf("has texture coordinates!\n");
@@ -310,9 +313,22 @@ void Model::InitializeBones(Shader shader) {
       vector.z = -mesh->mVertices[i].y;
       vertex.Position = vector;
       */
+      
       vector.x = mesh->mVertices[i].x;
       vector.y = mesh->mVertices[i].y;
       vector.z = mesh->mVertices[i].z;
+      /*
+      TODO: to find height estimate of object for PHYSX primatives.
+      maybe similar to find width and length
+      no idea how to solve for capsules right now 
+      but should work for Sphere, Boxes, and Planes
+      */
+      if (vector.y > maxY) {
+        maxY = vector.y;
+      }
+      if (vector.y < minY) {
+        minY = vector.y;
+      }
       vertex.Position = vector;
       //TODO:: TRIMESH FOR PHYSICS
       triMeshPos.push_back(vector.x);
@@ -403,8 +419,10 @@ void Model::InitializeBones(Shader shader) {
       std::string trimeshID("_STM_");
       std::string name = mesh->mName.C_Str();
       //std::size_t found = name.find(trimeshID);
+      maxY;
+      minY;
+      
       if (name.find(trimeshID) != std::string::npos) {
-        printf("");
         std::vector<unsigned int> indices;
         for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
           for (unsigned int j = 0; j < mesh->mFaces[i].mNumIndices; j++) {

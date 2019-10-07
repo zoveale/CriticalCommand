@@ -158,11 +158,12 @@ void physx::Physics::CreateStack(const PxTransform& t,
   shape->release();
 }
 
-void physx::Physics::AddStaticTriangleMesh(const std::vector<float> vertex,
-  const std::vector<unsigned int>          indices,
-                                           const unsigned int           indicesSize) {
+void physx::Physics::AddStaticTriangleMesh(
+  const std::vector<float>        vertex,
+  const std::vector<unsigned int> indices,
+  const unsigned int              indicesSize) {
   printf("process tri mesh for shapes\n");
-
+ 
   //PxTriangleMesh* mesh = createMeshGround();
   PxTriangleMesh* mesh = CreateTriangleMesh(vertex, indices, indicesSize);
   triMesh = mesh;
@@ -258,7 +259,7 @@ physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(const std::vector<floa
 
 
   params.midphaseDesc = PxMeshMidPhase::eBVH34;
-  params.midphaseDesc.mBVH34Desc.numPrimsPerLeaf = 4; //default = 4, max = 15
+  params.midphaseDesc.mBVH34Desc.numPrimsPerLeaf = 8; //default = 4, max = 15
 
   params.scale = gPhysics->getTolerancesScale();
   gCooking->setParams(params);
