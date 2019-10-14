@@ -18,12 +18,11 @@
 #include <vector>
 #include <map>
 
+extern glm::mat3 aiToGlm(const aiMatrix3x3& load);
+extern glm::mat4 aiToGlm(const aiMatrix4x4& load);
+extern glm::vec3 aiToGlm(const aiVector3D& vec);
+extern glm::quat aiToGlm(const aiQuaternion& quat);
 
-#define NUM_BONES_PER_VEREX 4
-glm::mat4 aiToGlm(const aiMatrix4x4& load);
-glm::mat3 aiToGlm(const aiMatrix3x3& load);
-glm::vec3 aiToGlm(const aiVector3D& vec);
-glm::quat aiToGlm(const aiQuaternion& quat);
 
 struct Vertex {
   // position
@@ -52,22 +51,8 @@ struct Texture {
   std::string path;
 };
 
-struct BoneData {
-  glm::mat4 offsetTransform; //<-assimp mOffsetMatrix
-  glm::mat4 finalTransform; //
-  BoneData();
-  BoneData(const aiMatrix4x4 offset, const aiMatrix4x4 final);
-};
 
 
-struct VertexBoneData {
-  // we have 4 bone ids for EACH vertex & 4 weights for EACH vertex
-  unsigned int ids[NUM_BONES_PER_VEREX];   
-  float weights[NUM_BONES_PER_VEREX];
-
- 
-  void addVertexBoneData(unsigned int bone_id, float weight);
-};
 
 
 

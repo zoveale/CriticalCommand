@@ -8,6 +8,7 @@
 
 #include "shader.h"
 #include "modelUtility.h"
+#include "skeletal.h"
 
 #include <string>
 #include <fstream>

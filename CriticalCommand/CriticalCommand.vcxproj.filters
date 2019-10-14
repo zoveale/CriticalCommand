@@ -48,6 +48,12 @@
     <ClCompile Include="source\physics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\skeletal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\modelUtility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\system.h">
@@ -83,13 +89,16 @@
     <ClInclude Include="include\animated.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\modelUtility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\lightFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\physics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\skeletal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\modelUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,5 +1,6 @@
 #include "lightFactory.h"
-#include "modelUtility.h"
+
+
 std::vector <PointLight> LightFactory::pointLights;
 std::vector <SpotLight> LightFactory::spotLights;
 

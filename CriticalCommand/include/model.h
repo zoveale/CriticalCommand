@@ -4,7 +4,8 @@
 #include "mesh.h"
 #include "animated.h"
 #include "shader.h"
-
+#include "modelUtility.h"
+#include "skeletal.h"
 #include "lightFactory.h"
 #include "physics.h"
 #include <string>
@@ -14,10 +15,9 @@
 
 
 
-
-
 class Model {
 public:
+
   /*  Model Data */
   vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
   vector<Mesh> meshes;

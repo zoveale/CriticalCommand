@@ -14,6 +14,8 @@
 class PointLight;
 class SpotLight;
 
+extern glm::mat4 aiToGlm(const aiMatrix4x4& load);
+
 class LightFactory {
 private:
   

@@ -33,8 +33,6 @@ void physx::Physics::StartUp() {
   //Initialization of physx data types
   gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
   
-
-
   //Physx Visual Debugger info, TODO:: understand this better
   gPvd = PxCreatePvd(*gFoundation);
   PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
@@ -42,8 +40,6 @@ void physx::Physics::StartUp() {
 
   gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, scale, true, gPvd);
   gCooking = PxCreateCooking(PX_PHYSICS_VERSION, *gFoundation, PxCookingParams(scale));
-
-
 
   //TODO::TEST SCENE remove testing physx code
   PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
@@ -57,9 +53,6 @@ void physx::Physics::StartUp() {
   defaultMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
   CreateStack(PxTransform(PxVec3(0, 10, stackZ -= 10.0f)), 10, 2.0f);
 
-  //PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *defaultMaterial);
-  //gScene->addActor(*groundPlane);
-  
   /// 
 }
 
@@ -92,22 +85,11 @@ void physx::Physics::GetActors(/*PxActor** actor*/) {
 
   
 }
-/*
-TODO:: use for cube shapes??
-case PxGeometryType::eBOX:
-    {
-      const PxBoxGeometry& boxGeom = static_cast<const PxBoxGeometry&>(geom);
-      glScalef(boxGeom.halfExtents.x, boxGeom.halfExtents.y, boxGeom.halfExtents.z);
-      glutSolidCube(2);
-    }
-*/
 
 void physx::Physics::StepPhysics() {
   gScene->simulate(1.0f / 60.0f);
   gScene->fetchResults(true);
 }
-
-
 
 void physx::Physics::CleanUp() {
   /*
