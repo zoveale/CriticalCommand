@@ -4,14 +4,10 @@
 
 #include "system.h"
 
-int main(void)
-{
-
-
+int main(void){
+  
   System system;
  
-  
-  
   system.SystemInit();
   system.GameLoop();
   system.Shutdown();

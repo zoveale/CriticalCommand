@@ -12,18 +12,16 @@ void System::SystemInit(){
   //camera.startup /
   
   scenePhysics.StartUp();
-  //scenePhysics.GetActors();
-  //scenePhysics.AddCubeActor(glm::vec3(0.0f, 50.0f, 0.0f), 10.0f);
   
   printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 }
 
 void System::GameLoop(){
- /* Shader animated("resources/shader/Vanimated.glsl", "resources/shader/Fanimated.glsl");
-  Model ourModel_0("resources/cowboy/CharacterRunning4.dae", sceneLights,scenePhysics);
+  //Shader animated("resources/shader/Vanimated.glsl", "resources/shader/Fanimated.glsl");
+  //Model ourModel_0("resources/cowboy/CharacterRunning4.dae", sceneLights,scenePhysics);
 
-  ;
-  Model ourModel_1("resources/watchtower/tower.obj", sceneLights, scenePhysics);*/
+  
+  //Model ourModel_1("resources/watchtower/tower.obj", sceneLights, scenePhysics);
   Shader fixed("resources/shader/Vmodel.glsl", "resources/shader/Fmodel.glsl");
   //TODO:: PHYSX testing
   Model ico_80("resources/default/ico_80.dae", sceneLights, scenePhysics);
@@ -74,7 +72,8 @@ void System::GameLoop(){
     ///
     projection = glm::perspective(glm::radians(55.0f), (float)1280 / (float)720, 0.1f, 100.0f);
     view = playerCamera.View();
-    /*animated.Use();
+
+   /* animated.Use();
     animated.SetMat4("projection", projection);
     animated.SetMat4("view", view);
     model = glm::translate(model, glm::vec3(4.0f, 0.0f, 0.0f));
