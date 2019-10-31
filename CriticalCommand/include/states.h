@@ -7,6 +7,8 @@
 
 
 class Player;
+#include "player.h"
+
 class IdelState;
 class ForwardState;
 class BackwardState;

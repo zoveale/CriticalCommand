@@ -1,15 +1,21 @@
+
+
 #ifndef CAMERA_H
 #define CAMERA_H
+
 
 
 #include "vec3.hpp"
 #include "mat4x4.hpp"
 #include <gtc/matrix_transform.hpp>
 #include "geometric.hpp"
-#include "player.h"
 
+#include "player.h"
+class Player;
 
 class PlayerCamera;
+class OverviewCamera;
+
 
 class Camera {
 public:

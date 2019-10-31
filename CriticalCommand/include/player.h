@@ -1,12 +1,22 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "states.h"
-#include "camera.h"
-#include "vec2.hpp"
-#include "physics.h"
 
+#include "vec2.hpp"
+
+
+
+
+
+#include "states.h"
+class InputState;
+
+#include "physics.h"
+class physx::Physics;
+
+#include "camera.h"
 class Camera;
+
 //class PlayerCamera;
 //class InputState;
 //class Input;
@@ -30,6 +40,7 @@ public:
   //Add pointer to input class
   //Input* input;
   ///
+  physx::Physics* physics;
   InputState* state;
   Camera* camera;
   //Graphics* graphic
@@ -47,6 +58,7 @@ public:
   void MoveBackward();
   void MoveLeft();
   void MoveRight();
+  void ShootBall();
   ///
 };
 

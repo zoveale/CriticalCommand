@@ -12,6 +12,9 @@
 
 #include "mat4x4.hpp"
 #include "vec3.hpp"
+#include "gtc/type_ptr.hpp"
+
+
 
 class Shader {
 private:
@@ -56,7 +59,9 @@ public:
                float x, float y, float z) const;
 
   void SetFloat(const std::string& name, float f) const;
-
+  void SetUnsignedInt(const std::string& name, unsigned int ui) const;
+  void SetInt(const std::string& name, int i) const;
+  
   unsigned int GetUniform(const std::string& name);
   ///
   void Shutdown();

@@ -1,4 +1,4 @@
-#version 330 core
+#version 460
 out vec4 FragColor;
 
 struct Material{
@@ -53,10 +53,16 @@ uniform Material material;
 
 uniform DirLight dirLight;
 
-#define NR_SPOT_LIGHTS 2 
-uniform SpotLight spotLights[NR_SPOT_LIGHTS];
-#define NR_POINT_LIGHTS 5 
+//TODO::
+uniform uint numPointLights;
+#define NR_POINT_LIGHTS 10
 uniform PointLight pointLights[NR_POINT_LIGHTS];
+
+uniform uint numSpotLights;
+#define NR_SPOT_LIGHTS 10
+uniform SpotLight spotLights[NR_SPOT_LIGHTS];
+
+
 
 
 in VS_OUT {
@@ -79,10 +85,10 @@ vec3 result = vec3(0.0);
 //vec3 emission = texture(material.texture_emission1, textureUV).rgb ; 
 
 void main(){   
-	for(int i = 0; i < 5; i++){
+	for(uint i = 0; i < numPointLights; i++){
         result += CalcPointLight(pointLights[i], material, norm, fs_in.FragPos, viewDir); 
 	}
-	for(int i = 0; i <2; i++){
+	for(uint i = 0; i < numSpotLights; i++){
         result += CalcSpotLight(spotLights[i], material, norm, fs_in.FragPos, viewDir); 
 	}
 	FragColor =  vec4(result, 1.0);

@@ -1,5 +1,6 @@
 #include "lightFactory.h"
-#include "modelUtility.h"
+
+
 std::vector <PointLight> LightFactory::pointLights;
 std::vector <SpotLight> LightFactory::spotLights;
 
@@ -42,12 +43,24 @@ unsigned int LightFactory::NumPointLights() {
   return pointLights.size();
 }
 
-void LightFactory::Set(Shader shader) {
+void LightFactory::SetDynamicAttributes(Shader shader) {
   for (unsigned int i = 0; i < pointLights.size(); i++) {
-    pointLights[i].Set(shader, i);
+    pointLights[i].SetDynamicAttributes(shader, i);
   }
   for (unsigned int i = 0; i < spotLights.size(); i++) {
-    spotLights[i].Set(shader, i);
+    spotLights[i].SetDynamicAttributes(shader, i);
+  }
+}
+
+void LightFactory::SetFixedAttributes(Shader shader) {
+  shader.SetUnsignedInt("numSpotLights", spotLights.size());
+  shader.SetUnsignedInt("numPointLights", pointLights.size());
+
+  for (unsigned int i = 0; i < pointLights.size(); i++) {
+    pointLights[i].SetFixedAttributes(shader, i);
+  }
+  for (unsigned int i = 0; i < spotLights.size(); i++) {
+    spotLights[i].SetFixedAttributes(shader, i);
   }
 }
 
@@ -79,7 +92,7 @@ PointLight::PointLight(aiLight* light, aiNode* node) {
   transformation[3][0] = position.x;
   transformation[3][1] = position.y;
   transformation[3][2] = position.z;
-  //FIXME:: Blender export rotates wrong way
+  //TODO:: Blender export rotates wrong way
   transformation = glm::rotate(transformation, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
 
   ambient = glm::vec3(light->mColorAmbient.r,
@@ -91,8 +104,10 @@ PointLight::PointLight(aiLight* light, aiNode* node) {
   specular = glm::vec3(light->mColorSpecular.r,
                        light->mColorSpecular.g,
                        light->mColorSpecular.b);
-  ambient /= 1000.0f;
+
+  //TODO:: light example in blender is much brighter than in opengl rendering
   diffuse /= 1000.0f;
+  ambient /= 1000.0f;
   specular /= 1000.0f;
 
   constant = light->mAttenuationConstant;
@@ -101,18 +116,26 @@ PointLight::PointLight(aiLight* light, aiNode* node) {
 
 }
 
-void PointLight::Set(Shader shader, unsigned int i) {
+void PointLight::SetFixedAttributes(Shader shader, unsigned int i) {
+  std::string name = "pointLights[";
+  name += std::to_string(i);
+  name += "]";
+
+
+  shader.SetVec3(name + ".ambient", this->ambient);
+  shader.SetVec3(name + ".diffuse", this->diffuse);
+  shader.SetVec3(name + ".specular", this->specular);
+  shader.SetFloat(name + ".constant", this->constant);
+  shader.SetFloat(name + ".linear", this->linear);
+  shader.SetFloat(name + ".quadratic", this->quadratic);
+}
+
+void PointLight::SetDynamicAttributes(Shader shader, unsigned int i) {
   std::string name = "pointLights[";
   name += std::to_string(i);
   name += "]";
   
     shader.SetVec3(name + ".position", this->position);
-    shader.SetVec3(name + ".ambient", this->ambient);
-    shader.SetVec3(name + ".diffuse", this->diffuse);
-    shader.SetVec3(name + ".specular", this->specular);
-    shader.SetFloat(name + ".constant", this->constant);
-    shader.SetFloat(name + ".linear", this->linear);
-    shader.SetFloat(name + ".quadratic", this->quadratic);
 }
 
 glm::vec3 PointLight::Position() {
@@ -134,7 +157,7 @@ SpotLight::SpotLight(aiLight* light, aiNode* node) {
                        transformation[3][2]);
   //direction = glm::rotate(direction, glm::radians(90.0f), glm::vec3(1.0, 1.0, 0.0));
   //direction = glm::rotateX(direction, 90.0f);
-  //FIXME:: Blender export rotates wrong way
+  //TODO:: Blender export rotates wrong way
   transformation = glm::rotate(transformation, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
   direction = glm::vec3(transformation[2][0],
                         transformation[2][1],
@@ -147,12 +170,14 @@ SpotLight::SpotLight(aiLight* light, aiNode* node) {
   diffuse = glm::vec3(light->mColorDiffuse.r,
                       light->mColorDiffuse.g,
                       light->mColorDiffuse.b);
-  diffuse /= 10000.0f;
+  
   specular = glm::vec3(light->mColorSpecular.r,
                        light->mColorSpecular.g,
                        light->mColorSpecular.b);
-  specular /= 10000.0f;
-
+  //TODO:: light example in blender is much brighter than in opengl rendering
+  diffuse /= 1000.0f;
+  specular /= 1000.0f;
+  ambient /= 1000.0f;
 
   constant = light->mAttenuationConstant;
   linear = light->mAttenuationLinear;
@@ -165,13 +190,10 @@ SpotLight::SpotLight(aiLight* light, aiNode* node) {
   outerCut = glm::cos(light->mAngleOuterCone / 4);
 }
 
-void SpotLight::Set(Shader shader, unsigned int i) {
+void SpotLight::SetFixedAttributes(Shader shader, unsigned int i) {
   std::string name = "spotLights[";
   name += std::to_string(i);
   name += "]";
-
-  shader.SetVec3(name + ".position", this->position);
-  shader.SetVec3(name + ".direction", this->direction);
 
   shader.SetVec3(name + ".ambient", this->ambient);
   shader.SetVec3(name + ".diffuse", this->diffuse);
@@ -181,6 +203,17 @@ void SpotLight::Set(Shader shader, unsigned int i) {
   shader.SetFloat(name + ".quadratic", this->quadratic);
   shader.SetFloat(name + ".cutoff", this->innerCut);
   shader.SetFloat(name + ".outerCutoff", this->outerCut);
+}
+
+void SpotLight::SetDynamicAttributes(Shader shader, unsigned int i) {
+  std::string name = "spotLights[";
+  name += std::to_string(i);
+  name += "]";
+
+  shader.SetVec3(name + ".position", this->position);
+  shader.SetVec3(name + ".direction", this->direction);
+
+  
 
 }
 

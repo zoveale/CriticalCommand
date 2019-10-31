@@ -190,12 +190,14 @@
     <ClCompile Include="source\input.cpp" />
     <ClCompile Include="source\lightFactory.cpp" />
     <ClCompile Include="source\model.cpp" />
+    <ClCompile Include="source\modelUtility.cpp" />
     <ClCompile Include="source\physics.cpp" />
     <ClCompile Include="source\player.cpp" />
     <ClCompile Include="source\camera.cpp" />
     <ClCompile Include="source\render.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\shader.cpp" />
+    <ClCompile Include="source\skeletal.cpp" />
     <ClCompile Include="source\states.cpp" />
     <ClCompile Include="source\system.cpp" />
   </ItemGroup>
@@ -208,6 +210,7 @@
     <ClInclude Include="include\modelUtility.h" />
     <ClInclude Include="include\physics.h" />
     <ClInclude Include="include\shader.h" />
+    <ClInclude Include="include\skeletal.h" />
     <ClInclude Include="include\states.h" />
     <ClInclude Include="include\system.h" />
     <ClInclude Include="include\render.h" />
