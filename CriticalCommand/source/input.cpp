@@ -71,10 +71,39 @@ void Input::Process() {
   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) {
     KEY.SPACE = false;
   }
-
+  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+    KEY.UP = true;
+  }
+  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_RELEASE) {
+    KEY.UP = false;
+  }
+  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+    KEY.DOWN = true;
+  }
+  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_RELEASE) {
+    KEY.DOWN = false;
+  }
 
 
 }
 void Input::PollEvents() {
   glfwPollEvents();
+}
+
+void Input::IncrementDecrement(float &i) {
+  if (KEY.UP) {
+    i += 0.01;
+  }
+  if (KEY.DOWN) {
+    i -= 0.01;
+  }
+}
+
+void Input::IncrementDecrement(int& i) {
+  if (KEY.UP) {
+    i++;
+  }
+  if (KEY.DOWN) {
+    i--;
+  }
 }

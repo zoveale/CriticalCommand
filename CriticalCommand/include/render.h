@@ -19,6 +19,7 @@ public:
   Render();
   SCREEN SC;
   void StartUp();
+  void ClearScreen();
   GLFWwindow* Window() { return this->window; }
   
   void Display();

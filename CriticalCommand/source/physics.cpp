@@ -1,13 +1,14 @@
 #include "physics.h"
 
-physx::PxDefaultAllocator physx::Physics::gAllocator;
-physx::PxDefaultErrorCallback physx::Physics::gErrorCallback;
+physx::PxDefaultAllocator       physx::Physics::gAllocator;
+physx::PxDefaultErrorCallback   physx::Physics::gErrorCallback;
+physx::PxFoundation*            physx::Physics::gFoundation;
+physx::PxPhysics*               physx::Physics::gPhysics;
+physx::PxCooking*               physx::Physics::gCooking;
+physx::PxDefaultCpuDispatcher*  physx::Physics::gDispatcher;
+physx::PxMaterial*              physx::Physics::defaultMaterial;
+physx::PxPvd*                   physx::Physics::gPvd;
 
-physx::PxFoundation* physx::Physics::gFoundation;
-physx::PxPhysics*    physx::Physics::gPhysics;
-physx::PxCooking*    physx::Physics::gCooking;
-physx::PxMat44       physx::Physics::globalPoseArray[MAX_ACTOR];
-physx::PxRigidActor* physx::Physics::actors[MAX_ACTOR];
 
 physx::Physics::Physics() {
   gFoundation = NULL;
@@ -18,28 +19,11 @@ physx::Physics::Physics() {
   gPvd = NULL;
   triMesh = NULL;
   meshActor = NULL;
-
+  nbActors = NULL;
 }
 
-void physx::Physics::StartUp() {
 
-  //Can make new scale
-  PxTolerancesScale scale = PxTolerancesScale();
-  /*pass in new scale for cenitmeters for example
-  scale.length = 100;
-  scale.speed = 981;*/
-  ///
-
-  //Initialization of physx data types
-  gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-  
-  //Physx Visual Debugger info, TODO:: understand this better
-  gPvd = PxCreatePvd(*gFoundation);
-  PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
-  gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
-
-  gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, scale, true, gPvd);
-  gCooking = PxCreateCooking(PX_PHYSICS_VERSION, *gFoundation, PxCookingParams(scale));
+void physx::Physics::TestA() {
 
   //TODO::TEST SCENE remove testing physx code
   PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
@@ -49,11 +33,7 @@ void physx::Physics::StartUp() {
   sceneDesc.filterShader = PxDefaultSimulationFilterShader;
   gScene = gPhysics->createScene(sceneDesc);
 
-  //TODO:: create default material
-  defaultMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
   CreateStack(PxTransform(PxVec3(0, 10, stackZ -= 10.0f)), 10, 2.0f);
-
-  /// 
 }
 
 void physx::Physics::AddActor(PxActor* actor) {
@@ -63,15 +43,13 @@ void physx::Physics::AddActor(PxActor* actor) {
 void physx::Physics::GetActors(/*PxActor** actor*/) {
 
   typedef PxActorTypeFlag FLAG;
-  PxU32 nbActors = gScene->getNbActors(FLAG::eRIGID_DYNAMIC | FLAG::eRIGID_STATIC);
-  /*printf("# of actors = %i\n", nbActors);
-  std::cout << "# of actors = " << nbActors << std::endl;*/
+  nbActors = gScene->getNbActors(FLAG::eRIGID_DYNAMIC | FLAG::eRIGID_STATIC);
   if (nbActors > MAX_ACTOR) {
     printf("\n # of actors > MAX_ACTORS\n");
     int i;
     scanf_s("%d", &i);
+    
   }
-  //std::vector<PxRigidActor*> actors(nbActors);
   
   gScene->getActors(FLAG::eRIGID_DYNAMIC | FLAG::eRIGID_STATIC,
     reinterpret_cast<PxActor * *>(&actors[0]), nbActors);
@@ -87,6 +65,7 @@ void physx::Physics::GetActors(/*PxActor** actor*/) {
 }
 
 void physx::Physics::StepPhysics() {
+  GetActors();
   gScene->simulate(1.0f / 60.0f);
   gScene->fetchResults(true);
 }
@@ -108,6 +87,10 @@ void physx::Physics::CleanUp() {
   gFoundation->release();
 
   printf("\n----------\nPHYSX DONE.\n----------\n");
+}
+
+physx::PxU32 physx::Physics::NumberOfActors() {
+  return nbActors;
 }
 
 
@@ -141,9 +124,9 @@ void physx::Physics::CreateStack(const PxTransform& t,
 }
 
 void physx::Physics::AddStaticTriangleMesh(
-  const std::vector<float>        vertex,
-  const std::vector<unsigned int> indices,
-  const unsigned int              indicesSize) {
+  const std::vector<float>        &vertex,
+  const std::vector<unsigned int> &indices,
+  const unsigned int              &indicesSize) {
   printf("process tri mesh for shapes\n");
  
   //PxTriangleMesh* mesh = createMeshGround();
@@ -228,9 +211,9 @@ void physx::Physics::ShootBall(glm::vec3 front, glm::vec3 pos) {
   shape->release();
 }
 
-physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(const std::vector<float> vertex,
-                                                   const std::vector<unsigned int> indices,
-                                                      const unsigned int           numFaces) {
+physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(const std::vector<float> &vertex,
+                                                   const std::vector<unsigned int> &indices,
+                                                      const unsigned int           &numFaces) {
 
   PxCookingParams params = gCooking->getParams();
   //PxTolerancesScale scalex = PxTolerancesScale();

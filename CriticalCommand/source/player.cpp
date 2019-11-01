@@ -60,7 +60,7 @@ void Player::Update() {
   //future update(*this) stuff
   //phyics->update(*this);
   //graphics->update(*this);
-  camera->SetView(*this);
+  camera->Update(*this);
   state->Update(*this);
 }
 

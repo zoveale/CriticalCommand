@@ -115,6 +115,10 @@
     <None Include="PhysXCooking_32.dll" />
     <None Include="PhysXDevice.dll" />
     <None Include="PhysXFoundation_32.dll" />
+    <None Include="resources\shader\Gmodel.glsl" />
+    <None Include="resources\shader\NormalShader\Fnormal.glsl" />
+    <None Include="resources\shader\NormalShader\Gnormal.glsl" />
+    <None Include="resources\shader\NormalShader\Vnormal.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">

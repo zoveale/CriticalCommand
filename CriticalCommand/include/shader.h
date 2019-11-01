@@ -20,19 +20,26 @@ class Shader {
 private:
   void CreateShaders(unsigned int &vertex,
                      unsigned int &fragment,
+                     unsigned int& geometry,
                      const char* &vertexShaderCode,
-                     const char* &fragmentShaderCode);
+                     const char* &fragmentShaderCode,
+                     const char* &geometryShaderCode);
+
   void AttachShaderID(unsigned int& vertex,
-                      unsigned int& fragment);
+                      unsigned int& fragment,
+                      unsigned int& geometry);
   void CheckCompileErrors(GLuint shader, std::string type);
 
   std::string LoadShader(const GLchar* shaderPath);
 
   std::string vertexShader;
   std::string fragmentShader;
+  std::string geometryShader;
   const char* vertexShaderCode;
   const char* fragmentShaderCode;
-  
+  const char* geometryShaderCode;
+
+  bool geometryShaderBit;
 public:
   //Shader ID for glUseProgram
   unsigned int ID;
@@ -41,7 +48,8 @@ public:
 
   //Load from Shader files
   Shader(const GLchar* vertexShaderPath,
-         const GLchar* fragmentShaderPath);
+         const GLchar* fragmentShaderPath, 
+         const GLchar* geometryShaderPath = nullptr);
 
   //Select Shader ID
   void Use();

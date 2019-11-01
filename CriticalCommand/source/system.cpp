@@ -11,15 +11,17 @@ void System::SystemInit(){
   //player.startup \ or vise versa?
   //camera.startup /
   
-  scenePhysics.StartUp();
-  
+  physx::Physics::StartUp();
+  scenePhysics.TestA();
   printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 }
 
 void System::GameLoop(){
   //Shader animated("resources/shader/Vanimated.glsl", "resources/shader/Fanimated.glsl");
   //Model ourModel_0("resources/cowboy/CharacterRunning4.dae", sceneLights,scenePhysics);
-
+  Shader normalShader("resources/shader/NormalShader/Vnormal.glsl",
+                      "resources/shader/NormalShader/Fnormal.glsl",
+                      "resources/shader/NormalShader/Gnormal.glsl");
   
   //Model ourModel_1("resources/watchtower/tower.obj", sceneLights, scenePhysics);
   Shader fixed("resources/shader/Vmodel.glsl", "resources/shader/Fmodel.glsl");
@@ -28,9 +30,8 @@ void System::GameLoop(){
   //Model ico_80_Big("resources/default/ico_80.dae", sceneLights, scenePhysics);
   
   ///
-  //Model surface("resources/surface/floor.dae", sceneLights);
   //TODO:: warning : TriangleMesh: triangles are too big, 
-  //reduce their size to increase simulation stability!
+  //reduce their size to increase simulation stability! wtf is this
   Model default_0("resources/default/default7.dae", sceneLights, scenePhysics , true);
   
   //Lamp models
@@ -50,6 +51,7 @@ void System::GameLoop(){
   sceneLights.SetFixedAttributes(fixed);
 
   float x = 1.0;
+  float gamma = 1.2;
 
   while (!input.KEY.ESC) {
 
@@ -60,7 +62,7 @@ void System::GameLoop(){
 
     /* Render here */
     //clear screen and color background
-    ClearScreen();
+    render.ClearScreen();
     player.HandleInput(input, deltaTime);
     //cool acceleration effect
     //player.Update(xpos, ypos); 
@@ -82,9 +84,11 @@ void System::GameLoop(){
     animated.SetMat4("model", model);
     ourModel_0.Animate(animated, currentFrame);*/
 
-    
+    //TODO::TEST FUNCTIONS
+    input.IncrementDecrement(gamma);
 
     fixed.Use();
+    fixed.SetFloat("gamma", gamma);
     fixed.SetVec3("viewPos", player.position);
     model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
     fixed.SetMat4("model", model);
@@ -92,9 +96,16 @@ void System::GameLoop(){
     sceneLights.SetDynamicAttributes(fixed);
     default_0.Draw(fixed);
     
+    normalShader.Use();
+    normalShader.SetMat4("projection", projection);
+    normalShader.SetMat4("view", view);
+    normalShader.SetMat4("model", model);
+    default_0.Draw(normalShader);
     
     
-    for (int i = 0; i <55; i++) {
+    //TODO:: setting ico80 models the physics deformations
+    for (int i = 0; i < 55; i++) {
+      fixed.Use();
       model = glm::mat4(1.0f);
       model = scenePhysics.GetAPose(i); 
       model = glm::scale(model, glm::vec3(2.0));
@@ -102,9 +113,15 @@ void System::GameLoop(){
       fixed.SetMat4("PVM", projection * view * model);
       sceneLights.SetDynamicAttributes(fixed);
       ico_80.Draw(fixed);
-    }
 
-  
+      normalShader.Use();
+      normalShader.SetMat4("projecion", projection);
+      normalShader.SetMat4("view", view);
+      normalShader.SetMat4("model", model);
+      ico_80.Draw(normalShader);
+    }
+    
+
     lamp.Use();
     for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
       model = sceneLights.GetPointLightTransformation(i);
@@ -118,11 +135,9 @@ void System::GameLoop(){
       lamp.SetMat4("PVM", projection * view * model);
       spotLamp.Draw(lamp);
     }
-    
-    scenePhysics.GetActors();
+
     scenePhysics.StepPhysics();
     player.Update();
-
 
     /* Swap front and back buffers */
     render.Display();
@@ -142,8 +157,4 @@ void System::Shutdown() {
   glfwTerminate();
 }
 
-///private fucntions
-void System::ClearScreen() {
-  glClearColor(0.0f, 0.05f, 0.0f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
+

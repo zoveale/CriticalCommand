@@ -5,7 +5,7 @@ glm::vec3 PlayerCamera::right;
 glm::vec3 PlayerCamera::up;
 glm::vec3 PlayerCamera::worldUp;
 
-inline void PlayerCamera::Update() {
+inline void PlayerCamera::SetView() {
 
   //calculate the new front vector
   front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
@@ -29,12 +29,12 @@ PlayerCamera::PlayerCamera() {
   pitch = PITCH;
   sensitivity = SENSITIVITY;
 
-  Update();
+  SetView();
   
 }
 
 
-void PlayerCamera::SetView(Player& player) {
+void PlayerCamera::Update(Player& player) {
   this->position = player.position;
   this->front = player.front;
   this->right = player.right;
@@ -57,7 +57,7 @@ void PlayerCamera::SetView(Player& player) {
   //}
 
   // Update Front, Right and Up Vectors using the updated Euler angles
-  Update();
+  SetView();
   player.front = this->front;
   player.right = this->right;
 }

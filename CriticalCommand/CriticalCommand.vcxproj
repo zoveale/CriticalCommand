@@ -228,8 +228,12 @@
     <None Include="PhysX_32.dll" />
     <None Include="resources\shader\Fanimated.glsl" />
     <None Include="resources\shader\Fmodel.glsl" />
+    <None Include="resources\shader\Gmodel.glsl" />
     <None Include="resources\shader\lampF.glsl" />
     <None Include="resources\shader\lampV.glsl" />
+    <None Include="resources\shader\NormalShader\Fnormal.glsl" />
+    <None Include="resources\shader\NormalShader\Gnormal.glsl" />
+    <None Include="resources\shader\NormalShader\Vnormal.glsl" />
     <None Include="resources\shader\Vmodel.glsl" />
   </ItemGroup>
   <ItemGroup>

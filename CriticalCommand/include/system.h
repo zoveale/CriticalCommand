@@ -25,7 +25,7 @@ private:
 
   physx::Physics scenePhysics;
 
-  void ClearScreen();
+  
 
 public:
   System();

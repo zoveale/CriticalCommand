@@ -216,7 +216,8 @@ void Model::InitializeBones(Shader shader) {
       }
     }
 
-    // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
+    // now wak through each of the mesh's faces (a face is a mesh its triangle)
+    //and retrieve the corresponding vertex indices.
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
       aiFace face = mesh->mFaces[i];
       //printf("face #: %i\n", face.mNumIndices);
@@ -405,36 +406,16 @@ void Model::InitializeBones(Shader shader) {
       for (unsigned int j = 0; j < face.mNumIndices; j++) {
         indices.push_back(face.mIndices[j]);
       }
-      //std::vector<Triangles> trimesh
-      //trimesh[i].pushback(mesh->mFaces[i].mIndices)
     }
-    /*
-    meshDesc.triangles.count = mesh->mNumFaces;
-    meshDesc.triangles.data = indices;
-    meshDesc.triangles.stride = 3*  sizeof(indices);
-    */
+
     //TODO:: TRIMESH FOR PHYSICS
     if (collisions) {
-      //get all indices
       //TODO:: make enum of physx IDs for model to process
       std::string trimeshID("_STM_");
       std::string name = mesh->mName.C_Str();
-      //std::size_t found = name.find(trimeshID);
-      maxY;
-      minY;
-      
       if (name.find(trimeshID) != std::string::npos) {
-        std::vector<unsigned int> indices;
-        for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-          for (unsigned int j = 0; j < mesh->mFaces[i].mNumIndices; j++) {
-            indices.push_back(mesh->mFaces[i].mIndices[j]);
-          }
-        }
-        indices;
         physicsScene.AddStaticTriangleMesh(triMeshPos, indices, mesh->mNumFaces);
       }
-      
-      
     }
     ///
 
