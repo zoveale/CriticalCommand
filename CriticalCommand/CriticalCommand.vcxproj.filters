@@ -101,6 +101,12 @@
     <ClInclude Include="include\modelUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\cubemap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\framebuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shader\Fanimated.glsl" />
@@ -119,6 +125,9 @@
     <None Include="resources\shader\NormalShader\Fnormal.glsl" />
     <None Include="resources\shader\NormalShader\Gnormal.glsl" />
     <None Include="resources\shader\NormalShader\Vnormal.glsl" />
+    <None Include="resources\shader\CubeMap\Fcubemap.glsl" />
+    <None Include="resources\shader\CubeMap\Gcubemap.glsl" />
+    <None Include="resources\shader\CubeMap\Vcubemap.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">

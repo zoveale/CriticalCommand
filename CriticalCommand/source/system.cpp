@@ -8,7 +8,8 @@ void System::SystemInit(){
 
   render.StartUp();
   input.StartUp(render.Window());
-  //player.startup \ or vise versa?
+  player.StartUp();
+  // \ or vise versa ?
   //camera.startup /
   
   physx::Physics::StartUp();
@@ -22,9 +23,14 @@ void System::GameLoop(){
   Shader normalShader("resources/shader/NormalShader/Vnormal.glsl",
                       "resources/shader/NormalShader/Fnormal.glsl",
                       "resources/shader/NormalShader/Gnormal.glsl");
-  
+
+  Shader cubeMapShader("resources/shader/CubeMap/Vcubemap.glsl",
+                       "resources/shader/CubeMap/Fcubemap.glsl",
+                       "resources/shader/CubeMap/Gcubemap.glsl");
+  Model cubemap("resources/default/cubemapbox.dae", sceneLights, scenePhysics);
   //Model ourModel_1("resources/watchtower/tower.obj", sceneLights, scenePhysics);
-  Shader fixed("resources/shader/Vmodel.glsl", "resources/shader/Fmodel.glsl");
+  Shader fixed("resources/shader/Model/Vmodel.glsl",
+               "resources/shader/Model/Fmodel.glsl");
   //TODO:: PHYSX testing
   Model ico_80("resources/default/ico_80.dae", sceneLights, scenePhysics);
   //Model ico_80_Big("resources/default/ico_80.dae", sceneLights, scenePhysics);
@@ -52,6 +58,7 @@ void System::GameLoop(){
 
   float x = 1.0;
   float gamma = 1.2;
+  int perspective = 55;
 
   while (!input.KEY.ESC) {
 
@@ -72,7 +79,9 @@ void System::GameLoop(){
     view = glm::mat4(1.0f);
     projection = glm::mat4(1.0f);
     ///
-    projection = glm::perspective(glm::radians(55.0f), (float)1280 / (float)720, 0.1f, 100.0f);
+    //TODO::TEST FUNCTIONS
+    //input.IncrementDecrement(perspective);
+    projection = glm::perspective(glm::radians((float)perspective), (float)1280 / (float)720, 0.1f, 1000.0f);
     view = playerCamera.View();
 
    /* animated.Use();
@@ -84,9 +93,9 @@ void System::GameLoop(){
     animated.SetMat4("model", model);
     ourModel_0.Animate(animated, currentFrame);*/
 
+   
     //TODO::TEST FUNCTIONS
     input.IncrementDecrement(gamma);
-
     fixed.Use();
     fixed.SetFloat("gamma", gamma);
     fixed.SetVec3("viewPos", player.position);
@@ -95,13 +104,14 @@ void System::GameLoop(){
     fixed.SetMat4("PVM", projection * view * model);
     sceneLights.SetDynamicAttributes(fixed);
     default_0.Draw(fixed);
-    
+
+    glDepthMask(GL_FALSE);
     normalShader.Use();
     normalShader.SetMat4("projection", projection);
     normalShader.SetMat4("view", view);
     normalShader.SetMat4("model", model);
     default_0.Draw(normalShader);
-    
+    glDepthMask(GL_TRUE);
     
     //TODO:: setting ico80 models the physics deformations
     for (int i = 0; i < 55; i++) {

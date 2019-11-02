@@ -17,8 +17,6 @@ physx::Physics::Physics() {
   gScene = NULL;
   defaultMaterial = NULL;
   gPvd = NULL;
-  triMesh = NULL;
-  meshActor = NULL;
   nbActors = NULL;
 }
 
@@ -124,14 +122,12 @@ void physx::Physics::CreateStack(const PxTransform& t,
 }
 
 void physx::Physics::AddStaticTriangleMesh(
-  const std::vector<float>        &vertex,
-  const std::vector<unsigned int> &indices,
-  const unsigned int              &indicesSize) {
-  printf("process tri mesh for shapes\n");
- 
+                                            const std::vector<float>        &vertex,
+                                            const std::vector<unsigned int> &indices,
+                                            const unsigned int              &indicesSize) const {
   //PxTriangleMesh* mesh = createMeshGround();
   PxTriangleMesh* mesh = CreateTriangleMesh(vertex, indices, indicesSize);
-  triMesh = mesh;
+  //triMesh = mesh;
 
   PxTriangleMeshGeometry triGeo(mesh);
   triGeo.isValid();
@@ -142,19 +138,58 @@ void physx::Physics::AddStaticTriangleMesh(
   //TODO:: can triangle meshes only be used on rigid static actors
   //PxRigidDynamic* staticActor = gPhysics->createRigidDynamic(pos);
 
-  /*PxShape* triMeshShape = gPhysics->createShape(triGeo, *defaultMaterial, true);
-  staticActor->attachShape(*triMeshShape);
-  gScene->addActor(*staticActor);
-  triMeshShape->release();*/
-  PxMaterial* material = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
-  PxRigidActorExt::createExclusiveShape(*staticActor, triGeo, *material);
+  /*
+    PxShape* triMeshShape = gPhysics->createShape(triGeo, *defaultMaterial, true);
+    staticActor->attachShape(*triMeshShape);
+    gScene->addActor(*staticActor);
+    triMeshShape->release();
+  */
+  //PxMaterial* material = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
+  PxRigidActorExt::createExclusiveShape(*staticActor, triGeo, *defaultMaterial);
   gScene->addActor(*staticActor);
   ///same as commented above
-
 }
 
-void physx::Physics::AddCubeActor(glm::vec3 pos, float scale) {
-  PxShape* shape = gPhysics->createShape(PxBoxGeometry(scale/2, scale/2, scale/2), *defaultMaterial);
+physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
+                                                      const std::vector<float>        &vertex,
+                                                      const std::vector<unsigned int> &indices,
+                                                      const unsigned int              &numFaces) const {
+
+  PxCookingParams params = gCooking->getParams();
+  //PxTolerancesScale scalex = PxTolerancesScale();
+  /*params.midphaseDesc = PxMeshMidPhase::eBVH33;
+  params.midphaseDesc.mBVH33Desc.meshCookingHint = PxMeshCookingHint::eSIM_PERFORMANCE;
+  params.midphaseDesc.mBVH33Desc.meshSizePerformanceTradeOff = 1.0f;
+  */
+
+
+  params.midphaseDesc = PxMeshMidPhase::eBVH34;
+  params.midphaseDesc.mBVH34Desc.numPrimsPerLeaf = 4; //default = 4, max = 15
+
+  params.scale = gPhysics->getTolerancesScale();
+  gCooking->setParams(params);
+
+  PxTriangleMeshDesc meshDesc;
+  meshDesc.points.data = &vertex[0];
+  meshDesc.points.count = vertex.size();
+  meshDesc.points.stride = sizeof(PxF32) * 3;
+  
+  meshDesc.triangles.data = &indices[0];
+  meshDesc.triangles.count = numFaces;
+  meshDesc.triangles.stride = sizeof(PxU32) * 3;
+
+  /*PxTriangleMeshCookingResult::Enum result;
+  PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc,
+                            gPhysics->getPhysicsInsertionCallback(), &result);
+  if (!result) printf("");
+  return triMesh;*/
+  //TODO:: change to CreateTriangleMesh only
+
+  return gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback());
+}
+
+void physx::Physics::AddCubeActor(glm::vec3 pos, float x, float y, float z) {
+  PxShape* shape = gPhysics->createShape(PxBoxGeometry(x/2, y/2, z/2), *defaultMaterial);
   
   PxTransform localTm(PxVec3(pos.x, pos.y, pos.z));
 
@@ -167,9 +202,6 @@ void physx::Physics::AddCubeActor(glm::vec3 pos, float scale) {
   shape->release();
 }
 
-//glm::vec3 physx::Physics::GetAPosition(int i) {
-//  return glm::vec3(1.0f);//glm::vec3(pos[i].x, pos[i].y, pos[i].z);
-//}
 
 glm::mat4 physx::Physics::GetAPose(int i) {
 
@@ -211,117 +243,83 @@ void physx::Physics::ShootBall(glm::vec3 front, glm::vec3 pos) {
   shape->release();
 }
 
-physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(const std::vector<float> &vertex,
-                                                   const std::vector<unsigned int> &indices,
-                                                      const unsigned int           &numFaces) {
 
-  PxCookingParams params = gCooking->getParams();
-  //PxTolerancesScale scalex = PxTolerancesScale();
-  /*params.midphaseDesc = PxMeshMidPhase::eBVH33;
-  params.midphaseDesc.mBVH33Desc.meshCookingHint = PxMeshCookingHint::eSIM_PERFORMANCE;
-  params.midphaseDesc.mBVH33Desc.meshSizePerformanceTradeOff = 1.0f;
-*/
-
-
-  params.midphaseDesc = PxMeshMidPhase::eBVH34;
-  params.midphaseDesc.mBVH34Desc.numPrimsPerLeaf = 8; //default = 4, max = 15
-
-  params.scale = gPhysics->getTolerancesScale();
-  gCooking->setParams(params);
-
-  PxTriangleMeshDesc meshDesc;
-  meshDesc.points.data = &vertex[0];
-  meshDesc.points.count = vertex.size();
-  meshDesc.points.stride = sizeof(vertex[0]) * 3;
-
-  meshDesc.triangles.data = &indices[0];
-  meshDesc.triangles.count = numFaces;
-  meshDesc.triangles.stride = sizeof(indices[0]) * 3;
-
-  gCooking->validateTriangleMesh(meshDesc);
-
-  PxTriangleMeshCookingResult::Enum result;
-  PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback(), &result);
-
-  return triMesh;
-  //TODO:: change to CreateTriangleMesh only
-}
-
-void physx::Physics::updateVertices(PxVec3* verts, float amplitude = 10.0f) {
-  const PxU32 gridSize = GRID_SIZE;
-  const PxReal gridStep = GRID_STEP;
-
-  for (PxU32 a = 0; a < gridSize; a++) {
-    const float coeffA = float(a) / float(gridSize);
-    for (PxU32 b = 0; b < gridSize; b++) {
-      const float coeffB = float(b) / float(gridSize);
-
-      const float y = 20.0f + sinf(coeffA * PxTwoPi) * cosf(coeffB * PxTwoPi) * amplitude;
-      //floats h and k effect position
-      float h = -25.0f, k = -25.0f;
-      verts[a * gridSize + b] = PxVec3(h + b * gridStep, y, k + a * gridStep);
-    }
-  }
-}
-
-physx::PxTriangleMesh* physx::Physics::createMeshGround() {
-  
-  const PxU32 gridSize = GRID_SIZE;
-
-  PxVec3 verts[gridSize * gridSize];
-
-  const PxU32 nbTriangles = 2 * (gridSize - 1) * (gridSize - 1);
-
-  std::vector<Triangle> indices;
-  indices.resize(nbTriangles);
-
-  updateVertices(verts);
-  
-  for (PxU32 a = 0; a < (gridSize - 1); ++a) {
-    for (PxU32 b = 0; b < (gridSize - 1); ++b) {
-      Triangle& tri0 = indices[(a * (gridSize - 1) + b) * 2];
-      Triangle& tri1 = indices[((a * (gridSize - 1) + b) * 2) + 1];
-
-      tri0.ind0 = a * gridSize + b + 1;
-      tri0.ind1 = a * gridSize + b;
-      tri0.ind2 = (a + 1) * gridSize + b + 1;
-
-      tri1.ind0 = (a + 1) * gridSize + b + 1;
-      tri1.ind1 = a * gridSize + b;
-      tri1.ind2 = (a + 1) * gridSize + b;
-    }
-  }
- 
-  PxCookingParams params = gCooking->getParams();
-  //PxTolerancesScale scalex = PxTolerancesScale();
-  params.midphaseDesc = PxMeshMidPhase::eBVH33;
-  params.scale = gPhysics->getTolerancesScale();
-  params.midphaseDesc.mBVH33Desc.meshCookingHint = PxMeshCookingHint::eSIM_PERFORMANCE;
-  params.midphaseDesc.mBVH33Desc.meshSizePerformanceTradeOff = 0.5f;
-  gCooking->setParams(params);
-
-  PxTriangleMeshDesc meshDesc;
-  meshDesc.points.data = verts;
-  meshDesc.points.count = gridSize * gridSize;
-  meshDesc.points.stride = sizeof(PxVec3);
-  meshDesc.triangles.count = nbTriangles;
-  /*
-  std::vector<Triangle> test;
-  test.resize(100);
-  meshDesc.triangles.data = &test[0];
-  */
-  ///TODO::to set up with vector?
-  meshDesc.triangles.data = &indices[0];
-  ///yes
-  meshDesc.triangles.stride = sizeof(Triangle);
-
-  gCooking->validateTriangleMesh(meshDesc);
-  
-  PxTriangleMeshCookingResult::Enum result;
-  PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback(),&result);
-  
-  return triMesh;
-}
+//
+//void physx::Physics::updateVertices(PxVec3* verts, float amplitude = 10.0f) {
+//  const PxU32 gridSize = GRID_SIZE;
+//  const PxReal gridStep = GRID_STEP;
+//
+//  for (PxU32 a = 0; a < gridSize; a++) {
+//    const float coeffA = float(a) / float(gridSize);
+//    for (PxU32 b = 0; b < gridSize; b++) {
+//      const float coeffB = float(b) / float(gridSize);
+//
+//      const float y = 20.0f + sinf(coeffA * PxTwoPi) * cosf(coeffB * PxTwoPi) * amplitude;
+//      //floats h and k effect position
+//      float h = -25.0f, k = -25.0f;
+//      verts[a * gridSize + b] = PxVec3(h + b * gridStep, y, k + a * gridStep);
+//    }
+//  }
+//}
+//
+//physx::PxTriangleMesh* physx::Physics::createMeshGround() {
+//  
+//  const PxU32 gridSize = GRID_SIZE;
+//
+//  PxVec3 verts[gridSize * gridSize];
+//
+//  const PxU32 nbTriangles = 2 * (gridSize - 1) * (gridSize - 1);
+//
+//  std::vector<Triangle> indices;
+//  indices.resize(nbTriangles);
+//
+//  updateVertices(verts);
+//  
+//  for (PxU32 a = 0; a < (gridSize - 1); ++a) {
+//    for (PxU32 b = 0; b < (gridSize - 1); ++b) {
+//      Triangle& tri0 = indices[(a * (gridSize - 1) + b) * 2];
+//      Triangle& tri1 = indices[((a * (gridSize - 1) + b) * 2) + 1];
+//
+//      tri0.ind0 = a * gridSize + b + 1;
+//      tri0.ind1 = a * gridSize + b;
+//      tri0.ind2 = (a + 1) * gridSize + b + 1;
+//
+//      tri1.ind0 = (a + 1) * gridSize + b + 1;
+//      tri1.ind1 = a * gridSize + b;
+//      tri1.ind2 = (a + 1) * gridSize + b;
+//    }
+//  }
+// 
+//  PxCookingParams params = gCooking->getParams();
+//  //PxTolerancesScale scalex = PxTolerancesScale();
+//  params.midphaseDesc = PxMeshMidPhase::eBVH33;
+//  params.scale = gPhysics->getTolerancesScale();
+//  params.midphaseDesc.mBVH33Desc.meshCookingHint = PxMeshCookingHint::eSIM_PERFORMANCE;
+//  params.midphaseDesc.mBVH33Desc.meshSizePerformanceTradeOff = 0.5f;
+//  gCooking->setParams(params);
+//
+//  PxTriangleMeshDesc meshDesc;
+//  meshDesc.points.data = verts;
+//  meshDesc.points.count = gridSize * gridSize;
+//  meshDesc.points.stride = sizeof(PxVec3);
+//  meshDesc.triangles.count = nbTriangles;
+//  /*
+//  std::vector<Triangle> test;
+//  test.resize(100);
+//  meshDesc.triangles.data = &test[0];
+//  */
+//  ///TODO::to set up with vector?
+//  meshDesc.triangles.data = &indices[0];
+//  ///yes
+//  meshDesc.triangles.stride = sizeof(Triangle);
+//
+//  gCooking->validateTriangleMesh(meshDesc);
+//  
+//  PxTriangleMeshCookingResult::Enum result;
+//  PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback(),&result);
+//  
+//  return triMesh;
+//}
 
 
 /* return glm::mat4(

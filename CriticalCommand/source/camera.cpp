@@ -21,16 +21,15 @@ inline void PlayerCamera::SetView() {
 PlayerCamera::PlayerCamera() {
   
   position = glm::vec3(0.0f, 0.0f, 3.0f);
-  front = glm::vec3(0.0f, 0.0f, 0.0f);
+  front = glm::vec3(0.0f, 0.0f, 10.0f);
   right = glm::vec3(0.0f, 1.0f, 0.0f);
   up = glm::vec3(0.0f, 1.0f, 0.0f);
   worldUp = up;
-  yaw = YAW;
+  yaw = YAW - 150.0f;
   pitch = PITCH;
   sensitivity = SENSITIVITY;
 
   SetView();
-  
 }
 
 

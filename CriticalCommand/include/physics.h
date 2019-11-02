@@ -75,30 +75,30 @@ public:
   void StepPhysics();
 
   void CleanUp();
+
   PxU32 NumberOfActors();
+  glm::mat4 GetAPose(int i);
 
   void AddStaticTriangleMesh(
     const std::vector<float>        &vertex,
     const std::vector<unsigned int> &indices,
-    const unsigned int              &indicesSize);
+    const unsigned int              &indicesSize) const;
 
   
   //TODO:: test functions
-  void CreateStack(const PxTransform& t,
-    PxU32 size,
-    PxReal halfExtent);
-  void AddCubeActor(glm::vec3 pos, float scale = 1.0f);
-  //glm::vec3 GetAPosition(int i);
-  glm::mat4 GetAPose(int i);
+  void CreateStack(const PxTransform& t, PxU32 size, PxReal halfExtent);
+  void AddCubeActor(glm::vec3 pos, float x = 1.0f, float y = 1.0f, float z = 1.0f);
+  
   void ShootBall(glm::vec3 front, glm::vec3 pos);
-  static PxTriangleMesh* createMeshGround();
-  static void updateVertices(PxVec3* verts, float amplitude);
+  
+  /*static PxTriangleMesh* createMeshGround();
+  static void updateVertices(PxVec3* verts, float amplitude);*/
 
 private:
   PxTriangleMesh* CreateTriangleMesh(
     const std::vector<float>        &vertex,
     const std::vector<unsigned int> &indices,
-    const unsigned int              &numFaces);
+    const unsigned int              &numFaces) const;
 
   //TODO:: remove static?
   static PxDefaultAllocator	gAllocator;
@@ -109,22 +109,23 @@ private:
   static PxDefaultCpuDispatcher* gDispatcher;
   static PxPvd* gPvd;
   static PxMaterial* defaultMaterial;
+
+  PxScene* gScene;
+  PxRigidActor* actors[MAX_ACTOR];
+  PxU32 nbActors;
+
   /*
   TODO:: remove test variables
   remove static?
   */
-  PxScene* gScene;
-  PxRigidActor* actors[MAX_ACTOR];
-
   PxMat44 globalPoseArray[MAX_ACTOR];
-  PxU32 nbActors;
   PxReal stackZ = 10.0f;
 
-  PxTriangleMesh* triMesh;
-  PxRigidStatic* meshActor;
-  struct Triangle {
+  //PxTriangleMesh* triMesh;
+  //PxRigidStatic* meshActor;
+  /*struct Triangle {
     PxU32 ind0, ind1, ind2;
-  };
+  };*/
 
 };
 

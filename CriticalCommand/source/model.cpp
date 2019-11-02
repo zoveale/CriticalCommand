@@ -400,6 +400,7 @@ void Model::InitializeBones(Shader shader) {
     
     // now wak through each of the mesh's faces (a face is a mesh its triangle)
     // and retrieve the corresponding vertex indices.
+    //indices.resize(mesh->mNumFaces * 3);
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
       aiFace face = mesh->mFaces[i];
       // retrieve all indices of the face and store them in the indices vector
@@ -415,6 +416,10 @@ void Model::InitializeBones(Shader shader) {
       std::string name = mesh->mName.C_Str();
       if (name.find(trimeshID) != std::string::npos) {
         physicsScene.AddStaticTriangleMesh(triMeshPos, indices, mesh->mNumFaces);
+      }
+      else {
+        //TODO:: temporary to visualize trimesh creation
+        return Mesh();
       }
     }
     ///
