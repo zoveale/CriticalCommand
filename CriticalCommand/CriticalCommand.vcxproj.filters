@@ -54,6 +54,9 @@
     <ClCompile Include="source\modelUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\framebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\system.h">
@@ -128,6 +131,9 @@
     <None Include="resources\shader\CubeMap\Fcubemap.glsl" />
     <None Include="resources\shader\CubeMap\Gcubemap.glsl" />
     <None Include="resources\shader\CubeMap\Vcubemap.glsl" />
+    <None Include="resources\shader\Framebuffer\Fframebuffer.glsl" />
+    <None Include="resources\shader\Framebuffer\Gframebuffer.glsl" />
+    <None Include="resources\shader\Framebuffer\Vframebuffer.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">

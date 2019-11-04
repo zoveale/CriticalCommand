@@ -72,7 +72,7 @@ public:
   void TestA();
   void AddActor(PxActor* actor);
   void GetActors();
-  void StepPhysics();
+  void StepPhysics(float dt);
 
   void CleanUp();
 

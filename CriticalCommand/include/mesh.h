@@ -81,6 +81,19 @@ public:
     glActiveTexture(GL_TEXTURE0);
   }
 
+  void DrawStencil(Shader shader) {
+
+
+  }
+
+
+  void DrawMesh() {
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+    glActiveTexture(GL_TEXTURE0);
+  }
+
 private:
   /*  Render data  */
   unsigned int VBO, EBO;

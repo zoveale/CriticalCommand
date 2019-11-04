@@ -41,7 +41,7 @@ public:
 
   // draws the model, and thus all its meshes
   void Draw(Shader shader);
-  
+  void DrawStencil(Shader shader);
   void Animate(Shader shader, float time);
   //FIXME::
   void InitializeBones(Shader shader);

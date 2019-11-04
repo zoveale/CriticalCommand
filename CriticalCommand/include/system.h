@@ -3,6 +3,7 @@
 
 #include "render.h"
 #include "shader.h"
+#include "framebuffer.h"
 #include "input.h"
 #include "player.h"
 #include "camera.h"

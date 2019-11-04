@@ -31,7 +31,7 @@ void physx::Physics::TestA() {
   sceneDesc.filterShader = PxDefaultSimulationFilterShader;
   gScene = gPhysics->createScene(sceneDesc);
 
-  CreateStack(PxTransform(PxVec3(0, 10, stackZ -= 10.0f)), 10, 2.0f);
+  CreateStack(PxTransform(PxVec3(0, 10, stackZ -= 20.0f)), 10, 2.0f);
 }
 
 void physx::Physics::AddActor(PxActor* actor) {
@@ -62,9 +62,9 @@ void physx::Physics::GetActors(/*PxActor** actor*/) {
   
 }
 
-void physx::Physics::StepPhysics() {
+void physx::Physics::StepPhysics(float dt) {
   GetActors();
-  gScene->simulate(1.0f / 60.0f);
+  gScene->simulate(dt);
   gScene->fetchResults(true);
 }
 

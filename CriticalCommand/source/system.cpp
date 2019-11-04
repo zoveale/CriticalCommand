@@ -24,6 +24,11 @@ void System::GameLoop(){
                       "resources/shader/NormalShader/Fnormal.glsl",
                       "resources/shader/NormalShader/Gnormal.glsl");
 
+  Shader framebufferShader("resources/shader/Framebuffer/Vframebuffer.glsl",
+                           "resources/shader/Framebuffer/Fframebuffer.glsl");
+  Framebuffer framebuffertest(framebufferShader);
+  Model framebufferModel("resources/default/framebuffertest.dae", sceneLights, scenePhysics);
+
   Shader cubeMapShader("resources/shader/CubeMap/Vcubemap.glsl",
                        "resources/shader/CubeMap/Fcubemap.glsl",
                        "resources/shader/CubeMap/Gcubemap.glsl");
@@ -49,23 +54,34 @@ void System::GameLoop(){
   glm::mat4 view = glm::mat4(1.0f);
   glm::mat4 projection = glm::mat4(1.0f);
 
-  float deltaTime = 0.0f;	
-  float lastFrame = 0.0f; 
-  float currentFrame = 0.0f;
+  
   fixed.Use();
   fixed.SetFloat("material.shininess", 32.0f);
   sceneLights.SetFixedAttributes(fixed);
 
+  //test values
   float x = 1.0;
   float gamma = 1.2;
   int perspective = 55;
-
+  bool testBool = true;
+  ///
+  // draw as wireframe
+  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  float deltaRate = 1.0f / 60.0f;
+  float deltaTime = 0.0f;
+  float currentFrame = 0.0f;
+  float lastFrame = (float)glfwGetTime();
   while (!input.KEY.ESC) {
 
     input.Process();
     currentFrame = (float)glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
+    printf("deltaTime = %f\n", deltaTime);
+
+    //framebuffer test
+    framebuffertest.Preprocess();
+    ///
 
     /* Render here */
     //clear screen and color background
@@ -74,11 +90,12 @@ void System::GameLoop(){
     //cool acceleration effect
     //player.Update(xpos, ypos); 
     ///
-    //reset models
+    //set to identity matrix
     model = glm::mat4(1.0f);
     view = glm::mat4(1.0f);
     projection = glm::mat4(1.0f);
     ///
+
     //TODO::TEST FUNCTIONS
     //input.IncrementDecrement(perspective);
     projection = glm::perspective(glm::radians((float)perspective), (float)1280 / (float)720, 0.1f, 1000.0f);
@@ -95,7 +112,10 @@ void System::GameLoop(){
 
    
     //TODO::TEST FUNCTIONS
-    input.IncrementDecrement(gamma);
+
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0x00);
+    //input.IncrementDecrement(gamma);
     fixed.Use();
     fixed.SetFloat("gamma", gamma);
     fixed.SetVec3("viewPos", player.position);
@@ -113,6 +133,8 @@ void System::GameLoop(){
     default_0.Draw(normalShader);
     glDepthMask(GL_TRUE);
     
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
     //TODO:: setting ico80 models the physics deformations
     for (int i = 0; i < 55; i++) {
       fixed.Use();
@@ -124,13 +146,28 @@ void System::GameLoop(){
       sceneLights.SetDynamicAttributes(fixed);
       ico_80.Draw(fixed);
 
-      normalShader.Use();
+      /*normalShader.Use();
       normalShader.SetMat4("projecion", projection);
       normalShader.SetMat4("view", view);
       normalShader.SetMat4("model", model);
-      ico_80.Draw(normalShader);
+      ico_80.Draw(normalShader);*/
     }
     
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00);
+    glDisable(GL_DEPTH_TEST);
+    for (int i = 0; i < 55; i++) {
+      lamp.Use();
+      model = glm::mat4(1.0f);
+      model = scenePhysics.GetAPose(i);
+      model = glm::scale(model, glm::vec3(2.2));
+      lamp.SetMat4("model", model);
+      lamp.SetMat4("PVM", projection * view * model);
+      sceneLights.SetDynamicAttributes(lamp);
+      ico_80.Draw(lamp);
+    }
+    glStencilMask(0xFF);
+    glEnable(GL_DEPTH_TEST);
 
     lamp.Use();
     for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
@@ -146,7 +183,16 @@ void System::GameLoop(){
       spotLamp.Draw(lamp);
     }
 
-    scenePhysics.StepPhysics();
+    
+    //framebuffer test
+    framebuffertest.Postprocess(framebufferShader);
+    ///
+
+    //TODO:update this somehow
+    input.TrueFalse(testBool);
+    if(testBool)
+      scenePhysics.StepPhysics(deltaTime < deltaRate ? deltaTime : deltaRate);
+
     player.Update();
 
     /* Swap front and back buffers */

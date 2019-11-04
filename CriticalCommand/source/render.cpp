@@ -30,9 +30,10 @@ void Render::StartUp(){
   }
 
   glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LESS);
+  //glDepthFunc(GL_LESS);
 
-  //glEnable(GL_STENCIL_TEST);
+  glEnable(GL_STENCIL_TEST);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
   glEnable(GL_CULL_FACE);
   //glCullFace(GL_FRONT);

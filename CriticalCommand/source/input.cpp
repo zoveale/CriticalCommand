@@ -107,3 +107,12 @@ void Input::IncrementDecrement(int& i) {
     i--;
   }
 }
+
+void Input::TrueFalse(bool& i) {
+  if (KEY.UP) {
+    i = true;
+  }
+  if (KEY.DOWN) {
+    i = false;
+  }
+}

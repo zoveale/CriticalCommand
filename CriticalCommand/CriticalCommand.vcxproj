@@ -187,6 +187,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\framebuffer.cpp" />
     <ClCompile Include="source\input.cpp" />
     <ClCompile Include="source\lightFactory.cpp" />
     <ClCompile Include="source\model.cpp" />
@@ -233,6 +234,9 @@
     <None Include="resources\shader\CubeMap\Vcubemap.glsl" />
     <None Include="resources\shader\Fanimated.glsl" />
     <None Include="resources\shader\Fmodel.glsl" />
+    <None Include="resources\shader\Framebuffer\Fframebuffer.glsl" />
+    <None Include="resources\shader\Framebuffer\Gframebuffer.glsl" />
+    <None Include="resources\shader\Framebuffer\Vframebuffer.glsl" />
     <None Include="resources\shader\Gmodel.glsl" />
     <None Include="resources\shader\lampF.glsl" />
     <None Include="resources\shader\lampV.glsl" />
