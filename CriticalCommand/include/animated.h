@@ -84,6 +84,7 @@ public:
 
   //glm::mat4 BoneTransform(float timeInSec, std::vector<glm::mat4>& transforms) {}
 
+
 private:
   glm::mat4 indentity;
   /*  Render data  */
@@ -151,6 +152,129 @@ private:
   }
 
   //FIXME::might as well do this for all uniforms in the shader
-  
+  public:
+    //HelperFunction for ReadNodeHierarchy
+    static const aiNodeAnim* FindNodeAnim(const aiAnimation* parent, const string name) {
+      for (unsigned int i = 0; i < parent->mNumChannels; i++) {
+        if (std::string(parent->mChannels[i]->mNodeName.data) == name) {
+          return parent->mChannels[i];
+        }
+      }
+      return nullptr;
+    }
+    ///
+    typedef const aiNodeAnim* aiAnim;
+    static void CalcInterpolatedScaling(aiVector3D& scaling, float animationTime, aiAnim parent) {
+      if (parent->mNumScalingKeys == 1) {
+        scaling = parent->mScalingKeys[0].mValue;
+        return;
+      }
+
+      auto scaling_index = FindScaling(animationTime, parent);
+      auto nex_sca_index = scaling_index + 1;
+
+      assert(nex_sca_index < parent->mNumScalingKeys);
+
+      float delta_time = (float)(parent->mScalingKeys[nex_sca_index].mTime - parent->mScalingKeys[scaling_index].mTime);
+
+      float factor = (animationTime - (float)parent->mScalingKeys[scaling_index].mTime) / delta_time;
+
+      assert(factor >= 0.0f && factor <= 1.0f);
+
+      const aiVector3D& start = parent->mScalingKeys[scaling_index].mValue;
+      const aiVector3D& end = parent->mScalingKeys[nex_sca_index].mValue;
+
+      scaling = start + factor * (end - start);
+    }
+    static void CalcInterpolatedRotation(aiQuaternion& rotation, float animationTime, aiAnim parent) {
+      if (parent->mNumRotationKeys == 1) {
+        // There is only one Position.
+        rotation = parent->mRotationKeys[0].mValue;
+        return;
+      }
+
+      unsigned int rotation_index = FindRotation(animationTime, parent);
+      unsigned int next_rot_index = rotation_index + 1;
+      assert(next_rot_index < parent->mNumRotationKeys);
+
+      // The Difference between two key frames.
+      float delta_time = (float)(parent->mRotationKeys[next_rot_index].mTime - parent->mRotationKeys[rotation_index].mTime);
+
+      // The Factor by which the current frame has transitioned into the next frame.
+      float factor = (animationTime - (float)parent->mRotationKeys[rotation_index].mTime) / delta_time;
+
+      assert(factor >= 0.0f && factor <= 1.0f);
+
+      const aiQuaternion& start = parent->mRotationKeys[rotation_index].mValue;
+      const aiQuaternion& end = parent->mRotationKeys[next_rot_index].mValue;
+
+      aiQuaternion::Interpolate(rotation, start, end, factor);
+
+      rotation = rotation.Normalize();
+    }
+    static void CalcInterpolatedPosition(aiVector3D& translation, float animationTime, aiAnim parent) {
+      if (parent->mNumPositionKeys == 1) {
+        // There is only one Position.
+        translation = parent->mPositionKeys[0].mValue;
+        return;
+      }
+
+      unsigned int index = FindPosition(animationTime, parent);
+      unsigned int next_pos_index = index + 1;
+      assert(next_pos_index < parent->mNumPositionKeys);
+
+      // The Difference between two key frames.
+      float delta_time = (float)(parent->mPositionKeys[next_pos_index].mTime - parent->mPositionKeys[index].mTime);
+
+      // The Factor by which the current frame has transitioned into the next frame.
+      float factor = (animationTime - (float)parent->mPositionKeys[index].mTime) / delta_time;
+
+      assert(factor >= 0.0f && factor <= 1.0f);
+
+      const aiVector3D& start = parent->mPositionKeys[index].mValue;
+      const aiVector3D& end = parent->mPositionKeys[next_pos_index].mValue;
+
+      translation = start + factor * (end - start);
+    }
+    //
+    static unsigned int FindScaling(float animationTime, aiAnim parent) {
+      assert(parent->mNumScalingKeys > 0);
+
+      for (unsigned int i = 0; i < parent->mNumScalingKeys - 1; i++) {
+        if (animationTime < (float)parent->mScalingKeys[i + 1].mTime) {
+          return i;
+        }
+      }
+
+      assert(0);
+
+      return 0;
+    }
+    static unsigned int FindRotation(float animationTime, aiAnim parent) {
+      assert(parent->mNumRotationKeys > 0);
+
+      for (unsigned int i = 0; i < parent->mNumRotationKeys - 1; i++) {
+        if (animationTime < (float)parent->mRotationKeys[i + 1].mTime) {
+          return i;
+        }
+      }
+
+      assert(0);
+
+      return 0;
+    }
+    static unsigned int FindPosition(float animationTime, aiAnim parent) {
+      assert(parent->mNumPositionKeys > 0);
+      for (unsigned int i = 0; i < parent->mNumPositionKeys - 1; i++) {
+        if (animationTime < (float)parent->mPositionKeys[i + 1].mTime) {
+          return i;
+        }
+      }
+
+      assert(0);
+
+      return 0;
+    }
+
 };
 #endif //!ANIMATED_H

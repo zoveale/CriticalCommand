@@ -19,7 +19,7 @@ class OverviewCamera;
 
 class Camera {
 public:
-  virtual void SetView(Player& player) = 0;
+  virtual void Update(Player& player) = 0;
   static PlayerCamera camera;
 };
 /*
@@ -50,11 +50,11 @@ private:
   ///
 
   //private functions
-  inline void Update();
+  inline void SetView();
   ///
 public:
   PlayerCamera();
-  void SetView(Player& player);
+  void Update(Player& player);
   glm::mat4 View();
 };
 

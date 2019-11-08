@@ -14,8 +14,10 @@ out vec3 normal;
 const int MAX_WEIGHTS = 4;
 const int MAX_BONES = 100;
 
-
+uniform mat4 projection;
+uniform mat4 view;
 uniform mat4 model;
+
 uniform mat4 gBones[MAX_BONES];
 uniform mat4 PVM;
 
@@ -29,7 +31,7 @@ void main(){
 	
 		FragPos = vec3(model* BoneTransform);
 		textureUV = aTexCoords;    
-		gl_Position = PVM * BoneTransform;//vec4(aPos, 1.0);//
+		gl_Position = projection * view * model * BoneTransform;//vec4(aPos, 1.0);//
 	}
 
 

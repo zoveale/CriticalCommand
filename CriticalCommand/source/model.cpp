@@ -1,21 +1,15 @@
-#define STB_IMAGE_IMPLEMENTATION
-#include "../stb_image/include/stb_image.h"
-#include <string>
-unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma = false);
-
-
 #include "model.h"
-
-
-//Model::Model(std::string const& path, LightFactory& light, bool gamma = false) : gammaCorrection(gamma) {
-//  
-//}
 
 // draws the model, and thus all its meshes
 void Model::Draw(Shader shader) {
-  
   for (unsigned int i = 0; i < meshes.size(); i++) {
     meshes[i].Draw(shader);
+  }
+}
+// draws the stencil, and thus all its meshes
+void Model::DrawStencil(Shader shader) {
+  for (unsigned int i = 0; i < meshes.size(); i++) {
+    meshes[i].DrawStencil(shader);
   }
 }
 
@@ -216,7 +210,8 @@ void Model::InitializeBones(Shader shader) {
       }
     }
 
-    // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
+    // now wak through each of the mesh's faces (a face is a mesh its triangle)
+    //and retrieve the corresponding vertex indices.
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
       aiFace face = mesh->mFaces[i];
       //printf("face #: %i\n", face.mNumIndices);
@@ -399,42 +394,27 @@ void Model::InitializeBones(Shader shader) {
     
     // now wak through each of the mesh's faces (a face is a mesh its triangle)
     // and retrieve the corresponding vertex indices.
+    //indices.resize(mesh->mNumFaces * 3);
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
       aiFace face = mesh->mFaces[i];
       // retrieve all indices of the face and store them in the indices vector
       for (unsigned int j = 0; j < face.mNumIndices; j++) {
         indices.push_back(face.mIndices[j]);
       }
-      //std::vector<Triangles> trimesh
-      //trimesh[i].pushback(mesh->mFaces[i].mIndices)
     }
-    /*
-    meshDesc.triangles.count = mesh->mNumFaces;
-    meshDesc.triangles.data = indices;
-    meshDesc.triangles.stride = 3*  sizeof(indices);
-    */
+
     //TODO:: TRIMESH FOR PHYSICS
     if (collisions) {
-      //get all indices
       //TODO:: make enum of physx IDs for model to process
       std::string trimeshID("_STM_");
       std::string name = mesh->mName.C_Str();
-      //std::size_t found = name.find(trimeshID);
-      maxY;
-      minY;
-      
       if (name.find(trimeshID) != std::string::npos) {
-        std::vector<unsigned int> indices;
-        for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-          for (unsigned int j = 0; j < mesh->mFaces[i].mNumIndices; j++) {
-            indices.push_back(mesh->mFaces[i].mIndices[j]);
-          }
-        }
-        indices;
         physicsScene.AddStaticTriangleMesh(triMeshPos, indices, mesh->mNumFaces);
       }
-      
-      
+      else {
+        //TODO:: temporary to visualize trimesh creation
+        return Mesh();
+      }
     }
     ///
 
@@ -489,7 +469,7 @@ void Model::InitializeBones(Shader shader) {
       }
       if (!skip) {   // if texture hasn't been loaded already, load it
         Texture texture;
-        texture.id = TextureFromFile(str.C_Str(), this->directory);
+        texture.id = Texture::Load(str.C_Str(), this->directory);
         texture.type = typeName;
         texture.path = str.C_Str();
         textures.push_back(texture);
@@ -558,7 +538,7 @@ void Model::InitializeBones(Shader shader) {
     const aiAnimation* parentAnimation = scene->mAnimations[0];
 
     //FIXME:: make static?
-    const aiNodeAnim* nodeAnimation = FindNodeAnim(parentAnimation, nodeName);
+    const aiNodeAnim* nodeAnimation = Animated::FindNodeAnim(parentAnimation, nodeName);
 
 
     //if nodeAnimation does not return nullptr
@@ -572,9 +552,9 @@ void Model::InitializeBones(Shader shader) {
       aiQuaternion rotation;
       aiVector3D traslation;
 
-      CalcInterpolatedScaling(scaling, animationTime, nodeAnimation);
-      CalcInterpolatedRotation(rotation, animationTime, nodeAnimation);
-      CalcInterpolatedPosition(traslation, animationTime, nodeAnimation);
+      Animated::CalcInterpolatedScaling(scaling, animationTime, nodeAnimation);
+      Animated::CalcInterpolatedRotation(rotation, animationTime, nodeAnimation);
+      Animated::CalcInterpolatedPosition(traslation, animationTime, nodeAnimation);
       scalingMatrix = glm::scale(scalingMatrix, glm::vec3(scaling.x, scaling.y, scaling.z));
       rotationMatrix = glm::toMat4(aiToGlm(rotation));
       traslationMatrix = glm::translate(traslationMatrix, glm::vec3(traslation.x, traslation.y, traslation.z));
@@ -592,165 +572,8 @@ void Model::InitializeBones(Shader shader) {
       ReadNodeHierarchy(animationTime, parent->mChildren[i], globalTransform);
     }
   }
-  //HelperFunction for ReadNodeHierarchy
-  const aiNodeAnim* Model::FindNodeAnim(const aiAnimation* parent, const string name) {
-    for (unsigned int i = 0; i < parent->mNumChannels; i++) {
-      if (std::string(parent->mChannels[i]->mNodeName.data) == name) {
-        return parent->mChannels[i];
-      }
-    }
-    return nullptr;
-  }
-  ///
-  typedef const aiNodeAnim* aiAnim;
-  void Model::CalcInterpolatedScaling(aiVector3D& scaling, float animationTime, aiAnim parent) {
-    if (parent->mNumScalingKeys == 1) {
-      scaling = parent->mScalingKeys[0].mValue;
-      return;
-    }
 
-    auto scaling_index = FindScaling(animationTime, parent);
-    auto nex_sca_index = scaling_index + 1;
-
-    assert(nex_sca_index < parent->mNumScalingKeys);
-
-    float delta_time = (float)(parent->mScalingKeys[nex_sca_index].mTime - parent->mScalingKeys[scaling_index].mTime);
-
-    float factor = (animationTime - (float)parent->mScalingKeys[scaling_index].mTime) / delta_time;
-
-    assert(factor >= 0.0f && factor <= 1.0f);
-
-    const aiVector3D& start = parent->mScalingKeys[scaling_index].mValue;
-    const aiVector3D& end = parent->mScalingKeys[nex_sca_index].mValue;
-
-    scaling = start + factor * (end - start);
-  }
-  void Model::CalcInterpolatedRotation(aiQuaternion& rotation, float animationTime, aiAnim parent) {
-    if (parent->mNumRotationKeys == 1) {
-      // There is only one Position.
-      rotation = parent->mRotationKeys[0].mValue;
-      return;
-    }
-
-    unsigned int rotation_index = FindRotation(animationTime, parent);
-    unsigned int next_rot_index = rotation_index + 1;
-    assert(next_rot_index < parent->mNumRotationKeys);
-
-    // The Difference between two key frames.
-    float delta_time = (float)(parent->mRotationKeys[next_rot_index].mTime - parent->mRotationKeys[rotation_index].mTime);
-
-    // The Factor by which the current frame has transitioned into the next frame.
-    float factor = (animationTime - (float)parent->mRotationKeys[rotation_index].mTime) / delta_time;
-
-    assert(factor >= 0.0f && factor <= 1.0f);
-
-    const aiQuaternion& start = parent->mRotationKeys[rotation_index].mValue;
-    const aiQuaternion& end = parent->mRotationKeys[next_rot_index].mValue;
-
-    aiQuaternion::Interpolate(rotation, start, end, factor);
-
-    rotation = rotation.Normalize();
-  }
-  void Model::CalcInterpolatedPosition(aiVector3D& translation, float animationTime, aiAnim parent) {
-    if (parent->mNumPositionKeys == 1) {
-      // There is only one Position.
-      translation = parent->mPositionKeys[0].mValue;
-      return;
-    }
-
-    unsigned int index = FindPosition(animationTime, parent);
-    unsigned int next_pos_index = index + 1;
-    assert(next_pos_index < parent->mNumPositionKeys);
-
-    // The Difference between two key frames.
-    float delta_time = (float)(parent->mPositionKeys[next_pos_index].mTime - parent->mPositionKeys[index].mTime);
-
-    // The Factor by which the current frame has transitioned into the next frame.
-    float factor = (animationTime - (float)parent->mPositionKeys[index].mTime) / delta_time;
-
-    assert(factor >= 0.0f && factor <= 1.0f);
-
-    const aiVector3D& start = parent->mPositionKeys[index].mValue;
-    const aiVector3D& end = parent->mPositionKeys[next_pos_index].mValue;
-
-    translation = start + factor * (end - start);
-  }
-  //
-  unsigned int Model::FindScaling(float animationTime, aiAnim parent) {
-    assert(parent->mNumScalingKeys > 0);
-
-    for (unsigned int i = 0; i < parent->mNumScalingKeys - 1; i++) {
-      if (animationTime < (float)parent->mScalingKeys[i + 1].mTime) {
-        return i;
-      }
-    }
-
-    assert(0);
-
-    return 0;
-  }
-  unsigned int Model::FindRotation(float animationTime, aiAnim parent) {
-    assert(parent->mNumRotationKeys > 0);
-
-    for (unsigned int i = 0; i < parent->mNumRotationKeys - 1; i++) {
-      if (animationTime < (float)parent->mRotationKeys[i + 1].mTime) {
-        return i;
-      }
-    }
-
-    assert(0);
-
-    return 0;
-  }
-  unsigned int Model::FindPosition(float animationTime, aiAnim parent) {
-    assert(parent->mNumPositionKeys > 0);
-    for (unsigned int i = 0; i < parent->mNumPositionKeys - 1; i++) {
-      if (animationTime < (float)parent->mPositionKeys[i + 1].mTime) {
-        return i;
-      }
-    }
-
-    assert(0);
-
-    return 0;
-  }
-
-  unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma) {
-    std::string filename = std::string(path);
-    filename = directory + '/' + filename;
-
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
-
-    int width, height, nrComponents;
-    unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-    if (data) {
-      GLenum format = 0;
-      if (nrComponents == 1)
-        format = GL_RED;
-      else if (nrComponents == 3)
-        format = GL_RGB;
-      else if (nrComponents == 4)
-        format = GL_RGBA;
-
-      glBindTexture(GL_TEXTURE_2D, textureID);
-      glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-      glGenerateMipmap(GL_TEXTURE_2D);
-
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-      stbi_image_free(data);
-    }
-    else {
-      std::cout << "Texture failed to load at path: " << path << std::endl;
-      stbi_image_free(data);
-    }
-
-    return textureID;
-  }
- 
+  
+  
 
  

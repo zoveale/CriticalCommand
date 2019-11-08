@@ -8,6 +8,7 @@
 #include "skeletal.h"
 #include "lightFactory.h"
 #include "physics.h"
+
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -41,7 +42,7 @@ public:
 
   // draws the model, and thus all its meshes
   void Draw(Shader shader);
-  
+  void DrawStencil(Shader shader);
   void Animate(Shader shader, float time);
   //FIXME::
   void InitializeBones(Shader shader);
@@ -101,17 +102,7 @@ private:
   void BoneTransform(double timeInSec, vector<glm::mat4>& transforms);
 
   void ReadNodeHierarchy(float animationTime, const aiNode* parent, glm::mat4 pTransform);
-  //HelperFunction for ReadNodeHierarchy
-  const aiNodeAnim* FindNodeAnim(const aiAnimation* parent, const std::string name);
-  ///
-  typedef const aiNodeAnim* aiAnim;
-  void CalcInterpolatedScaling(aiVector3D& scaling, float animationTime, aiAnim parent);
-  void CalcInterpolatedRotation(aiQuaternion& rotation, float animationTime, aiAnim parent);
-  void CalcInterpolatedPosition(aiVector3D& translation, float animationTime, aiAnim parent);
-  //
-  unsigned int FindScaling(float animationTime, aiAnim parent);
-  unsigned int FindRotation(float animationTime, aiAnim parent);
-  unsigned int FindPosition(float animationTime, aiAnim parent);
+ 
 };
 
 #endif //MODEL_H

@@ -15,6 +15,9 @@ struct KEY_STATE {
   bool D = false;
   bool SPACE = false;
   bool ESC = false;
+
+  bool UP = false;
+  bool DOWN = false;
 };
 
 class Input {
@@ -37,8 +40,13 @@ public:
   }*/
   ///
 
+  
   void Process();
   void PollEvents();
 
+  //test function
+  void IncrementDecrement(float &i);
+  void IncrementDecrement(int &i);
+  void IncrementDecrement(bool& i);
 };
 #endif // !INPUT_H

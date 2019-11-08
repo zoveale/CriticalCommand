@@ -63,8 +63,6 @@ uniform uint numSpotLights;
 uniform SpotLight spotLights[NR_SPOT_LIGHTS];
 
 
-
-
 in VS_OUT {
     vec3 FragPos;
     
@@ -84,19 +82,36 @@ vec3 viewDir = normalize(viewPos - fs_in.FragPos);
 vec3 result = vec3(0.0);
 //vec3 emission = texture(material.texture_emission1, textureUV).rgb ; 
 
+//test stuff
+uniform float gamma;
+
+float near = 0.1; 
+float far  = 100.0; 
+float LinearizeDepth(float depth);
+
 void main(){   
 	for(uint i = 0; i < numPointLights; i++){
         result += CalcPointLight(pointLights[i], material, norm, fs_in.FragPos, viewDir); 
 	}
 	for(uint i = 0; i < numSpotLights; i++){
         result += CalcSpotLight(spotLights[i], material, norm, fs_in.FragPos, viewDir); 
-	}
-	FragColor =  vec4(result, 1.0);
+	} 
+	
+	
+
+	
+	vec3 gammaCorrection = pow(result.rgb, vec3(1.0/gamma));
+	FragColor =  vec4(vec3(gammaCorrection), 1.0);
 }
 
+float LinearizeDepth(float depth){
+    float z = depth * 2.0 - 1.0; 
+    return (2.0 * near * far) / (far + near - z * (far - near));	
+}
+ 
 float Attenuation(vec3 pos, PointLight light){
 		float dis = length(light.position - pos);
-		float attenuation = (1.0 / (1 + (light.quadratic * (dis * dis)))); 
+		float attenuation = (1.0 / (1 + (light.linear * (dis * dis)))); 
 		return attenuation;
 	}
 
@@ -122,9 +137,14 @@ vec3 CalcPointLight(PointLight light, Material material, vec3 normal, vec3 fragP
     float diff = max(dot(normal, lightDir), 0.0);
     // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    // attenuation
-    
+	
+	//TODO::blinn
+	vec3 halfwayDir = normalize(lightDir + viewDir);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
+	//TODO::phong
+    //float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+	
+    //attenuation
     float attenuation = Attenuation(fragPos, light);    
     // combine results
     vec3 ambient  = light.ambient  * vec3(texture(material.texture_diffuse1, textureUV));
@@ -148,7 +168,12 @@ vec3 CalcSpotLight(SpotLight light, Material material, vec3 normal, vec3 fragPos
     float diff = max(dot(normal, lightDir), 0.0);
     // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+
+	//TODO::blinn
+	vec3 halfwayDir = normalize(lightDir+ viewDir);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
+	//TODO::phong
+    //float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     // attenuation
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    

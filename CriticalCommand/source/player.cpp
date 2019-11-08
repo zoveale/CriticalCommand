@@ -20,7 +20,7 @@ PlayerCamera Camera::camera;
 
 
 Player::Player() {
-  position = glm::vec3(12.5f, 1.0f, -15.5f);
+  position = glm::vec3(12.5f, 5.0f, -15.5f);
   front = glm::vec3(1.0f, 0.0f, 0.0f);
   right = glm::vec3(0.0f, 1.0f, 0.0f);
   speed = 20.0f;
@@ -60,7 +60,7 @@ void Player::Update() {
   //future update(*this) stuff
   //phyics->update(*this);
   //graphics->update(*this);
-  camera->SetView(*this);
+  camera->Update(*this);
   state->Update(*this);
 }
 

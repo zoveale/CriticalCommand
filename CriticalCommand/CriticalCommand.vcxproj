@@ -97,6 +97,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -111,7 +112,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.mt\debug;$(SolutionDir)middleware\assimp\lib;$(SolutionDir)middleware\glfw\lib-vc2019;$(SolutionDir)middleware\glew\lib\Release\Win32</AdditionalLibraryDirectories>
-      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib;glfw3.lib;opengl32.lib;glew32s.lib;assimp-vc140-mt.lib;C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.md\debug\PhysXExtensions_static_32.lib;C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.md\debug\PhysX_static_32.lib;C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.md\debug\PhysXPvdSDK_static_32.lib;C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.md\debug\PhysXVehicle_static_32.lib;C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.md\debug\PhysXCharacterKinematic_static_32.lib;C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.md\debug\PhysXCooking_static_32.lib;C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.md\debug\PhysXCommon_static_32.lib;C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.md\debug\PhysXFoundation_static_32.lib</AdditionalDependencies>
+      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib;glfw3.lib;opengl32.lib;glew32s.lib;assimp-vc142-mtd.lib;C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.md\debug\PhysXExtensions_static_32.lib;C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.md\debug\PhysX_static_32.lib;C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.md\debug\PhysXPvdSDK_static_32.lib;C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.md\debug\PhysXVehicle_static_32.lib;C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.md\debug\PhysXCharacterKinematic_static_32.lib;C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.md\debug\PhysXCooking_static_32.lib;C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.md\debug\PhysXCommon_static_32.lib;C:\DevLibs\nvidiaPhysX\PhysX\physx\bin\win.x86_32.vc142.md\debug\PhysXFoundation_static_32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Checked|Win32'">
@@ -160,7 +161,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\DevLibs\nvidiaPhysX\PhysX\pxshared\include;C:\DevLibs\nvidiaPhysX\PhysX\physx\include;$(SolutionDir)middleware\glew\include;$(SolutionDir)middleware\glfw\include;$(SolutionDir)CriticalCommand\include;$(SolutionDir)middleware\assimp;$(SolutionDir)middleware\glm</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>GLEW_STATIC; _MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEW_STATIC;_MBCS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -187,6 +188,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\cubemap.cpp" />
+    <ClCompile Include="source\framebuffer.cpp" />
     <ClCompile Include="source\input.cpp" />
     <ClCompile Include="source\lightFactory.cpp" />
     <ClCompile Include="source\model.cpp" />
@@ -204,6 +207,8 @@
   <ItemGroup>
     <ClInclude Include="include\animated.h" />
     <ClInclude Include="include\camera.h" />
+    <ClInclude Include="include\cubemap.h" />
+    <ClInclude Include="include\framebuffer.h" />
     <ClInclude Include="include\lightFactory.h" />
     <ClInclude Include="include\mesh.h" />
     <ClInclude Include="include\model.h" />
@@ -226,10 +231,23 @@
     <None Include="PhysXFoundation_32.dll" />
     <None Include="PhysXGpu_32.dll" />
     <None Include="PhysX_32.dll" />
+    <None Include="resources\shader\CubeMap\Fcubemap.glsl" />
+    <None Include="resources\shader\CubeMap\Gcubemap.glsl" />
+    <None Include="resources\shader\CubeMap\Vcubemap.glsl" />
     <None Include="resources\shader\Fanimated.glsl" />
     <None Include="resources\shader\Fmodel.glsl" />
+    <None Include="resources\shader\Framebuffer\Fframebuffer.glsl" />
+    <None Include="resources\shader\Framebuffer\Gframebuffer.glsl" />
+    <None Include="resources\shader\Framebuffer\Vframebuffer.glsl" />
+    <None Include="resources\shader\Gmodel.glsl" />
     <None Include="resources\shader\lampF.glsl" />
     <None Include="resources\shader\lampV.glsl" />
+    <None Include="resources\shader\NormalShader\Fnormal.glsl" />
+    <None Include="resources\shader\NormalShader\Gnormal.glsl" />
+    <None Include="resources\shader\NormalShader\Vnormal.glsl" />
+    <None Include="resources\shader\StencilShader\Fstencil.glsl" />
+    <None Include="resources\shader\StencilShader\Gstencil.glsl" />
+    <None Include="resources\shader\StencilShader\Vstencil.glsl" />
     <None Include="resources\shader\Vmodel.glsl" />
   </ItemGroup>
   <ItemGroup>

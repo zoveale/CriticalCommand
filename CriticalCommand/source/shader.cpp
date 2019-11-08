@@ -3,30 +3,40 @@
 
 
 Shader::Shader() {
-  ///
+  geometryShaderBit = false;
 }
 
-Shader::Shader(const GLchar* vertexShaderPath, const GLchar* fragmentShaderPath) {
+Shader::Shader(const GLchar* vertexShaderPath,
+               const GLchar* fragmentShaderPath,
+               const GLchar* geometryShaderPath) {
 
   
   this->vertexShader = LoadShader(vertexShaderPath);
-  this->fragmentShader = LoadShader(fragmentShaderPath);
-
   this->vertexShaderCode = vertexShader.c_str();
+
+  this->fragmentShader = LoadShader(fragmentShaderPath);
   this->fragmentShaderCode = fragmentShader.c_str();
 
+  if (geometryShaderPath != nullptr) {
+    this->geometryShader = LoadShader(geometryShaderPath);
+    this->geometryShaderCode = geometryShader.c_str();
+    geometryShaderBit = true;
+  }
+  
   
   //Print();
-  unsigned int vertex, fragment;
   
-  CreateShaders(vertex, fragment, vertexShaderCode, fragmentShaderCode);
-  AttachShaderID(vertex, fragment);
+  unsigned int vertex, fragment, geometry;
+  CreateShaders(vertex, fragment, geometry, vertexShaderCode, fragmentShaderCode, geometryShaderCode);
+  AttachShaderID(vertex, fragment, geometry);
 
   //detach and delete the shaders after memory allocation
   glDetachShader(this->ID, vertex);
   glDetachShader(this->ID, fragment);
+  glDetachShader(this->ID, geometry);
   glDeleteShader(vertex);
   glDeleteShader(fragment);
+  glDeleteShader(geometry);
 }
 
 void Shader::SetInit(const std::string& name, int value) const {
@@ -90,8 +100,12 @@ void Shader::Shutdown() {
 
 
 ///private functions
-void Shader::CreateShaders(unsigned int &vertex, unsigned int &fragment,
-                           const char* &vertexShaderCode, const char* &fragmentShaderCode) {
+void Shader::CreateShaders(unsigned int &vertex,
+                           unsigned int &fragment,
+                           unsigned int &geometry,
+                           const char* &vertexShaderCode, 
+                           const char* &fragmentShaderCode, 
+                           const char* &geometryShaderCode) {
   int success;
   char infoLog[512];
 
@@ -111,14 +125,23 @@ void Shader::CreateShaders(unsigned int &vertex, unsigned int &fragment,
   glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
   CheckCompileErrors(ID, "FRAGMENT");
 
-  
+  // geometry Shader
+  if (geometryShaderBit) {
+    geometry = glCreateShader(GL_GEOMETRY_SHADER);
+    glShaderSource(geometry, 1, &geometryShaderCode, NULL);
+    glCompileShader(geometry);
+    // print compile errors if any
+    glGetShaderiv(geometry, GL_COMPILE_STATUS, &success);
+    CheckCompileErrors(ID, "GEOMETRY");
+  }
 }
 
-void Shader::AttachShaderID(unsigned int& vertex, unsigned int& fragment) {
+void Shader::AttachShaderID(unsigned int& vertex, unsigned int& fragment, unsigned int& geometry) {
   //Attach shader Program
   this->ID = glCreateProgram();
   glAttachShader(this->ID, vertex);
   glAttachShader(this->ID, fragment);
+  glAttachShader(this->ID, geometry);
   glLinkProgram(this->ID);
   CheckCompileErrors(ID, "PROGRAM");
 }

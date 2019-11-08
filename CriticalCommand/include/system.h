@@ -3,6 +3,7 @@
 
 #include "render.h"
 #include "shader.h"
+#include "framebuffer.h"
 #include "input.h"
 #include "player.h"
 #include "camera.h"
@@ -25,14 +26,14 @@ private:
 
   physx::Physics scenePhysics;
 
-  void ClearScreen();
+  
 
 public:
   System();
   void SystemInit();
   void GameLoop();
-  
   void Shutdown();
+
 };
 #endif // !SYSTEM_H
 

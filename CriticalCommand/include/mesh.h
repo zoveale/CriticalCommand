@@ -32,7 +32,7 @@ public:
   typedef vector<Vertex> vec;
   typedef vector<unsigned int> iVec;
   typedef vector<Texture> tVec;
-
+  Mesh() {}
   // constructor
   Mesh(vec vertices, iVec indices, tVec textures) {
     this->vertices = vertices;
@@ -78,6 +78,21 @@ public:
     glBindVertexArray(0);
 
     // always good practice to set everything back to defaults once configured.
+    glActiveTexture(GL_TEXTURE0);
+  }
+
+  void DrawStencil(Shader shader) {
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+    glActiveTexture(GL_TEXTURE0);
+  }
+
+
+  void DrawMesh() {
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
     glActiveTexture(GL_TEXTURE0);
   }
 

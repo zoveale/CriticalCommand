@@ -41,64 +41,91 @@ class physx::Physics {
 
 public:
   Physics();
-  void StartUp();
+  //same for all instances of physx
+  //TODO::create more componet classes oh physics
+  static void StartUp() {
+
+    //Can make new scale
+    PxTolerancesScale scale = PxTolerancesScale();
+    /*pass in new scale for cenitmeters for example
+    scale.length = 100;
+    scale.speed = 981;*/
+    ///
+
+    //Initialization of physx data types
+    gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+
+    //Physx Visual Debugger info, TODO:: understand this better
+    gPvd = PxCreatePvd(*gFoundation);
+    PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+    gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
+
+    gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, scale, true, gPvd);
+    gCooking = PxCreateCooking(PX_PHYSICS_VERSION, *gFoundation, PxCookingParams(scale));
+
+    //TODO:: create default material
+    defaultMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
+    
+
+    /// 
+  }
+  void TestA();
   void AddActor(PxActor* actor);
   void GetActors();
-  void StepPhysics();
+  void StepPhysics(float dt);
 
   void CleanUp();
 
+  PxU32 NumberOfActors();
+  glm::mat4 GetAPose(int i);
 
   void AddStaticTriangleMesh(
-    const std::vector<float>        vertex,
-    const std::vector<unsigned int> indices,
-    const unsigned int              indicesSize);
+    const std::vector<float>        &vertex,
+    const std::vector<unsigned int> &indices,
+    const unsigned int              &indicesSize) const;
 
   
   //TODO:: test functions
-  void CreateStack(const PxTransform& t,
-    PxU32 size,
-    PxReal halfExtent);
-  void AddCubeActor(glm::vec3 pos, float scale = 1.0f);
-  //glm::vec3 GetAPosition(int i);
-  glm::mat4 GetAPose(int i);
+  void CreateStack(const PxTransform& t, PxU32 size, PxReal halfExtent);
+  void AddCubeActor(glm::vec3 pos, float x = 1.0f, float y = 1.0f, float z = 1.0f);
+  
   void ShootBall(glm::vec3 front, glm::vec3 pos);
-  static PxTriangleMesh* createMeshGround();
-  static void updateVertices(PxVec3* verts, float amplitude);
+  
+  /*static PxTriangleMesh* createMeshGround();
+  static void updateVertices(PxVec3* verts, float amplitude);*/
 
 private:
   PxTriangleMesh* CreateTriangleMesh(
-    const std::vector<float>        vertex,
-    const std::vector<unsigned int> indices,
-    const unsigned int              numFaces);
-  //TODO:: remove static
+    const std::vector<float>        &vertex,
+    const std::vector<unsigned int> &indices,
+    const unsigned int              &numFaces) const;
+
+  //TODO:: remove static?
   static PxDefaultAllocator	gAllocator;
   static PxDefaultErrorCallback	gErrorCallback;
-
-
-
   static PxFoundation* gFoundation;
   static PxPhysics* gPhysics;
   static PxCooking* gCooking;
+  static PxDefaultCpuDispatcher* gDispatcher;
+  static PxPvd* gPvd;
+  static PxMaterial* defaultMaterial;
 
-  PxDefaultCpuDispatcher* gDispatcher;
   PxScene* gScene;
+  PxRigidActor* actors[MAX_ACTOR];
+  PxU32 nbActors;
 
-  PxMaterial* defaultMaterial;
-
-  PxPvd* gPvd;
   /*
   TODO:: remove test variables
+  remove static?
   */
-  static PxMat44 globalPoseArray[MAX_ACTOR];
-  static PxRigidActor* actors[MAX_ACTOR];
+  PxMat44 globalPoseArray[MAX_ACTOR];
   PxReal stackZ = 10.0f;
 
-  PxTriangleMesh* triMesh;
-  PxRigidStatic* meshActor;
-  struct Triangle {
+  //PxTriangleMesh* triMesh;
+  //PxRigidStatic* meshActor;
+  /*struct Triangle {
     PxU32 ind0, ind1, ind2;
-  };
+  };*/
 
 };
 
