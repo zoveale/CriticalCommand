@@ -20,6 +20,7 @@ Framebuffer::Framebuffer(Shader screenShader) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+
   // create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
   unsigned int rbo;
   glGenRenderbuffers(1, &rbo);
@@ -38,6 +39,9 @@ void Framebuffer::Preprocess() {
   glStencilFunc(GL_ALWAYS, 1, 0xFF);
   glStencilMask(0xFF);
   glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
+  glDepthMask(GL_TRUE);
+  
 }
 
 void Framebuffer::Postprocess(Shader screenShader) {

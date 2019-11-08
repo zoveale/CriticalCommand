@@ -15,7 +15,7 @@ void Render::StartUp(){
   //MSAA-multisampled anti-aliasing
   glfwWindowHint(GLFW_SAMPLES, 4);
   /* Create a windowed mode window and its OpenGL context */
-  window = glfwCreateWindow(SC.WIDTH, SC.HEIGHT, "Welcome To Critical Command", NULL, NULL);
+  window = glfwCreateWindow(Screen::WIDTH, Screen::HEIGHT, "Welcome To Critical Command", NULL, NULL);
   if (!window)
   {
     glfwTerminate();
@@ -30,7 +30,7 @@ void Render::StartUp(){
   }
 
   glEnable(GL_DEPTH_TEST);
-  //glDepthFunc(GL_LESS);
+  glDepthFunc(GL_LESS);
 
   glEnable(GL_STENCIL_TEST);
   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);

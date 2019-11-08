@@ -1,6 +1,7 @@
 #ifndef MODEL_UTILITY_H
 #define MODEL_UTILITY_H
 
+#include <GL/glew.h>
 
 
 #include <glm.hpp>
@@ -17,6 +18,7 @@
 #include <string>
 #include <vector>
 #include <map>
+
 
 extern glm::mat3 aiToGlm(const aiMatrix3x3& load);
 extern glm::mat4 aiToGlm(const aiMatrix4x4& load);
@@ -45,11 +47,17 @@ struct Lights {
   glm::vec3 direction;
 };
 
+
+
 struct Texture {
   unsigned int id;
   std::string type;
   std::string path;
+  static unsigned int Load(const char* path,
+                      const std::string& directory,
+                      bool gamma = false);
 };
+
 
 
 

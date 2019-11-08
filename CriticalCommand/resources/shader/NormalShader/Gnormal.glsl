@@ -16,14 +16,6 @@ void GenerateLine(int index)
     EmitVertex();
     gl_Position = gl_in[index].gl_Position + vec4(gs_in[index].normal, 0.0) * MAGNITUDE;
     EmitVertex();
-//	gl_Position = gl_in[index].gl_Position;
-//    EmitVertex();
-//    gl_Position = gl_in[index].gl_Position + vec4(gs_in[index].tangent, 0.0) * MAGNITUDE;
-//    EmitVertex();
-//	gl_Position = gl_in[index].gl_Position;
-//    EmitVertex();
-//    gl_Position = gl_in[index].gl_Position + vec4(gs_in[index].bitTangent, 0.0) * MAGNITUDE;
-//    EmitVertex();
     EndPrimitive();
 }
 

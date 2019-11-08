@@ -18,8 +18,10 @@ void System::SystemInit(){
 }
 
 void System::GameLoop(){
-  //Shader animated("resources/shader/Vanimated.glsl", "resources/shader/Fanimated.glsl");
-  //Model ourModel_0("resources/cowboy/CharacterRunning4.dae", sceneLights,scenePhysics);
+  /*
+  Shader animated("resources/shader/Vanimated.glsl", "resources/shader/Fanimated.glsl");
+  Model ourModel_0("resources/cowboy/CharacterRunning4.dae", sceneLights,scenePhysics);*/
+
   Shader normalShader("resources/shader/NormalShader/Vnormal.glsl",
                       "resources/shader/NormalShader/Fnormal.glsl",
                       "resources/shader/NormalShader/Gnormal.glsl");
@@ -27,23 +29,25 @@ void System::GameLoop(){
   Shader framebufferShader("resources/shader/Framebuffer/Vframebuffer.glsl",
                            "resources/shader/Framebuffer/Fframebuffer.glsl");
   Framebuffer framebuffertest(framebufferShader);
-  Model framebufferModel("resources/default/framebuffertest.dae", sceneLights, scenePhysics);
 
   Shader cubeMapShader("resources/shader/CubeMap/Vcubemap.glsl",
                        "resources/shader/CubeMap/Fcubemap.glsl",
                        "resources/shader/CubeMap/Gcubemap.glsl");
   Model cubemap("resources/default/cubemapbox.dae", sceneLights, scenePhysics);
   //Model ourModel_1("resources/watchtower/tower.obj", sceneLights, scenePhysics);
+
   Shader fixed("resources/shader/Model/Vmodel.glsl",
                "resources/shader/Model/Fmodel.glsl");
   //TODO:: PHYSX testing
   Model ico_80("resources/default/ico_80.dae", sceneLights, scenePhysics);
+  Shader stencilShader("resources/shader/StencilShader/Vstencil.glsl",
+    "resources/shader/StencilShader/Fstencil.glsl");
   //Model ico_80_Big("resources/default/ico_80.dae", sceneLights, scenePhysics);
   
   ///
   //TODO:: warning : TriangleMesh: triangles are too big, 
   //reduce their size to increase simulation stability! wtf is this
-  Model default_0("resources/default/default7.dae", sceneLights, scenePhysics , true);
+  Model default_0("resources/default/physxTestLightsTestTextureTest.dae", sceneLights, scenePhysics , true);
   
   //Lamp models
   Shader lamp("resources/shader/lampV.glsl", "resources/shader/lampF.glsl");
@@ -60,24 +64,26 @@ void System::GameLoop(){
   sceneLights.SetFixedAttributes(fixed);
 
   //test values
-  float x = 1.0;
-  float gamma = 1.2;
+  float x = 1.0f;
+  float gamma = 1.2f;
   int perspective = 55;
   bool testBool = true;
   ///
   // draw as wireframe
   //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
   float deltaRate = 1.0f / 60.0f;
   float deltaTime = 0.0f;
   float currentFrame = 0.0f;
   float lastFrame = (float)glfwGetTime();
+
   while (!input.KEY.ESC) {
 
     input.Process();
     currentFrame = (float)glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
-    printf("deltaTime = %f\n", deltaTime);
+    //printf("deltaTime = %f\n", deltaTime);
 
     //framebuffer test
     framebuffertest.Preprocess();
@@ -98,20 +104,23 @@ void System::GameLoop(){
 
     //TODO::TEST FUNCTIONS
     //input.IncrementDecrement(perspective);
-    projection = glm::perspective(glm::radians((float)perspective), (float)1280 / (float)720, 0.1f, 1000.0f);
+    projection = glm::perspective(glm::radians((float)perspective),
+                (float)Render::Screen::WIDTH /(float)Render::Screen::HEIGHT, 0.1f, 1000.0f);
     view = playerCamera.View();
 
-   /* animated.Use();
-    animated.SetMat4("projection", projection);
-    animated.SetMat4("view", view);
-    model = glm::translate(model, glm::vec3(4.0f, 0.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	
-    animated.SetMat4("PVM", projection * view * model);
-    animated.SetMat4("model", model);
-    ourModel_0.Animate(animated, currentFrame);*/
-
-   
-    //TODO::TEST FUNCTIONS
+    //animated.Use();
+    //animated.SetMat4("projection", projection);
+    //animated.SetMat4("view", view);
+    //model = glm::translate(model, glm::vec3(4.0f, 0.0f, 0.0f));
+    ////model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	
+    //animated.SetMat4("model", model);
+    //ourModel_0.Animate(animated, currentFrame);
+    //normalShader.Use();
+    //normalShader.SetMat4("projection", projection);
+    //normalShader.SetMat4("view", view);
+    //normalShader.SetMat4("model", model);
+    //ourModel_0.Draw(normalShader);
+    //model = glm::mat4(1.0f);
 
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0x00);
@@ -124,18 +133,16 @@ void System::GameLoop(){
     fixed.SetMat4("PVM", projection * view * model);
     sceneLights.SetDynamicAttributes(fixed);
     default_0.Draw(fixed);
-
-    glDepthMask(GL_FALSE);
+    
     normalShader.Use();
     normalShader.SetMat4("projection", projection);
     normalShader.SetMat4("view", view);
     normalShader.SetMat4("model", model);
     default_0.Draw(normalShader);
-    glDepthMask(GL_TRUE);
-    
+
+    //TODO:: setting ico80 models the physics deformations
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
-    //TODO:: setting ico80 models the physics deformations
     for (int i = 0; i < 55; i++) {
       fixed.Use();
       model = glm::mat4(1.0f);
@@ -152,23 +159,25 @@ void System::GameLoop(){
       normalShader.SetMat4("model", model);
       ico_80.Draw(normalShader);*/
     }
+
     
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilMask(0x00);
-    glDisable(GL_DEPTH_TEST);
+    stencilShader.Use();
+    //glDepthMask(GL_FALSE); //no longer used?
     for (int i = 0; i < 55; i++) {
-      lamp.Use();
       model = glm::mat4(1.0f);
       model = scenePhysics.GetAPose(i);
-      model = glm::scale(model, glm::vec3(2.2));
-      lamp.SetMat4("model", model);
-      lamp.SetMat4("PVM", projection * view * model);
-      sceneLights.SetDynamicAttributes(lamp);
-      ico_80.Draw(lamp);
+      model = glm::scale(model, glm::vec3(2.2f));
+      stencilShader.SetMat4("model", model);
+      stencilShader.SetMat4("PVM", projection * view * model);
+      ico_80.Draw(stencilShader);
     }
     glStencilMask(0xFF);
-    glEnable(GL_DEPTH_TEST);
+   //glDepthMask(GL_TRUE);
 
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0x00);
     lamp.Use();
     for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
       model = sceneLights.GetPointLightTransformation(i);
@@ -182,16 +191,16 @@ void System::GameLoop(){
       lamp.SetMat4("PVM", projection * view * model);
       spotLamp.Draw(lamp);
     }
-
+    glStencilMask(0xFF);
     
     //framebuffer test
     framebuffertest.Postprocess(framebufferShader);
     ///
 
     //TODO:update this somehow
-    input.TrueFalse(testBool);
+    input.IncrementDecrement(testBool);
     if(testBool)
-      scenePhysics.StepPhysics(deltaTime < deltaRate ? deltaTime : deltaRate);
+      scenePhysics.StepPhysics(deltaTime > deltaRate ? deltaTime : deltaRate);
 
     player.Update();
 
@@ -212,5 +221,7 @@ void System::Shutdown() {
   //dShader.Shutdown();
   glfwTerminate();
 }
+
+
 
 

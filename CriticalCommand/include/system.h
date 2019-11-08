@@ -32,8 +32,8 @@ public:
   System();
   void SystemInit();
   void GameLoop();
-  
   void Shutdown();
+
 };
 #endif // !SYSTEM_H
 

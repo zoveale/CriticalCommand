@@ -7,21 +7,23 @@
 #include <GLFW/glfw3.h>
 
 
-struct SCREEN {
-  static const int WIDTH = 1280;
-  static const int HEIGHT = 720;
-};
+
 
 class Render {
 private:
   GLFWwindow* window;
+  
 public:
   Render();
-  SCREEN SC;
   void StartUp();
   void ClearScreen();
   GLFWwindow* Window() { return this->window; }
   
   void Display();
+
+  struct Screen {
+    static const int WIDTH = 1280;
+    static const int HEIGHT = 720;
+  };
 };
 #endif // !RENDER_H

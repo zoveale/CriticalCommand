@@ -57,6 +57,9 @@
     <ClCompile Include="source\framebuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\cubemap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\system.h">
@@ -134,6 +137,9 @@
     <None Include="resources\shader\Framebuffer\Fframebuffer.glsl" />
     <None Include="resources\shader\Framebuffer\Gframebuffer.glsl" />
     <None Include="resources\shader\Framebuffer\Vframebuffer.glsl" />
+    <None Include="resources\shader\StencilShader\Fstencil.glsl" />
+    <None Include="resources\shader\StencilShader\Gstencil.glsl" />
+    <None Include="resources\shader\StencilShader\Vstencil.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">
