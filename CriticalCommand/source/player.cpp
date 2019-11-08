@@ -12,8 +12,9 @@ StrafeRightState InputState::right;
 PlayerCamera Camera::camera;
 //PlayerCamera Camera::1stPerson;
 //PlayerCamera Camera::3rdPerson;
-//PlayerCamera Camera::OverheadDiabloStyle;
+//PlayerCamera Camera::TopDown;
 //PlayerCamera Camera::Overview;
+//ETC...
 ///
 
 //Input playerInput;

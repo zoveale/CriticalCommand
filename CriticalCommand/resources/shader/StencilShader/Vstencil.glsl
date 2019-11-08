@@ -10,10 +10,13 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 PVM;
+uniform vec3 color;
 
 out vec3 normal;
+out vec3 colorOut;
 void main()
 {
 	normal = aNormal;
+	colorOut = color;
 	gl_Position = PVM * vec4(position, 1.0);
 }

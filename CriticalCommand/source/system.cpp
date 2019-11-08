@@ -141,9 +141,12 @@ void System::GameLoop(){
     default_0.Draw(normalShader);
 
     //TODO:: setting ico80 models the physics deformations
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilMask(0xFF);
+    
     for (int i = 0; i < 55; i++) {
+      glDepthMask(GL_TRUE);
+      
+      glStencilFunc(GL_ALWAYS, 1, 0xFF);
+      glStencilMask(0xFF);
       fixed.Use();
       model = glm::mat4(1.0f);
       model = scenePhysics.GetAPose(i); 
@@ -153,28 +156,28 @@ void System::GameLoop(){
       sceneLights.SetDynamicAttributes(fixed);
       ico_80.Draw(fixed);
 
+      
+      glDepthMask(GL_FALSE);
+      glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+      glStencilMask(0x00);
+      stencilShader.Use();
+      model = glm::scale(model, glm::vec3(1.1f));
+      stencilShader.SetMat4("model", model);
+      stencilShader.SetMat4("PVM", projection* view* model);
+      stencilShader.SetVec3("color", glm::vec3(0.0627f, 0.902f, 0.0314f));
+      ico_80.Draw(stencilShader);
+      
+
       /*normalShader.Use();
       normalShader.SetMat4("projecion", projection);
       normalShader.SetMat4("view", view);
       normalShader.SetMat4("model", model);
       ico_80.Draw(normalShader);*/
     }
-
-    
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-    glStencilMask(0x00);
-    stencilShader.Use();
-    //glDepthMask(GL_FALSE); //no longer used?
-    for (int i = 0; i < 55; i++) {
-      model = glm::mat4(1.0f);
-      model = scenePhysics.GetAPose(i);
-      model = glm::scale(model, glm::vec3(2.2f));
-      stencilShader.SetMat4("model", model);
-      stencilShader.SetMat4("PVM", projection * view * model);
-      ico_80.Draw(stencilShader);
-    }
     glStencilMask(0xFF);
-   //glDepthMask(GL_TRUE);
+    
+    
+  
 
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0x00);
