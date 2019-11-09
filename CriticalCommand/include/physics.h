@@ -96,7 +96,38 @@ public:
   
   /*static PxTriangleMesh* createMeshGround();
   static void updateVertices(PxVec3* verts, float amplitude);*/
+  enum GeometryTypes {
+    StaticSphere,
+    StaticCapsule,
+    StaticBox,
+    StaticPlane,
+    StaticTriangleMesh,
+    StaticConvexMesh,
+    StaticConvexMeshCooking,
+    StaticHeightField,
+    DynamicSphere,
+    DynamicCapsule,
+    DynamicBox,
+    DynamicConvexMesh,
+    DynamicConvexMeshCooking,
+    NoCollisionGeomety
+  };
 
+  std::vector<std::string> GEOMETRY_IDS{
+    "SS_",
+    "SC_",
+    "SB_",
+    "SP_",
+    "STM_",
+    "SCM_",
+    "SCMC_",
+    "SHF_",
+    "DS_",
+    "DC_",
+    "DB_",
+    "DCM_",
+    "DCMC_",
+  };
 private:
   PxTriangleMesh* CreateTriangleMesh(
     const std::vector<float>        &vertex,
@@ -130,40 +161,11 @@ private:
     PxU32 ind0, ind1, ind2;
   };*/
   std::unordered_map<std::string, int> GeometryMap;
+
+  
 };
 
-enum GeometryTypes {
-  StaticSphere,
-  StaticCapsule,
-  StaticBox,
-  StaticPlane,
-  StaticTriangleMesh,
-  StaticConvexMesh,
-  StaticConvexMeshCooking,
-  StaticHeightField,
-  DynamicSphere,
-  DynamicCapsule,
-  DynamicBox,
-  DynamicConvexMesh,
-  DynamicConvexMeshCooking,
-  NoCollisionGeomety
-};
 
-const std::string GEOMETRY_IDS[] = {
-  "SS_",
-  "SC_",
-  "SB_",
-  "SP_",
-  "STM_",
-  "SCM_",
-  "SCMC_",
-  "SHF_",
-  "DS_",
-  "DC_",
-  "DB_",
-  "DCM_",
-  "DCMC_",
-};
 
 
 

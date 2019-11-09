@@ -19,7 +19,7 @@ physx::Physics::Physics() {
   gPvd = NULL;
   nbActors = NULL;
 
-  for (int i = 0; i < GEOMETRY_IDS->size(); i++)
+  for (int i = 0; i < GEOMETRY_IDS.size(); i++)
     GeometryMap[GEOMETRY_IDS[i]] = GeometryTypes::StaticSphere + i;
 
 
