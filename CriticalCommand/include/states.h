@@ -5,7 +5,7 @@
 #include "input.h"
 #include <cstdio>
 
-
+//#define PRINT_STATES
 class Player;
 #include "player.h"
 

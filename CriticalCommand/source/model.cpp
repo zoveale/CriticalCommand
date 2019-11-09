@@ -410,6 +410,7 @@ void Model::InitializeBones(Shader shader) {
       std::string name = mesh->mName.C_Str();
       if (name.find(trimeshID) != std::string::npos) {
         physicsScene.AddStaticTriangleMesh(triMeshPos, indices, mesh->mNumFaces);
+
       }
       else {
         //TODO:: temporary to visualize trimesh creation

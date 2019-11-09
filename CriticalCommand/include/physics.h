@@ -9,7 +9,7 @@
 #include <geometric.hpp>
 #include <vec3.hpp>
 #include <mat4x4.hpp>
-
+#include <unordered_map>
 
 
 
@@ -31,7 +31,9 @@
 //    const char* message, const char* file, int line) {}
 //};
 
+//TODO::static const
 #define MAX_ACTOR 1<<8
+
 namespace physx { class Physics; }
 
 static const physx::PxU32 GRID_SIZE = 8;
@@ -78,6 +80,7 @@ public:
 
   PxU32 NumberOfActors();
   glm::mat4 GetAPose(int i);
+
 
   void AddStaticTriangleMesh(
     const std::vector<float>        &vertex,
@@ -126,8 +129,42 @@ private:
   /*struct Triangle {
     PxU32 ind0, ind1, ind2;
   };*/
-
+  std::unordered_map<std::string, int> GeometryMap;
 };
+
+enum GeometryTypes {
+  StaticSphere,
+  StaticCapsule,
+  StaticBox,
+  StaticPlane,
+  StaticTriangleMesh,
+  StaticConvexMesh,
+  StaticConvexMeshCooking,
+  StaticHeightField,
+  DynamicSphere,
+  DynamicCapsule,
+  DynamicBox,
+  DynamicConvexMesh,
+  DynamicConvexMeshCooking,
+  NoCollisionGeomety
+};
+
+const std::string GEOMETRY_IDS[] = {
+  "SS_",
+  "SC_",
+  "SB_",
+  "SP_",
+  "STM_",
+  "SCM_",
+  "SCMC_",
+  "SHF_",
+  "DS_",
+  "DC_",
+  "DB_",
+  "DCM_",
+  "DCMC_",
+};
+
 
 
 

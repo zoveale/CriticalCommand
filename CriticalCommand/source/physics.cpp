@@ -18,6 +18,13 @@ physx::Physics::Physics() {
   defaultMaterial = NULL;
   gPvd = NULL;
   nbActors = NULL;
+
+  for (int i = 0; i < GEOMETRY_IDS->size(); i++)
+    GeometryMap[GEOMETRY_IDS[i]] = GeometryTypes::StaticSphere + i;
+
+
+    //GeometryMap.insert(std::make_pair(GeometryIds[i], i));
+  
 }
 
 
@@ -30,6 +37,8 @@ void physx::Physics::TestA() {
   sceneDesc.cpuDispatcher = gDispatcher;
   sceneDesc.filterShader = PxDefaultSimulationFilterShader;
   gScene = gPhysics->createScene(sceneDesc);
+
+
 
   CreateStack(PxTransform(PxVec3(0, 10, stackZ -= 20.0f)), 10, 2.0f);
 }
@@ -46,7 +55,6 @@ void physx::Physics::GetActors(/*PxActor** actor*/) {
     printf("\n # of actors > MAX_ACTORS\n");
     int i;
     scanf_s("%d", &i);
-    
   }
   
   gScene->getActors(FLAG::eRIGID_DYNAMIC | FLAG::eRIGID_STATIC,
@@ -165,25 +173,31 @@ physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
 
   params.midphaseDesc = PxMeshMidPhase::eBVH34;
   params.midphaseDesc.mBVH34Desc.numPrimsPerLeaf = 4; //default = 4, max = 15
-
+  
   params.scale = gPhysics->getTolerancesScale();
+  // disable mesh cleaning - perform mesh validation on development configurations
+  //params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
+  // disable edge precompute, edges are set for each triangle, slows contact generation
+  //params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
+  //enables vertex welding during triangle mesh cooking.
+  //params.meshPreprocessParams |= PxMeshPreprocessingFlag::eWELD_VERTICES;
+
   gCooking->setParams(params);
 
   PxTriangleMeshDesc meshDesc;
-  meshDesc.points.data = &vertex[0];
   meshDesc.points.count = vertex.size();
   meshDesc.points.stride = sizeof(PxF32) * 3;
+  meshDesc.points.data = &vertex[0];
   
-  meshDesc.triangles.data = &indices[0];
   meshDesc.triangles.count = numFaces;
   meshDesc.triangles.stride = sizeof(PxU32) * 3;
+  meshDesc.triangles.data = &indices[0];
 
   /*PxTriangleMeshCookingResult::Enum result;
   PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc,
                             gPhysics->getPhysicsInsertionCallback(), &result);
   if (!result) printf("");
   return triMesh;*/
-  //TODO:: change to CreateTriangleMesh only
 
   return gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback());
 }
