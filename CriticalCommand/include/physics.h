@@ -36,9 +36,6 @@
 
 namespace physx { class Physics; }
 
-static const physx::PxU32 GRID_SIZE = 8;
-static const physx::PxReal GRID_STEP = 56.0f / physx::PxReal(GRID_SIZE - 1);
-
 class physx::Physics {
 
 public:
@@ -68,7 +65,7 @@ public:
     //TODO:: create default material
     defaultMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
     
-
+    
     /// 
   }
   void TestA();
@@ -81,6 +78,11 @@ public:
   PxU32 NumberOfActors();
   glm::mat4 GetAPose(int i);
 
+  bool AddPhysxObject(
+    const std::string               &name,
+    const std::vector<float>        &vertex,
+    const std::vector<unsigned int> &indices,
+    const unsigned int              &indicesSize) const;
 
   void AddStaticTriangleMesh(
     const std::vector<float>        &vertex,
@@ -96,38 +98,7 @@ public:
   
   /*static PxTriangleMesh* createMeshGround();
   static void updateVertices(PxVec3* verts, float amplitude);*/
-  enum GeometryTypes {
-    StaticSphere,
-    StaticCapsule,
-    StaticBox,
-    StaticPlane,
-    StaticTriangleMesh,
-    StaticConvexMesh,
-    StaticConvexMeshCooking,
-    StaticHeightField,
-    DynamicSphere,
-    DynamicCapsule,
-    DynamicBox,
-    DynamicConvexMesh,
-    DynamicConvexMeshCooking,
-    NoCollisionGeomety
-  };
-
-  std::vector<std::string> GEOMETRY_IDS{
-    "SS_",
-    "SC_",
-    "SB_",
-    "SP_",
-    "STM_",
-    "SCM_",
-    "SCMC_",
-    "SHF_",
-    "DS_",
-    "DC_",
-    "DB_",
-    "DCM_",
-    "DCMC_",
-  };
+  
 private:
   PxTriangleMesh* CreateTriangleMesh(
     const std::vector<float>        &vertex,
@@ -160,9 +131,42 @@ private:
   /*struct Triangle {
     PxU32 ind0, ind1, ind2;
   };*/
-  std::unordered_map<std::string, int> GeometryMap;
 
-  
+
+  static std::unordered_map<std::string, unsigned int> geometryMap;
+  const enum GeometryTypes {
+    StaticSphere,
+    StaticCapsule,
+    StaticBox,
+    StaticPlane,
+    StaticTriangleMesh,
+    StaticConvexMesh,
+    StaticConvexMeshCooking,
+    StaticHeightField,
+    DynamicSphere,
+    DynamicCapsule,
+    DynamicBox,
+    DynamicConvexMesh,
+    DynamicConvexMeshCooking,
+    NoCollisionGeomety
+  };
+  const std::vector<std::string> GEOMETRY_IDS{
+    "SS_",
+    "SC_",
+    "SB_",
+    "SP_",
+    "STM_",
+    "SCM_",
+    "SCMC_",
+    "SHF_",
+    "DS_",
+    "DC_",
+    "DB_",
+    "DCM_",
+    "DCMC_",
+    "noID"
+  };
+  std::string GetIdKey(std::string name) const;
 };
 
 

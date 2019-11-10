@@ -9,6 +9,7 @@ physx::PxDefaultCpuDispatcher*  physx::Physics::gDispatcher;
 physx::PxMaterial*              physx::Physics::defaultMaterial;
 physx::PxPvd*                   physx::Physics::gPvd;
 
+std::unordered_map<std::string, unsigned int> physx::Physics::geometryMap;
 
 physx::Physics::Physics() {
   gFoundation = NULL;
@@ -18,17 +19,15 @@ physx::Physics::Physics() {
   defaultMaterial = NULL;
   gPvd = NULL;
   nbActors = NULL;
-
-  for (int i = 0; i < GEOMETRY_IDS.size(); i++)
-    GeometryMap[GEOMETRY_IDS[i]] = GeometryTypes::StaticSphere + i;
-
-
-    //GeometryMap.insert(std::make_pair(GeometryIds[i], i));
-  
 }
 
 
 void physx::Physics::TestA() {
+  //parsing assimp data
+  for (unsigned int i = 0; i < GEOMETRY_IDS.size(); i++)
+    geometryMap[GEOMETRY_IDS[i]] = GeometryTypes::StaticSphere + i;
+    //GeometryMap.insert(std::make_pair(GeometryIds[i], i));
+  ///
 
   //TODO::TEST SCENE remove testing physx code
   PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
@@ -202,6 +201,8 @@ physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
   return gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback());
 }
 
+
+
 void physx::Physics::AddCubeActor(glm::vec3 pos, float x, float y, float z) {
   PxShape* shape = gPhysics->createShape(PxBoxGeometry(x/2, y/2, z/2), *defaultMaterial);
   
@@ -239,6 +240,59 @@ glm::mat4 physx::Physics::GetAPose(int i) {
     globalPoseArray[i].column3.w);
 }
 
+bool physx::Physics::AddPhysxObject(const std::string &name, 
+                                    const std::vector<float> &vertex, 
+                                    const std::vector<unsigned int> &indices, 
+                                    const unsigned int &indicesSize) const {
+  std::string mapKey = GetIdKey(name);
+
+  switch (geometryMap.at(mapKey)) {
+  case GeometryTypes::StaticSphere:
+    return false;
+  case GeometryTypes::StaticCapsule:
+    return false;
+  case GeometryTypes::StaticBox:
+    return false;
+  case GeometryTypes::StaticPlane:
+    return false;
+  case GeometryTypes::StaticTriangleMesh:
+    AddStaticTriangleMesh(vertex, indices, indicesSize);
+    return true;
+  case GeometryTypes::StaticConvexMesh:
+    return false;
+  case GeometryTypes::StaticConvexMeshCooking:
+    return false;
+  case GeometryTypes::StaticHeightField:
+    return false;
+  case GeometryTypes::DynamicSphere:
+    return true;
+  case GeometryTypes::DynamicCapsule:
+    return true;
+  case GeometryTypes::DynamicBox:
+    return true;
+  case GeometryTypes::DynamicConvexMesh:
+    return true;
+  case GeometryTypes::DynamicConvexMeshCooking:
+    return true;
+  case GeometryTypes::NoCollisionGeomety:
+    printf("no collision data found\n");
+    return false;
+  }
+
+  return false;
+}
+
+std::string physx::Physics::GetIdKey(std::string name) const {
+  std::string geomID;
+  for (char x : name) {
+    geomID += x;
+    if (x == '_')
+      return geomID;
+    if(geomID.size() > 5)
+      return "noID";
+  }
+  return "noID";
+}
 void physx::Physics::ShootBall(glm::vec3 front, glm::vec3 pos) {
 
   PxShape* shape = gPhysics->createShape(PxBoxGeometry(PxVec3(1.0)), *defaultMaterial);
@@ -352,4 +406,10 @@ void physx::Physics::ShootBall(glm::vec3 front, glm::vec3 pos) {
     globalPoseArray[i].column0.w,
     globalPoseArray[i].column1.w,
     globalPoseArray[i].column2.w,
-    globalPoseArray[i].column3.w);*/
+    globalPoseArray[i].column3.w);
+    
+    
+    static const physx::PxU32 GRID_SIZE = 8;
+    static const physx::PxReal GRID_STEP = 56.0f / physx::PxReal(GRID_SIZE - 1);
+
+    */

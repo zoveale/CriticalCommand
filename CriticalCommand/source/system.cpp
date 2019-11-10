@@ -174,8 +174,6 @@ void System::GameLoop(){
       ico_80.Draw(normalShader);*/
     }
     glStencilMask(0xFF);
-    
-    
   
 
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);

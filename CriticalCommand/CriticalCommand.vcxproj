@@ -221,6 +221,7 @@
     <ClInclude Include="include\render.h" />
     <ClInclude Include="include\input.h" />
     <ClInclude Include="include\player.h" />
+    <ClInclude Include="include\utility.h" />
     <ClInclude Include="resources\data\testData.h" />
   </ItemGroup>
   <ItemGroup>

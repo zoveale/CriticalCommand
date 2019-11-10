@@ -26,7 +26,7 @@ private:
   LightFactory sceneLights;
 
   physx::Physics scenePhysics;
-
+  physx::Physics test;
   
 
 public:

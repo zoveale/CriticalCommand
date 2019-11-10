@@ -406,16 +406,13 @@ void Model::InitializeBones(Shader shader) {
     //TODO:: TRIMESH FOR PHYSICS
     if (collisions) {
       //TODO:: make enum of physx IDs for model to process
-      std::string trimeshID("_STM_");
-      std::string name = mesh->mName.C_Str();
-      if (name.find(trimeshID) != std::string::npos) {
-        physicsScene.AddStaticTriangleMesh(triMeshPos, indices, mesh->mNumFaces);
-
-      }
-      else {
-        //TODO:: temporary to visualize trimesh creation
+      bool buildMesh = physicsScene.AddPhysxObject(
+                                                    mesh->mName.C_Str(),
+                                                    triMeshPos,
+                                                    indices,
+                                                    mesh->mNumFaces);
+      if (!buildMesh)
         return Mesh();
-      }
     }
     ///
 
