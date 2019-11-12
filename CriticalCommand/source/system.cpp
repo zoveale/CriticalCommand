@@ -18,22 +18,28 @@ void System::SystemInit(){
 }
 
 void System::GameLoop(){
-  /*
-  Shader animated("resources/shader/Vanimated.glsl", "resources/shader/Fanimated.glsl");
-  Model ourModel_0("resources/cowboy/CharacterRunning4.dae", sceneLights,scenePhysics);*/
+  
+  Shader animated("resources/shader/Animated/Vanimated.glsl",
+                  "resources/shader/Animated/Fanimated.glsl");
+  Model ourModel_0("resources/cowboy/CharacterRunning4.dae", sceneLights,scenePhysics);
 
   Shader normalShader("resources/shader/NormalShader/Vnormal.glsl",
                       "resources/shader/NormalShader/Fnormal.glsl",
                       "resources/shader/NormalShader/Gnormal.glsl");
 
+  //Framebuffer testing
   Shader framebufferShader("resources/shader/Framebuffer/Vframebuffer.glsl",
                            "resources/shader/Framebuffer/Fframebuffer.glsl");
   Framebuffer framebuffertest(framebufferShader);
+  ///
 
+  //Cubemap Testing
   Shader cubeMapShader("resources/shader/CubeMap/Vcubemap.glsl",
                        "resources/shader/CubeMap/Fcubemap.glsl",
                        "resources/shader/CubeMap/Gcubemap.glsl");
   Model cubemap("resources/default/cubemapbox.dae", sceneLights, scenePhysics);
+  ///
+
   //Model ourModel_1("resources/watchtower/tower.obj", sceneLights, scenePhysics);
 
   Shader fixed("resources/shader/Model/Vmodel.glsl",
@@ -50,7 +56,7 @@ void System::GameLoop(){
   Model default_0("resources/default/physxTestLightsTestTextureTest.dae", sceneLights, scenePhysics , true);
   
   //Lamp models
-  Shader lamp("resources/shader/lampV.glsl", "resources/shader/lampF.glsl");
+  Shader lamp("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
   Model pointLamp("resources/surface/pointLamp.dae", sceneLights, scenePhysics);
   Model spotLamp("resources/surface/spotLight.dae", sceneLights, scenePhysics);
 
@@ -80,10 +86,13 @@ void System::GameLoop(){
   while (!input.KEY.ESC) {
 
     input.Process();
+
+    //
     currentFrame = (float)glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     //printf("deltaTime = %f\n", deltaTime);
+    ///
 
     //framebuffer test
     framebuffertest.Preprocess();
@@ -141,7 +150,6 @@ void System::GameLoop(){
     default_0.Draw(normalShader);
 
     //TODO:: setting ico80 models the physics deformations
-    
     for (int i = 0; i < 55; i++) {
       glDepthMask(GL_TRUE);
       

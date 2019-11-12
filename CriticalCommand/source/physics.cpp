@@ -247,37 +247,37 @@ bool physx::Physics::AddPhysxObject(const std::string &name,
   std::string mapKey = GetIdKey(name);
 
   switch (geometryMap.at(mapKey)) {
-  case GeometryTypes::StaticSphere:
-    return false;
-  case GeometryTypes::StaticCapsule:
-    return false;
-  case GeometryTypes::StaticBox:
-    return false;
-  case GeometryTypes::StaticPlane:
-    return false;
-  case GeometryTypes::StaticTriangleMesh:
-    AddStaticTriangleMesh(vertex, indices, indicesSize);
-    return true;
-  case GeometryTypes::StaticConvexMesh:
-    return false;
-  case GeometryTypes::StaticConvexMeshCooking:
-    return false;
-  case GeometryTypes::StaticHeightField:
-    return false;
-  case GeometryTypes::DynamicSphere:
-    return true;
-  case GeometryTypes::DynamicCapsule:
-    return true;
-  case GeometryTypes::DynamicBox:
-    return true;
-  case GeometryTypes::DynamicConvexMesh:
-    return true;
-  case GeometryTypes::DynamicConvexMeshCooking:
-    return true;
-  case GeometryTypes::NoCollisionGeomety:
-    printf("no collision data found\n");
-    return false;
-  }
+    case GeometryTypes::StaticSphere:
+      return false;
+    case GeometryTypes::StaticCapsule:
+      return false;
+    case GeometryTypes::StaticBox:
+      return false;
+    case GeometryTypes::StaticPlane:
+      return false;
+    case GeometryTypes::StaticTriangleMesh:
+      AddStaticTriangleMesh(vertex, indices, indicesSize);
+      return true;
+    case GeometryTypes::StaticConvexMesh:
+      return false;
+    case GeometryTypes::StaticConvexMeshCooking:
+      return false;
+    case GeometryTypes::StaticHeightField:
+      return false;
+    case GeometryTypes::DynamicSphere:
+      return true;
+    case GeometryTypes::DynamicCapsule:
+      return true;
+    case GeometryTypes::DynamicBox:
+      return true;
+    case GeometryTypes::DynamicConvexMesh:
+      return true;
+    case GeometryTypes::DynamicConvexMeshCooking:
+      return true;
+    case GeometryTypes::NoCollisionGeomety:
+      printf("no collision data found\n");
+      return false;
+   }
 
   return false;
 }
