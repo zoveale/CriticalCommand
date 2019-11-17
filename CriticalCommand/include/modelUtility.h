@@ -37,6 +37,12 @@ struct Vertex {
   glm::vec3 Tangent;
   // bitangent
   glm::vec3 Bitangent;
+
+  Vertex():Position(glm::vec3(0.0f)), 
+    Normal(glm::vec3(0.0f)),
+    TexCoords(glm::vec2(0.0f)),
+    Tangent(glm::vec3(0.0f)),
+    Bitangent(glm::vec3(0.0f)){ }
 };
 
 struct Lights {

@@ -16,6 +16,8 @@
 
 
 
+//#define PRINT_ASSIMP_INFO
+
 class Model {
 public:
 
@@ -31,8 +33,8 @@ public:
   /*  Functions   */
   // constructor, expects a filepath to a 3D model.
   Model(std::string const& path, 
-        LightFactory& light,
-        physx::Physics& scene,
+        LightFactory &light,
+        physx::Physics &scene,
         bool physics = false,
         bool gamma = false) 
         :collisions(physics),gammaCorrection(gamma) {

@@ -113,20 +113,13 @@
     <ClInclude Include="include\framebuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shader\Fanimated.glsl" />
     <None Include="resources\shader\Fmodel.glsl" />
     <None Include="resources\shader\Vmodel.glsl" />
-    <None Include="resources\shader\lampF.glsl" />
-    <None Include="resources\shader\lampV.glsl" />
-    <None Include="PhysXGpu_32.dll" />
-    <None Include="assimp-vc140-mt.dll" />
-    <None Include="PhysX_32.dll" />
-    <None Include="PhysXCommon_32.dll" />
-    <None Include="PhysXCooking_32.dll" />
-    <None Include="PhysXDevice.dll" />
-    <None Include="PhysXFoundation_32.dll" />
     <None Include="resources\shader\Gmodel.glsl" />
     <None Include="resources\shader\NormalShader\Fnormal.glsl" />
     <None Include="resources\shader\NormalShader\Gnormal.glsl" />
@@ -140,6 +133,15 @@
     <None Include="resources\shader\StencilShader\Fstencil.glsl" />
     <None Include="resources\shader\StencilShader\Gstencil.glsl" />
     <None Include="resources\shader\StencilShader\Vstencil.glsl" />
+    <None Include="resources\shader\Animated\Fanimated.glsl" />
+    <None Include="resources\shader\Lamp\lampF.glsl" />
+    <None Include="resources\shader\Lamp\lampV.glsl" />
+    <None Include="resources\shader\PhysicsObjects\Fphysics.glsl" />
+    <None Include="resources\shader\PhysicsObjects\Gphysics.glsl" />
+    <None Include="resources\shader\PhysicsObjects\Vphysics.glsl" />
+    <None Include="resources\shader\Model\Fmodel.glsl" />
+    <None Include="resources\shader\Model\Gmodel.glsl" />
+    <None Include="resources\shader\Model\Vmodel.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">
@@ -147,6 +149,6 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="resources\shader\Vanimated.glsl" />
+    <Text Include="resources\shader\Animated\Vanimated.glsl" />
   </ItemGroup>
 </Project>

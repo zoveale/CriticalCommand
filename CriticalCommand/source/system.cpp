@@ -14,29 +14,36 @@ void System::SystemInit(){
   
   physx::Physics::StartUp();
   scenePhysics.TestA();
+
   printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 }
 
 void System::GameLoop(){
-  /*
-  Shader animated("resources/shader/Vanimated.glsl", "resources/shader/Fanimated.glsl");
+  
+  /*Shader animated("resources/shader/Animated/Vanimated.glsl",
+                  "resources/shader/Animated/Fanimated.glsl");
   Model ourModel_0("resources/cowboy/CharacterRunning4.dae", sceneLights,scenePhysics);*/
 
   Shader normalShader("resources/shader/NormalShader/Vnormal.glsl",
                       "resources/shader/NormalShader/Fnormal.glsl",
                       "resources/shader/NormalShader/Gnormal.glsl");
 
+  //Framebuffer testing
   Shader framebufferShader("resources/shader/Framebuffer/Vframebuffer.glsl",
                            "resources/shader/Framebuffer/Fframebuffer.glsl");
   Framebuffer framebuffertest(framebufferShader);
+  ///
 
-  Shader cubeMapShader("resources/shader/CubeMap/Vcubemap.glsl",
-                       "resources/shader/CubeMap/Fcubemap.glsl",
-                       "resources/shader/CubeMap/Gcubemap.glsl");
-  Model cubemap("resources/default/cubemapbox.dae", sceneLights, scenePhysics);
+  ////Cubemap Testing
+  //Shader cubeMapShader("resources/shader/CubeMap/Vcubemap.glsl",
+  //                     "resources/shader/CubeMap/Fcubemap.glsl",
+  //                     "resources/shader/CubeMap/Gcubemap.glsl");
+  //Model cubemap("resources/default/cubemapbox.dae", sceneLights, scenePhysics);
+  /////
+
   //Model ourModel_1("resources/watchtower/tower.obj", sceneLights, scenePhysics);
 
-  Shader fixed("resources/shader/Model/Vmodel.glsl",
+  Shader simple("resources/shader/Model/Vmodel.glsl",
                "resources/shader/Model/Fmodel.glsl");
   //TODO:: PHYSX testing
   Model ico_80("resources/default/ico_80.dae", sceneLights, scenePhysics);
@@ -50,7 +57,7 @@ void System::GameLoop(){
   Model default_0("resources/default/physxTestLightsTestTextureTest.dae", sceneLights, scenePhysics , true);
   
   //Lamp models
-  Shader lamp("resources/shader/lampV.glsl", "resources/shader/lampF.glsl");
+  Shader lamp("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
   Model pointLamp("resources/surface/pointLamp.dae", sceneLights, scenePhysics);
   Model spotLamp("resources/surface/spotLight.dae", sceneLights, scenePhysics);
 
@@ -59,9 +66,9 @@ void System::GameLoop(){
   glm::mat4 projection = glm::mat4(1.0f);
 
   
-  fixed.Use();
-  fixed.SetFloat("material.shininess", 32.0f);
-  sceneLights.SetFixedAttributes(fixed);
+  simple.Use();
+  simple.SetFloat("material.shininess", 32.0f);
+  sceneLights.SetFixedAttributes(simple);
 
   //test values
   float x = 1.0f;
@@ -80,10 +87,13 @@ void System::GameLoop(){
   while (!input.KEY.ESC) {
 
     input.Process();
+
+    //
     currentFrame = (float)glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     //printf("deltaTime = %f\n", deltaTime);
+    ///
 
     //framebuffer test
     framebuffertest.Preprocess();
@@ -122,17 +132,17 @@ void System::GameLoop(){
     //ourModel_0.Draw(normalShader);
     //model = glm::mat4(1.0f);
 
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
     glStencilMask(0x00);
     //input.IncrementDecrement(gamma);
-    fixed.Use();
-    fixed.SetFloat("gamma", gamma);
-    fixed.SetVec3("viewPos", player.position);
+    simple.Use();
+    simple.SetFloat("gamma", gamma);
+    simple.SetVec3("viewPos", player.position);
     model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-    fixed.SetMat4("model", model);
-    fixed.SetMat4("PVM", projection * view * model);
-    sceneLights.SetDynamicAttributes(fixed);
-    default_0.Draw(fixed);
+    simple.SetMat4("model", model);
+    simple.SetMat4("PVM", projection * view * model);
+    sceneLights.SetDynamicAttributes(simple);
+    default_0.Draw(simple);
     
     normalShader.Use();
     normalShader.SetMat4("projection", projection);
@@ -141,17 +151,30 @@ void System::GameLoop(){
     default_0.Draw(normalShader);
 
     //TODO:: setting ico80 models the physics deformations
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilMask(0xFF);
     for (int i = 0; i < 55; i++) {
-      fixed.Use();
+      glDepthMask(GL_TRUE);
+      
+      glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
+      glStencilMask(0xFF);
+      simple.Use();
       model = glm::mat4(1.0f);
       model = scenePhysics.GetAPose(i); 
       model = glm::scale(model, glm::vec3(2.0));
-      fixed.SetMat4("model", model);
-      fixed.SetMat4("PVM", projection * view * model);
-      sceneLights.SetDynamicAttributes(fixed);
-      ico_80.Draw(fixed);
+      simple.SetMat4("model", model);
+      simple.SetMat4("PVM", projection * view * model);
+      sceneLights.SetDynamicAttributes(simple);
+      ico_80.Draw(simple);
+
+      
+      glDepthMask(GL_FALSE);
+      glStencilFunc(GL_GREATER, 0x01, 0xFF);
+      glStencilMask(0x00);
+      stencilShader.Use();
+      model = glm::scale(model, glm::vec3(1.1f));
+      stencilShader.SetMat4("model", model);
+      stencilShader.SetMat4("PVM", projection* view* model);
+      ico_80.Draw(stencilShader);
+      
 
       /*normalShader.Use();
       normalShader.SetMat4("projecion", projection);
@@ -159,25 +182,11 @@ void System::GameLoop(){
       normalShader.SetMat4("model", model);
       ico_80.Draw(normalShader);*/
     }
-
-    
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-    glStencilMask(0x00);
-    stencilShader.Use();
-    //glDepthMask(GL_FALSE); //no longer used?
-    for (int i = 0; i < 55; i++) {
-      model = glm::mat4(1.0f);
-      model = scenePhysics.GetAPose(i);
-      model = glm::scale(model, glm::vec3(2.2f));
-      stencilShader.SetMat4("model", model);
-      stencilShader.SetMat4("PVM", projection * view * model);
-      ico_80.Draw(stencilShader);
-    }
     glStencilMask(0xFF);
-   //glDepthMask(GL_TRUE);
+  
 
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilMask(0x00);
+    glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
+    glStencilMask(0xFF);
     lamp.Use();
     for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
       model = sceneLights.GetPointLightTransformation(i);
@@ -202,7 +211,8 @@ void System::GameLoop(){
     if(testBool)
       scenePhysics.StepPhysics(deltaTime > deltaRate ? deltaTime : deltaRate);
 
-    player.Update();
+
+    player.Update(deltaTime);
 
     /* Swap front and back buffers */
     render.Display();
