@@ -83,12 +83,12 @@ public:
     const std::string               &name,
     const float*                    vertex,
     const unsigned int*             indices,
-    const unsigned int              &indicesSize) const;
+    const unsigned int*             indicesSize) const;
 
   void AddStaticTriangleMesh(
     const float*                    vertex,
     const unsigned int*             indices,
-    const unsigned int              &indicesSize) const;
+    const unsigned int*             indicesSize) const;
 
   
   //TODO:: test functions
@@ -102,9 +102,9 @@ public:
   
 private:
   PxTriangleMesh* CreateTriangleMesh(
-    const float* vertex,
-    const unsigned int* indices,
-    const unsigned int              &numFaces) const;
+    const float*                     vertex,
+    const unsigned int*              indices,
+    const unsigned int*              numFaces) const;
 
   //TODO:: remove static?
   static PxDefaultAllocator	gAllocator;

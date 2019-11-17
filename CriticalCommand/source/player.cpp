@@ -66,7 +66,7 @@ void Player::Draw() {
 }
 
 void Player::LongIdel() {
-  printf("\nPlayer Long Idel->");
+  //printf("\nPlayer Long Idel->");
 }
 
 //TODO:: change to have state class update velocity

@@ -39,7 +39,7 @@ void physx::Physics::TestA() {
 
 
 
-  CreateStack(PxTransform(PxVec3(0, 10, stackZ -= 20.0f)), 10, 2.0f);
+  CreateStack(PxTransform(PxVec3(0.0f, 10.0f, stackZ -= 20.0f)), (PxU32)10, (PxReal)2.0f);
 }
 
 void physx::Physics::AddActor(PxActor* actor) {
@@ -129,18 +129,15 @@ void physx::Physics::CreateStack(const PxTransform& t,
 }
 
 void physx::Physics::AddStaticTriangleMesh(
-                                            const float*                    vertex,
+                                            const float*                  vertex,
                                             const unsigned int*           indices,
-                                            const unsigned int              &indicesSize) const {
+                                            const unsigned int*           indicesSize) const {
   //PxTriangleMesh* mesh = createMeshGround();
   PxTriangleMesh* mesh = CreateTriangleMesh(vertex, indices, indicesSize);
   //triMesh = mesh;
 
   PxTriangleMeshGeometry triGeo = mesh;
 
-  if (triGeo.isValid() == false) {
-    printf("");
-  }
   //triGeo.triangleMesh = triMesh;
 
   PxTransform pos(PxVec3(0.0f, 0.0f, 0.0f));
@@ -161,21 +158,20 @@ void physx::Physics::AddStaticTriangleMesh(
 }
 
 physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
-                                                      const float* vertex,
-                                                      const unsigned int* indices,
-                                                      const unsigned int              &numFaces) const {
+                                                      const float           *vertex,
+                                                      const unsigned int    *indices,
+                                                      const unsigned int    *numFaces) const {
 
   PxCookingParams params = gCooking->getParams();
-  //PxTolerancesScale scalex = PxTolerancesScale();
-  /*params.midphaseDesc = PxMeshMidPhase::eBVH33;
+  /*PxTolerancesScale scalex = PxTolerancesScale();
+  params.midphaseDesc = PxMeshMidPhase::eBVH33;
   params.midphaseDesc.mBVH33Desc.meshCookingHint = PxMeshCookingHint::eSIM_PERFORMANCE;
   params.midphaseDesc.mBVH33Desc.meshSizePerformanceTradeOff = 1.0f;
   */
 
 
   params.midphaseDesc = PxMeshMidPhase::eBVH34;
-  params.midphaseDesc.mBVH34Desc.numPrimsPerLeaf = 15; //default = 4, max = 15
-  
+  params.midphaseDesc.mBVH34Desc.numPrimsPerLeaf = 4; //default = 4, max = 15
   params.scale = gPhysics->getTolerancesScale();
   // disable mesh cleaning - perform mesh validation on development configurations
   //params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
@@ -188,31 +184,30 @@ physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
 
   PxTriangleMeshDesc meshDesc;
   meshDesc.points.data = vertex;
-  meshDesc.points.count = numFaces * 3;
+  meshDesc.points.count = *numFaces * 3;
   meshDesc.points.stride = sizeof(PxF32) * 3;
   
   meshDesc.triangles.data = &indices[0];
-  meshDesc.triangles.count = numFaces;
+  meshDesc.triangles.count = *numFaces;
   meshDesc.triangles.stride = sizeof(PxU32) * 3;
   
-
+  /*
   bool validate;
-
   validate = gCooking->validateTriangleMesh(meshDesc);
   PX_ASSERT(validate);
   if (validate) {
     printf("");
   }
-
-  /*PxTriangleMeshCookingResult::Enum result;
+  PxTriangleMeshCookingResult::Enum result;
   PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc,
                             gPhysics->getPhysicsInsertionCallback(), &result);
   if (!result) printf("");
-  return triMesh;*/
-  PxTriangleMeshCookingResult::Enum result;
-  PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback(), &result);
-
   return triMesh;
+  //PxTriangleMeshCookingResult::Enum result;
+  //PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback(), &result);
+  */
+
+  return gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback());
 }
 
 
@@ -255,9 +250,9 @@ glm::mat4 physx::Physics::GetAPose(int i) {
 }
 
 bool physx::Physics::AddPhysxObject(const std::string &name, 
-                                    const float* vertex, 
-                                    const unsigned int* indices,
-                                    const unsigned int &indicesSize) const {
+                                    const float        *vertex, 
+                                    const unsigned int *indices,
+                                    const unsigned int *indicesSize) const {
   std::string mapKey = GetIdKey(name);
 
   switch (geometryMap.at(mapKey)) {

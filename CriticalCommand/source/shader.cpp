@@ -107,7 +107,6 @@ void Shader::CreateShaders(unsigned int &vertex,
                            const char* &fragmentShaderCode, 
                            const char* &geometryShaderCode) {
   int success;
-  char infoLog[512];
 
   // vertex Shader
   vertex = glCreateShader(GL_VERTEX_SHADER);
