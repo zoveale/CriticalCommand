@@ -9,7 +9,7 @@
 #include <geometric.hpp>
 #include <vec3.hpp>
 #include <mat4x4.hpp>
-
+#include <unordered_map>
 
 
 
@@ -31,11 +31,10 @@
 //    const char* message, const char* file, int line) {}
 //};
 
+//TODO::static const
 #define MAX_ACTOR 1<<8
-namespace physx { class Physics; }
 
-static const physx::PxU32 GRID_SIZE = 8;
-static const physx::PxReal GRID_STEP = 56.0f / physx::PxReal(GRID_SIZE - 1);
+namespace physx { class Physics; }
 
 class physx::Physics {
 
@@ -61,12 +60,13 @@ public:
     gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
 
     gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, scale, true, gPvd);
-    gCooking = PxCreateCooking(PX_PHYSICS_VERSION, *gFoundation, PxCookingParams(scale));
+
+    gCooking = PxCreateCooking(PX_PHYSICS_VERSION, *gFoundation, scale);
 
     //TODO:: create default material
     defaultMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
     
-
+    
     /// 
   }
   void TestA();
@@ -79,9 +79,15 @@ public:
   PxU32 NumberOfActors();
   glm::mat4 GetAPose(int i);
 
+  bool AddPhysxObject(
+    const std::string               &name,
+    const float*                    vertex,
+    const unsigned int*             indices,
+    const unsigned int              &indicesSize) const;
+
   void AddStaticTriangleMesh(
-    const std::vector<float>        &vertex,
-    const std::vector<unsigned int> &indices,
+    const float*                    vertex,
+    const unsigned int*             indices,
     const unsigned int              &indicesSize) const;
 
   
@@ -93,11 +99,11 @@ public:
   
   /*static PxTriangleMesh* createMeshGround();
   static void updateVertices(PxVec3* verts, float amplitude);*/
-
+  
 private:
   PxTriangleMesh* CreateTriangleMesh(
-    const std::vector<float>        &vertex,
-    const std::vector<unsigned int> &indices,
+    const float* vertex,
+    const unsigned int* indices,
     const unsigned int              &numFaces) const;
 
   //TODO:: remove static?
@@ -127,7 +133,45 @@ private:
     PxU32 ind0, ind1, ind2;
   };*/
 
+
+  static std::unordered_map<std::string, unsigned int> geometryMap;
+  const enum GeometryTypes {
+    StaticSphere,
+    StaticCapsule,
+    StaticBox,
+    StaticPlane,
+    StaticTriangleMesh,
+    StaticConvexMesh,
+    StaticConvexMeshCooking,
+    StaticHeightField,
+    DynamicSphere,
+    DynamicCapsule,
+    DynamicBox,
+    DynamicConvexMesh,
+    DynamicConvexMeshCooking,
+    NoCollisionGeomety
+  };
+  const std::vector<std::string> GEOMETRY_IDS{
+    "SS_",
+    "SC_",
+    "SB_",
+    "SP_",
+    "STM_",
+    "SCM_",
+    "SCMC_",
+    "SHF_",
+    "DS_",
+    "DC_",
+    "DB_",
+    "DCM_",
+    "DCMC_",
+    "noID"
+  };
+  std::string GetIdKey(std::string name) const;
 };
+
+
+
 
 
 

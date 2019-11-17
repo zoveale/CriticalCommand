@@ -9,6 +9,7 @@ physx::PxDefaultCpuDispatcher*  physx::Physics::gDispatcher;
 physx::PxMaterial*              physx::Physics::defaultMaterial;
 physx::PxPvd*                   physx::Physics::gPvd;
 
+std::unordered_map<std::string, unsigned int> physx::Physics::geometryMap;
 
 physx::Physics::Physics() {
   gFoundation = NULL;
@@ -22,6 +23,11 @@ physx::Physics::Physics() {
 
 
 void physx::Physics::TestA() {
+  //parsing assimp data
+  for (unsigned int i = 0; i < GEOMETRY_IDS.size(); i++)
+    geometryMap[GEOMETRY_IDS[i]] = GeometryTypes::StaticSphere + i;
+    //GeometryMap.insert(std::make_pair(GeometryIds[i], i));
+  ///
 
   //TODO::TEST SCENE remove testing physx code
   PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
@@ -30,6 +36,8 @@ void physx::Physics::TestA() {
   sceneDesc.cpuDispatcher = gDispatcher;
   sceneDesc.filterShader = PxDefaultSimulationFilterShader;
   gScene = gPhysics->createScene(sceneDesc);
+
+
 
   CreateStack(PxTransform(PxVec3(0, 10, stackZ -= 20.0f)), 10, 2.0f);
 }
@@ -46,7 +54,6 @@ void physx::Physics::GetActors(/*PxActor** actor*/) {
     printf("\n # of actors > MAX_ACTORS\n");
     int i;
     scanf_s("%d", &i);
-    
   }
   
   gScene->getActors(FLAG::eRIGID_DYNAMIC | FLAG::eRIGID_STATIC,
@@ -122,15 +129,18 @@ void physx::Physics::CreateStack(const PxTransform& t,
 }
 
 void physx::Physics::AddStaticTriangleMesh(
-                                            const std::vector<float>        &vertex,
-                                            const std::vector<unsigned int> &indices,
+                                            const float*                    vertex,
+                                            const unsigned int*           indices,
                                             const unsigned int              &indicesSize) const {
   //PxTriangleMesh* mesh = createMeshGround();
   PxTriangleMesh* mesh = CreateTriangleMesh(vertex, indices, indicesSize);
   //triMesh = mesh;
 
-  PxTriangleMeshGeometry triGeo(mesh);
-  triGeo.isValid();
+  PxTriangleMeshGeometry triGeo = mesh;
+
+  if (triGeo.isValid() == false) {
+    printf("");
+  }
   //triGeo.triangleMesh = triMesh;
 
   PxTransform pos(PxVec3(0.0f, 0.0f, 0.0f));
@@ -151,8 +161,8 @@ void physx::Physics::AddStaticTriangleMesh(
 }
 
 physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
-                                                      const std::vector<float>        &vertex,
-                                                      const std::vector<unsigned int> &indices,
+                                                      const float* vertex,
+                                                      const unsigned int* indices,
                                                       const unsigned int              &numFaces) const {
 
   PxCookingParams params = gCooking->getParams();
@@ -164,29 +174,48 @@ physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
 
 
   params.midphaseDesc = PxMeshMidPhase::eBVH34;
-  params.midphaseDesc.mBVH34Desc.numPrimsPerLeaf = 4; //default = 4, max = 15
-
+  params.midphaseDesc.mBVH34Desc.numPrimsPerLeaf = 15; //default = 4, max = 15
+  
   params.scale = gPhysics->getTolerancesScale();
+  // disable mesh cleaning - perform mesh validation on development configurations
+  //params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
+  // disable edge precompute, edges are set for each triangle, slows contact generation
+  //params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
+  //enables vertex welding during triangle mesh cooking.
+  //params.meshPreprocessParams |= PxMeshPreprocessingFlag::eWELD_VERTICES;
+
   gCooking->setParams(params);
 
   PxTriangleMeshDesc meshDesc;
-  meshDesc.points.data = &vertex[0];
-  meshDesc.points.count = vertex.size();
+  meshDesc.points.data = vertex;
+  meshDesc.points.count = numFaces * 3;
   meshDesc.points.stride = sizeof(PxF32) * 3;
   
   meshDesc.triangles.data = &indices[0];
   meshDesc.triangles.count = numFaces;
   meshDesc.triangles.stride = sizeof(PxU32) * 3;
+  
+
+  bool validate;
+
+  validate = gCooking->validateTriangleMesh(meshDesc);
+  PX_ASSERT(validate);
+  if (validate) {
+    printf("");
+  }
 
   /*PxTriangleMeshCookingResult::Enum result;
   PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc,
                             gPhysics->getPhysicsInsertionCallback(), &result);
   if (!result) printf("");
   return triMesh;*/
-  //TODO:: change to CreateTriangleMesh only
+  PxTriangleMeshCookingResult::Enum result;
+  PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback(), &result);
 
-  return gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback());
+  return triMesh;
 }
+
+
 
 void physx::Physics::AddCubeActor(glm::vec3 pos, float x, float y, float z) {
   PxShape* shape = gPhysics->createShape(PxBoxGeometry(x/2, y/2, z/2), *defaultMaterial);
@@ -225,6 +254,60 @@ glm::mat4 physx::Physics::GetAPose(int i) {
     globalPoseArray[i].column3.w);
 }
 
+bool physx::Physics::AddPhysxObject(const std::string &name, 
+                                    const float* vertex, 
+                                    const unsigned int* indices,
+                                    const unsigned int &indicesSize) const {
+  std::string mapKey = GetIdKey(name);
+
+  switch (geometryMap.at(mapKey)) {
+    case GeometryTypes::StaticSphere:
+      return false;
+    case GeometryTypes::StaticCapsule:
+      return false;
+    case GeometryTypes::StaticBox:
+      return false;
+    case GeometryTypes::StaticPlane:
+      return false;
+    case GeometryTypes::StaticTriangleMesh:
+      printf("\tAdd Triangle mesh for %s\n", name.c_str());
+      AddStaticTriangleMesh(vertex, indices, indicesSize);
+      return true;
+    case GeometryTypes::StaticConvexMesh:
+      return false;
+    case GeometryTypes::StaticConvexMeshCooking:
+      return false;
+    case GeometryTypes::StaticHeightField:
+      return false;
+    case GeometryTypes::DynamicSphere:
+      return true;
+    case GeometryTypes::DynamicCapsule:
+      return true;
+    case GeometryTypes::DynamicBox:
+      return true;
+    case GeometryTypes::DynamicConvexMesh:
+      return true;
+    case GeometryTypes::DynamicConvexMeshCooking:
+      return true;
+    case GeometryTypes::NoCollisionGeomety:
+      printf("\tno collision data found for %s\n", name.c_str());
+      return false;
+   }
+
+  return false;
+}
+
+std::string physx::Physics::GetIdKey(std::string name) const {
+  std::string geomID;
+  for (char x : name) {
+    geomID += x;
+    if (x == '_')
+      return geomID;
+    if(geomID.size() > 5)
+      return "noID";
+  }
+  return "noID";
+}
 void physx::Physics::ShootBall(glm::vec3 front, glm::vec3 pos) {
 
   PxShape* shape = gPhysics->createShape(PxBoxGeometry(PxVec3(1.0)), *defaultMaterial);
@@ -338,4 +421,10 @@ void physx::Physics::ShootBall(glm::vec3 front, glm::vec3 pos) {
     globalPoseArray[i].column0.w,
     globalPoseArray[i].column1.w,
     globalPoseArray[i].column2.w,
-    globalPoseArray[i].column3.w);*/
+    globalPoseArray[i].column3.w);
+    
+    
+    static const physx::PxU32 GRID_SIZE = 8;
+    static const physx::PxReal GRID_STEP = 56.0f / physx::PxReal(GRID_SIZE - 1);
+
+    */
