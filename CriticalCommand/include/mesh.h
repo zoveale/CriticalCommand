@@ -32,7 +32,11 @@ public:
   typedef vector<Vertex> vec;
   typedef vector<unsigned int> iVec;
   typedef vector<Texture> tVec;
+
   Mesh() {}
+  static Mesh Empty() {
+    return Mesh();
+  }
   // constructor
   Mesh(vec vertices, iVec indices, tVec textures) {
     this->vertices = vertices;

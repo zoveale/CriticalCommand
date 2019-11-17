@@ -60,7 +60,8 @@ public:
     gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
 
     gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, scale, true, gPvd);
-    gCooking = PxCreateCooking(PX_PHYSICS_VERSION, *gFoundation, PxCookingParams(scale));
+
+    gCooking = PxCreateCooking(PX_PHYSICS_VERSION, *gFoundation, scale);
 
     //TODO:: create default material
     defaultMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
@@ -80,13 +81,13 @@ public:
 
   bool AddPhysxObject(
     const std::string               &name,
-    const std::vector<float>        &vertex,
-    const std::vector<unsigned int> &indices,
+    const float*                    vertex,
+    const unsigned int*             indices,
     const unsigned int              &indicesSize) const;
 
   void AddStaticTriangleMesh(
-    const std::vector<float>        &vertex,
-    const std::vector<unsigned int> &indices,
+    const float*                    vertex,
+    const unsigned int*             indices,
     const unsigned int              &indicesSize) const;
 
   
@@ -101,8 +102,8 @@ public:
   
 private:
   PxTriangleMesh* CreateTriangleMesh(
-    const std::vector<float>        &vertex,
-    const std::vector<unsigned int> &indices,
+    const float* vertex,
+    const unsigned int* indices,
     const unsigned int              &numFaces) const;
 
   //TODO:: remove static?

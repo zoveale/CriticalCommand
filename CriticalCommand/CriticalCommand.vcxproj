@@ -225,13 +225,6 @@
     <ClInclude Include="resources\data\testData.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="assimp-vc140-mt.dll" />
-    <None Include="PhysXCommon_32.dll" />
-    <None Include="PhysXCooking_32.dll" />
-    <None Include="PhysXDevice.dll" />
-    <None Include="PhysXFoundation_32.dll" />
-    <None Include="PhysXGpu_32.dll" />
-    <None Include="PhysX_32.dll" />
     <None Include="resources\shader\CubeMap\Fcubemap.glsl" />
     <None Include="resources\shader\CubeMap\Gcubemap.glsl" />
     <None Include="resources\shader\CubeMap\Vcubemap.glsl" />
@@ -243,6 +236,9 @@
     <None Include="resources\shader\Gmodel.glsl" />
     <None Include="resources\shader\Lamp\lampF.glsl" />
     <None Include="resources\shader\Lamp\lampV.glsl" />
+    <None Include="resources\shader\Model\Fmodel.glsl" />
+    <None Include="resources\shader\Model\Gmodel.glsl" />
+    <None Include="resources\shader\Model\Vmodel.glsl" />
     <None Include="resources\shader\NormalShader\Fnormal.glsl" />
     <None Include="resources\shader\NormalShader\Gnormal.glsl" />
     <None Include="resources\shader\NormalShader\Vnormal.glsl" />

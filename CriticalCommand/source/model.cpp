@@ -46,30 +46,33 @@ void Model::InitializeBones(Shader shader) {
   void Model::loadModel(string const& path, LightFactory& light, physx::Physics& physicsScene) {
     //FIXME::add type file reading, so if .obj it isnt animated
     isAnimated = false;
+
+#ifdef PRINT_ASSIMP_INFO
+printf("(1)Read Assimp file : %s\n", path.c_str());
+#endif // PRINT_ASSIMP_INFO
+
     // read file via ASSIMP
+    //This combo seems to work best for Physx Triangle Mesh creation
+    //Much more Post Processing information
+    //sir-kimmi.de/assimp/lib_html/postprocess_8h.htm
+    this->scene = importer.ReadFile(path,
+      aiProcess_FlipUVs              |
+      aiProcess_CalcTangentSpace     | 
+      aiProcess_FindInvalidData      |
+      aiProcess_ImproveCacheLocality 
+    );
 
-    printf("(1)Read Assimp file : %s\n", path.c_str());
-    //FIXME:: need static scene?
-    this->scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs |
-      aiProcess_CalcTangentSpace | aiProcess_SplitLargeMeshes);// | aiProcess_GenSmoothNormals |
-      //aiProcess_JoinIdenticalVertices | aiProcess_FindDegenerates |
-      //aiProcess_ValidateDataStructure);
-
-    //TODO:: this Property corresponds to the aiProcess_SplitLargeMeshes post process
-    //It should help physx when making a triangle mesh out of larger meshes.
-    //Need more testing to see if it is needed to change the default value.
-    //importer.SetPropertyInteger(AI_CONFIG_PP_SLM_VERTEX_LIMIT, )
-    ///
-
+    
     // check for errors
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
-    {
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
       cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
       return;
     }
 
-    // retrieve the directory path of the filepath
+    //retrieve the directory path 
     directory = path.substr(0, path.find_last_of('/'));
+    
+#ifdef PRINT_ASSIMP_INFO
     if (scene->HasMaterials()) {
       aiString name;
       printf("it has %i material\n", scene->mNumMaterials);
@@ -83,12 +86,19 @@ void Model::InitializeBones(Shader shader) {
         scene->mMaterials[i]->Get(AI_MATKEY_COLOR_EMISSIVE, name);
         printf("\tEmissive: %s\n", name.C_Str());
       }
-
-    }
+  }
+#endif // PRINT_ASSIMP_INFO
     // process ASSIMP's root node recursively
-    printf("(2)processNodes\n");
+
+#ifdef PRINT_ASSIMP_INFO   
+printf("(2)processNodes\n");
+#endif // PRINT_ASSIMP_INFO
+
+
     if (scene->HasLights()) {
-      printf("\t(2a)Process %i Lights\n", scene->mNumLights);
+#ifdef PRINT_ASSIMP_INFO   
+printf("\t(2a)Process %i Lights\n", scene->mNumLights);
+#endif // PRINT_ASSIMP_INFO
       ProcessLights(scene, light);
     }
     if (scene->HasAnimations()) {
@@ -97,15 +107,18 @@ void Model::InitializeBones(Shader shader) {
         ticksPerSecond = scene->mAnimations[i]->mTicksPerSecond;
         animationDuration = scene->mAnimations[i]->mDuration;
       }
-
       isAnimated = true;
-      printf("\t(2b)Process Animated Node\n");
+
+#ifdef PRINT_ASSIMP_INFO   
+printf("\t(2b)Process Animated Node\n");
+#endif // PRINT_ASSIMP_INFO
       ProcessAnimatedNode(scene->mRootNode, scene);
     }
     else {
       //ticksPerSecond = 25.0f;
-      printf("\t(2b)Process non-animated node\n");
-      
+#ifdef PRINT_ASSIMP_INFO   
+printf("\t(2b)Process non-animated node\n");
+#endif // PRINT_ASSIMP_INFO
       processNode(scene->mRootNode, scene, physicsScene);
     }
 
@@ -134,7 +147,9 @@ void Model::InitializeBones(Shader shader) {
   }
 
   Animated Model::ProcessAnimatedMesh(aiMesh* mesh, const aiScene* scene) {
-    printf("(3)processMesh\n");
+#ifdef PRINT_ASSIMP_INFO   
+printf("(3)processMesh\n");
+#endif // PRINT_ASSIMP_INFO
     // data to fill
     vector<Vertex> vertices;
     vector<unsigned int> indices;
@@ -148,15 +163,15 @@ void Model::InitializeBones(Shader shader) {
     weights.resize(mesh->mNumVertices);
     LoadBones(mesh, weights);
     ///
-    printf("\n");
-    if (mesh->HasTextureCoords(0)) {
-      printf("has texture coordinates!\n");
+#ifdef PRINT_ASSIMP_INFO   
+printf("\n");
+if (mesh->HasTextureCoords(0)) {
+  printf("has texture coordinates!\n");
 
-    }
-    else printf("no texture coordinates!\n");
-
-    //
-    printf("# of vertices in mesh: %i\n", mesh->mNumVertices);
+}
+else printf("no texture coordinates!\n");
+printf("# of vertices in mesh: %i\n", mesh->mNumVertices);
+#endif // PRINT_ASSIMP_INFO
     // Walk through each of the mesh's vertices
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
       Vertex vertex;
@@ -210,11 +225,9 @@ void Model::InitializeBones(Shader shader) {
       }
     }
 
-    // now wak through each of the mesh's faces (a face is a mesh its triangle)
-    //and retrieve the corresponding vertex indices.
+    //wak through each of the mesh's faces
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
       aiFace face = mesh->mFaces[i];
-      //printf("face #: %i\n", face.mNumIndices);
       // retrieve all indices of the face and store them in the indices vector
       for (unsigned int j = 0; j < face.mNumIndices; j++)
         indices.push_back(face.mIndices[j]);
@@ -274,29 +287,35 @@ void Model::InitializeBones(Shader shader) {
   }
 
   Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& physicsScene/*, again*/) {
+
+#ifdef PRINT_ASSIMP_INFO   
     printf("(3)processMesh\n");
-    // data to fill
     printf("%s\n", mesh->mName.C_Str());
+#endif // PRINT_ASSIMP_INFO
     
-    vector<Vertex> vertices;
-    vector<unsigned int> indices;
-    vector<Texture> textures;
+
+    // data to fill
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+    std::vector<Texture> textures;
     //TODO:: possibly switch to a set of pre allocated arrays with max limit
-    vector<float> triMeshPos;
-    //
+    ///Swapped to pointers
+    //std::vector<float> triMeshPos;
+    //triMeshPos.reserve(mesh->mNumVertices * 3);
+
+    //for size equation solving
     float maxY = 0.0f;
     float minY = 0.0f;
     ///
+
+#ifdef PRINT_ASSIMP_INFO   
     if (mesh->HasTextureCoords(0)) {
       printf("has texture coordinates!\n");
 
     }
     else printf("no texture coordinates!\n");
-
-    
-    
-
     printf("# of vertices in mesh: %i\n", mesh->mNumVertices);
+#endif // PRINT_ASSIMP_INFO
     // Walk through each of the mesh's vertices
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
       Vertex vertex;
@@ -319,17 +338,15 @@ void Model::InitializeBones(Shader shader) {
       no idea how to solve for capsules right now 
       but should work for Sphere, Boxes, and Planes
       */
-      if (vector.y > maxY) {
+      /*if (vector.y > maxY) {
         maxY = vector.y;
       }
       if (vector.y < minY) {
         minY = vector.y;
-      }
+      }*/
       vertex.Position = vector;
       //TODO:: TRIMESH FOR PHYSICS
-      triMeshPos.push_back(vector.x);
-      triMeshPos.push_back(vector.y);
-      triMeshPos.push_back(vector.z);
+      
       /* 
       PxTriangleMeshDesc meshDesc;
       meshDesc.points.data = PxVec3((float)vector.x, (float)vector.y, (float)vector.z);
@@ -405,14 +422,17 @@ void Model::InitializeBones(Shader shader) {
 
     //TODO:: TRIMESH FOR PHYSICS
     if (collisions) {
+      
+      /*float *vertexPointer = &mesh->mVertices[0].x;
+      unsigned int* indicesPointer = &indices[0];*/
       //TODO:: make enum of physx IDs for model to process
       bool buildMesh = physicsScene.AddPhysxObject(
                                                     mesh->mName.C_Str(),
-                                                    triMeshPos,
-                                                    indices,
+                                                    &mesh->mVertices[0].x,
+                                                    &indices[0],
                                                     mesh->mNumFaces);
       if (!buildMesh)
-        return Mesh();
+        return Mesh::Empty();
     }
     ///
 
@@ -426,17 +446,17 @@ void Model::InitializeBones(Shader shader) {
     // normal: texture_normalN
 
     // 1. diffuse maps
-    vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "material.texture_diffuse");
+    std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "material.texture_diffuse");
     textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
     // 2. specular maps
-    vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "material.texture_specular");
+    std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "material.texture_specular");
     textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     // 3. normal maps
     //FIXME:: .obj needs: aiTextureType_HEIGHT, while .dae needs: aiTextureType_NORMALS
-    vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, "material.texture_normal");
+    std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, "material.texture_normal");
     textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
     // 4. height maps
-    vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "material.texture_height");
+    std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "material.texture_height");
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
     return Mesh(vertices, indices, textures);
@@ -451,8 +471,6 @@ void Model::InitializeBones(Shader shader) {
   vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName) {
 
     vector<Texture> textures;
-    /*printf("texture count %i\n", mat->GetTextureCount(type));
-    printf("texture name %s\n", typeName.c_str());*/
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
       aiString str;
       mat->GetTexture(type, i, &str);
@@ -510,7 +528,7 @@ void Model::InitializeBones(Shader shader) {
 
   }
   //
-  void Model::BoneTransform(double timeInSec, vector<glm::mat4>& transforms) {
+  void Model::BoneTransform(double timeInSec, std::vector<glm::mat4>& transforms) {
 
     const double ticksPerSecond = scene->mAnimations[0]->mTicksPerSecond != 0 ? scene->mAnimations[0]->mTicksPerSecond : 25.0f;
     double timeInTicks = timeInSec * ticksPerSecond;

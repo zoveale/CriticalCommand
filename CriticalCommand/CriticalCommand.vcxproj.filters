@@ -120,13 +120,6 @@
   <ItemGroup>
     <None Include="resources\shader\Fmodel.glsl" />
     <None Include="resources\shader\Vmodel.glsl" />
-    <None Include="PhysXGpu_32.dll" />
-    <None Include="assimp-vc140-mt.dll" />
-    <None Include="PhysX_32.dll" />
-    <None Include="PhysXCommon_32.dll" />
-    <None Include="PhysXCooking_32.dll" />
-    <None Include="PhysXDevice.dll" />
-    <None Include="PhysXFoundation_32.dll" />
     <None Include="resources\shader\Gmodel.glsl" />
     <None Include="resources\shader\NormalShader\Fnormal.glsl" />
     <None Include="resources\shader\NormalShader\Gnormal.glsl" />
@@ -146,6 +139,9 @@
     <None Include="resources\shader\PhysicsObjects\Fphysics.glsl" />
     <None Include="resources\shader\PhysicsObjects\Gphysics.glsl" />
     <None Include="resources\shader\PhysicsObjects\Vphysics.glsl" />
+    <None Include="resources\shader\Model\Fmodel.glsl" />
+    <None Include="resources\shader\Model\Gmodel.glsl" />
+    <None Include="resources\shader\Model\Vmodel.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">

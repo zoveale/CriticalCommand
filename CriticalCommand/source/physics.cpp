@@ -129,15 +129,18 @@ void physx::Physics::CreateStack(const PxTransform& t,
 }
 
 void physx::Physics::AddStaticTriangleMesh(
-                                            const std::vector<float>        &vertex,
-                                            const std::vector<unsigned int> &indices,
+                                            const float*                    vertex,
+                                            const unsigned int*           indices,
                                             const unsigned int              &indicesSize) const {
   //PxTriangleMesh* mesh = createMeshGround();
   PxTriangleMesh* mesh = CreateTriangleMesh(vertex, indices, indicesSize);
   //triMesh = mesh;
 
-  PxTriangleMeshGeometry triGeo(mesh);
-  triGeo.isValid();
+  PxTriangleMeshGeometry triGeo = mesh;
+
+  if (triGeo.isValid() == false) {
+    printf("");
+  }
   //triGeo.triangleMesh = triMesh;
 
   PxTransform pos(PxVec3(0.0f, 0.0f, 0.0f));
@@ -158,8 +161,8 @@ void physx::Physics::AddStaticTriangleMesh(
 }
 
 physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
-                                                      const std::vector<float>        &vertex,
-                                                      const std::vector<unsigned int> &indices,
+                                                      const float* vertex,
+                                                      const unsigned int* indices,
                                                       const unsigned int              &numFaces) const {
 
   PxCookingParams params = gCooking->getParams();
@@ -171,7 +174,7 @@ physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
 
 
   params.midphaseDesc = PxMeshMidPhase::eBVH34;
-  params.midphaseDesc.mBVH34Desc.numPrimsPerLeaf = 4; //default = 4, max = 15
+  params.midphaseDesc.mBVH34Desc.numPrimsPerLeaf = 15; //default = 4, max = 15
   
   params.scale = gPhysics->getTolerancesScale();
   // disable mesh cleaning - perform mesh validation on development configurations
@@ -184,21 +187,32 @@ physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
   gCooking->setParams(params);
 
   PxTriangleMeshDesc meshDesc;
-  meshDesc.points.count = vertex.size();
+  meshDesc.points.data = vertex;
+  meshDesc.points.count = numFaces * 3;
   meshDesc.points.stride = sizeof(PxF32) * 3;
-  meshDesc.points.data = &vertex[0];
   
+  meshDesc.triangles.data = &indices[0];
   meshDesc.triangles.count = numFaces;
   meshDesc.triangles.stride = sizeof(PxU32) * 3;
-  meshDesc.triangles.data = &indices[0];
+  
+
+  bool validate;
+
+  validate = gCooking->validateTriangleMesh(meshDesc);
+  PX_ASSERT(validate);
+  if (validate) {
+    printf("");
+  }
 
   /*PxTriangleMeshCookingResult::Enum result;
   PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc,
                             gPhysics->getPhysicsInsertionCallback(), &result);
   if (!result) printf("");
   return triMesh;*/
+  PxTriangleMeshCookingResult::Enum result;
+  PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback(), &result);
 
-  return gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback());
+  return triMesh;
 }
 
 
@@ -241,8 +255,8 @@ glm::mat4 physx::Physics::GetAPose(int i) {
 }
 
 bool physx::Physics::AddPhysxObject(const std::string &name, 
-                                    const std::vector<float> &vertex, 
-                                    const std::vector<unsigned int> &indices, 
+                                    const float* vertex, 
+                                    const unsigned int* indices,
                                     const unsigned int &indicesSize) const {
   std::string mapKey = GetIdKey(name);
 
@@ -256,6 +270,7 @@ bool physx::Physics::AddPhysxObject(const std::string &name,
     case GeometryTypes::StaticPlane:
       return false;
     case GeometryTypes::StaticTriangleMesh:
+      printf("\tAdd Triangle mesh for %s\n", name.c_str());
       AddStaticTriangleMesh(vertex, indices, indicesSize);
       return true;
     case GeometryTypes::StaticConvexMesh:
@@ -275,7 +290,7 @@ bool physx::Physics::AddPhysxObject(const std::string &name,
     case GeometryTypes::DynamicConvexMeshCooking:
       return true;
     case GeometryTypes::NoCollisionGeomety:
-      printf("no collision data found\n");
+      printf("\tno collision data found for %s\n", name.c_str());
       return false;
    }
 
