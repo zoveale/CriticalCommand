@@ -26,6 +26,7 @@ private:
   GLFWwindow* window;
 
 public:
+
   KEY_STATE KEY;
   double lastX, lastY, xpos, ypos, xoffset, yoffset;
   Input();
@@ -40,7 +41,7 @@ public:
   }*/
   ///
 
-  
+  //void HandleInput();
   void Process();
   void PollEvents();
 

@@ -4,7 +4,7 @@
 
 #include "system.h"
 
-int main(int agrc, char* argv){
+int main(int agrc, char** argv){
   
   System system;
  

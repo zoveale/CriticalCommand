@@ -46,17 +46,17 @@ void physx::Physics::AddActor(PxActor* actor) {
   gScene->addActor(*actor);
 }
 
-void physx::Physics::GetActors(/*PxActor** actor*/) {
+void physx::Physics::UpdateDynamicActorArray(/*PxActor** actor*/) {
 
   typedef PxActorTypeFlag FLAG;
-  nbActors = gScene->getNbActors(FLAG::eRIGID_DYNAMIC | FLAG::eRIGID_STATIC);
+  nbActors = gScene->getNbActors(FLAG::eRIGID_DYNAMIC);
   if (nbActors > MAX_ACTOR) {
     printf("\n # of actors > MAX_ACTORS\n");
     int i;
     scanf_s("%d", &i);
   }
   
-  gScene->getActors(FLAG::eRIGID_DYNAMIC | FLAG::eRIGID_STATIC,
+  gScene->getActors(FLAG::eRIGID_DYNAMIC,
     reinterpret_cast<PxActor * *>(&actors[0]), nbActors);
 
   for(PxU32 i = 0; i < nbActors; i++){
@@ -70,7 +70,7 @@ void physx::Physics::GetActors(/*PxActor** actor*/) {
 }
 
 void physx::Physics::StepPhysics(float dt) {
-  GetActors();
+  UpdateDynamicActorArray();
   gScene->simulate(dt);
   gScene->fetchResults(true);
 }

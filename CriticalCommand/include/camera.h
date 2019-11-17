@@ -13,19 +13,19 @@
 #include "player.h"
 class Player;
 
-class PlayerCamera;
+class FirstPerson;
 class OverviewCamera;
 
 
 class Camera {
 public:
   virtual void Update(Player& player) = 0;
-  static PlayerCamera firstPerson;
+  static FirstPerson firstPerson;
 };
 /*
 
 */
-class PlayerCamera : public Camera {
+class FirstPerson : public Camera {
 private:
   static glm::vec3 position;
   static glm::vec3 front;
@@ -53,7 +53,7 @@ private:
   inline void SetView();
   ///
 public:
-  PlayerCamera();
+  FirstPerson();
   void Update(Player& player);
   glm::mat4 View();
 };

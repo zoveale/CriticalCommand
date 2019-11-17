@@ -9,7 +9,7 @@ StrafeLeftState InputState::left;
 StrafeRightState InputState::right;
 ///
 //player camera, FIXME:: add more, "topleft" "topright" etc...
-PlayerCamera Camera::firstPerson;
+FirstPerson Camera::firstPerson;
 //PlayerCamera Camera::firstPerson;
 //PlayerCamera Camera::thirdPerson;
 //PlayerCamera Camera::TopDown;

@@ -20,7 +20,7 @@
 class System {
 private:
   Player player;
-  PlayerCamera playerCamera;
+  FirstPerson firstPerson;
   Render render;
   Input input;
   LightFactory sceneLights;

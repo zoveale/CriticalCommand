@@ -10,6 +10,7 @@
 
 #include "states.h"
 class InputState;
+//class Input;
 
 #include "physics.h"
 class physx::Physics;
@@ -40,7 +41,7 @@ public:
   //Add pointer to input class
   //Input* input;
   ///
-  physx::Physics* physics;
+  //physx::Physics* physics;
   InputState* state;
   Camera* camera;
   //Graphics* graphic

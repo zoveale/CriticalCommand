@@ -71,7 +71,7 @@ public:
   }
   void TestA();
   void AddActor(PxActor* actor);
-  void GetActors();
+  void UpdateDynamicActorArray();
   void StepPhysics(float dt);
 
   void CleanUp();

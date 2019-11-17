@@ -427,10 +427,11 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
     unsigned int* indicesPointer = &indices[0];*/
     //TODO:: make enum of physx IDs for model to process
     bool buildMesh = physicsScene.AddPhysxObject(
-      mesh->mName.C_Str(),
-      &mesh->mVertices[0].x,
-      &indices[0],
-      &mesh->mNumFaces);
+                                                 mesh->mName.C_Str(),
+                                                 &mesh->mVertices[0].x,
+                                                 &indices[0],
+                                                 &mesh->mNumFaces
+                                                 );
     if (!buildMesh)
       return Mesh::Empty();
   }

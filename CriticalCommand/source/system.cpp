@@ -116,7 +116,7 @@ void System::GameLoop(){
     //input.IncrementDecrement(perspective);
     projection = glm::perspective(glm::radians((float)perspective),
                 (float)Render::Screen::WIDTH /(float)Render::Screen::HEIGHT, 0.1f, 1000.0f);
-    view = playerCamera.View();
+    view = firstPerson.View();
 
     //animated.Use();
     //animated.SetMat4("projection", projection);
@@ -151,7 +151,7 @@ void System::GameLoop(){
     default_0.Draw(normalShader);
 
     //TODO:: setting ico80 models the physics deformations
-    for (int i = 0; i < 55; i++) {
+    for (int i = 0; i < scenePhysics.NumberOfActors(); i++) {
       glDepthMask(GL_TRUE);
       
       glStencilFunc(GL_ALWAYS, 0x01, 0xFF);

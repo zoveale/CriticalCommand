@@ -2,18 +2,25 @@
 #define STATES_H
 
 
-#include "input.h"
+
 #include <cstdio>
 
+
+//#include "player.h"
 //#define PRINT_STATES
-class Player;
+
+#include "input.h"
+class Input;
+
 #include "player.h"
+class Player;
 
 class IdelState;
 class ForwardState;
 class BackwardState;
 class StrafeLeftState;
 class StrafeRightState;
+
 
 //States to add
 //class ForwardLeftState
