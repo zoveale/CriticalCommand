@@ -20,7 +20,7 @@ class OverviewCamera;
 class Camera {
 public:
   virtual void Update(Player& player) = 0;
-  static PlayerCamera camera;
+  static PlayerCamera firstPerson;
 };
 /*
 

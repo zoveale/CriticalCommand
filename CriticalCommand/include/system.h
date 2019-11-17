@@ -16,6 +16,7 @@
 #include "gtc/type_ptr.hpp"
 
 
+
 class System {
 private:
   Player player;
@@ -25,7 +26,7 @@ private:
   LightFactory sceneLights;
 
   physx::Physics scenePhysics;
-
+  physx::Physics test;
   
 
 public:

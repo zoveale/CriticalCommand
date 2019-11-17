@@ -49,7 +49,7 @@ public:
   Player();
   void StartUp();
   void HandleInput(Input input, float dt);
-  void Update();
+  void Update(float dt);
   void Draw();
 
   //input componets
