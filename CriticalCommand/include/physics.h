@@ -39,6 +39,8 @@ namespace physx { class Physics; }
 class physx::Physics {
 
 public:
+  static Physics scenePhysics;
+
   Physics();
   //same for all instances of physx
   //TODO::create more componet classes oh physics

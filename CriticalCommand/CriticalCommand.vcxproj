@@ -194,6 +194,7 @@
     <ClCompile Include="source\lightFactory.cpp" />
     <ClCompile Include="source\model.cpp" />
     <ClCompile Include="source\modelUtility.cpp" />
+    <ClCompile Include="source\objects.cpp" />
     <ClCompile Include="source\physics.cpp" />
     <ClCompile Include="source\player.cpp" />
     <ClCompile Include="source\camera.cpp" />
@@ -209,10 +210,12 @@
     <ClInclude Include="include\camera.h" />
     <ClInclude Include="include\cubemap.h" />
     <ClInclude Include="include\framebuffer.h" />
+    <ClInclude Include="include\graphics.h" />
     <ClInclude Include="include\lightFactory.h" />
     <ClInclude Include="include\mesh.h" />
     <ClInclude Include="include\model.h" />
     <ClInclude Include="include\modelUtility.h" />
+    <ClInclude Include="include\objects.h" />
     <ClInclude Include="include\physics.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\skeletal.h" />

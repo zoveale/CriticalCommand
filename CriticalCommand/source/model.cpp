@@ -6,7 +6,7 @@ void Model::Draw(Shader shader) {
     meshes[i].Draw(shader);
   }
 }
-// draws the stencil, and thus all its meshes
+// TODO:: draws the stencil
 void Model::DrawStencil(Shader shader) {
   for (unsigned int i = 0; i < meshes.size(); i++) {
     meshes[i].DrawStencil(shader);
@@ -303,9 +303,16 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
   //std::vector<float> triMeshPos;
   //triMeshPos.reserve(mesh->mNumVertices * 3);
 
+  //TODO:: values do not need to be this large
   //for size equation solving
-  float maxY = 0.0f;
-  float minY = 0.0f;
+  float maxX = FLT_MIN;
+  float minX = FLT_MAX;
+
+  float maxY = FLT_MIN;
+  float minY = FLT_MAX;
+
+  float maxZ = FLT_MIN;
+  float minZ = FLT_MAX;
   ///
 
 #ifdef PRINT_ASSIMP_INFO   
@@ -337,16 +344,24 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
     maybe similar to find width and length
     no idea how to solve for capsules right now
     but should work for Sphere, Boxes, and Planes
+    TODO::most likely going to need the vector position for each min max position
+    for capsule primative shape
     */
-    /*if (vector.y > maxY) {
+    if (vector.x > maxX)
+      maxX = vector.x;
+    if (vector.x < minX)
+      minX = vector.x;
+    if (vector.y > maxY)
       maxY = vector.y;
-    }
-    if (vector.y < minY) {
+    if (vector.y < minY)
       minY = vector.y;
-    }*/
+    if (vector.z > maxZ)
+      maxZ = vector.z;
+    if (vector.z < minZ)
+      minZ = vector.z;
+
     vertex.Position = vector;
     //TODO:: TRIMESH FOR PHYSICS
-
     /*
     PxTriangleMeshDesc meshDesc;
     meshDesc.points.data = PxVec3((float)vector.x, (float)vector.y, (float)vector.z);
@@ -422,10 +437,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
 
   //TODO:: TRIMESH FOR PHYSICS
   if (collisions) {
+    float minMaxXYZ[] = { minX, maxX , minY,  maxY , minZ, maxZ };
 
-    /*float *vertexPointer = &mesh->mVertices[0].x;
-    unsigned int* indicesPointer = &indices[0];*/
-    //TODO:: make enum of physx IDs for model to process
     bool buildMesh = physicsScene.AddPhysxObject(
                                                  mesh->mName.C_Str(),
                                                  &mesh->mVertices[0].x,

@@ -23,9 +23,9 @@ private:
   FirstPerson firstPerson;
   Render render;
   Input input;
-  LightFactory sceneLights;
+  //LightFactory sceneLights;
 
-  physx::Physics scenePhysics;
+  //physx::Physics scenePhysics;
   physx::Physics test;
   
 

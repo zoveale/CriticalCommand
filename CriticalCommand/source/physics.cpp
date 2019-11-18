@@ -257,12 +257,16 @@ bool physx::Physics::AddPhysxObject(const std::string &name,
 
   switch (geometryMap.at(mapKey)) {
     case GeometryTypes::StaticSphere:
+      printf("\tAdd Static Sphere for %s\n", name.c_str());
       return false;
     case GeometryTypes::StaticCapsule:
+      printf("\tAdd Static Capsule mesh for %s\n", name.c_str());
       return false;
     case GeometryTypes::StaticBox:
+      printf("\tAdd Static Box mesh for %s\n", name.c_str());
       return false;
     case GeometryTypes::StaticPlane:
+      printf("\tAdd Static Plane mesh for %s\n", name.c_str());
       return false;
     case GeometryTypes::StaticTriangleMesh:
       printf("\tAdd Triangle mesh for %s\n", name.c_str());
@@ -275,17 +279,20 @@ bool physx::Physics::AddPhysxObject(const std::string &name,
     case GeometryTypes::StaticHeightField:
       return false;
     case GeometryTypes::DynamicSphere:
-      return true;
+      return false;
     case GeometryTypes::DynamicCapsule:
-      return true;
+      return false;
     case GeometryTypes::DynamicBox:
-      return true;
+      return false;
     case GeometryTypes::DynamicConvexMesh:
-      return true;
+      return false;
     case GeometryTypes::DynamicConvexMeshCooking:
-      return true;
+      return false;
     case GeometryTypes::NoCollisionGeomety:
       printf("\tno collision data found for %s\n", name.c_str());
+      //TODO:: only false to only draw physx objects 
+      //in future will be true for so all meshes with 
+      //no collision data will be drawn
       return false;
    }
 

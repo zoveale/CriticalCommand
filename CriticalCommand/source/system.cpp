@@ -1,4 +1,6 @@
 #include "system.h"
+static LightFactory sceneLights;
+static physx::Physics scenePhysics;
 
 System::System() {
 

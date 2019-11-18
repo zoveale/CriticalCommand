@@ -20,7 +20,7 @@
 
 class Model {
 public:
-
+  Model() {}
   /*  Model Data */
   vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
   vector<Mesh> meshes;
@@ -34,12 +34,12 @@ public:
   // constructor, expects a filepath to a 3D model.
   Model(std::string const& path, 
         LightFactory &light,
-        physx::Physics &scene,
+        physx::Physics &physicScene,
         bool physics = false,
         bool gamma = false) 
         :collisions(physics),gammaCorrection(gamma) {
 
-    loadModel(path, light, scene);
+    loadModel(path, light, physicScene);
   }
 
   // draws the model, and thus all its meshes
@@ -48,7 +48,7 @@ public:
   void Animate(Shader shader, float time);
   //FIXME::
   void InitializeBones(Shader shader);
-
+  
 private:
   glm::mat4 inverseRootNode;
   Assimp::Importer importer;
