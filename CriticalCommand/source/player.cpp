@@ -1,5 +1,5 @@
 #include "player.h"
-//#include "input.h"
+
 
 /*possible player states*/
 IdelState InputState::idel;

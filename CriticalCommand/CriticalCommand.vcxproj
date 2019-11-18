@@ -190,6 +190,7 @@
   <ItemGroup>
     <ClCompile Include="source\cubemap.cpp" />
     <ClCompile Include="source\framebuffer.cpp" />
+    <ClCompile Include="source\graphics.cpp" />
     <ClCompile Include="source\input.cpp" />
     <ClCompile Include="source\lightFactory.cpp" />
     <ClCompile Include="source\model.cpp" />

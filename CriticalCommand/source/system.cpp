@@ -54,8 +54,6 @@ void System::GameLoop(){
   //Model ico_80_Big("resources/default/ico_80.dae", sceneLights, scenePhysics);
   
   ///
-  //TODO:: warning : TriangleMesh: triangles are too big, 
-  //reduce their size to increase simulation stability! wtf is this
   Model default_0("resources/default/physxTestLightsTestTextureTest.dae", sceneLights, scenePhysics , true);
   
   //Lamp models

@@ -8,8 +8,8 @@
 #include "player.h"
 #include "camera.h"
 #include "model.h"
-#include "lightFactory.h"
-#include "physics.h"
+//#include "lightFactory.h"
+//#include "physics.h"
 
 #include "gtx/matrix_decompose.hpp"
 #include "gtc/matrix_transform.hpp"
