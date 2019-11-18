@@ -2,10 +2,18 @@
 #define VEALE_89485D62_A5D9_499F_B124_717C2346DAAD_H
 
 
+#include "mat4x4.hpp"
+#include "vec3.hpp"
 
-#include "graphics.h"
-//class GraphicsComponet;
+//#include "physics.h"
+//class physx::Physics;
+namespace physx {
+  class Physics;
+}
+class GraphicsComponet;
+//class BombGraphicsComponet;
 
+//static BombGraphicsComponet bombGraphicsComponet;
 class GameObject {
 public:
   float dt;
@@ -15,11 +23,14 @@ public:
 
   GameObject();
   //GameObject(std::string location);
-  GameObject(GraphicsComponet* graphics, physx::Physics* physics) :
-             graphics(graphics), physics(physics) {}
+  /*GameObject(GraphicsComponet* graphics, physx::Physics* physics) :
+             graphics(graphics), physics(physics) {}*/
+  GameObject(GraphicsComponet* graphics);
 
-  void Update(float dt);
-  void Draw(const glm::mat4 PV);
+  //GameObject(GraphicsComponet* graphics);
+
+  void Update(float dt, const glm::mat4 PV);
+  void Draw();
 
   
 private:

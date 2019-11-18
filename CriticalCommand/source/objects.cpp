@@ -1,14 +1,22 @@
 #include "objects.h"
+#include "graphics.h"
 
 GameObject::GameObject() {
 }
 
-void GameObject::Update(float dt) {
-  graphics->Update(*this);
+GameObject::GameObject(GraphicsComponet* graphics) :
+  graphics(graphics) {
+
+  graphics->SetModelAndShaders();
 }
 
-void GameObject::Draw(const glm::mat4 PV) {
-  graphics->Draw(PV);
+
+void GameObject::Update(float dt, const glm::mat4 PV) {
+  graphics->Update(*this, PV);
+}
+
+void GameObject::Draw() {
+  graphics->Draw();
 }
 
 

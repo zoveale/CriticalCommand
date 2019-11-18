@@ -1,5 +1,6 @@
 #include "player.h"
-
+#include "states.h"
+#include "camera.h"
 
 /*possible player states*/
 IdelState InputState::idel;

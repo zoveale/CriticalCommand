@@ -6,6 +6,7 @@ void Model::Draw(Shader shader) {
     meshes[i].Draw(shader);
   }
 }
+
 // TODO:: draws the stencil
 void Model::DrawStencil(Shader shader) {
   for (unsigned int i = 0; i < meshes.size(); i++) {

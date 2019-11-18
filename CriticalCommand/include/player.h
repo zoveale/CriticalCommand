@@ -3,20 +3,19 @@
 
 
 #include "vec2.hpp"
+#include "vec3.hpp"
 
+#include "input.h"
 
-
-
-
-#include "states.h"
+class Camera;
 class InputState;
 //class Input;
 
-#include "physics.h"
-class physx::Physics;
+//#include "physics.h"
+//class physx::Physics;
 
-#include "camera.h"
-class Camera;
+
+
 
 //class PlayerCamera;
 //class InputState;

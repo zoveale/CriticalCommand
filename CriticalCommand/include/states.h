@@ -8,11 +8,9 @@
 
 //#include "player.h"
 //#define PRINT_STATES
-
 #include "input.h"
-class Input;
+//class Input;
 
-#include "player.h"
 class Player;
 
 class IdelState;

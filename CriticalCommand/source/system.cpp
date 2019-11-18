@@ -1,6 +1,6 @@
 #include "system.h"
-static LightFactory sceneLights;
-static physx::Physics scenePhysics;
+//static LightFactory sceneLights;
+//static physx::Physics scenePhysics;
 
 System::System() {
 
@@ -21,7 +21,13 @@ void System::SystemInit(){
 }
 
 void System::GameLoop(){
+
+  Model bombModel("resources/bomb/bomb.dae", sceneLights, scenePhysics);
+  Shader bombShader("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
+
+  GameObject bomb(new BombGraphicsComponet(bombModel.meshes, bombShader));
   
+
   /*Shader animated("resources/shader/Animated/Vanimated.glsl",
                   "resources/shader/Animated/Fanimated.glsl");
   Model ourModel_0("resources/cowboy/CharacterRunning4.dae", sceneLights,scenePhysics);*/
@@ -83,7 +89,7 @@ void System::GameLoop(){
   float deltaTime = 0.0f;
   float currentFrame = 0.0f;
   float lastFrame = (float)glfwGetTime();
-
+  //bomb.position = glm::vec3(1.0f, 1.0f, 1.0f);
   while (!input.KEY.ESC) {
 
     input.Process();
@@ -96,7 +102,7 @@ void System::GameLoop(){
     ///
 
     //framebuffer test
-    framebuffertest.Preprocess();
+    //framebuffertest.Preprocess();
     ///
 
     /* Render here */
@@ -118,6 +124,10 @@ void System::GameLoop(){
                 (float)Render::Screen::WIDTH /(float)Render::Screen::HEIGHT, 0.1f, 1000.0f);
     view = firstPerson.View();
 
+    bomb.Update(deltaTime, projection * view);
+    glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
+    glStencilMask(0x00);
+    bomb.Draw();
     //animated.Use();
     //animated.SetMat4("projection", projection);
     //animated.SetMat4("view", view);
@@ -132,57 +142,59 @@ void System::GameLoop(){
     //ourModel_0.Draw(normalShader);
     //model = glm::mat4(1.0f);
 
-    glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
-    glStencilMask(0x00);
-    //input.IncrementDecrement(gamma);
-    simple.Use();
-    simple.SetFloat("gamma", gamma);
-    simple.SetVec3("viewPos", player.position);
-    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-    simple.SetMat4("model", model);
-    simple.SetMat4("PVM", projection * view * model);
-    sceneLights.SetDynamicAttributes(simple);
-    default_0.Draw(simple);
+    //glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
+    //glStencilMask(0x00);
+    ////input.IncrementDecrement(gamma);
+    //simple.Use();
+    //simple.SetFloat("gamma", gamma);
+    //simple.SetVec3("viewPos", player.position);
+    //model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+    //simple.SetMat4("model", model);
+    //simple.SetMat4("PVM", projection * view * model);
+    //sceneLights.SetDynamicAttributes(simple);
+    //default_0.Draw(simple);
+    //
+    //normalShader.Use();
+    //normalShader.SetMat4("projection", projection);
+    //normalShader.SetMat4("view", view);
+    //normalShader.SetMat4("model", model);
+    //default_0.Draw(normalShader);
+
     
-    normalShader.Use();
-    normalShader.SetMat4("projection", projection);
-    normalShader.SetMat4("view", view);
-    normalShader.SetMat4("model", model);
-    default_0.Draw(normalShader);
 
-    //TODO:: setting ico80 models the physics deformations
-    for (int i = 0; i < scenePhysics.NumberOfActors(); i++) {
-      glDepthMask(GL_TRUE);
-      
-      glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
-      glStencilMask(0xFF);
-      simple.Use();
-      model = glm::mat4(1.0f);
-      model = scenePhysics.GetAPose(i); 
-      model = glm::scale(model, glm::vec3(2.0));
-      simple.SetMat4("model", model);
-      simple.SetMat4("PVM", projection * view * model);
-      sceneLights.SetDynamicAttributes(simple);
-      ico_80.Draw(simple);
+    ////TODO:: setting ico80 models the physics deformations
+    //for (int i = 0; i < scenePhysics.NumberOfActors(); i++) {
+    //  glDepthMask(GL_TRUE);
+    //  
+    //  glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
+    //  glStencilMask(0xFF);
+    //  simple.Use();
+    //  model = glm::mat4(1.0f);
+    //  model = scenePhysics.GetAPose(i); 
+    //  model = glm::scale(model, glm::vec3(2.0));
+    //  simple.SetMat4("model", model);
+    //  simple.SetMat4("PVM", projection * view * model);
+    //  sceneLights.SetDynamicAttributes(simple);
+    //  ico_80.Draw(simple);
 
-      
-      glDepthMask(GL_FALSE);
-      glStencilFunc(GL_GREATER, 0x01, 0xFF);
-      glStencilMask(0x00);
-      stencilShader.Use();
-      model = glm::scale(model, glm::vec3(1.1f));
-      stencilShader.SetMat4("model", model);
-      stencilShader.SetMat4("PVM", projection* view* model);
-      ico_80.Draw(stencilShader);
-      
+    //  
+    //  glDepthMask(GL_FALSE);
+    //  glStencilFunc(GL_GREATER, 0x01, 0xFF);
+    //  glStencilMask(0x00);
+    //  stencilShader.Use();
+    //  model = glm::scale(model, glm::vec3(1.1f));
+    //  stencilShader.SetMat4("model", model);
+    //  stencilShader.SetMat4("PVM", projection* view* model);
+    //  ico_80.Draw(stencilShader);
+    //  
 
-      /*normalShader.Use();
-      normalShader.SetMat4("projecion", projection);
-      normalShader.SetMat4("view", view);
-      normalShader.SetMat4("model", model);
-      ico_80.Draw(normalShader);*/
-    }
-    glStencilMask(0xFF);
+    //  /*normalShader.Use();
+    //  normalShader.SetMat4("projecion", projection);
+    //  normalShader.SetMat4("view", view);
+    //  normalShader.SetMat4("model", model);
+    //  ico_80.Draw(normalShader);*/
+    //}
+    //glStencilMask(0xFF);
   
 
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
@@ -203,15 +215,15 @@ void System::GameLoop(){
     glStencilMask(0xFF);
     
     //framebuffer test
-    framebuffertest.Postprocess(framebufferShader);
+    //framebuffertest.Postprocess(framebufferShader);
     ///
-
+    
     //TODO:update this somehow
     input.IncrementDecrement(testBool);
     if(testBool)
       scenePhysics.StepPhysics(deltaTime > deltaRate ? deltaTime : deltaRate);
 
-
+    
     player.Update(deltaTime);
 
     /* Swap front and back buffers */

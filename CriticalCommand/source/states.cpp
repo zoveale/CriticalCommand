@@ -1,5 +1,7 @@
 #include "states.h"
 
+#include "player.h"
+
 
 
 InputState::InputState() {

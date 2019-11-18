@@ -257,19 +257,19 @@ bool physx::Physics::AddPhysxObject(const std::string &name,
 
   switch (geometryMap.at(mapKey)) {
     case GeometryTypes::StaticSphere:
-      printf("\tAdd Static Sphere for %s\n", name.c_str());
+      //printf("\tAdd Static Sphere for %s\n", name.c_str());
       return false;
     case GeometryTypes::StaticCapsule:
-      printf("\tAdd Static Capsule mesh for %s\n", name.c_str());
+      //printf("\tAdd Static Capsule mesh for %s\n", name.c_str());
       return false;
     case GeometryTypes::StaticBox:
-      printf("\tAdd Static Box mesh for %s\n", name.c_str());
+      //printf("\tAdd Static Box mesh for %s\n", name.c_str());
       return false;
     case GeometryTypes::StaticPlane:
-      printf("\tAdd Static Plane mesh for %s\n", name.c_str());
+      //printf("\tAdd Static Plane mesh for %s\n", name.c_str());
       return false;
     case GeometryTypes::StaticTriangleMesh:
-      printf("\tAdd Triangle mesh for %s\n", name.c_str());
+      //printf("\tAdd Triangle mesh for %s\n", name.c_str());
       AddStaticTriangleMesh(vertex, indices, indicesSize);
       return true;
     case GeometryTypes::StaticConvexMesh:
@@ -289,7 +289,7 @@ bool physx::Physics::AddPhysxObject(const std::string &name,
     case GeometryTypes::DynamicConvexMeshCooking:
       return false;
     case GeometryTypes::NoCollisionGeomety:
-      printf("\tno collision data found for %s\n", name.c_str());
+      //printf("\tno collision data found for %s\n", name.c_str());
       //TODO:: only false to only draw physx objects 
       //in future will be true for so all meshes with 
       //no collision data will be drawn

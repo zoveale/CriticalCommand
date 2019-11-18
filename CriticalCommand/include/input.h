@@ -6,7 +6,6 @@
 #include <GLFW/glfw3.h>
 
 
-
 struct KEY_STATE {
 
   bool W = false;
