@@ -5,15 +5,11 @@
 #include "mat4x4.hpp"
 #include "vec3.hpp"
 
-//#include "physics.h"
-//class physx::Physics;
 namespace physx {
   class Physics;
 }
-class GraphicsComponet;
-//class BombGraphicsComponet;
+class GraphicsComponent;
 
-//static BombGraphicsComponet bombGraphicsComponet;
 class GameObject {
 public:
   float dt;
@@ -22,20 +18,20 @@ public:
   glm::vec3 position;
 
   GameObject();
-  //GameObject(std::string location);
-  /*GameObject(GraphicsComponet* graphics, physx::Physics* physics) :
-             graphics(graphics), physics(physics) {}*/
-  GameObject(GraphicsComponet* graphics);
+  //GameObject(GraphicsComponent* graphics);
 
-  //GameObject(GraphicsComponet* graphics);
+  //TODO:: future pointers
+  GameObject(GraphicsComponent* graphics, physx::Physics* physics);
 
-  void Update(float dt, const glm::mat4 PV);
+  void Update(float dt, const glm::mat4 PV = glm::mat4(1.0f));
   void Draw();
 
   
 private:
-  GraphicsComponet* graphics;
+  GraphicsComponent* graphics;
   physx::Physics* physics;
+
+  int timer;
 };
 
 

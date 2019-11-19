@@ -52,7 +52,7 @@ public:
   void Update(float dt);
   void Draw();
 
-  //input componets
+  //input Components
   void LongIdel();
   void MoveForward();
   void MoveBackward();

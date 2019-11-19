@@ -4,6 +4,7 @@
 //#define _DEBUG 
 ///added to project config
 #include <iostream>
+#include <string>
 #include <vector>
 
 #include <geometric.hpp>
@@ -43,7 +44,7 @@ public:
 
   Physics();
   //same for all instances of physx
-  //TODO::create more componet classes oh physics
+  //TODO::create more Component classes oh physics
   static void StartUp() {
 
     //Can make new scale
@@ -61,6 +62,8 @@ public:
     PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
     gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
 
+
+
     gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, scale, true, gPvd);
 
     gCooking = PxCreateCooking(PX_PHYSICS_VERSION, *gFoundation, scale);
@@ -71,8 +74,9 @@ public:
     
     /// 
   }
-  void TestA();
+  
   void AddActor(PxActor* actor);
+  //void AddActor(PxActor* actor);
   void UpdateDynamicActorArray();
   void StepPhysics(float dt);
 
@@ -94,13 +98,16 @@ public:
 
   
   //TODO:: test functions
+  void TestA();
+  //swap float to bool
+  void ExplosionEffect(glm::vec3 pos, float radius, float dt);
+  //void RayCastEffect()
+  ///
   void CreateStack(const PxTransform& t, PxU32 size, PxReal halfExtent);
   void AddCubeActor(glm::vec3 pos, float x = 1.0f, float y = 1.0f, float z = 1.0f);
   
   void ShootBall(glm::vec3 front, glm::vec3 pos);
   
-  /*static PxTriangleMesh* createMeshGround();
-  static void updateVertices(PxVec3* verts, float amplitude);*/
   
 private:
   PxTriangleMesh* CreateTriangleMesh(

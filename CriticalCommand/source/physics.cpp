@@ -37,9 +37,58 @@ void physx::Physics::TestA() {
   sceneDesc.filterShader = PxDefaultSimulationFilterShader;
   gScene = gPhysics->createScene(sceneDesc);
 
-
+  
 
   CreateStack(PxTransform(PxVec3(0.0f, 10.0f, stackZ -= 20.0f)), (PxU32)10, (PxReal)2.0f);
+}
+
+//TODO::make less awful
+void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius, float dt) {
+  PxReal distance(radius);
+  PxSphereGeometry sphereOverlap(distance);
+  PxTransform location(PxVec3(pos.x, pos.y, pos.z));
+
+  PxShape* shape = gPhysics->createShape(PxSphereGeometry(distance), *defaultMaterial);
+  PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
+  PxRigidDynamic* bodyA = gPhysics->createRigidDynamic(location);
+  //body->setMaxAngularVelocity(PxReal(0.01f));
+  body->attachShape(*shape);
+  bodyA->attachShape(*shape);
+  //some combo of these 2 to make a good explosion effect
+  body->setMaxDepenetrationVelocity(PxReal(35.0f));
+  bodyA->setMaxDepenetrationVelocity(PxReal(35.0f));
+
+  PxRigidBodyExt::updateMassAndInertia(*body, 1.73f);
+  PxRigidBodyExt::updateMassAndInertia(*bodyA, 1.73f);
+
+  gScene->addActor(*body);
+  gScene->addActor(*bodyA);
+  shape->release();
+
+  gScene->simulate(1.0f/60.0f);
+  gScene->fetchResults(true);
+
+  gScene->removeActor(*body);
+  gScene->removeActor(*bodyA);
+
+  //PxOverlapHit hits[MAX_ACTOR];
+  //PxOverlapBuffer hitBuffer(hits, MAX_ACTOR);
+
+  //PxQueryFilterData filterData(PxQueryFlag::eDYNAMIC | PxQueryFlag::eANY_HIT);
+  //
+  //
+  //bool status = gScene->overlap(sphereOverlap, location, hitBuffer, filterData);
+
+  //PxU32 x = hitBuffer.getNbAnyHits();
+  ////hitb
+  //for (PxU32 i = 0; i < x; ++i) {
+  //  const PxOverlapHit& hit = hitBuffer.getAnyHit(i);
+  //  PxShape* shape = hit.shape;
+  //  PxRigidActor* actor = hit.actor;
+  //  
+  //  //gScene->ge
+  //}
+  //PxGeometryQuery::overlap();
 }
 
 void physx::Physics::AddActor(PxActor* actor) {
@@ -58,15 +107,13 @@ void physx::Physics::UpdateDynamicActorArray(/*PxActor** actor*/) {
   
   gScene->getActors(FLAG::eRIGID_DYNAMIC,
     reinterpret_cast<PxActor * *>(&actors[0]), nbActors);
-
+  //printf("\n");
   for(PxU32 i = 0; i < nbActors; i++){
     globalPoseArray[i] = actors[i]->getGlobalPose();
+    //printf("actor[%i].name: %s\n",i, actors[i]->getName());
     //globalPose = actors[i]->getGlobalPose();
     //pos[i] = globalPose.getPosition();
   }
-  
-
-  
 }
 
 void physx::Physics::StepPhysics(float dt) {
@@ -119,6 +166,10 @@ void physx::Physics::CreateStack(const PxTransform& t,
     for (PxU32 j = 0; j < size - i; j++) {
       PxTransform localTm(PxVec3(PxReal(j * 2) - PxReal(size - i), PxReal(i * 2), i) * halfExtent);
       PxRigidDynamic* body = gPhysics->createRigidDynamic(t.transform(localTm));
+      //std::string actorA = "actor" + std::to_string((unsigned int)i);
+      const char* actor = "actor_";
+
+      body->setName(actor);
       body->attachShape(*shape);
       PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
       gScene->addActor(*body);
@@ -144,7 +195,6 @@ void physx::Physics::AddStaticTriangleMesh(
   PxRigidStatic* staticActor = gPhysics->createRigidStatic(pos);
   //TODO:: can triangle meshes only be used on rigid static actors
   //PxRigidDynamic* staticActor = gPhysics->createRigidDynamic(pos);
-
   /*
     PxShape* triMeshShape = gPhysics->createShape(triGeo, *defaultMaterial, true);
     staticActor->attachShape(*triMeshShape);
@@ -310,6 +360,7 @@ std::string physx::Physics::GetIdKey(std::string name) const {
   }
   return "noID";
 }
+
 void physx::Physics::ShootBall(glm::vec3 front, glm::vec3 pos) {
 
   PxShape* shape = gPhysics->createShape(PxBoxGeometry(PxVec3(1.0)), *defaultMaterial);
