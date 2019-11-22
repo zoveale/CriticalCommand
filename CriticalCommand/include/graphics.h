@@ -22,11 +22,13 @@ static physx::Physics scenePhysics;
 
 class BombGraphicsComponent : public GraphicsComponent {
 public:
-  BombGraphicsComponent(Model &bombModel, Shader &shader) {
-    bombModelIdel = &bombModel;
+  BombGraphicsComponent(std::vector<Model*> &bombModel, Shader &shader) {
+    //bombModelIdel[0] = &bombModel;
+    models = bombModel;
     bombShader = &shader;
     timer = 0.0f;
     model = glm::mat4(1.0f);
+    bombModel_ = models[0];
   }
   virtual void SetModelAndShaders(){}
 
@@ -35,25 +37,28 @@ public:
     model[3][1] = object.position.y;
     model[3][2] = object.position.z;
     //model *= object.position;
-
+    if (timer > 20.0f) {
+      bombModel_ = models[1];
+    }
     bombShader->Use();
     bombShader->SetMat4("PVM", PV * model);
   }
 
   virtual void Draw() {
     timer += 0.1f;
+    
     bombShader->Use();
     bombShader->SetFloat("iTime", timer);
     bombShader->SetVec2("iResolution", 1280, 720);
     bombShader->SetVec2("iMouse", 1280/2, 720/2);
 
-    bombModelIdel->Draw(*bombShader);
+    bombModel_->Draw(*bombShader);
   }
 
 private:
   float timer;
-  Model* bombModelIdel;
-  
+  Model* bombModel_;
+  std::vector<Model*> models;
   Shader* bombShader;
 
   glm::mat4 model;

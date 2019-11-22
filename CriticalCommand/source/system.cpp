@@ -23,10 +23,13 @@ void System::SystemInit(){
 
 void System::GameLoop(){
 
-
-  Model bombModel("resources/bomb/bomb.dae", sceneLights, scenePhysics);
+  std::vector<Model*> bombModels;
+  Model bombModelIdel("resources/bomb/bomb.dae", sceneLights, scenePhysics);
+  Model bombModelBig("resources/bomb1/bomb1.dae", sceneLights, scenePhysics);
+  bombModels.push_back(&bombModelIdel);
+  bombModels.push_back(&bombModelBig);
   Shader bombShader("resources/bomb/shaders/vertex.glsl", "resources/bomb/shaders/fragment.glsl");
-  BombGraphicsComponent bombGraphics(bombModel, bombShader);
+  BombGraphicsComponent bombGraphics(bombModels, bombShader);
   GameObject bomb(&bombGraphics, &scenePhysics);
   //bomb.position = glm::vec3(0.0f, 105.0f, 0.0f);
   //bomb.Update(0.0f);
