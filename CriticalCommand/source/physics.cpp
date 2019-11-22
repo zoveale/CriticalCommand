@@ -43,60 +43,63 @@ void physx::Physics::TestA() {
 }
 
 //TODO::make less awful
-void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius, float dt) {
-
+//Step physics in normal positon
+//only one shape
+void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius) {
+  
   //need a bool that is swaped when it is called?
   PxReal distance(radius);
   PxSphereGeometry sphereOverlap(distance);
   PxTransform location(PxVec3(pos.x, pos.y, pos.z));
-  PxShape* shape = gPhysics->createShape(PxSphereGeometry(distance), *defaultMaterial);
- 
   
+  
+ 
+  //
   //body->setMaxAngularVelocity(PxReal(0.01f));
+  PxShape* shape = gPhysics->createShape(PxSphereGeometry(distance), *defaultMaterial);
   PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
   body->attachShape(*shape);
+  shape->release();
   body->setMaxDepenetrationVelocity(PxReal(35.0f));
   PxRigidBodyExt::updateMassAndInertia(*body, 1.73f);
 
+  PxShape* shapeA = gPhysics->createShape(PxSphereGeometry(distance * 1.5f), *defaultMaterial);
   PxRigidDynamic* bodyA = gPhysics->createRigidDynamic(location);
-  bodyA->attachShape(*shape);
-  bodyA->setMaxDepenetrationVelocity(PxReal(35.0f));
+  bodyA->attachShape(*shapeA);
+  shapeA->release();
+  bodyA->setMaxDepenetrationVelocity(PxReal(25.0f));
   PxRigidBodyExt::updateMassAndInertia(*bodyA, 1.73f);
 
+  PxShape* shapeB = gPhysics->createShape(PxSphereGeometry(distance * 2.0f), *defaultMaterial);
   PxRigidDynamic* bodyB = gPhysics->createRigidDynamic(location);
-  bodyB->attachShape(*shape);
-  bodyB->setMaxDepenetrationVelocity(PxReal(35.0f));
+  bodyB->attachShape(*shapeB);
+  shapeB->release();
+  bodyB->setMaxDepenetrationVelocity(PxReal(15.0f));
   PxRigidBodyExt::updateMassAndInertia(*bodyB, 1.73f);
-
+  
+  //PxRigidActorExt::createExclusiveShape(*bodyB, shapeB, defaultMaterial, PxShapeFlag::eSIMULATION_SHAPE);
   gScene->addActor(*body);
   gScene->addActor(*bodyA);
   gScene->addActor(*bodyB);
-  shape->release();
-
-  gScene->simulate(1.0f/60.0f);
-  gScene->fetchResults(true);
+  
+  
+  
+  //PxSceneQueryUpdateMode
+  //for (int i = 0; i < 3; i++) {
+    gScene->simulate(1.0f/60.0f);
+    gScene->fetchResults(true);
+    gScene->simulate(1.0f / 60.0f);
+    gScene->fetchResults(true);
+    gScene->simulate(1.0f / 60.0f);
+    gScene->fetchResults(true);
+  //}
+    
+  //
+  
 
   gScene->removeActor(*body);
   gScene->removeActor(*bodyA);
   gScene->removeActor(*bodyB);
-  //PxOverlapHit hits[MAX_ACTOR];
-  //PxOverlapBuffer hitBuffer(hits, MAX_ACTOR);
-
-  //PxQueryFilterData filterData(PxQueryFlag::eDYNAMIC | PxQueryFlag::eANY_HIT);
-  //
-  //
-  //bool status = gScene->overlap(sphereOverlap, location, hitBuffer, filterData);
-
-  //PxU32 x = hitBuffer.getNbAnyHits();
-  ////hitb
-  //for (PxU32 i = 0; i < x; ++i) {
-  //  const PxOverlapHit& hit = hitBuffer.getAnyHit(i);
-  //  PxShape* shape = hit.shape;
-  //  PxRigidActor* actor = hit.actor;
-  //  
-  //  //gScene->ge
-  //}
-  //PxGeometryQuery::overlap();
 }
 
 void physx::Physics::AddActor(PxActor* actor) {
@@ -385,6 +388,32 @@ void physx::Physics::ShootBall(glm::vec3 front, glm::vec3 pos) {
   //TODO:: cube or body?
   gScene->addActor(*cube_0);
   shape->release();
+}
+
+physx::PxScene* physx::Physics::GetCurrentScene() {
+  return gScene;
+}
+
+void physx::Physics::AddTempSphereActorAndStep(glm::vec3 pos, float radius,
+                        float MaxDepenetrationVelocity) {
+  PxReal distance(radius);
+  PxSphereGeometry sphereOverlap(distance);
+  PxTransform location(PxVec3(pos.x, pos.y, pos.z));
+  
+  PxShape* shapeB = gPhysics->createShape(PxSphereGeometry(distance * 2.0f), *defaultMaterial);
+  PxRigidDynamic* bodyB = gPhysics->createRigidDynamic(location);
+  bodyB->attachShape(*shapeB);
+  shapeB->release();
+  bodyB->setMaxDepenetrationVelocity(PxReal(MaxDepenetrationVelocity));
+  PxRigidBodyExt::updateMassAndInertia(*bodyB, 1.73f);
+  gScene->addActor(*bodyB);
+
+  
+  gScene->simulate(1.0f / 60.0f);
+  gScene->fetchResults(true);
+  
+
+  gScene->removeActor(*bodyB);
 }
 
 

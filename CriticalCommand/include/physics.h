@@ -100,13 +100,20 @@ public:
   //TODO:: test functions
   void TestA();
   //swap float to bool
-  void ExplosionEffect(glm::vec3 pos, float radius, float dt);
+  void ExplosionEffect(glm::vec3 pos, float radius);
   //void RayCastEffect()
   ///
   void CreateStack(const PxTransform& t, PxU32 size, PxReal halfExtent);
   void AddCubeActor(glm::vec3 pos, float x = 1.0f, float y = 1.0f, float z = 1.0f);
   
   void ShootBall(glm::vec3 front, glm::vec3 pos);
+  PxScene* GetCurrentScene();
+
+  void AddTempSphereActorAndStep(
+    glm::vec3 pos,
+    float radius,
+    float MaxDepenetrationVelocity = 35.0f);
+protected:
   
   
 private:
@@ -115,27 +122,24 @@ private:
     const unsigned int*              indices,
     const unsigned int*              numFaces) const;
 
-  //TODO:: remove static?
+
+  static PxPhysics* gPhysics;
+  static PxMaterial* defaultMaterial;
   static PxDefaultAllocator	gAllocator;
   static PxDefaultErrorCallback	gErrorCallback;
   static PxFoundation* gFoundation;
-  static PxPhysics* gPhysics;
   static PxCooking* gCooking;
   static PxDefaultCpuDispatcher* gDispatcher;
   static PxPvd* gPvd;
-  static PxMaterial* defaultMaterial;
-
+  
+  
   PxScene* gScene;
   PxRigidActor* actors[MAX_ACTOR];
   PxU32 nbActors;
 
-  /*
-  TODO:: remove test variables
-  remove static?
-  */
+
   PxMat44 globalPoseArray[MAX_ACTOR];
   PxReal stackZ = 10.0f;
-
   //PxTriangleMesh* triMesh;
   //PxRigidStatic* meshActor;
   /*struct Triangle {

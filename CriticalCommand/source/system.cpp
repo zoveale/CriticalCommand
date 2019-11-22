@@ -1,5 +1,7 @@
 #include "system.h"
 
+static LightFactory sceneLights;
+static physx::Physics scenePhysics;
 
 System::System() {
 
@@ -25,15 +27,17 @@ void System::GameLoop(){
 
   std::vector<Model*> bombModels;
   Model bombModelIdel("resources/bomb/bomb.dae", sceneLights, scenePhysics);
-  Model bombModelBig("resources/bomb1/bomb1.dae", sceneLights, scenePhysics);
+  Model bombModelBig("resources/bomb/bomb1.dae", sceneLights, scenePhysics);
   bombModels.push_back(&bombModelIdel);
   bombModels.push_back(&bombModelBig);
   Shader bombShader("resources/bomb/shaders/vertex.glsl", "resources/bomb/shaders/fragment.glsl");
   BombGraphicsComponent bombGraphics(bombModels, bombShader);
-  GameObject bomb(&bombGraphics, &scenePhysics);
-  //bomb.position = glm::vec3(0.0f, 105.0f, 0.0f);
-  //bomb.Update(0.0f);
-  //bomb.position = glm::vec3(0.0f, 0.0f, 0.0f);
+
+  BombPhysicsComponent bombPhysics(&scenePhysics);
+
+  GameObject bomb(&bombGraphics, &bombPhysics);
+
+
 
   /*Shader animated("resources/shader/Animated/Vanimated.glsl",
                   "resources/shader/Animated/Fanimated.glsl");
@@ -136,12 +140,6 @@ void System::GameLoop(){
     
     
 
-    glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
-    glStencilMask(0xFF);
-
-    bomb.Update(deltaTime, projection * view);
-    
-    bomb.Draw();
     //animated.Use();
     //animated.SetMat4("projection", projection);
     //animated.SetMat4("view", view);
@@ -239,7 +237,11 @@ void System::GameLoop(){
 
     
     player.Update(deltaTime);
+    bomb.Update(deltaTime, projection* view);
 
+    glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
+    glStencilMask(0xFF);
+    bomb.Draw();
     /* Swap front and back buffers */
     render.Display();
 

@@ -5,9 +5,8 @@
 #include "mat4x4.hpp"
 #include "vec3.hpp"
 
-namespace physx {
-  class Physics;
-}
+
+class PhysicsComponent;
 class GraphicsComponent;
 
 class GameObject {
@@ -15,14 +14,15 @@ public:
   float dt;
   float speed;
   float acc;
+  float size;
   glm::vec3 position;
   glm::vec3 direction;
 
   GameObject();
-  //GameObject(GraphicsComponent* graphics);
 
   //TODO:: future pointers
-  GameObject(GraphicsComponent* graphics, physx::Physics* physics);
+  //input
+  GameObject(GraphicsComponent* graphics, PhysicsComponent* physics);
 
   void Update(float dt, const glm::mat4 PV = glm::mat4(1.0f));
   void Draw();
@@ -30,7 +30,7 @@ public:
   
 private:
   GraphicsComponent* graphics;
-  physx::Physics* physics;
+  PhysicsComponent* physics;
 
   int timer;
 };

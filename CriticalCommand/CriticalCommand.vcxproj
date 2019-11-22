@@ -218,6 +218,7 @@
     <ClInclude Include="include\modelUtility.h" />
     <ClInclude Include="include\objects.h" />
     <ClInclude Include="include\physics.h" />
+    <ClInclude Include="include\physicsComponent.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\skeletal.h" />
     <ClInclude Include="include\states.h" />

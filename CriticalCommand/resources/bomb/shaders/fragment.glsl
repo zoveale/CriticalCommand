@@ -219,35 +219,39 @@ vec4 rayMarch(vec3 rayOrigin, vec3 rayStep, inout vec3 pos)
 
 
 out vec4 FragColor;
-
+uniform float timer;
 
 void main(){
-
-    vec2 q = gl_FragCoord.xy / iResolution.xy;
-    vec2 p = q*2.0-1.0;
-    p.x *= iResolution.x / iResolution.y;
+	if(timer > 20.0f){
+		vec2 q = gl_FragCoord.xy / iResolution.xy;
+		vec2 p = q*2.0-1.0;
+		p.x *= iResolution.x / iResolution.y;
 	
-    float rotx = (iMouse.y / iResolution.y)*4.0;
-    float roty = 0.2*iTime - (iMouse.x / iResolution.x)*4.0;
+		float rotx = (iMouse.y / iResolution.y)*4.0;
+		float roty = 0.2*iTime - (iMouse.x / iResolution.x)*4.0;
 	
-    // camera
-    vec3 ro = 2.0*normalize(vec3(cos(roty), cos(rotx), sin(roty)));
-    vec3 ww = normalize(vec3(0.0,0.0,0.0) - ro);
-    vec3 uu = normalize(cross( vec3(0.0,1.0,0.0), ww ));
-    vec3 vv = normalize(cross(ww,uu));
-    vec3 rd = normalize( p.x*uu + p.y*vv + 1.5*ww );
+		// camera
+		vec3 ro = 2.0*normalize(vec3(cos(roty), cos(rotx), sin(roty)));
+		vec3 ww = normalize(vec3(0.0,0.0,0.0) - ro);
+		vec3 uu = normalize(cross( vec3(0.0,1.0,0.0), ww ));
+		vec3 vv = normalize(cross(ww,uu));
+		vec3 rd = normalize( p.x*uu + p.y*vv + 1.5*ww );
 
-    // sphere trace distance field
-    bool hit;
-    float displace;
-    hitPos = sphereTrace(ro, rd, hit, displace);
+		// sphere trace distance field
+		bool hit;
+		float displace;
+		hitPos = sphereTrace(ro, rd, hit, displace);
 
-    vec4 col = vec4(0, 0, 0, 1);
-    if (hit) {
-		// shade
-   		//col = shade(hitPos, displace);	// opaque version
-		col = rayMarch(hitPos, rd*_StepSize, hitPos);	// volume render
-    }
-
-    FragColor = col;
+		vec4 col = vec4(0, 0, 0, 1);
+		if (hit) {
+			// shade
+   			//col = shade(hitPos, displace);	// opaque version
+			col = rayMarch(hitPos, rd*_StepSize, hitPos);	// volume render
+		}
+		
+		FragColor = col;
+	}
+	else{
+	FragColor = vec4(vec3(1.0f), 1.0f);
+	}
 }

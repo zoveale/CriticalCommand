@@ -11,8 +11,10 @@
 //#include "lightFactory.h"
 //#include "physics.h"
 
+//TODO:: finish all component classes
 #include "objects.h"
 #include "graphics.h"
+#include "physicsComponent.h"
 
 #include "gtx/matrix_decompose.hpp"
 #include "gtc/matrix_transform.hpp"

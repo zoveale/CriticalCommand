@@ -128,6 +128,9 @@
     <ClInclude Include="include\graphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\physicsComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shader\Fmodel.glsl" />
