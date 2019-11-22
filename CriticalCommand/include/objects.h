@@ -16,6 +16,7 @@ public:
   float speed;
   float acc;
   glm::vec3 position;
+  glm::vec3 direction;
 
   GameObject();
   //GameObject(GraphicsComponent* graphics);

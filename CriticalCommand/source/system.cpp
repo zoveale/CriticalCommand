@@ -28,6 +28,9 @@ void System::GameLoop(){
   Shader bombShader("resources/bomb/shaders/vertex.glsl", "resources/bomb/shaders/fragment.glsl");
   BombGraphicsComponent bombGraphics(bombModel, bombShader);
   GameObject bomb(&bombGraphics, &scenePhysics);
+  //bomb.position = glm::vec3(0.0f, 105.0f, 0.0f);
+  //bomb.Update(0.0f);
+  //bomb.position = glm::vec3(0.0f, 0.0f, 0.0f);
 
   /*Shader animated("resources/shader/Animated/Vanimated.glsl",
                   "resources/shader/Animated/Fanimated.glsl");
@@ -134,7 +137,7 @@ void System::GameLoop(){
     glStencilMask(0xFF);
 
     bomb.Update(deltaTime, projection * view);
-
+    
     bomb.Draw();
     //animated.Use();
     //animated.SetMat4("projection", projection);

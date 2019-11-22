@@ -12,6 +12,7 @@ uniform mat4 projection;
 uniform mat4 PVM;
 
 out vec3 normal;
+out vec3 outPosition;
 void main()
 {
 	normal = aNormal;

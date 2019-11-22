@@ -44,25 +44,33 @@ void physx::Physics::TestA() {
 
 //TODO::make less awful
 void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius, float dt) {
+
+  //need a bool that is swaped when it is called?
   PxReal distance(radius);
   PxSphereGeometry sphereOverlap(distance);
   PxTransform location(PxVec3(pos.x, pos.y, pos.z));
-
   PxShape* shape = gPhysics->createShape(PxSphereGeometry(distance), *defaultMaterial);
-  PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
-  PxRigidDynamic* bodyA = gPhysics->createRigidDynamic(location);
+ 
+  
   //body->setMaxAngularVelocity(PxReal(0.01f));
+  PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
   body->attachShape(*shape);
-  bodyA->attachShape(*shape);
-  //some combo of these 2 to make a good explosion effect
   body->setMaxDepenetrationVelocity(PxReal(35.0f));
-  bodyA->setMaxDepenetrationVelocity(PxReal(35.0f));
-
   PxRigidBodyExt::updateMassAndInertia(*body, 1.73f);
+
+  PxRigidDynamic* bodyA = gPhysics->createRigidDynamic(location);
+  bodyA->attachShape(*shape);
+  bodyA->setMaxDepenetrationVelocity(PxReal(35.0f));
   PxRigidBodyExt::updateMassAndInertia(*bodyA, 1.73f);
+
+  PxRigidDynamic* bodyB = gPhysics->createRigidDynamic(location);
+  bodyB->attachShape(*shape);
+  bodyB->setMaxDepenetrationVelocity(PxReal(35.0f));
+  PxRigidBodyExt::updateMassAndInertia(*bodyB, 1.73f);
 
   gScene->addActor(*body);
   gScene->addActor(*bodyA);
+  gScene->addActor(*bodyB);
   shape->release();
 
   gScene->simulate(1.0f/60.0f);
@@ -70,7 +78,7 @@ void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius, float dt) {
 
   gScene->removeActor(*body);
   gScene->removeActor(*bodyA);
-
+  gScene->removeActor(*bodyB);
   //PxOverlapHit hits[MAX_ACTOR];
   //PxOverlapBuffer hitBuffer(hits, MAX_ACTOR);
 

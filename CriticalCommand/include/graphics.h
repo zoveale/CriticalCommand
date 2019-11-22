@@ -25,26 +25,33 @@ public:
   BombGraphicsComponent(Model &bombModel, Shader &shader) {
     bombModelIdel = &bombModel;
     bombShader = &shader;
-
+    timer = 0.0f;
     model = glm::mat4(1.0f);
   }
   virtual void SetModelAndShaders(){}
 
   virtual void Update(GameObject& object, const glm::mat4 PV = glm::mat4(1.0f)) {
-
-    model = glm::translate(model, object.position);
+    model[3][0] = object.position.x;
+    model[3][1] = object.position.y;
+    model[3][2] = object.position.z;
+    //model *= object.position;
 
     bombShader->Use();
     bombShader->SetMat4("PVM", PV * model);
   }
 
   virtual void Draw() {
+    timer += 0.1f;
     bombShader->Use();
+    bombShader->SetFloat("iTime", timer);
+    bombShader->SetVec2("iResolution", 1280, 720);
+    bombShader->SetVec2("iMouse", 1280/2, 720/2);
+
     bombModelIdel->Draw(*bombShader);
   }
 
 private:
-
+  float timer;
   Model* bombModelIdel;
   
   Shader* bombShader;
