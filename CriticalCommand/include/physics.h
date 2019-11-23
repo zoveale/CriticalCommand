@@ -75,8 +75,9 @@ public:
     /// 
   }
   
+  void AddynamicActor(PxActor* actor);
   void AddActor(PxActor* actor);
-  //void AddActor(PxActor* actor);
+
   void UpdateDynamicActorArray();
   void StepPhysics(float dt);
 
@@ -96,23 +97,33 @@ public:
     const unsigned int*             indices,
     const unsigned int*             indicesSize) const;
 
-  
+  void ExplosionEffect(glm::vec3 pos, float radius);
+
   //TODO:: test functions
   void TestA();
   //swap float to bool
-  void ExplosionEffect(glm::vec3 pos, float radius);
+  
   //void RayCastEffect()
   ///
   void CreateStack(const PxTransform& t, PxU32 size, PxReal halfExtent);
   void AddCubeActor(glm::vec3 pos, float x = 1.0f, float y = 1.0f, float z = 1.0f);
   
   void ShootBall(glm::vec3 front, glm::vec3 pos);
-  PxScene* GetCurrentScene();
 
   void AddTempSphereActorAndStep(
     glm::vec3 pos,
     float radius,
     float MaxDepenetrationVelocity = 35.0f);
+
+  //returns index for dynamic actor
+  unsigned int AddDynamicSphereActor(
+    glm::vec3 pos, 
+    float radius,
+    PxMaterial* material = defaultMaterial);
+  unsigned int GetDynamicActorCount();
+
+  void ReleaseActor(unsigned int index);
+
 protected:
   
   
@@ -136,7 +147,7 @@ private:
   PxScene* gScene;
   PxRigidActor* actors[MAX_ACTOR];
   PxU32 nbActors;
-
+  int dynamicActorCount;
 
   PxMat44 globalPoseArray[MAX_ACTOR];
   PxReal stackZ = 10.0f;

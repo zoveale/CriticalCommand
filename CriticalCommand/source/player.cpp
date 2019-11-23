@@ -53,7 +53,6 @@ void Player::HandleInput(Input input, float dt) {
 
 void Player::Update(float dt) {
   //future update(*this) stuff
-  //TODO:: pull delta time from physics based class
   //phyics->update(*this);
   //graphics->update(*this);
   this->dt = dt;
@@ -75,9 +74,6 @@ void Player::MoveForward() {
   position += front * (dt * speed);
   //FIXME:: add possible modes of moving using kinematic equations
   //position += front * (dt * speed + (0.5f * acc * dt * dt));
-  ///
-  //printf("player position x, y, z : %f, %f, %f\n", position.x, position.y, position.z);
-  //printf("\nPlayer move Forward->");
 }
 
 void Player::MoveBackward() {

@@ -19,6 +19,8 @@ physx::Physics::Physics() {
   defaultMaterial = NULL;
   gPvd = NULL;
   nbActors = NULL;
+
+  dynamicActorCount = -1;
 }
 
 
@@ -39,7 +41,7 @@ void physx::Physics::TestA() {
 
   
 
-  CreateStack(PxTransform(PxVec3(0.0f, 10.0f, stackZ -= 20.0f)), (PxU32)10, (PxReal)2.0f);
+  //CreateStack(PxTransform(PxVec3(0.0f, 10.0f, stackZ -= 20.0f)), (PxU32)10, (PxReal)2.0f);
 }
 
 //TODO::make less awful
@@ -52,7 +54,7 @@ void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius) {
   PxSphereGeometry sphereOverlap(distance);
   PxTransform location(PxVec3(pos.x, pos.y, pos.z));
   
-  
+ 
  
   //
   //body->setMaxAngularVelocity(PxReal(0.01f));
@@ -61,6 +63,7 @@ void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius) {
   body->attachShape(*shape);
   shape->release();
   body->setMaxDepenetrationVelocity(PxReal(35.0f));
+  body->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
   PxRigidBodyExt::updateMassAndInertia(*body, 1.73f);
 
   PxShape* shapeA = gPhysics->createShape(PxSphereGeometry(distance * 1.5f), *defaultMaterial);
@@ -68,6 +71,7 @@ void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius) {
   bodyA->attachShape(*shapeA);
   shapeA->release();
   bodyA->setMaxDepenetrationVelocity(PxReal(25.0f));
+  bodyA->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
   PxRigidBodyExt::updateMassAndInertia(*bodyA, 1.73f);
 
   PxShape* shapeB = gPhysics->createShape(PxSphereGeometry(distance * 2.0f), *defaultMaterial);
@@ -75,6 +79,7 @@ void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius) {
   bodyB->attachShape(*shapeB);
   shapeB->release();
   bodyB->setMaxDepenetrationVelocity(PxReal(15.0f));
+  bodyB->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
   PxRigidBodyExt::updateMassAndInertia(*bodyB, 1.73f);
   
   //PxRigidActorExt::createExclusiveShape(*bodyB, shapeB, defaultMaterial, PxShapeFlag::eSIMULATION_SHAPE);
@@ -172,22 +177,17 @@ void physx::Physics::CreateStack(const PxTransform& t,
   PxCapsuleGeometry(radius, halfExtent)
   PxPlaneGeometry
     */
-  PxShape* shape = gPhysics->createShape(PxSphereGeometry(halfExtent), *defaultMaterial);
+
   for (PxU32 i = 0; i < size; i++) {
     for (PxU32 j = 0; j < size - i; j++) {
       PxTransform localTm(PxVec3(PxReal(j * 2) - PxReal(size - i), PxReal(i * 2), i) * halfExtent);
-      PxRigidDynamic* body = gPhysics->createRigidDynamic(t.transform(localTm));
-      //std::string actorA = "actor" + std::to_string((unsigned int)i);
-      const char* actor = "actor_";
-
-      body->setName(actor);
-      body->attachShape(*shape);
-      PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-      gScene->addActor(*body);
+      PxMat44 transform = t.transform(localTm);
+      AddDynamicSphereActor(
+        glm::vec3(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z ),
+        halfExtent);
       
     }
   }
-  shape->release();
 }
 
 void physx::Physics::AddStaticTriangleMesh(
@@ -216,6 +216,15 @@ void physx::Physics::AddStaticTriangleMesh(
   PxRigidActorExt::createExclusiveShape(*staticActor, triGeo, *defaultMaterial);
   gScene->addActor(*staticActor);
   ///same as commented above
+}
+
+unsigned int physx::Physics::GetDynamicActorCount() {
+  return dynamicActorCount;
+}
+
+void physx::Physics::ReleaseActor(unsigned int index) {
+  gScene->removeActor(*actors[index + 1]);
+  dynamicActorCount--;
 }
 
 physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
@@ -340,6 +349,7 @@ bool physx::Physics::AddPhysxObject(const std::string &name,
     case GeometryTypes::StaticHeightField:
       return false;
     case GeometryTypes::DynamicSphere:
+
       return false;
     case GeometryTypes::DynamicCapsule:
       return false;
@@ -390,9 +400,6 @@ void physx::Physics::ShootBall(glm::vec3 front, glm::vec3 pos) {
   shape->release();
 }
 
-physx::PxScene* physx::Physics::GetCurrentScene() {
-  return gScene;
-}
 
 void physx::Physics::AddTempSphereActorAndStep(glm::vec3 pos, float radius,
                         float MaxDepenetrationVelocity) {
@@ -414,6 +421,23 @@ void physx::Physics::AddTempSphereActorAndStep(glm::vec3 pos, float radius,
   
 
   gScene->removeActor(*bodyB);
+}
+
+unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius, PxMaterial* material) {
+  
+
+  PxReal distance(radius);
+  PxSphereGeometry sphere(distance);
+  PxTransform location(PxVec3(pos.x, pos.y, pos.z));
+  PxShape* shape = gPhysics->createShape(PxSphereGeometry(distance), *defaultMaterial);
+  PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
+  body->attachShape(*shape);
+  shape->release();
+
+  PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+  gScene->addActor(*body);
+
+  return ++dynamicActorCount;
 }
 
 
