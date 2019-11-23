@@ -47,6 +47,6 @@ public:
   //test function
   void IncrementDecrement(float &i);
   void IncrementDecrement(int &i);
-  void IncrementDecrement(bool& i);
+  void IncrementDecrement(bool &i);
 };
 #endif // !INPUT_H

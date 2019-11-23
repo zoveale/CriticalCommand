@@ -70,7 +70,7 @@ void System::GameLoop(){
     "resources/shader/StencilShader/Fstencil.glsl");
   //Model ico_80_Big("resources/default/ico_80.dae", sceneLights, scenePhysics);
   
-  IcoSphereGraphicsComponent icoGraphics(&ico_80, &simple);
+  IcoSphereGraphicsComponent icoGraphics(&ico_80, &simple, &sceneLights);
   IcoSpherePhysicsComponent icoPhysics(&scenePhysics);
   //std::vector<GameObject> icoSpheres;
   GameObject icoSphere(&icoGraphics, &icoPhysics);
@@ -147,13 +147,7 @@ void System::GameLoop(){
                 (float)Render::Screen::WIDTH /(float)Render::Screen::HEIGHT, 0.1f, 1000.0f);
     view = firstPerson.View();
 
-    glm::mat4 pvMatrix = projection * view;
-    player.Update(deltaTime);
-    bomb.Update(deltaTime, pvMatrix);
-    bomb.Draw();
-
-    icoSphere.Update(deltaTime, pvMatrix);
-    icoSphere.Draw();
+    
     
     //animated.Use();
     //animated.SetMat4("projection", projection);
@@ -184,20 +178,22 @@ void System::GameLoop(){
     
    
 
-    
-    
-
-
     normalShader.Use();
     normalShader.SetMat4("projection", projection);
     normalShader.SetMat4("view", view);
     normalShader.SetMat4("model", model);
     default_0.Draw(normalShader);
     
-    
+    glm::mat4 pvMatrix = projection * view;
+    player.Update(deltaTime);
+    bomb.Update(deltaTime, pvMatrix);
+    bomb.Draw();
+
+    icoSphere.Update(deltaTime, pvMatrix);
+    icoSphere.Draw();
 
     ////TODO:: setting ico80 models the physics deformations
-    //for (int i = 0; i < scenePhysics.NumberOfActors(); i++) {
+    //for (int i = 0; i < 55; i++) {
     //  glDepthMask(GL_TRUE);
     //  
     //  glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
@@ -228,7 +224,7 @@ void System::GameLoop(){
     //  normalShader.SetMat4("model", model);
     //  ico_80.Draw(normalShader);*/
     //}
-    glStencilMask(0xFF);
+    //glStencilMask(0xFF);
   
 
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);

@@ -5,9 +5,7 @@
 #include "objects.h"
 
 
-//class BombGraphicsComponent;
-//TODO:: might need to have model be a public class to Grpahics component
-class GraphicsComponent/*: public Model*/ {
+class GraphicsComponent {
 public:
 
   virtual ~GraphicsComponent() {}
@@ -29,10 +27,9 @@ public:
     bombModel = this->modelPointers[0];
   }
   virtual void Update(GameObject& object, const glm::mat4 PV = glm::mat4(1.0f)) {
-    
+    timer += 0.1f;
     if (timer > 20.0f) {
       //bombModel = modelPointers[1];
-      
     }
     bombShader->Use();
     bombShader->SetMat4("PVM", PV * object.modelMatrix);
@@ -40,7 +37,7 @@ public:
   }
 
   virtual void Draw() {
-    timer += 0.1f;
+    
     
     bombShader->Use();
     bombShader->SetFloat("iTime", timer);
@@ -62,26 +59,29 @@ private:
 
 class IcoSphereGraphicsComponent : public GraphicsComponent {
 public:
-  IcoSphereGraphicsComponent(Model* modelPointers, Shader* shader) {
+  IcoSphereGraphicsComponent(Model* modelPointers, Shader* shader, LightFactory* lightContainer = nullptr) {
     modelPointer = modelPointers;
     icoShader = shader;
+    lights = lightContainer;
     model = glm::mat4(1.0f);
   }
 
   virtual void Update(GameObject& object, const glm::mat4 PV) {
     icoShader->Use();
+    icoShader->SetMat4("model", object.modelMatrix);
     icoShader->SetMat4("PVM", PV * object.modelMatrix);
+    lights->SetDynamicAttributes(*icoShader);
   }
 
   virtual void Draw() {
-    icoShader->Use();
+    //icoShader->Use();
     modelPointer->Draw(*icoShader);
   }
 
 private:
   Model* modelPointer;
   Shader* icoShader;
-
+  LightFactory* lights;
   glm::mat4 model;
 };
 

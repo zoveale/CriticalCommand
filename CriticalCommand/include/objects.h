@@ -15,7 +15,7 @@ class InputComponent;
 class GameObject {
 public:
   float dt;
-  float speed;
+  float velocity;
   float acc;
   glm::vec3 position;
   glm::vec3 direction;
@@ -34,8 +34,6 @@ private:
   GraphicsComponent* graphics;
   PhysicsComponent* physics;
   InputComponent* input;
-
-  int timer;
 };
 
 

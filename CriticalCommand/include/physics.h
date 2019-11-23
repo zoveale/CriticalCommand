@@ -98,6 +98,19 @@ public:
     const unsigned int*             indicesSize) const;
 
   void ExplosionEffect(glm::vec3 pos, float radius);
+  void ReleaseActor(unsigned int index);
+  void DisableActorSimulation(unsigned int index);
+
+  //returns index for dynamic actor
+  unsigned int AddDynamicSphereActor(
+    glm::vec3 pos,
+    float radius,
+    PxMaterial* material = defaultMaterial);
+
+  unsigned int AddDynamicBoxActor(
+    glm::vec3 pos,
+    glm::vec3 size,
+    PxMaterial* material = defaultMaterial);
 
   //TODO:: test functions
   void TestA();
@@ -110,20 +123,17 @@ public:
   
   void ShootBall(glm::vec3 front, glm::vec3 pos);
 
+  //not good
   void AddTempSphereActorAndStep(
     glm::vec3 pos,
     float radius,
     float MaxDepenetrationVelocity = 35.0f);
 
-  //returns index for dynamic actor
-  unsigned int AddDynamicSphereActor(
-    glm::vec3 pos, 
-    float radius,
-    PxMaterial* material = defaultMaterial);
+  
+
   unsigned int GetDynamicActorCount();
 
-  void ReleaseActor(unsigned int index);
-
+  
 protected:
   
   
@@ -143,7 +153,9 @@ private:
   static PxDefaultCpuDispatcher* gDispatcher;
   static PxPvd* gPvd;
   
-  
+  //TODO:: recycleing actors vector
+  std::vector<unsigned int> freeActors;
+
   PxScene* gScene;
   PxRigidActor* actors[MAX_ACTOR];
   PxU32 nbActors;
@@ -156,6 +168,7 @@ private:
   /*struct Triangle {
     PxU32 ind0, ind1, ind2;
   };*/
+
 
 
   static std::unordered_map<std::string, unsigned int> geometryMap;

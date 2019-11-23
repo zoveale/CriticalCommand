@@ -21,6 +21,7 @@ physx::Physics::Physics() {
   nbActors = NULL;
 
   dynamicActorCount = -1;
+  freeActors.reserve(MAX_ACTOR);
 }
 
 
@@ -51,10 +52,11 @@ void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius) {
   
   //need a bool that is swaped when it is called?
   PxReal distance(radius);
+  //TODO:: change to a capsle or cyilinder shape for more realistic explostion trajectory 
   PxSphereGeometry sphereOverlap(distance);
-  PxTransform location(PxVec3(pos.x, pos.y, pos.z));
+  //Move Sphere down so it solves for the upper part of the sphere
+  PxTransform location(PxVec3(pos.x, pos.y - radius * 0.5f, pos.z));
   
- 
  
   //
   //body->setMaxAngularVelocity(PxReal(0.01f));
@@ -62,7 +64,7 @@ void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius) {
   PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
   body->attachShape(*shape);
   shape->release();
-  body->setMaxDepenetrationVelocity(PxReal(35.0f));
+  body->setMaxDepenetrationVelocity(PxReal(25.0f));
   body->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
   PxRigidBodyExt::updateMassAndInertia(*body, 1.73f);
 
@@ -70,7 +72,7 @@ void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius) {
   PxRigidDynamic* bodyA = gPhysics->createRigidDynamic(location);
   bodyA->attachShape(*shapeA);
   shapeA->release();
-  bodyA->setMaxDepenetrationVelocity(PxReal(25.0f));
+  bodyA->setMaxDepenetrationVelocity(PxReal(15.0f));
   bodyA->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
   PxRigidBodyExt::updateMassAndInertia(*bodyA, 1.73f);
 
@@ -78,7 +80,7 @@ void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius) {
   PxRigidDynamic* bodyB = gPhysics->createRigidDynamic(location);
   bodyB->attachShape(*shapeB);
   shapeB->release();
-  bodyB->setMaxDepenetrationVelocity(PxReal(15.0f));
+  bodyB->setMaxDepenetrationVelocity(PxReal(5.0f));
   bodyB->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
   PxRigidBodyExt::updateMassAndInertia(*bodyB, 1.73f);
   
@@ -91,12 +93,13 @@ void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius) {
   
   //PxSceneQueryUpdateMode
   //for (int i = 0; i < 3; i++) {
-    gScene->simulate(1.0f/60.0f);
-    gScene->fetchResults(true);
+    gScene->simulate(1.0f / 60.0f);
+    gScene->fetchResults(true);/*
     gScene->simulate(1.0f / 60.0f);
     gScene->fetchResults(true);
+    /*
     gScene->simulate(1.0f / 60.0f);
-    gScene->fetchResults(true);
+    gScene->fetchResults(true);*/
   //}
     
   //
@@ -184,7 +187,7 @@ void physx::Physics::CreateStack(const PxTransform& t,
       PxMat44 transform = t.transform(localTm);
       AddDynamicSphereActor(
         glm::vec3(transform.getPosition().x, transform.getPosition().y, transform.getPosition().z ),
-        halfExtent);
+        halfExtent * 2.0f);
       
     }
   }
@@ -223,8 +226,13 @@ unsigned int physx::Physics::GetDynamicActorCount() {
 }
 
 void physx::Physics::ReleaseActor(unsigned int index) {
-  gScene->removeActor(*actors[index + 1]);
+  gScene->removeActor(*actors[index]);
   dynamicActorCount--;
+}
+
+void physx::Physics::DisableActorSimulation(unsigned int index) {
+  actors[index]->setActorFlag(PxActorFlag::eDISABLE_SIMULATION, true);
+  freeActors.push_back(index);
 }
 
 physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
@@ -349,7 +357,6 @@ bool physx::Physics::AddPhysxObject(const std::string &name,
     case GeometryTypes::StaticHeightField:
       return false;
     case GeometryTypes::DynamicSphere:
-
       return false;
     case GeometryTypes::DynamicCapsule:
       return false;
@@ -423,10 +430,14 @@ void physx::Physics::AddTempSphereActorAndStep(glm::vec3 pos, float radius,
   gScene->removeActor(*bodyB);
 }
 
+//TODO:: reduces rotational velocity 
 unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius, PxMaterial* material) {
   
 
-  PxReal distance(radius);
+  //Physx uses "Halfextents" for length claculation
+  //so inputing appropriate size into the function should
+  //return the correct size;
+  PxReal distance(radius * 0.5f);
   PxSphereGeometry sphere(distance);
   PxTransform location(PxVec3(pos.x, pos.y, pos.z));
   PxShape* shape = gPhysics->createShape(PxSphereGeometry(distance), *defaultMaterial);
@@ -434,6 +445,26 @@ unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius, 
   body->attachShape(*shape);
   shape->release();
 
+  PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+  gScene->addActor(*body);
+
+  return ++dynamicActorCount;
+}
+
+unsigned int physx::Physics::AddDynamicBoxActor(glm::vec3 pos, glm::vec3 size, PxMaterial* material) {
+
+
+  //Physx uses "Halfextents" for length claculation
+  //so inputing appropriate size into the function should
+  //return the correct size;
+  PxVec3 distance(PxReal(size.x * 0.5f), PxReal(size.y * 0.5f), PxReal(size.z * 0.5f));
+  PxBoxGeometry box(distance.x, distance.y, distance.z);
+  PxTransform location(PxVec3(pos.x, pos.y, pos.z));
+  PxShape* shape = gPhysics->createShape(box, *defaultMaterial);
+  PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
+  body->attachShape(*shape);
+  shape->release();
+  
   PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
   gScene->addActor(*body);
 
