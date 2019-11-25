@@ -237,13 +237,13 @@ void main(){
 		float displace;
 		hitPos = sphereTrace(ro, rd, hit, displace);
 
-		vec4 col = vec4(0, 0, 0, 0.1);
+		vec4 col = vec4(0, 0, 0, 0.01);
 		if (hit) {
-			// shade
+			//shade
    			col = shade(hitPos, displace);	// opaque version
 			//col = rayMarch(hitPos, rd*_StepSize, hitPos);	// volume render
 		}
-		if(col.x < 0.001f && col.y < 0.001f && col.z < 0.001f)
+		if(col.a < 0.1f)
 			discard;
 		else{
 			FragColor = col;

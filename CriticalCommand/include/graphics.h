@@ -40,15 +40,14 @@ public:
     }
     bombShader->Use();
     bombShader->SetMat4("PVM", PV * object.modelMatrix);
+    bombShader->SetFloat("iTime", (timer - 30.0f) * 0.25f);
+    bombShader->SetFloat("timer", timer);
+    bombShader->SetVec2("iResolution", 1280, 720);
+    bombShader->SetVec2("iMouse", 0, 0);
   }
 
   virtual void Draw() {
 
-    bombShader->Use();
-    bombShader->SetFloat("iTime", timer * 0.25f);
-    bombShader->SetFloat("timer", timer);
-    bombShader->SetVec2("iResolution", 1280, 720);
-    bombShader->SetVec2("iMouse", 0, 0);
     bombModel->Draw(*bombShader);
   }
 
