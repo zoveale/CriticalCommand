@@ -24,7 +24,6 @@ public:
     this->modelPointers = modelPointers;
     bombShader = &shader;
     timer = 0.0f;
-
     bombModel = this->modelPointers[0]; 
   }
   virtual void SetUp(GameObject& object) {
@@ -33,33 +32,25 @@ public:
 
   virtual void Update(GameObject& object, const glm::mat4 PV = glm::mat4(1.0f)) {
     timer += 0.1f;
-    if (timer > 20.0f) {
-      //bombModel = modelPointers[1];
-    }
-
+    object.modelMatrix = glm::translate(object.modelMatrix, -object.position);
     bombShader->Use();
     bombShader->SetMat4("PVM", PV * object.modelMatrix);
-    
   }
 
   virtual void Draw() {
-    
-    
     bombShader->Use();
     bombShader->SetFloat("iTime", timer);
     bombShader->SetFloat("timer", timer);
     bombShader->SetVec2("iResolution", 1280, 720);
     bombShader->SetVec2("iMouse", 1280/2, 720/2);
-
     bombModel->Draw(*bombShader);
   }
 
 private:
-  float timer;
   Model* bombModel;
-  std::vector<Model*> modelPointers;
   Shader* bombShader;
-
+  std::vector<Model*> modelPointers;
+  float timer;
 };
 
 class IcoSphereGraphicsComponent : public GraphicsComponent {
@@ -74,6 +65,7 @@ public:
     object.position = modelPointer->Position();
   }
   virtual void Update(GameObject& object, const glm::mat4 PV) {
+    object.modelMatrix = glm::translate(object.modelMatrix, -object.position);
     icoShader->Use();
     icoShader->SetMat4("model", object.modelMatrix);
     icoShader->SetMat4("PVM", PV * object.modelMatrix);

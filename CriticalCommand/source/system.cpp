@@ -8,23 +8,18 @@ System::System() {
 }
 
 void System::SystemInit(){
-
   render.StartUp();
   input.StartUp(render.Window());
   player.StartUp();
   // \ or vise versa ?
   //camera.startup /
-  
   physx::Physics::StartUp();
   scenePhysics.TestA();
-
   printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 }
 
 
-
 void System::GameLoop(){
-
   std::vector<Model*> bombModels;
   Model bombModelIdel("resources/bomb/bomb.dae", sceneLights, scenePhysics);
   Model bombModelBig("resources/bomb/bomb1.dae", sceneLights, scenePhysics);
@@ -38,7 +33,6 @@ void System::GameLoop(){
   GameObject bomb(&bombGraphics, &bombPhysics);
 
   //Model ico_80("resources/default/ico_80.dae", sceneLights, scenePhysics);
-
   /*Shader animated("resources/shader/Animated/Vanimated.glsl",
                   "resources/shader/Animated/Fanimated.glsl");
   Model ourModel_0("resources/cowboy/CharacterRunning4.dae", sceneLights,scenePhysics);*/

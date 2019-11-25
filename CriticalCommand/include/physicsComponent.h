@@ -17,12 +17,11 @@ public:
   BombPhysicsComponent(physx::Physics* rootPhysics):root(rootPhysics), index(0), timer(0){}
 
   virtual void SetUp(GameObject& object) {
-    index = root->AddDynamicSphereActor(object.position, 1.0f);
+    index = root->AddDynamicSphereActor(object.position, 1.5f);
   }
   
   virtual void Update(GameObject& object) {
     object.modelMatrix = root->GetAPose(index);
-
     timer++;
     if (timer == 250) {
       //TODO:: when an actor gets released all other
@@ -33,7 +32,6 @@ public:
       //DisableActorSimulation is a work around for now,
       //does exatly what it sounds like
       root->DisableActorSimulation(index);
-
       root->ExplosionEffect(glm::vec3(
         object.modelMatrix[3][0],
         object.modelMatrix[3][1],
@@ -47,7 +45,6 @@ private:
   unsigned int index;
   int timer;
 };
-
 
 class IcoSpherePhysicsComponent : public PhysicsComponent{
 public:

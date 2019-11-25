@@ -12,6 +12,7 @@ class InputComponent;
 
 //TODO::class of gameObjects that are only interactable through the physics class
 //meaning: its position is only effected through force and gravity
+//Probably rename DumbGameObject
 class GameObject {
 public:
   float dt;
@@ -21,15 +22,11 @@ public:
   glm::vec3 direction;
   glm::mat4 modelMatrix;
   GameObject();
-
   //TODO:: future pointers
-  //input
   GameObject(GraphicsComponent* graphics, PhysicsComponent* physics, InputComponent* input = nullptr);
-
   void Update(float dt, const glm::mat4 PV = glm::mat4(1.0f));
   void Draw();
 
-  
 private:
   GraphicsComponent* graphics;
   PhysicsComponent* physics;

@@ -63,24 +63,24 @@ void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius) {
   PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
   body->attachShape(*shape);
   shape->release();
-  body->setMaxDepenetrationVelocity(PxReal(25.0f));
-  body->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+  body->setMaxDepenetrationVelocity(PxReal(35.0f));
+  //body->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
   PxRigidBodyExt::updateMassAndInertia(*body, 1.73f);
 
   PxShape* shapeA = gPhysics->createShape(PxSphereGeometry(distance * 1.5f), *defaultMaterial);
   PxRigidDynamic* bodyA = gPhysics->createRigidDynamic(location);
   bodyA->attachShape(*shapeA);
   shapeA->release();
-  bodyA->setMaxDepenetrationVelocity(PxReal(15.0f));
-  bodyA->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+  bodyA->setMaxDepenetrationVelocity(PxReal(25.0f));
+  //bodyA->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
   PxRigidBodyExt::updateMassAndInertia(*bodyA, 1.73f);
 
   PxShape* shapeB = gPhysics->createShape(PxSphereGeometry(distance * 2.0f), *defaultMaterial);
   PxRigidDynamic* bodyB = gPhysics->createRigidDynamic(location);
   bodyB->attachShape(*shapeB);
   shapeB->release();
-  bodyB->setMaxDepenetrationVelocity(PxReal(5.0f));
-  bodyB->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+  bodyB->setMaxDepenetrationVelocity(PxReal(15.0f));
+  //bodyB->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
   PxRigidBodyExt::updateMassAndInertia(*bodyB, 1.73f);
   
   //PxRigidActorExt::createExclusiveShape(*bodyB, shapeB, defaultMaterial, PxShapeFlag::eSIMULATION_SHAPE);
@@ -369,20 +369,18 @@ unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius, 
   //return the correct size;
   PxReal distance(radius * 0.5f);
   PxSphereGeometry sphere(distance);
-
   PxTransform location(PxVec3(pos.x, pos.y, pos.z));
-  PxShape* shape = gPhysics->createShape(PxSphereGeometry(distance), *defaultMaterial);
-  shape->setLocalPose(location);
+  
+  
   PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
-  body->attachShape(*shape);
-
+  
+  PxShape* sphereShape = PxRigidActorExt::createExclusiveShape(*body, sphere, *defaultMaterial);
   PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+  
   gScene->addActor(*body);
-
-  shape->release();
   
   
-
+  UpdateDynamicActorArray();
   return ++dynamicActorCount;
 }
 
