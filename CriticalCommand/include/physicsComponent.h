@@ -8,18 +8,16 @@ class PhysicsComponent{
 public:
   virtual ~PhysicsComponent() {}
   virtual void Update(GameObject& object) = 0;
+  virtual void SetUp(GameObject& object) = 0;
 };
 
 
 class BombPhysicsComponent : public PhysicsComponent {
 public:
-  BombPhysicsComponent(physx::Physics* rootPhysics) {
-  root = rootPhysics;
-  timer = 0;
+  BombPhysicsComponent(physx::Physics* rootPhysics):root(rootPhysics), index(0), timer(0){}
 
-  //TODO:: get position data from game object
-  //Perhaps a Virutal "SetUp" function
-  index = root->AddDynamicSphereActor(glm::vec3(0.0f, 7.0f, 0.0f), 1.0f);
+  virtual void SetUp(GameObject& object) {
+    index = root->AddDynamicSphereActor(object.position, 1.0f);
   }
   
   virtual void Update(GameObject& object) {
@@ -53,10 +51,12 @@ private:
 
 class IcoSpherePhysicsComponent : public PhysicsComponent{
 public:
-  IcoSpherePhysicsComponent(physx::Physics* rootPhysics) {
-    root = rootPhysics;
-    index = root->AddDynamicSphereActor(glm::vec3(4.0f), 2.0f);
+  IcoSpherePhysicsComponent(physx::Physics* rootPhysics): root(rootPhysics), index(0) {}
+
+  virtual void SetUp(GameObject& object) {
+    index = root->AddDynamicSphereActor(object.position, 2.0f);
   }
+
   virtual void Update(GameObject &object) {
     object.modelMatrix = root->GetAPose(index);
   }

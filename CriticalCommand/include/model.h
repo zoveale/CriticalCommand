@@ -51,7 +51,10 @@ public:
   //FIXME::
   void InitializeBones(Shader shader);
   
+  glm::vec3 Position();
 private:
+  glm::vec3 modelPosition;
+
   glm::mat4 inverseRootNode;
   Assimp::Importer importer;
   const aiScene* scene;

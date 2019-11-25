@@ -66,15 +66,11 @@ void System::GameLoop(){
                "resources/shader/Model/Fmodel.glsl");
   //TODO:: PHYSX testing
   Model ico_80("resources/default/ico_80.dae", sceneLights, scenePhysics);
-  Shader stencilShader("resources/shader/StencilShader/Vstencil.glsl",
-    "resources/shader/StencilShader/Fstencil.glsl");
-  //Model ico_80_Big("resources/default/ico_80.dae", sceneLights, scenePhysics);
   
   IcoSphereGraphicsComponent icoGraphics(&ico_80, &simple, &sceneLights);
   IcoSpherePhysicsComponent icoPhysics(&scenePhysics);
   //std::vector<GameObject> icoSpheres;
   GameObject icoSphere(&icoGraphics, &icoPhysics);
-  //icoSphere.position = glm::vec3(10.0f);
   ///
   Model default_0("resources/default/physxTestLightsTestTextureTest.dae", sceneLights, scenePhysics , true);
   
@@ -192,39 +188,6 @@ void System::GameLoop(){
     icoSphere.Update(deltaTime, pvMatrix);
     icoSphere.Draw();
 
-    ////TODO:: setting ico80 models the physics deformations
-    //for (int i = 0; i < 55; i++) {
-    //  glDepthMask(GL_TRUE);
-    //  
-    //  glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
-    //  glStencilMask(0xFF);
-    //  simple.Use();
-    //  model = glm::mat4(1.0f);
-    //  model = scenePhysics.GetAPose(i); 
-    //  model = glm::scale(model, glm::vec3(2.0));
-    //  simple.SetMat4("model", model);
-    //  simple.SetMat4("PVM", projection * view * model);
-    //  sceneLights.SetDynamicAttributes(simple);
-    //  ico_80.Draw(simple);
-
-    //  
-    //  glDepthMask(GL_FALSE);
-    //  glStencilFunc(GL_GREATER, 0x01, 0xFF);
-    //  glStencilMask(0x00);
-    //  stencilShader.Use();
-    //  model = glm::scale(model, glm::vec3(1.1f));
-    //  stencilShader.SetMat4("model", model);
-    //  stencilShader.SetMat4("PVM", projection* view* model);
-    //  ico_80.Draw(stencilShader);
-    //  
-
-    //  /*normalShader.Use();
-    //  normalShader.SetMat4("projecion", projection);
-    //  normalShader.SetMat4("view", view);
-    //  normalShader.SetMat4("model", model);
-    //  ico_80.Draw(normalShader);*/
-    //}
-    //glStencilMask(0xFF);
   
 
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
@@ -268,6 +231,35 @@ void System::Shutdown() {
   glfwTerminate();
 }
 
-
+//TODO:: setting ico80 models the physics deformations
+    //for (int i = 0; i < 55; i++) {
+    //  glDepthMask(GL_TRUE);
+    //  
+    //  glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
+    //  glStencilMask(0xFF);
+    //  simple.Use();
+    //  model = glm::mat4(1.0f);
+    //  model = scenePhysics.GetAPose(i); 
+    //  model = glm::scale(model, glm::vec3(2.0));
+    //  simple.SetMat4("model", model);
+    //  simple.SetMat4("PVM", projection * view * model);
+    //  sceneLights.SetDynamicAttributes(simple);
+    //  ico_80.Draw(simple);
+    //  
+    //  glDepthMask(GL_FALSE);
+    //  glStencilFunc(GL_GREATER, 0x01, 0xFF);
+    //  glStencilMask(0x00);
+    //  stencilShader.Use();
+    //  model = glm::scale(model, glm::vec3(1.1f));
+    //  stencilShader.SetMat4("model", model);
+    //  stencilShader.SetMat4("PVM", projection* view* model);
+    //  ico_80.Draw(stencilShader);
+    //  /*normalShader.Use();
+    //  normalShader.SetMat4("projecion", projection);
+    //  normalShader.SetMat4("view", view);
+    //  normalShader.SetMat4("model", model);
+    //  ico_80.Draw(normalShader);*/
+    //}
+    //glStencilMask(0xFF);
 
 

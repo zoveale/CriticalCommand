@@ -41,6 +41,10 @@ void Model::InitializeBones(Shader shader) {
   }
 }
 
+glm::vec3 Model::Position() {
+  return modelPosition;
+}
+
 //private
   /*  Functions   */
   // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
@@ -279,6 +283,7 @@ Animated Model::ProcessAnimatedMesh(aiMesh* mesh, const aiScene* scene) {
 void Model::processNode(aiNode* node, const aiScene* scene, physx::Physics& physicsScene/*, again*/) {
   for (unsigned int i = 0; i < node->mNumMeshes; i++) {
     aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+    
     meshes.push_back(processMesh(mesh, scene, physicsScene));
 
   }
@@ -306,13 +311,13 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
 
   //TODO:: values do not need to be this large
   //for size equation solving
-  float maxX = FLT_MIN;
+  float maxX = -1 * FLT_MAX;
   float minX = FLT_MAX;
 
-  float maxY = FLT_MIN;
+  float maxY = -1 * FLT_MAX;
   float minY = FLT_MAX;
 
-  float maxZ = FLT_MIN;
+  float maxZ = -1 * FLT_MAX;
   float minZ = FLT_MAX;
   ///
 
@@ -435,10 +440,22 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
       indices.push_back(face.mIndices[j]);
     }
   }
-
   //TODO:: TRIMESH FOR PHYSICS
+  float minMaxXYZ[] = { minX, maxX , minY,  maxY , minZ, maxZ };
+
+  float xHalfextent = ((maxX - minX) / 2.0f);
+  float yHalfextent = ((maxY - minY) / 2.0f);
+  float zHalfextent = ((maxZ - minZ) / 2.0f);
+
+  float xPos = xHalfextent + minX;
+  float yPos = yHalfextent + minY;
+  float zPos = zHalfextent + minZ;
+  modelPosition = glm::vec3(xPos, yPos, zPos);
   if (collisions) {
-    float minMaxXYZ[] = { minX, maxX , minY,  maxY , minZ, maxZ };
+    
+    
+    //find node position
+    aiNode* node = scene->mRootNode->FindNode(mesh->mName.C_Str());
 
     bool buildMesh = physicsScene.AddPhysxObject(
                                                  mesh->mName.C_Str(),

@@ -90,7 +90,7 @@ public:
     const std::string               &name,
     const float*                    vertex,
     const unsigned int*             indices,
-    const unsigned int*             indicesSize) const;
+    const unsigned int*             indicesSize);
 
   void AddStaticTriangleMesh(
     const float*                    vertex,
@@ -102,6 +102,11 @@ public:
   void DisableActorSimulation(unsigned int index);
 
   //returns index for dynamic actor
+  void AddStaticSphereActor(
+    glm::vec3 pos,
+    float radius,
+    PxMaterial* material = defaultMaterial) const;
+
   unsigned int AddDynamicSphereActor(
     glm::vec3 pos,
     float radius,
@@ -118,19 +123,7 @@ public:
   
   //void RayCastEffect()
   ///
-  void CreateStack(const PxTransform& t, PxU32 size, PxReal halfExtent);
-  void AddCubeActor(glm::vec3 pos, float x = 1.0f, float y = 1.0f, float z = 1.0f);
   
-  void ShootBall(glm::vec3 front, glm::vec3 pos);
-
-  //not good
-  void AddTempSphereActorAndStep(
-    glm::vec3 pos,
-    float radius,
-    float MaxDepenetrationVelocity = 35.0f);
-
-  
-
   unsigned int GetDynamicActorCount();
 
   

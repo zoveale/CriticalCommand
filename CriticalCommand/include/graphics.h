@@ -10,7 +10,9 @@ public:
 
   virtual ~GraphicsComponent() {}
   virtual void Update(GameObject &object, const glm::mat4 PV) = 0;
+  virtual void SetUp(GameObject& object) = 0;
   virtual void Draw() = 0;
+  
   
 };
 
@@ -22,15 +24,19 @@ public:
     this->modelPointers = modelPointers;
     bombShader = &shader;
     timer = 0.0f;
-    model = glm::mat4(1.0f);
 
-    bombModel = this->modelPointers[0];
+    bombModel = this->modelPointers[0]; 
   }
+  virtual void SetUp(GameObject& object) {
+    object.position = modelPointers[0]->Position();
+  }
+
   virtual void Update(GameObject& object, const glm::mat4 PV = glm::mat4(1.0f)) {
     timer += 0.1f;
     if (timer > 20.0f) {
       //bombModel = modelPointers[1];
     }
+
     bombShader->Use();
     bombShader->SetMat4("PVM", PV * object.modelMatrix);
     
@@ -54,7 +60,6 @@ private:
   std::vector<Model*> modelPointers;
   Shader* bombShader;
 
-  glm::mat4 model;
 };
 
 class IcoSphereGraphicsComponent : public GraphicsComponent {
@@ -65,7 +70,9 @@ public:
     lights = lightContainer;
     model = glm::mat4(1.0f);
   }
-
+  virtual void SetUp(GameObject& object) {
+    object.position = modelPointer->Position();
+  }
   virtual void Update(GameObject& object, const glm::mat4 PV) {
     icoShader->Use();
     icoShader->SetMat4("model", object.modelMatrix);
