@@ -32,17 +32,23 @@ public:
 
   virtual void Update(GameObject& object, const glm::mat4 PV = glm::mat4(1.0f)) {
     timer += 0.1f;
-    object.modelMatrix = glm::translate(object.modelMatrix, -object.position);
+    if (timer > 25.0f) {
+      bombModel = modelPointers[1];
+    }
+    else {
+      object.modelMatrix = glm::translate(object.modelMatrix, -object.position);
+    }
     bombShader->Use();
     bombShader->SetMat4("PVM", PV * object.modelMatrix);
   }
 
   virtual void Draw() {
+
     bombShader->Use();
-    bombShader->SetFloat("iTime", timer);
+    bombShader->SetFloat("iTime", timer * 0.25f);
     bombShader->SetFloat("timer", timer);
     bombShader->SetVec2("iResolution", 1280, 720);
-    bombShader->SetVec2("iMouse", 1280/2, 720/2);
+    bombShader->SetVec2("iMouse", 0, 0);
     bombModel->Draw(*bombShader);
   }
 

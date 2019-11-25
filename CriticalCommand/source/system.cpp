@@ -99,7 +99,7 @@ void System::GameLoop(){
   //
 
   while (!input.KEY.ESC) {
-
+     
     input.Process();
 
     //

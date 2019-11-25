@@ -67,18 +67,13 @@ float fbm( vec3 p )
 }
 
 
-// distance field stuff
-float sphereDist(vec3 p, vec4 sphere)
-{
-    return length(p - sphere.xyz) - sphere.w;
-}
 
 // returns signed distance to nearest surface
 // displace is displacement from original surface (0, 1)
 float distanceFunc(vec3 p, out float displace)
 {	
 	//float d = length(p) - _SphereRadius;	// distance to sphere
-	float d = length(p) - (sin(iTime*0.25)+0.5);	// animated radius
+	float d = length(p) - (sin(iTime*0.5)) * _SphereRadius;	// animated radius
 	
 	// offset distance with pyroclastic noise
 	//p = normalize(p) * _SphereRadius;	// project noise point to sphere surface
@@ -160,7 +155,7 @@ vec4 shade(vec3 p, float displace)
 vec4 volumeFunc(vec3 p)
 {
 	float displace;
-	float d = distanceFunc(p, displace);
+	//float d = distanceFunc(p, displace);
 	vec4 c = shade(p, displace);
 	return c;
 }
@@ -222,13 +217,13 @@ out vec4 FragColor;
 uniform float timer;
 
 void main(){
-	if(timer > 20.0f){
-		vec2 q = gl_FragCoord.xy / iResolution.xy;
+	if(timer > 25.0f){
+		vec2 q = gl_FragCoord.xy  / iResolution.xy;
 		vec2 p = q*2.0-1.0;
 		p.x *= iResolution.x / iResolution.y;
 	
-		float rotx = (iMouse.y / iResolution.y)*4.0;
-		float roty = 0.2*iTime - (iMouse.x / iResolution.x)*4.0;
+		float rotx = 0.0f;//(iMouse.y / iResolution.y)*4.0;
+		float roty = 0.0f;//0.2*iTime - (iMouse.x / iResolution.x)*4.0;
 	
 		// camera
 		vec3 ro = 2.0*normalize(vec3(cos(roty), cos(rotx), sin(roty)));
@@ -242,15 +237,19 @@ void main(){
 		float displace;
 		hitPos = sphereTrace(ro, rd, hit, displace);
 
-		vec4 col = vec4(0, 0, 0, 1);
+		vec4 col = vec4(0, 0, 0, 0.1);
 		if (hit) {
 			// shade
-   			//col = shade(hitPos, displace);	// opaque version
-			col = rayMarch(hitPos, rd*_StepSize, hitPos);	// volume render
+   			col = shade(hitPos, displace);	// opaque version
+			//col = rayMarch(hitPos, rd*_StepSize, hitPos);	// volume render
 		}
-		
-		FragColor = col;
+		if(col.x < 0.001f && col.y < 0.001f && col.z < 0.001f)
+			discard;
+		else{
+			FragColor = col;
+		}
 	}
+
 	else{
 	FragColor = vec4(vec3(1.0f), 1.0f);
 	}

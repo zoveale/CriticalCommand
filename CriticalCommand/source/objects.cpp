@@ -17,8 +17,6 @@ GameObject::GameObject(GraphicsComponent* g, PhysicsComponent* p, InputComponent
   //Graphics needs to be first to set up proper position
   graphics->SetUp(*this);
   physics->SetUp(*this);
-
-  
 }
 
 

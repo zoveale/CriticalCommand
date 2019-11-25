@@ -376,7 +376,7 @@ unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius, 
   
   PxShape* sphereShape = PxRigidActorExt::createExclusiveShape(*body, sphere, *defaultMaterial);
   PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-  
+  body->setMaxAngularVelocity(PxReal(3.0f));
   gScene->addActor(*body);
   
   
@@ -397,7 +397,7 @@ unsigned int physx::Physics::AddDynamicBoxActor(glm::vec3 pos, glm::vec3 size, P
   PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
   body->attachShape(*shape);
   shape->release();
-  
+
   PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
   gScene->addActor(*body);
 

@@ -133,7 +133,7 @@ void Model::ProcessLights(const aiScene* scene, LightFactory& lights) {
   std::vector<aiLight*> light;
   std::vector< aiNode*> lightNode;
   for (unsigned int i = 0; i < scene->mNumLights; i++) {
-    //FIXME:: vector not needed
+    //TODO:: vector not needed
     light.push_back(scene->mLights[i]);
     lightNode.push_back(scene->mRootNode->FindNode(light[i]->mName.data));
     lights.AddLights(light[i], lightNode[i]);
@@ -283,7 +283,7 @@ Animated Model::ProcessAnimatedMesh(aiMesh* mesh, const aiScene* scene) {
 void Model::processNode(aiNode* node, const aiScene* scene, physx::Physics& physicsScene/*, again*/) {
   for (unsigned int i = 0; i < node->mNumMeshes; i++) {
     aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-    
+    node->mTransformation;
     meshes.push_back(processMesh(mesh, scene, physicsScene));
 
   }
@@ -440,22 +440,20 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
       indices.push_back(face.mIndices[j]);
     }
   }
-  //TODO:: TRIMESH FOR PHYSICS
-  float minMaxXYZ[] = { minX, maxX , minY,  maxY , minZ, maxZ };
 
+  //Physx primative sizeing
+  float minMaxXYZ[] = { minX, maxX , minY,  maxY , minZ, maxZ };
   float xHalfextent = ((maxX - minX) / 2.0f);
   float yHalfextent = ((maxY - minY) / 2.0f);
   float zHalfextent = ((maxZ - minZ) / 2.0f);
-
   float xPos = xHalfextent + minX;
   float yPos = yHalfextent + minY;
   float zPos = zHalfextent + minZ;
   modelPosition = glm::vec3(xPos, yPos, zPos);
+  ///
+  
   if (collisions) {
     
-    //find node position
-    aiNode* node = scene->mRootNode->FindNode(mesh->mName.C_Str());
-
     bool buildMesh = physicsScene.AddPhysxObject(
                                                  mesh->mName.C_Str(),
                                                  &mesh->mVertices[0].x,
