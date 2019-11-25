@@ -453,7 +453,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
   modelPosition = glm::vec3(xPos, yPos, zPos);
   if (collisions) {
     
-    
     //find node position
     aiNode* node = scene->mRootNode->FindNode(mesh->mName.C_Str());
 
