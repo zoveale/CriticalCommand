@@ -22,9 +22,9 @@ void System::SystemInit(){
 void System::GameLoop(){
   std::vector<Model*> bombModels;
   Model bombModelIdel("resources/bomb/bomb.dae", sceneLights, scenePhysics);
-  Model bombModelBig("resources/bomb/bomb1.dae", sceneLights, scenePhysics);
+  //Model bombModelBig("resources/bomb/bomb1.dae", sceneLights, scenePhysics);
   bombModels.push_back(&bombModelIdel);
-  bombModels.push_back(&bombModelBig);
+  //bombModels.push_back(&bombModelBig);
   Shader bombShader("resources/bomb/shaders/vertex.glsl", "resources/bomb/shaders/fragment.glsl");
 
   BombGraphicsComponent bombGraphics(bombModels, bombShader);
@@ -66,7 +66,7 @@ void System::GameLoop(){
   //std::vector<GameObject> icoSpheres;
   GameObject icoSphere(&icoGraphics, &icoPhysics);
   ///
-  Model default_0("resources/default/physxTestLightsTestTextureTest.dae", sceneLights, scenePhysics , true);
+  Model default_0("resources/default/physxTestLightsTestTextureTest1.dae", sceneLights, scenePhysics , true);
   
   //Lamp models
   Shader lamp("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
@@ -160,7 +160,7 @@ void System::GameLoop(){
     simple.Use();
     simple.SetFloat("gamma", gamma);
     simple.SetVec3("viewPos", player.position);
-    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+    //model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
     simple.SetMat4("model", model);
     simple.SetMat4("PVM", projection * view * model);
     sceneLights.SetDynamicAttributes(simple);

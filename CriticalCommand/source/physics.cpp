@@ -167,16 +167,15 @@ physx::PxU32 physx::Physics::NumberOfActors() {
 void physx::Physics::AddStaticTriangleMesh(
                                             const float*                  vertex,
                                             const unsigned int*           indices,
-                                            const unsigned int*           indicesSize) const {
-  //PxTriangleMesh* mesh = createMeshGround();
+                                            const unsigned int*           indicesSize,
+                                            const glm::vec3               position) const {
+
   PxTriangleMesh* mesh = CreateTriangleMesh(vertex, indices, indicesSize);
-  //triMesh = mesh;
 
   PxTriangleMeshGeometry triGeo = mesh;
 
-  //triGeo.triangleMesh = triMesh;
-
-  PxTransform pos(PxVec3(0.0f, 0.0f, 0.0f));
+  PxTransform pos(PxVec3(position.x, position.y, position.z));
+  //PxTransform pos(PxVec3(2.0f));
   PxRigidStatic* staticActor = gPhysics->createRigidStatic(pos);
   //TODO:: can triangle meshes only be used on rigid static actors
   //PxRigidDynamic* staticActor = gPhysics->createRigidDynamic(pos);
@@ -211,7 +210,7 @@ physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
                                                       const unsigned int    *indices,
                                                       const unsigned int    *numFaces) const {
 
-  PxCookingParams params = gCooking->getParams();
+   PxCookingParams params = gCooking->getParams();
   /*PxTolerancesScale scalex = PxTolerancesScale();
   params.midphaseDesc = PxMeshMidPhase::eBVH33;
   params.midphaseDesc.mBVH33Desc.meshCookingHint = PxMeshCookingHint::eSIM_PERFORMANCE;
@@ -256,7 +255,7 @@ physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
   //PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback(), &result);
   */
 
-  return gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback());
+   return gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback());
 }
 
 glm::mat4 physx::Physics::GetAPose(int i) {
@@ -281,17 +280,20 @@ glm::mat4 physx::Physics::GetAPose(int i) {
     globalPoseArray[i].column3.w);
 }
 
-bool physx::Physics::AddPhysxObject(const std::string &name, 
+bool physx::Physics::AddPhysxObject(const std::string  &name, 
                                     const float        *vertex, 
                                     const unsigned int *indices,
-                                    const unsigned int *indicesSize){
+                                    const unsigned int *indicesSize,
+                                    const float        variables[]){
   std::string mapKey = GetIdKey(name);
-
+  if (mapKey == "STM_bowl") {
+    printf("");
+  }
+  glm::vec3 position(variables[0], variables[1], variables[2]);
   switch (geometryMap.at(mapKey)) {
     case GeometryTypes::StaticSphere:
-      glm::vec3 test(1.0f);
-      AddStaticSphereActor(test, 2.0f);
-      return false;
+      //AddStaticSphereActor(position, variables[3] * 2.0f); //TODO:: halfexents not correct
+      return true;
     case GeometryTypes::StaticCapsule:
       return false;
     case GeometryTypes::StaticBox:
@@ -299,7 +301,7 @@ bool physx::Physics::AddPhysxObject(const std::string &name,
     case GeometryTypes::StaticPlane:
       return false;
     case GeometryTypes::StaticTriangleMesh:
-      AddStaticTriangleMesh(vertex, indices, indicesSize);
+      AddStaticTriangleMesh(vertex, indices, indicesSize, position);
       return true;
     case GeometryTypes::StaticConvexMesh:
       return false;
@@ -349,15 +351,11 @@ void physx::Physics::AddStaticSphereActor(glm::vec3 pos, float radius, PxMateria
   PxReal distance(radius * 0.5f);
   PxSphereGeometry sphere(distance);
   PxTransform location(PxVec3(pos.x, pos.y, pos.z));
-  PxShape* shape = gPhysics->createShape(PxSphereGeometry(distance), *defaultMaterial);
-  shape->setLocalPose(location);
+
+
   PxRigidStatic* body = gPhysics->createRigidStatic(location);
-  body->attachShape(*shape);
-  shape->release();
-
-  //PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+  PxShape* sphereShape = PxRigidActorExt::createExclusiveShape(*body, sphere, *defaultMaterial);
   gScene->addActor(*body);
-
 }
 
 //TODO:: reduces rotational velocity 
@@ -380,7 +378,7 @@ unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius, 
   gScene->addActor(*body);
   
   
-  UpdateDynamicActorArray();
+  //UpdateDynamicActorArray();
   return ++dynamicActorCount;
 }
 

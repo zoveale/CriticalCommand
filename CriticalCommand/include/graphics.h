@@ -33,10 +33,10 @@ public:
   virtual void Update(GameObject& object, const glm::mat4 PV = glm::mat4(1.0f)) {
     timer += 0.1f;
     if (timer > 25.0f) {
-      bombModel = modelPointers[1];
+      //bombModel = modelPointers[1];
     }
     else {
-      object.modelMatrix = glm::translate(object.modelMatrix, -object.position);
+      //object.modelMatrix = glm::translate(object.modelMatrix, -object.position);
     }
     bombShader->Use();
     bombShader->SetMat4("PVM", PV * object.modelMatrix);
@@ -47,7 +47,6 @@ public:
   }
 
   virtual void Draw() {
-
     bombModel->Draw(*bombShader);
   }
 
@@ -70,7 +69,7 @@ public:
     object.position = modelPointer->Position();
   }
   virtual void Update(GameObject& object, const glm::mat4 PV) {
-    object.modelMatrix = glm::translate(object.modelMatrix, -object.position);
+    //object.modelMatrix = glm::translate(object.modelMatrix, -object.position);
     icoShader->Use();
     icoShader->SetMat4("model", object.modelMatrix);
     icoShader->SetMat4("PVM", PV * object.modelMatrix);

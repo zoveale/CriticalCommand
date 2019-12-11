@@ -55,6 +55,7 @@ public:
 private:
   glm::vec3 modelPosition;
 
+  glm::mat4 nodeTransform;
   glm::mat4 inverseRootNode;
   Assimp::Importer importer;
   const aiScene* scene;

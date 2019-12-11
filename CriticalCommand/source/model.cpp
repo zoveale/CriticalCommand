@@ -283,7 +283,7 @@ Animated Model::ProcessAnimatedMesh(aiMesh* mesh, const aiScene* scene) {
 void Model::processNode(aiNode* node, const aiScene* scene, physx::Physics& physicsScene/*, again*/) {
   for (unsigned int i = 0; i < node->mNumMeshes; i++) {
     aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-    node->mTransformation;
+    nodeTransform = aiToGlm(node->mTransformation);
     meshes.push_back(processMesh(mesh, scene, physicsScene));
 
   }
@@ -311,6 +311,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
 
   //TODO:: values do not need to be this large
   //for size equation solving
+  /*std::vector<float> physxPosition;
+  physxPosition.reserve(mesh->mNumVertices);*/
   float maxX = -1 * FLT_MAX;
   float minX = FLT_MAX;
 
@@ -345,6 +347,11 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
     vector.x = mesh->mVertices[i].x;
     vector.y = mesh->mVertices[i].y;
     vector.z = mesh->mVertices[i].z;
+    //position realtive to scene
+    //vector += glm::vec3(nodeTransform[3][0], nodeTransform[3][1], nodeTransform[3][2]);
+   /* physxPosition.push_back(vector.x + nodeTransform[3][0]);
+    physxPosition.push_back(vector.y + nodeTransform[3][1]);
+    physxPosition.push_back(vector.z + nodeTransform[3][2]);*/
     /*
     TODO: to find height estimate of object for PHYSX primatives.
     maybe similar to find width and length
@@ -389,7 +396,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
     vertex.Normal = vector;
 
     // texture coordinates
-
+    
     if (mesh->HasTextureCoords(0)) // does the mesh contain texture coordinates?
     {
       glm::vec2 vec;
@@ -442,24 +449,29 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
   }
 
   //Physx primative sizeing
-  float minMaxXYZ[] = { minX, maxX , minY,  maxY , minZ, maxZ };
+  
   float xHalfextent = ((maxX - minX) / 2.0f);
   float yHalfextent = ((maxY - minY) / 2.0f);
   float zHalfextent = ((maxZ - minZ) / 2.0f);
-  float xPos = xHalfextent + minX;
-  float yPos = yHalfextent + minY;
-  float zPos = zHalfextent + minZ;
-  modelPosition = glm::vec3(xPos, yPos, zPos);
+  float xPos = xHalfextent + minX + nodeTransform[3][0];
+  float yPos = yHalfextent + minY + nodeTransform[3][1];
+  float zPos = zHalfextent + minZ + nodeTransform[3][2];
+  modelPosition = glm::vec3(nodeTransform[3][0], nodeTransform[3][1], nodeTransform[3][2]);
+  const float minMaxXYZ[] = { xPos , yPos, zPos, xHalfextent, yHalfextent , zHalfextent};
   ///
   
   if (collisions) {
-    
     bool buildMesh = physicsScene.AddPhysxObject(
                                                  mesh->mName.C_Str(),
                                                  &mesh->mVertices[0].x,
                                                  &indices[0],
-                                                 &mesh->mNumFaces
-                                                 );
+                                                 &mesh->mNumFaces,
+                                                 minMaxXYZ);
+    //If static mesh need to move graphics appropriately
+    for (unsigned int i = 0; i < vertices.size(); ++i) {
+      vertices[i].Position += glm::vec3(nodeTransform[3][0], nodeTransform[3][1], nodeTransform[3][2]);
+    }
+
     if (!buildMesh)
       return Mesh::Empty();
   }
@@ -488,6 +500,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
   std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "material.texture_height");
   textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
+  
+  
+  
   return Mesh(vertices, indices, textures);
 }
 ///

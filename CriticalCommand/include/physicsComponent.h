@@ -31,7 +31,7 @@ public:
       //root->ReleaseActor(index);
       //DisableActorSimulation is a work around for now,
       //does exatly what it sounds like
-      root->DisableActorSimulation(index);
+      //root->DisableActorSimulation(index);
       root->ExplosionEffect(glm::vec3(
         object.modelMatrix[3][0],
         object.modelMatrix[3][1],

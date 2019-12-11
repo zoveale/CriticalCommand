@@ -1,11 +1,10 @@
 // volume explosion shader
 // simon green / nvidia 2012
 // http://developer.download.nvidia.com/assets/gamedev/files/gdc12/GDC2012_Mastering_DirectX11_with_Unity.pdf
-#version 460
 // sorry, port from HLSL!
 //#define float3 vec3
 //#define float4 vec4
-
+#version 460
 uniform float iTime;
 uniform vec2 iResolution;
 uniform vec2 iMouse;
@@ -35,7 +34,7 @@ mat3 m = mat3( 0.00,  0.80,  0.60,
 
 float hash( float n )
 {
-    return fract(sin(n)*43758.5453);
+    return fract(sin(n)*4.5453);
 }
 
 
@@ -217,7 +216,7 @@ out vec4 FragColor;
 uniform float timer;
 
 void main(){
-	if(timer > 25.0f){
+	if(timer > 2225.0f){
 		vec2 q = gl_FragCoord.xy  / iResolution.xy;
 		vec2 p = q*2.0-1.0;
 		p.x *= iResolution.x / iResolution.y;

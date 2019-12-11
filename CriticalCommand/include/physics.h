@@ -90,12 +90,14 @@ public:
     const std::string               &name,
     const float*                    vertex,
     const unsigned int*             indices,
-    const unsigned int*             indicesSize);
+    const unsigned int*             indicesSize,
+    const float                     variables[]);
 
   void AddStaticTriangleMesh(
     const float*                    vertex,
     const unsigned int*             indices,
-    const unsigned int*             indicesSize) const;
+    const unsigned int*             indicesSize,
+    const glm::vec3                 position) const;
 
   void ExplosionEffect(glm::vec3 pos, float radius);
   void ReleaseActor(unsigned int index);
