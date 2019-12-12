@@ -30,7 +30,7 @@ private:
   static glm::vec3 position;
   static glm::vec3 front;
   static glm::vec3 right; //right angle axis
-  static glm::vec3 up;
+  
   static glm::vec3 worldUp;
 
   float mouseX;
@@ -53,6 +53,7 @@ private:
   inline void SetView();
   ///
 public:
+  static glm::vec3 up;
   FirstPerson();
   void Update(Player& player);
   glm::mat4 View();

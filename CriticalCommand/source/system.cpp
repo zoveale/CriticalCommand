@@ -72,10 +72,14 @@ void System::GameLoop(){
   Model pointLamp("resources/surface/pointLamp.dae", sceneLights, scenePhysics);
   Model spotLamp("resources/surface/spotLight.dae", sceneLights, scenePhysics);
 
+  Shader skyboxShader("resources/cubemap/shaders/vertex.glsl",
+                      "resources/cubemap/shaders/fragment.glsl");
+
+  Skybox skyboxOne(&skyboxShader);
+
   glm::mat4 model = glm::mat4(1.0f);
   glm::mat4 view = glm::mat4(1.0f);
   glm::mat4 projection = glm::mat4(1.0f);
-
   
   simple.Use();
   simple.SetFloat("material.shininess", 32.0f);
@@ -147,10 +151,10 @@ void System::GameLoop(){
     //ourModel_0.Draw(normalShader);
     //model = glm::mat4(1.0f);
 
+
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
-    glStencilMask(0x00);
+    glStencilMask(0xFF);
     //input.IncrementDecrement(gamma);
-    
     simple.Use();
     simple.SetFloat("gamma", gamma);
     simple.SetVec3("viewPos", player.position);
@@ -175,8 +179,7 @@ void System::GameLoop(){
     icoSphere.Draw();
   
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
-    glStencilMask(0xFF);
-
+    glStencilMask(0x01);
     lamp.Use();
     for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
       model = sceneLights.GetPointLightTransformation(i);
@@ -190,8 +193,15 @@ void System::GameLoop(){
       lamp.SetMat4("PVM", projection * view * model);
       spotLamp.Draw(lamp);
     }
-    glStencilMask(0xFF);
+    //glStencilMask(0xFF);
     
+    //glDepthMask(GL_FALSE);
+    glStencilFunc(GL_NOTEQUAL, 0x01, 0xFF);
+    glStencilMask(0x00);
+    skyboxOne.Draw(glm::lookAt(player.position, player.position
+      + player.front, FirstPerson::up), view, projection);
+    glStencilMask(0xFF);
+    //glDepthMask(GL_TRUE);
     //framebuffer test
     framebuffertest.Postprocess(framebufferShader);
     ///

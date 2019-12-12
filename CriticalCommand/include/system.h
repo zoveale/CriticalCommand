@@ -8,6 +8,7 @@
 #include "player.h"
 #include "camera.h"
 #include "model.h"
+#include "skybox.h"
 //#include "lightFactory.h"
 //#include "physics.h"
 
@@ -28,6 +29,8 @@ private:
   FirstPerson firstPerson;
   Render render;
   Input input;
+
+  
   //LightFactory sceneLights;
 
   //physx::Physics scenePhysics;

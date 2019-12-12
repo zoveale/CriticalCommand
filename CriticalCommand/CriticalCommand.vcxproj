@@ -221,6 +221,7 @@
     <ClInclude Include="include\physicsComponent.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\skeletal.h" />
+    <ClInclude Include="include\skybox.h" />
     <ClInclude Include="include\states.h" />
     <ClInclude Include="include\system.h" />
     <ClInclude Include="include\render.h" />
@@ -238,9 +239,6 @@
     <None Include="resources\cubemap\shaders\fragment.glsl" />
     <None Include="resources\cubemap\shaders\geometry.glsl" />
     <None Include="resources\cubemap\shaders\vertex.glsl" />
-    <None Include="resources\shader\CubeMap\Fcubemap.glsl" />
-    <None Include="resources\shader\CubeMap\Gcubemap.glsl" />
-    <None Include="resources\shader\CubeMap\Vcubemap.glsl" />
     <None Include="resources\shader\Animated\Fanimated.glsl" />
     <None Include="resources\shader\Fmodel.glsl" />
     <None Include="resources\shader\Framebuffer\Fframebuffer.glsl" />

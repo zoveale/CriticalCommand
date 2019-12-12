@@ -62,6 +62,8 @@ struct Texture {
   static unsigned int Load(const char* path,
                       const std::string& directory,
                       bool gamma = false);
+
+  static unsigned int loadCubemap(std::vector<std::string> faces);
 };
 
 

@@ -131,6 +131,9 @@
     <ClInclude Include="include\physicsComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shader\Fmodel.glsl" />
@@ -139,9 +142,6 @@
     <None Include="resources\shader\NormalShader\Fnormal.glsl" />
     <None Include="resources\shader\NormalShader\Gnormal.glsl" />
     <None Include="resources\shader\NormalShader\Vnormal.glsl" />
-    <None Include="resources\shader\CubeMap\Fcubemap.glsl" />
-    <None Include="resources\shader\CubeMap\Gcubemap.glsl" />
-    <None Include="resources\shader\CubeMap\Vcubemap.glsl" />
     <None Include="resources\shader\Framebuffer\Fframebuffer.glsl" />
     <None Include="resources\shader\Framebuffer\Gframebuffer.glsl" />
     <None Include="resources\shader\Framebuffer\Vframebuffer.glsl" />
