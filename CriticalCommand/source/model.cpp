@@ -453,11 +453,11 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
   float xHalfextent = ((maxX - minX) / 2.0f);
   float yHalfextent = ((maxY - minY) / 2.0f);
   float zHalfextent = ((maxZ - minZ) / 2.0f);
-  float xPos = xHalfextent + minX + nodeTransform[3][0];
-  float yPos = yHalfextent + minY + nodeTransform[3][1];
-  float zPos = zHalfextent + minZ + nodeTransform[3][2];
+  /*float xPos = xHalfextent + minX +nodeTransform[3][0];
+  float yPos = yHalfextent + minY +nodeTransform[3][1];
+  float zPos = zHalfextent + minZ +nodeTransform[3][2];*/
   modelPosition = glm::vec3(nodeTransform[3][0], nodeTransform[3][1], nodeTransform[3][2]);
-  const float minMaxXYZ[] = { xPos , yPos, zPos, xHalfextent, yHalfextent , zHalfextent};
+  const float minMaxXYZ[] = { modelPosition.x , modelPosition.y, modelPosition.z, xHalfextent, yHalfextent , zHalfextent};
   ///
   
   if (collisions) {

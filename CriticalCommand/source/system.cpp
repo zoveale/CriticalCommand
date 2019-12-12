@@ -32,10 +32,17 @@ void System::GameLoop(){
 
   GameObject bomb(&bombGraphics, &bombPhysics);
 
-  //Model ico_80("resources/default/ico_80.dae", sceneLights, scenePhysics);
-  /*Shader animated("resources/shader/Animated/Vanimated.glsl",
-                  "resources/shader/Animated/Fanimated.glsl");
-  Model ourModel_0("resources/cowboy/CharacterRunning4.dae", sceneLights,scenePhysics);*/
+
+  Shader simple("resources/shader/Model/Vmodel.glsl",
+    "resources/shader/Model/Fmodel.glsl");
+  //TODO:: PHYSX testing
+  Model ico_80("resources/default/ico_80.dae", sceneLights, scenePhysics);
+
+  IcoSphereGraphicsComponent icoGraphics(&ico_80, &simple, &sceneLights);
+  IcoSpherePhysicsComponent icoPhysics(&scenePhysics);
+  //std::vector<GameObject> icoSpheres;
+  GameObject icoSphere(&icoGraphics, &icoPhysics);
+
 
   Shader normalShader("resources/shader/NormalShader/Vnormal.glsl",
                       "resources/shader/NormalShader/Fnormal.glsl",
@@ -56,15 +63,7 @@ void System::GameLoop(){
 
   //Model ourModel_1("resources/watchtower/tower.obj", sceneLights, scenePhysics);
 
-  Shader simple("resources/shader/Model/Vmodel.glsl",
-               "resources/shader/Model/Fmodel.glsl");
-  //TODO:: PHYSX testing
-  Model ico_80("resources/default/ico_80.dae", sceneLights, scenePhysics);
-  
-  IcoSphereGraphicsComponent icoGraphics(&ico_80, &simple, &sceneLights);
-  IcoSpherePhysicsComponent icoPhysics(&scenePhysics);
-  //std::vector<GameObject> icoSpheres;
-  GameObject icoSphere(&icoGraphics, &icoPhysics);
+ 
   ///
   Model default_0("resources/default/physxTestLightsTestTextureTest1.dae", sceneLights, scenePhysics , true);
   
@@ -113,7 +112,6 @@ void System::GameLoop(){
     if (testBool)
       scenePhysics.StepPhysics(deltaRate);
 
-
     //framebuffer test
     framebuffertest.Preprocess();
     ///
@@ -122,8 +120,6 @@ void System::GameLoop(){
     //clear screen and color background
     render.ClearScreen();
     player.HandleInput(input, deltaTime);
-    //cool acceleration effect
-    //player.Update(xpos, ypos); 
     ///
     //set to identity matrix
     model = glm::mat4(1.0f);
@@ -136,8 +132,6 @@ void System::GameLoop(){
     projection = glm::perspective(glm::radians((float)perspective),
                 (float)Render::Screen::WIDTH /(float)Render::Screen::HEIGHT, 0.1f, 1000.0f);
     view = firstPerson.View();
-
-    
     
     //animated.Use();
     //animated.SetMat4("projection", projection);
@@ -166,8 +160,6 @@ void System::GameLoop(){
     sceneLights.SetDynamicAttributes(simple);
     default_0.Draw(simple);
     
-   
-
     normalShader.Use();
     normalShader.SetMat4("projection", projection);
     normalShader.SetMat4("view", view);
@@ -178,14 +170,13 @@ void System::GameLoop(){
     player.Update(deltaTime);
     bomb.Update(deltaTime, pvMatrix);
     bomb.Draw();
-
+    
     icoSphere.Update(deltaTime, pvMatrix);
     icoSphere.Draw();
-
   
-
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
     glStencilMask(0xFF);
+
     lamp.Use();
     for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
       model = sceneLights.GetPointLightTransformation(i);
@@ -205,8 +196,6 @@ void System::GameLoop(){
     framebuffertest.Postprocess(framebufferShader);
     ///
     
-    
-   
     /* Swap front and back buffers */
     render.Display();
 
@@ -221,7 +210,6 @@ void System::GameLoop(){
 
 void System::Shutdown() {
   scenePhysics.CleanUp();
-  //dShader.Shutdown();
   glfwTerminate();
 }
 
@@ -255,5 +243,6 @@ void System::Shutdown() {
     //  ico_80.Draw(normalShader);*/
     //}
     //glStencilMask(0xFF);
-
+    //cool acceleration effect
+    //player.Update(xpos, ypos); 
 

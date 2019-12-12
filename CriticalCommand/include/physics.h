@@ -103,12 +103,13 @@ public:
   void ReleaseActor(unsigned int index);
   void DisableActorSimulation(unsigned int index);
 
-  //returns index for dynamic actor
+  
   void AddStaticSphereActor(
     glm::vec3 pos,
     float radius,
     PxMaterial* material = defaultMaterial) const;
 
+  //returns index for dynamic actor
   unsigned int AddDynamicSphereActor(
     glm::vec3 pos,
     float radius,

@@ -285,14 +285,13 @@ bool physx::Physics::AddPhysxObject(const std::string  &name,
                                     const unsigned int *indices,
                                     const unsigned int *indicesSize,
                                     const float        variables[]){
+
   std::string mapKey = GetIdKey(name);
-  if (mapKey == "STM_bowl") {
-    printf("");
-  }
   glm::vec3 position(variables[0], variables[1], variables[2]);
+  glm::vec3 size(variables[3], variables[4], variables[5]);
   switch (geometryMap.at(mapKey)) {
     case GeometryTypes::StaticSphere:
-      //AddStaticSphereActor(position, variables[3] * 2.0f); //TODO:: halfexents not correct
+      AddStaticSphereActor(position, variables[3] * 2.0f); //TODO:: halfexents not correct
       return true;
     case GeometryTypes::StaticCapsule:
       return false;
@@ -314,6 +313,7 @@ bool physx::Physics::AddPhysxObject(const std::string  &name,
     case GeometryTypes::DynamicCapsule:
       return false;
     case GeometryTypes::DynamicBox:
+      AddDynamicBoxActor(position, size * 2.0f);
       return false;
     case GeometryTypes::DynamicConvexMesh:
       return false;
@@ -374,6 +374,7 @@ unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius, 
   
   PxShape* sphereShape = PxRigidActorExt::createExclusiveShape(*body, sphere, *defaultMaterial);
   PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+  //rolls slower
   body->setMaxAngularVelocity(PxReal(3.0f));
   gScene->addActor(*body);
   

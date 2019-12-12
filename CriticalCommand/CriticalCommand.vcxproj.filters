@@ -157,9 +157,44 @@
     <None Include="resources\shader\Model\Fmodel.glsl" />
     <None Include="resources\shader\Model\Gmodel.glsl" />
     <None Include="resources\shader\Model\Vmodel.glsl" />
+    <None Include="resources\bomb\bomb.dae" />
+    <None Include="resources\bomb\bomb1.dae" />
+    <None Include="resources\bomb\shaders\vertex.glsl" />
+    <None Include="resources\bomb\shaders\fragment.glsl" />
+    <None Include="resources\bomb\shaders\geometry.glsl" />
+    <None Include="resources\cubemap\shaders\fragment.glsl" />
+    <None Include="resources\cubemap\shaders\geometry.glsl" />
+    <None Include="resources\cubemap\shaders\vertex.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\bomb\gray.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\bomb\Untitled.001.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\bomb\Untitled.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\frozendusk_bk.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\frozendusk_dn.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\frozendusk_ft.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\frozendusk_lf.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\frozendusk_rt.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\frozendusk_up.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

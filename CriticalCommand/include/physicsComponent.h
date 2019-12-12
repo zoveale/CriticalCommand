@@ -35,7 +35,7 @@ public:
       root->ExplosionEffect(glm::vec3(
         object.modelMatrix[3][0],
         object.modelMatrix[3][1],
-        object.modelMatrix[3][2]), 25.0f);
+        object.modelMatrix[3][2]), 55.0f);
       //timer = 0;
     }
   }
