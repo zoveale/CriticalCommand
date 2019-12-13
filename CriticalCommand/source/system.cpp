@@ -74,7 +74,6 @@ void System::GameLoop(){
 
   Shader skyboxShader("resources/cubemap/shaders/vertex.glsl",
                       "resources/cubemap/shaders/fragment.glsl");
-
   Skybox skyboxOne(&skyboxShader);
 
   glm::mat4 model = glm::mat4(1.0f);
@@ -193,15 +192,15 @@ void System::GameLoop(){
       lamp.SetMat4("PVM", projection * view * model);
       spotLamp.Draw(lamp);
     }
-    //glStencilMask(0xFF);
+    glStencilMask(0xFF);
     
-    //glDepthMask(GL_FALSE);
     glStencilFunc(GL_NOTEQUAL, 0x01, 0xFF);
     glStencilMask(0x00);
-    skyboxOne.Draw(glm::lookAt(player.position, player.position
-      + player.front, FirstPerson::up), view, projection);
+    glDisable(GL_DEPTH_TEST);
+    skyboxOne.Draw(view, projection);
+    glEnable(GL_DEPTH_TEST);
     glStencilMask(0xFF);
-    //glDepthMask(GL_TRUE);
+
     //framebuffer test
     framebuffertest.Postprocess(framebufferShader);
     ///

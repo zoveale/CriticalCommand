@@ -289,13 +289,15 @@ bool physx::Physics::AddPhysxObject(const std::string  &name,
   std::string mapKey = GetIdKey(name);
   glm::vec3 position(variables[0], variables[1], variables[2]);
   glm::vec3 size(variables[3], variables[4], variables[5]);
+
   switch (geometryMap.at(mapKey)) {
     case GeometryTypes::StaticSphere:
-      AddStaticSphereActor(position, variables[3] * 2.0f); //TODO:: halfexents not correct
-      return true;
+      AddStaticSphereActor(position, variables[3]); 
+      return false;
     case GeometryTypes::StaticCapsule:
       return false;
     case GeometryTypes::StaticBox:
+      AddStaticBoxActor(position, size);
       return false;
     case GeometryTypes::StaticPlane:
       return false;
@@ -313,14 +315,14 @@ bool physx::Physics::AddPhysxObject(const std::string  &name,
     case GeometryTypes::DynamicCapsule:
       return false;
     case GeometryTypes::DynamicBox:
-      AddDynamicBoxActor(position, size * 2.0f);
+      AddDynamicBoxActor(position, size);
       return false;
     case GeometryTypes::DynamicConvexMesh:
       return false;
     case GeometryTypes::DynamicConvexMeshCooking:
       return false;
     case GeometryTypes::NoCollisionGeomety:
-      return false;
+      return true;
    }
 
   return false;
@@ -348,7 +350,7 @@ std::string physx::Physics::GetIdKey(std::string name) const {
 
 
 void physx::Physics::AddStaticSphereActor(glm::vec3 pos, float radius, PxMaterial* material) const{
-  PxReal distance(radius * 0.5f);
+  PxReal distance(radius);
   PxSphereGeometry sphere(distance);
   PxTransform location(PxVec3(pos.x, pos.y, pos.z));
 
@@ -356,6 +358,23 @@ void physx::Physics::AddStaticSphereActor(glm::vec3 pos, float radius, PxMateria
   PxRigidStatic* body = gPhysics->createRigidStatic(location);
   PxShape* sphereShape = PxRigidActorExt::createExclusiveShape(*body, sphere, *defaultMaterial);
   gScene->addActor(*body);
+}
+
+void physx::Physics::AddStaticBoxActor(glm::vec3 pos, glm::vec3 size, PxMaterial* material) {
+  //Physx uses "Halfextents" for length claculation
+  //so inputing appropriate size into the function should
+  //return the correct size;
+  PxBoxGeometry box(PxReal(size.x), PxReal(size.y), PxReal(size.z));
+  PxTransform location(PxVec3(pos.x, pos.y, pos.z));
+
+  PxShape* shape = gPhysics->createShape(box, *defaultMaterial);
+  PxRigidStatic* body = gPhysics->createRigidStatic(location);
+  body->attachShape(*shape);
+  shape->release();
+
+  gScene->addActor(*body);
+
+
 }
 
 //TODO:: reduces rotational velocity 
@@ -389,8 +408,7 @@ unsigned int physx::Physics::AddDynamicBoxActor(glm::vec3 pos, glm::vec3 size, P
   //Physx uses "Halfextents" for length claculation
   //so inputing appropriate size into the function should
   //return the correct size;
-  PxVec3 distance(PxReal(size.x * 0.5f), PxReal(size.y * 0.5f), PxReal(size.z * 0.5f));
-  PxBoxGeometry box(distance.x, distance.y, distance.z);
+  PxBoxGeometry box(PxReal(size.x), PxReal(size.y), PxReal(size.z));
   PxTransform location(PxVec3(pos.x, pos.y, pos.z));
   PxShape* shape = gPhysics->createShape(box, *defaultMaterial);
   PxRigidDynamic* body = gPhysics->createRigidDynamic(location);

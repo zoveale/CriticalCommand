@@ -265,12 +265,18 @@
     <Image Include="resources\bomb\gray.png" />
     <Image Include="resources\bomb\Untitled.001.png" />
     <Image Include="resources\bomb\Untitled.png" />
+    <Image Include="resources\cubemap\textures\back.png" />
+    <Image Include="resources\cubemap\textures\bottem.png" />
+    <Image Include="resources\cubemap\textures\front.png" />
     <Image Include="resources\cubemap\textures\frozendusk_bk.jpg" />
     <Image Include="resources\cubemap\textures\frozendusk_dn.jpg" />
     <Image Include="resources\cubemap\textures\frozendusk_ft.jpg" />
     <Image Include="resources\cubemap\textures\frozendusk_lf.jpg" />
     <Image Include="resources\cubemap\textures\frozendusk_rt.jpg" />
     <Image Include="resources\cubemap\textures\frozendusk_up.jpg" />
+    <Image Include="resources\cubemap\textures\left.png" />
+    <Image Include="resources\cubemap\textures\right.png" />
+    <Image Include="resources\cubemap\textures\top.png" />
     <Image Include="resources\texture\wall.jpg" />
   </ItemGroup>
   <ItemGroup>

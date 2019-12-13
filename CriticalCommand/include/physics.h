@@ -93,21 +93,24 @@ public:
     const unsigned int*             indicesSize,
     const float                     variables[]);
 
+  
+
+ 
   void AddStaticTriangleMesh(
     const float*                    vertex,
     const unsigned int*             indices,
     const unsigned int*             indicesSize,
     const glm::vec3                 position) const;
 
-  void ExplosionEffect(glm::vec3 pos, float radius);
-  void ReleaseActor(unsigned int index);
-  void DisableActorSimulation(unsigned int index);
-
-  
   void AddStaticSphereActor(
     glm::vec3 pos,
     float radius,
     PxMaterial* material = defaultMaterial) const;
+
+  void AddStaticBoxActor(
+    glm::vec3 pos,
+    glm::vec3 size,
+    PxMaterial* material = defaultMaterial);
 
   //returns index for dynamic actor
   unsigned int AddDynamicSphereActor(
@@ -119,6 +122,10 @@ public:
     glm::vec3 pos,
     glm::vec3 size,
     PxMaterial* material = defaultMaterial);
+
+  void ExplosionEffect(glm::vec3 pos, float radius);
+  void ReleaseActor(unsigned int index);
+  void DisableActorSimulation(unsigned int index);
 
   //TODO:: test functions
   void TestA();

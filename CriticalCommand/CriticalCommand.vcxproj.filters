@@ -197,6 +197,24 @@
     <Image Include="resources\cubemap\textures\frozendusk_up.jpg">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="resources\cubemap\textures\back.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\bottem.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\front.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\left.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\right.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\top.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Text Include="resources\shader\Animated\Vanimated.glsl" />

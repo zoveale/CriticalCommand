@@ -59,11 +59,19 @@ public:
     faces.push_back("resources/cubemap/textures/frozendusk_dn.jpg");
     faces.push_back("resources/cubemap/textures/frozendusk_bk.jpg");
     faces.push_back("resources/cubemap/textures/frozendusk_ft.jpg");
-
+    
+    /*faces.push_back("resources/cubemap/textures/right.jpg");
+    faces.push_back("resources/cubemap/textures/left.jpg");
+    faces.push_back("resources/cubemap/textures/top.jpg");
+    faces.push_back("resources/cubemap/textures/bottem.jpg");
+    faces.push_back("resources/cubemap/textures/back.jpg");
+    faces.push_back("resources/cubemap/textures/front.jpg");*/
+    
     cubemapTexture = Texture::loadCubemap(faces);
 
     // skybox VAO
-    
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
     glGenVertexArrays(1, &skyboxVAO);
     glGenBuffers(1, &skyboxVBO);
     glBindVertexArray(skyboxVAO);
@@ -76,13 +84,10 @@ public:
     shaderPointer->Use();
     shaderPointer->SetInt("skybox", 0);
   }
-  void Draw(glm::mat3 camera, glm::mat4 view, glm::mat4 projection) {
-    // draw skybox as last
-    //glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+  void Draw(glm::mat4 view, glm::mat4 projection) {
     shaderPointer->Use();
-    //glm::lookAt(Position, Position + Front, Up)
-    view = glm::mat4(glm::mat3(camera)); // remove translation from the view matrix
-    shaderPointer->SetMat4("view", view);
+    //remove translation from the view matrix
+    shaderPointer->SetMat4("view", glm::mat4(glm::mat3(view)));
     shaderPointer->SetMat4("projection", projection);
     // skybox cube
     glBindVertexArray(skyboxVAO);
@@ -90,7 +95,6 @@ public:
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
-    //glDepthFunc(GL_LESS);
   }
   
 private:
