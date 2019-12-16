@@ -215,6 +215,24 @@
     <Image Include="resources\cubemap\textures\top.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="resources\cubemap\textures\left.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\right.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\top.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\front.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\bottom.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\back.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Text Include="resources\shader\Animated\Vanimated.glsl" />

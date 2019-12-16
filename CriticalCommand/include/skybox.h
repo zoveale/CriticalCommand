@@ -1,5 +1,5 @@
-#ifndef VEALE_909BC959_DC2C_4B6D_A279_3100195E4C83
-#define VEALE_909BC959_DC2C_4B6D_A279_3100195E4C83
+#ifndef VEALE_909BC959_DC2C_4B6D_A279_3100195E4C83_H
+#define VEALE_909BC959_DC2C_4B6D_A279_3100195E4C83_H
 
 #include "model.h"
 
@@ -53,19 +53,19 @@ public:
   Skybox(){}
 
   Skybox(Shader *shader) {
-    faces.push_back("resources/cubemap/textures/frozendusk_rt.jpg");
-    faces.push_back("resources/cubemap/textures/frozendusk_lf.jpg");
-    faces.push_back("resources/cubemap/textures/frozendusk_up.jpg");
-    faces.push_back("resources/cubemap/textures/frozendusk_dn.jpg");
-    faces.push_back("resources/cubemap/textures/frozendusk_bk.jpg");
-    faces.push_back("resources/cubemap/textures/frozendusk_ft.jpg");
-    
-    /*faces.push_back("resources/cubemap/textures/right.jpg");
+    //faces.push_back("resources/cubemap/textures/frozendusk_rt.jpg");
+    //faces.push_back("resources/cubemap/textures/frozendusk_lf.jpg");
+    //faces.push_back("resources/cubemap/textures/frozendusk_up.jpg");
+    //faces.push_back("resources/cubemap/textures/frozendusk_dn.jpg");
+    //faces.push_back("resources/cubemap/textures/frozendusk_bk.jpg");
+    //faces.push_back("resources/cubemap/textures/frozendusk_ft.jpg");
+    //
+    faces.push_back("resources/cubemap/textures/right.jpg");
     faces.push_back("resources/cubemap/textures/left.jpg");
     faces.push_back("resources/cubemap/textures/top.jpg");
     faces.push_back("resources/cubemap/textures/bottem.jpg");
     faces.push_back("resources/cubemap/textures/back.jpg");
-    faces.push_back("resources/cubemap/textures/front.jpg");*/
+    faces.push_back("resources/cubemap/textures/front.jpg");
     
     cubemapTexture = Texture::loadCubemap(faces);
 
@@ -105,4 +105,4 @@ private:
 
   
 };
-#endif // !VEALE_909BC959_DC2C_4B6D_A279_3100195E4C83
+#endif // !VEALE_909BC959_DC2C_4B6D_A279_3100195E4C83_H
