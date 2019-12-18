@@ -194,6 +194,8 @@ void System::GameLoop(){
     }
     glStencilMask(0xFF);
     
+
+
     glStencilFunc(GL_NOTEQUAL, 0x01, 0xFF);
     glStencilMask(0x00);
     glDisable(GL_DEPTH_TEST);

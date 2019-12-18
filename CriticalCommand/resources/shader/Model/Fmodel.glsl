@@ -102,6 +102,10 @@ void main(){
 	
 	vec3 gammaCorrection = pow(result.rgb, vec3(1.0/gamma));
 	FragColor =  vec4(vec3(gammaCorrection), 1.0);
+
+
+	//float depth = LinearizeDepth(gl_FragCoord.z) / far;
+	//FragColor = vec4(vec3(depth), 0.0 );
 }
 
 float LinearizeDepth(float depth){

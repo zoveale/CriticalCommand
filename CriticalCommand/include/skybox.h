@@ -53,19 +53,19 @@ public:
   Skybox(){}
 
   Skybox(Shader *shader) {
-    //faces.push_back("resources/cubemap/textures/frozendusk_rt.jpg");
-    //faces.push_back("resources/cubemap/textures/frozendusk_lf.jpg");
-    //faces.push_back("resources/cubemap/textures/frozendusk_up.jpg");
-    //faces.push_back("resources/cubemap/textures/frozendusk_dn.jpg");
-    //faces.push_back("resources/cubemap/textures/frozendusk_bk.jpg");
-    //faces.push_back("resources/cubemap/textures/frozendusk_ft.jpg");
-    //
+    faces.push_back("resources/cubemap/textures/right.png");
+    faces.push_back("resources/cubemap/textures/left.png");
+    faces.push_back("resources/cubemap/textures/top.png");
+    faces.push_back("resources/cubemap/textures/bottom.png");
+    faces.push_back("resources/cubemap/textures/front.png");
+    faces.push_back("resources/cubemap/textures/back.png");
+/*
     faces.push_back("resources/cubemap/textures/right.jpg");
     faces.push_back("resources/cubemap/textures/left.jpg");
     faces.push_back("resources/cubemap/textures/top.jpg");
-    faces.push_back("resources/cubemap/textures/bottem.jpg");
-    faces.push_back("resources/cubemap/textures/back.jpg");
+    faces.push_back("resources/cubemap/textures/bottom.jpg");
     faces.push_back("resources/cubemap/textures/front.jpg");
+    faces.push_back("resources/cubemap/textures/back.jpg");*/
     
     cubemapTexture = Texture::loadCubemap(faces);
 

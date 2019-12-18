@@ -360,3 +360,9 @@ healthchecksdb
 /CriticalCommand/resources/cubemap/textures/bottom.jpg
 /CriticalCommand/resources/cubemap/textures/back.jpg
 /CriticalCommand/resources/cubemap/textures/top - Copy.jpg
+/CriticalCommand/resources/cubemap/textures/top.png
+/CriticalCommand/resources/cubemap/textures/right.png
+/CriticalCommand/resources/cubemap/textures/left.png
+/CriticalCommand/resources/cubemap/textures/front.png
+/CriticalCommand/resources/cubemap/textures/bottom.png
+/CriticalCommand/resources/cubemap/textures/back.png
