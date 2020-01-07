@@ -1,8 +1,9 @@
 #include "framebuffer.h"
+#include "render.h"
 
 Framebuffer::Framebuffer(Shader screenShader) {
   Test();
-
+  //Render::Screen::WIDTH
   screenShader.Use();
   screenShader.SetInit("screenTexture", 0);
   
@@ -16,7 +17,7 @@ Framebuffer::Framebuffer(Shader screenShader) {
   glGenTextures(1, &textureColorbuffer);
   glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
   //TODO:: globally define screen height and width
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1280, 720, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Render::Screen::WIDTH, Render::Screen::HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
@@ -26,7 +27,7 @@ Framebuffer::Framebuffer(Shader screenShader) {
   glGenRenderbuffers(1, &rbo);
   glBindRenderbuffer(GL_RENDERBUFFER, rbo);
   //TODO:: globally define screen height and width
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 1280, 720); // use a single renderbuffer object for both a depth AND stencil buffer.
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, Render::Screen::WIDTH, Render::Screen::HEIGHT); // use a single renderbuffer object for both a depth AND stencil buffer.
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
   // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)

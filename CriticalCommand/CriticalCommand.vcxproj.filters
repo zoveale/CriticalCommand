@@ -165,6 +165,9 @@
     <None Include="resources\cubemap\shaders\fragment.glsl" />
     <None Include="resources\cubemap\shaders\geometry.glsl" />
     <None Include="resources\cubemap\shaders\vertex.glsl" />
+    <None Include="resources\shader\Shadow\frag.glsl" />
+    <None Include="resources\shader\Shadow\geo.glsl" />
+    <None Include="resources\shader\Shadow\vert.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">

@@ -20,21 +20,25 @@ void System::SystemInit(){
 
 
 void System::GameLoop(){
+  Shader simple("resources/shader/Model/Vmodel.glsl",
+                "resources/shader/Model/Fmodel.glsl");
+
   std::vector<Model*> bombModels;
   Model bombModelIdel("resources/bomb/bomb.dae", sceneLights, scenePhysics);
   //Model bombModelBig("resources/bomb/bomb1.dae", sceneLights, scenePhysics);
+
   bombModels.push_back(&bombModelIdel);
   //bombModels.push_back(&bombModelBig);
+
   Shader bombShader("resources/bomb/shaders/vertex.glsl", "resources/bomb/shaders/fragment.glsl");
 
-  BombGraphicsComponent bombGraphics(bombModels, bombShader);
+  BombGraphicsComponent bombGraphics(bombModels, &simple);
   BombPhysicsComponent bombPhysics(&scenePhysics);
 
   GameObject bomb(&bombGraphics, &bombPhysics);
 
 
-  Shader simple("resources/shader/Model/Vmodel.glsl",
-    "resources/shader/Model/Fmodel.glsl");
+ 
   //TODO:: PHYSX testing
   Model ico_80("resources/default/ico_80.dae", sceneLights, scenePhysics);
 
@@ -49,22 +53,12 @@ void System::GameLoop(){
                       "resources/shader/NormalShader/Gnormal.glsl");
 
   //Framebuffer testing
-  Shader framebufferShader("resources/shader/Framebuffer/Vframebuffer.glsl",
+  Shader basicFramebufferShader("resources/shader/Framebuffer/Vframebuffer.glsl",
                            "resources/shader/Framebuffer/Fframebuffer.glsl");
-  Framebuffer framebuffertest(framebufferShader);
+  Framebuffer basicFramebuffer(basicFramebufferShader);
   ///
-
-  ////Cubemap Testing
-  //Shader cubeMapShader("resources/shader/CubeMap/Vcubemap.glsl",
-  //                     "resources/shader/CubeMap/Fcubemap.glsl",
-  //                     "resources/shader/CubeMap/Gcubemap.glsl");
-  //Model cubemap("resources/default/cubemapbox.dae", sceneLights, scenePhysics);
-  /////
-
-  //Model ourModel_1("resources/watchtower/tower.obj", sceneLights, scenePhysics);
 
  
-  ///
   Model default_0("resources/default/physxTestLightsTestTextureTest1.dae", sceneLights, scenePhysics , true);
   
   //Lamp models
@@ -99,7 +93,7 @@ void System::GameLoop(){
   float lastFrame = (float)glfwGetTime();
 
   //
-
+  
   while (!input.KEY.ESC) {
      
     input.Process();
@@ -115,13 +109,12 @@ void System::GameLoop(){
     if (testBool)
       scenePhysics.StepPhysics(deltaRate);
 
-    //framebuffer test
-    framebuffertest.Preprocess();
+    //framebuffer
+    basicFramebuffer.Preprocess();
+    render.ClearScreen();
     ///
 
-    /* Render here */
-    //clear screen and color background
-    render.ClearScreen();
+
     player.HandleInput(input, deltaTime);
     ///
     //set to identity matrix
@@ -195,23 +188,21 @@ void System::GameLoop(){
     glStencilMask(0xFF);
     
 
-
     glStencilFunc(GL_NOTEQUAL, 0x01, 0xFF);
     glStencilMask(0x00);
     glDisable(GL_DEPTH_TEST);
     skyboxOne.Draw(view, projection);
     glEnable(GL_DEPTH_TEST);
     glStencilMask(0xFF);
-
     //framebuffer test
-    framebuffertest.Postprocess(framebufferShader);
+    basicFramebuffer.Postprocess(basicFramebufferShader);
     ///
     
     /* Swap front and back buffers */
     render.Display();
 
     /* Poll for and process events */
-    input.PollEvents();
+     input.PollEvents();
   }
 
   //FIXME:: quit function

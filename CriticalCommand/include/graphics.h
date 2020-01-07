@@ -20,9 +20,9 @@ class BombGraphicsComponent : public GraphicsComponent {
 public:
 
 //TODO::make less awful
-  BombGraphicsComponent(std::vector<Model*> &modelPointers, Shader &shader) {
+  BombGraphicsComponent(std::vector<Model*> modelPointers, Shader* shader) {
     this->modelPointers = modelPointers;
-    bombShader = &shader;
+    this->bombShader = shader;
     timer = 0.0f;
     bombModel = this->modelPointers[0]; 
   }
@@ -42,8 +42,8 @@ public:
     bombShader->SetMat4("PVM", PV * object.modelMatrix);
     bombShader->SetFloat("iTime", (timer - 30.0f) * 0.25f);
     bombShader->SetFloat("timer", timer);
-    bombShader->SetVec2("iResolution", 1280, 720);
-    bombShader->SetVec2("iMouse", 0, 0);
+    //bombShader->SetVec2("iResolution", 1280, 720);
+    //bombShader->SetVec2("iMouse", 0, 0);
   }
 
   virtual void Draw() {

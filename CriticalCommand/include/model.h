@@ -39,10 +39,19 @@ public:
         physx::Physics &physicScene,
         bool physics = false,
         bool gamma = false) 
-        :collisions(physics),gammaCorrection(gamma) {
+        :collisions(physics) {
 
     loadModel(path, light, physicScene);
   }
+
+  //TODO:: create another constructor for model that only takes in a string
+  //Model(std::string const& path) : collisions(false), gammaCorrection(false) {
+  //  
+  //  LightFactory light;
+  //  physx::Physics physicScene;
+  //    
+  //  loadModel(path, light, physicScene);
+  //}
 
   // draws the model, and thus all its meshes
   void Draw(Shader shader);

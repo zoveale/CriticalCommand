@@ -256,6 +256,9 @@
     <None Include="resources\shader\PhysicsObjects\Fphysics.glsl" />
     <None Include="resources\shader\PhysicsObjects\Gphysics.glsl" />
     <None Include="resources\shader\PhysicsObjects\Vphysics.glsl" />
+    <None Include="resources\shader\Shadow\frag.glsl" />
+    <None Include="resources\shader\Shadow\geo.glsl" />
+    <None Include="resources\shader\Shadow\vert.glsl" />
     <None Include="resources\shader\StencilShader\Fstencil.glsl" />
     <None Include="resources\shader\StencilShader\Gstencil.glsl" />
     <None Include="resources\shader\StencilShader\Vstencil.glsl" />
