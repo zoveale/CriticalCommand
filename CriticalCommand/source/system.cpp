@@ -23,6 +23,9 @@ void System::GameLoop(){
   Shader simple("resources/shader/Model/Vmodel.glsl",
                 "resources/shader/Model/Fmodel.glsl");
 
+  Shader depthTestShader("resources/shader/Shadow/Depth/vert.glsl",
+                   "resources/shader/Shadow/Depth/frag.glsl");
+
   std::vector<Model*> bombModels;
   Model bombModelIdel("resources/bomb/bomb.dae", sceneLights, scenePhysics);
   //Model bombModelBig("resources/bomb/bomb1.dae", sceneLights, scenePhysics);
@@ -59,7 +62,7 @@ void System::GameLoop(){
   ///
 
  
-  Model default_0("resources/default/physxTestLightsTestTextureTest1.dae", sceneLights, scenePhysics , true);
+  Model default_0("resources/default/physxTestLightsTestTextureTest2.dae", sceneLights, scenePhysics , true);
   
   //Lamp models
   Shader lamp("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
@@ -93,6 +96,16 @@ void System::GameLoop(){
   float lastFrame = (float)glfwGetTime();
 
   //
+  
+  float near_plane = 1.0f, far_plane = 7.5f;
+  glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+  glm::mat4 lightView = glm::lookAt(sceneLights.GetPointLightPos(0),
+                        glm::vec3(0.0f, 0.0f, 0.0f),
+                        glm::vec3(0.0f, 1.0f, 0.0f));
+
+  glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+  depthTestShader.Use();
+  depthTestShader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
   
   while (!input.KEY.ESC) {
      
@@ -144,6 +157,8 @@ void System::GameLoop(){
     //model = glm::mat4(1.0f);
 
 
+    //default_0.Draw(depthTestShader);
+
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
     glStencilMask(0xFF);
     //input.IncrementDecrement(gamma);
@@ -156,11 +171,11 @@ void System::GameLoop(){
     sceneLights.SetDynamicAttributes(simple);
     default_0.Draw(simple);
     
-    normalShader.Use();
+    /*normalShader.Use();
     normalShader.SetMat4("projection", projection);
     normalShader.SetMat4("view", view);
     normalShader.SetMat4("model", model);
-    default_0.Draw(normalShader);
+    default_0.Draw(normalShader);*/
     
     glm::mat4 pvMatrix = projection * view;
     player.Update(deltaTime);
@@ -194,6 +209,7 @@ void System::GameLoop(){
     skyboxOne.Draw(view, projection);
     glEnable(GL_DEPTH_TEST);
     glStencilMask(0xFF);
+
     //framebuffer test
     basicFramebuffer.Postprocess(basicFramebufferShader);
     ///

@@ -10,27 +10,34 @@ layout (location = 4) in vec3 bitTangent;
 
 out VS_OUT {
     vec3 FragPos;
-    
+    vec2 textureUV;
+	vec3 normal;
+
     vec3 TangentLightPos;
     vec3 TangentViewPos;
     vec3 TangentFragPos;
 
-	vec3 normal;
+
+	//Shadow stuff
+	vec4 FragPosLightSpace;
 } vs_out;
 
-out vec2 textureUV;
+//out vec2 textureUV;
 
-//normals
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 PVM;
 
+uniform mat4 lightSpaceMatrix;
+
 void main(){
 	vs_out.FragPos = vec3(model * vec4(position,1.0));
-	textureUV = aTexCoords; 
+	vs_out.textureUV = aTexCoords; 
 
 	vs_out.normal = mat3(transpose(inverse(model))) * aNormal;	
+
+	vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0f);
 
 	gl_Position = PVM * vec4(position, 1.0);
 }

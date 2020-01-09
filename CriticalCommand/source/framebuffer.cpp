@@ -3,12 +3,9 @@
 
 Framebuffer::Framebuffer(Shader screenShader) {
   Test();
-  //Render::Screen::WIDTH
-  screenShader.Use();
-  screenShader.SetInit("screenTexture", 0);
   
-  // framebuffer configuration
-  // -------------------------
+  screenShader.Use();
+  screenShader.SetInt("screenTexture", 0);
   
   glGenFramebuffers(1, &framebuffer);
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -16,6 +13,7 @@ Framebuffer::Framebuffer(Shader screenShader) {
   
   glGenTextures(1, &textureColorbuffer);
   glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+  
   //TODO:: globally define screen height and width
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Render::Screen::WIDTH, Render::Screen::HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -42,7 +40,6 @@ void Framebuffer::Preprocess() {
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
   glDepthMask(GL_TRUE);
-  
 }
 
 void Framebuffer::Postprocess(Shader screenShader) {
@@ -52,11 +49,11 @@ void Framebuffer::Postprocess(Shader screenShader) {
   //bind buffer back to default
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glDisable(GL_DEPTH_TEST);
+  glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
   glBindVertexArray(quadVAO);
- 	// use the color attachment texture as the texture of the quad plane
+  //glViewport(0, 0, Render::Screen::WIDTH/2, Render::Screen::HEIGHT/2);
   glDrawArrays(GL_TRIANGLES, 0, 6);
-  
 }
 
 Framebuffer::~Framebuffer() {

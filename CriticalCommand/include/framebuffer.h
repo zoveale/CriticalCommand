@@ -10,6 +10,8 @@ public:
   void Preprocess();
   void Postprocess(Shader screenShader);
 
+
+
   ~Framebuffer();
 private:
   void Test();
@@ -17,5 +19,6 @@ private:
   unsigned int textureColorbuffer;
   unsigned int quadVAO;
   unsigned int quadVBO;
+  const unsigned int TEXTURE_ZERO = 0;
 };
 #endif // !FRAMEBUFFER_H

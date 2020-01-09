@@ -4,7 +4,6 @@
 #include "model.h"
 #include "objects.h"
 
-
 class GraphicsComponent {
 public:
 
@@ -57,6 +56,7 @@ private:
   float timer;
 };
 
+
 class IcoSphereGraphicsComponent : public GraphicsComponent {
 public:
   IcoSphereGraphicsComponent(Model* modelPointers, Shader* shader, LightFactory* lightContainer = nullptr) {
@@ -87,5 +87,6 @@ private:
   LightFactory* lights;
   glm::mat4 model;
 };
+
 
 #endif // !VEALE_1FE65B4A_908C_414D_A4E1_D59A282CFB13_H
