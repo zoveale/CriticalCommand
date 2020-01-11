@@ -23,7 +23,7 @@ class Input {
 private:
   
   GLFWwindow* window;
-
+  unsigned int timer;
 public:
 
   KEY_STATE KEY;
@@ -47,6 +47,7 @@ public:
   //test function
   void IncrementDecrement(float &i);
   void IncrementDecrement(int &i);
+  void IncrementDecrement(unsigned int& i);
   void IncrementDecrement(bool &i);
 };
 #endif // !INPUT_H

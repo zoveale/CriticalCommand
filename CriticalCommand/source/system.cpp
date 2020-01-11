@@ -24,7 +24,7 @@ void System::GameLoop(){
                 "resources/shader/Model/Fmodel.glsl");
 
   Shader depthTestShader("resources/shader/Shadow/Depth/vert.glsl",
-                   "resources/shader/Shadow/Depth/frag.glsl");
+    "resources/shader/Shadow/Depth/frag.glsl");
 
   std::vector<Model*> bombModels;
   Model bombModelIdel("resources/bomb/bomb.dae", sceneLights, scenePhysics);
@@ -97,16 +97,48 @@ void System::GameLoop(){
 
   //
   
-  float near_plane = 1.0f, far_plane = 7.5f;
-  glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-  glm::mat4 lightView = glm::lookAt(sceneLights.GetPointLightPos(0),
-                        glm::vec3(0.0f, 0.0f, 0.0f),
-                        glm::vec3(0.0f, 1.0f, 0.0f));
+  //float aspect = (float)1024 / (float)1024;
+  //float near = 10.0f;
+  //float far = 100.0f;
+  //glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), aspect, near, far);
+/*
+  float near = 1.0f, far = 25.0f;
+  glm::mat4 lightProjectionOrtho = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near, far);
 
-  glm::mat4 lightSpaceMatrix = lightProjection * lightView;
-  depthTestShader.Use();
-  depthTestShader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
+  glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
+    glm::vec3(0.0f, 0.0f, 0.0f),
+    glm::vec3(0.0f, 1.0f, 0.0f));*/
+  //glm::mat4 lightView = glm::lookAt(sceneLights.GetPointLightPos(0),
+  //  sceneLights.GetPointLightPos(0) + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+
+  float near_plane = 1.0f, far_plane = 25.0f;
+  glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.0f, near_plane, far_plane);
+
+
+
+  std::vector<glm::mat4> shadowTransforms;
+  shadowTransforms.push_back(lightProjection *
+    glm::lookAt(sceneLights.GetPointLightPos(0),
+                sceneLights.GetPointLightPos(0) + glm::vec3(1.0, 0.0, 0.0),
+                glm::vec3(0.0, -1.0, 0.0)));
+  shadowTransforms.push_back(lightProjection *
+    glm::lookAt(sceneLights.GetPointLightPos(0), sceneLights.GetPointLightPos(0) + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+  shadowTransforms.push_back(lightProjection *
+    glm::lookAt(sceneLights.GetPointLightPos(0), sceneLights.GetPointLightPos(0) + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+  shadowTransforms.push_back(lightProjection*
+    glm::lookAt(sceneLights.GetPointLightPos(0), sceneLights.GetPointLightPos(0) + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
+  shadowTransforms.push_back(lightProjection*
+    glm::lookAt(sceneLights.GetPointLightPos(0), sceneLights.GetPointLightPos(0) + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
+  shadowTransforms.push_back(lightProjection*
+    glm::lookAt(sceneLights.GetPointLightPos(0), sceneLights.GetPointLightPos(0) + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
   
+  glm::mat4 lightSpaceMatrix(1.0f);
+
+  unsigned int index = 0;
+  //simple.Use();
+  //simple.SetInt("diffuseTexture", 0);
+  //simple.SetInt("shadowMap", 0);
+  basicFramebuffer.CreateDepthMap();
   while (!input.KEY.ESC) {
      
     input.Process();
@@ -118,22 +150,44 @@ void System::GameLoop(){
     //printf("deltaTime = %f\n", deltaTime);
     ///
     //TODO:update this somehow
-    input.IncrementDecrement(testBool);
+   /* input.IncrementDecrement(testBool);
     if (testBool)
-      scenePhysics.StepPhysics(deltaRate);
+      scenePhysics.StepPhysics(deltaRate);*/
+    
+    input.IncrementDecrement(index);
+    if (index > 5) {
+      index = 0;
+    }
+    lightSpaceMatrix = shadowTransforms[index];
+    
 
-    //framebuffer
-    basicFramebuffer.Preprocess();
-    render.ClearScreen();
-    ///
-
-
-    player.HandleInput(input, deltaTime);
-    ///
     //set to identity matrix
     model = glm::mat4(1.0f);
     view = glm::mat4(1.0f);
     projection = glm::mat4(1.0f);
+    ///
+
+    depthTestShader.Use();
+    depthTestShader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
+    
+    glViewport(0, 0, 2048, 2048);
+    render.ClearScreen();
+    
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, basicFramebuffer.GetDepthMapFBO());
+    glClear(GL_DEPTH_BUFFER_BIT);
+    depthTestShader.SetMat4("model", model);
+    default_0.Draw(depthTestShader);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //framebuffer
+    //basicFramebuffer.Preprocess();
+    
+    ///
+
+    
+    player.HandleInput(input, deltaTime);
+    ///
+   
     ///
 
     //TODO::TEST FUNCTIONS
@@ -158,7 +212,8 @@ void System::GameLoop(){
 
 
     //default_0.Draw(depthTestShader);
-
+    glViewport(0, 0, Render::Screen::WIDTH, (float)Render::Screen::HEIGHT);
+    render.ClearScreen();
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
     glStencilMask(0xFF);
     //input.IncrementDecrement(gamma);
@@ -167,8 +222,13 @@ void System::GameLoop(){
     simple.SetVec3("viewPos", player.position);
     //model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
     simple.SetMat4("model", model);
+    simple.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
     simple.SetMat4("PVM", projection * view * model);
+    basicFramebuffer.SetShadowMap(simple);
     sceneLights.SetDynamicAttributes(simple);
+    
+    
+
     default_0.Draw(simple);
     
     /*normalShader.Use();
@@ -211,7 +271,7 @@ void System::GameLoop(){
     glStencilMask(0xFF);
 
     //framebuffer test
-    basicFramebuffer.Postprocess(basicFramebufferShader);
+    //basicFramebuffer.Postprocess(basicFramebufferShader);
     ///
     
     /* Swap front and back buffers */
