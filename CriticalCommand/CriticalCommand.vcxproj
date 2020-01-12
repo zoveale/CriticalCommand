@@ -256,6 +256,9 @@
     <None Include="resources\shader\PhysicsObjects\Fphysics.glsl" />
     <None Include="resources\shader\PhysicsObjects\Gphysics.glsl" />
     <None Include="resources\shader\PhysicsObjects\Vphysics.glsl" />
+    <None Include="resources\shader\Shadow\DepthCubemap\frag.glsl" />
+    <None Include="resources\shader\Shadow\DepthCubemap\geo.glsl" />
+    <None Include="resources\shader\Shadow\DepthCubemap\vert.glsl" />
     <None Include="resources\shader\Shadow\Depth\frag.glsl" />
     <None Include="resources\shader\Shadow\Depth\geo.glsl" />
     <None Include="resources\shader\Shadow\Depth\vert.glsl" />

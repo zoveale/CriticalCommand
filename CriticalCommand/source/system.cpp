@@ -26,6 +26,10 @@ void System::GameLoop(){
   Shader depthTestShader("resources/shader/Shadow/Depth/vert.glsl",
     "resources/shader/Shadow/Depth/frag.glsl");
 
+  Shader cubemapDepthShader("resources/shader/Shadow/DepthCubemap/vert.glsl",
+                            "resources/shader/Shadow/DepthCubemap/frag.glsl",
+                            "resources/shader/Shadow/DepthCubemap/geo.glsl");
+
   std::vector<Model*> bombModels;
   Model bombModelIdel("resources/bomb/bomb.dae", sceneLights, scenePhysics);
   //Model bombModelBig("resources/bomb/bomb1.dae", sceneLights, scenePhysics);
@@ -111,9 +115,8 @@ void System::GameLoop(){
   //glm::mat4 lightView = glm::lookAt(sceneLights.GetPointLightPos(0),
   //  sceneLights.GetPointLightPos(0) + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 
-  float near_plane = 1.0f, far_plane = 25.0f;
-  glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.0f, near_plane, far_plane);
-
+  float near_plane = 1.0f, far_plane = 65.0f;
+  glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
 
 
   std::vector<glm::mat4> shadowTransforms;
@@ -138,7 +141,8 @@ void System::GameLoop(){
   //simple.Use();
   //simple.SetInt("diffuseTexture", 0);
   //simple.SetInt("shadowMap", 0);
-  basicFramebuffer.CreateDepthMap();
+  basicFramebuffer.CreateDepthCubeMap();
+
   while (!input.KEY.ESC) {
      
     input.Process();
@@ -155,10 +159,8 @@ void System::GameLoop(){
       scenePhysics.StepPhysics(deltaRate);*/
     
     input.IncrementDecrement(index);
-    if (index > 5) {
+    if (index > 5) 
       index = 0;
-    }
-    lightSpaceMatrix = shadowTransforms[index];
     
 
     //set to identity matrix
@@ -167,16 +169,18 @@ void System::GameLoop(){
     projection = glm::mat4(1.0f);
     ///
 
-    depthTestShader.Use();
-    depthTestShader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
     
-    glViewport(0, 0, 2048, 2048);
+    glViewport(0, 0, 1 << 7, 1 << 7);
     render.ClearScreen();
-    
     
     glBindFramebuffer(GL_FRAMEBUFFER, basicFramebuffer.GetDepthMapFBO());
     glClear(GL_DEPTH_BUFFER_BIT);
-    depthTestShader.SetMat4("model", model);
+    cubemapDepthShader.Use();
+    cubemapDepthShader.SetFloat("far_plane", far_plane);
+    cubemapDepthShader.SetVec3("lightPos", sceneLights.GetPointLightPos(0));
+    for (unsigned int i = 0; i < shadowTransforms.size(); ++i)
+      cubemapDepthShader.SetMat4("shadowTransforms[" + std::to_string(i) + "]", shadowTransforms[i]);
+    cubemapDepthShader.SetMat4("model", model);
     default_0.Draw(depthTestShader);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     //framebuffer
@@ -219,14 +223,16 @@ void System::GameLoop(){
     //input.IncrementDecrement(gamma);
     simple.Use();
     simple.SetFloat("gamma", gamma);
+    simple.SetMat4("PVM", projection* view* model);
+
+    simple.SetFloat("far_plane", far_plane);
     simple.SetVec3("viewPos", player.position);
-    //model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
     simple.SetMat4("model", model);
-    simple.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
-    simple.SetMat4("PVM", projection * view * model);
-    basicFramebuffer.SetShadowMap(simple);
+    simple.SetMat4("lightSpaceMatrix", shadowTransforms[index]);
+    basicFramebuffer.SetShadowCubemap(simple);
     sceneLights.SetDynamicAttributes(simple);
     
+
     
 
     default_0.Draw(simple);

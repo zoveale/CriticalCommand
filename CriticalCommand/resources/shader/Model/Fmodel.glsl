@@ -90,12 +90,11 @@ vec3 result = vec3(0.0);
 uniform float gamma;
 
 //ShadowStuff
-uniform sampler2D shadowMap;
-float near = 0.1; 
-float far  = 1000.0; 
-// required when using a perspective projection matrix
-float LinearizeDepth(float depth);
-float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir);
+uniform float far_plane;
+uniform samplerCube shadowMap;
+float near = 1.0f; 
+float far  = 10.0f; 
+float ShadowCalculation(vec4 fragPos, vec3 lightPos);
 
 void main(){   
 	for(uint i = 0; i < numPointLights; i++){
@@ -116,21 +115,39 @@ void main(){
 	//FragColor = vec4(vec3(depth), 0.0 );
 }
 
-float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir)
-{
-    // perform perspective divide
-    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-	
-    // transform to [0,1] range
-    projCoords = projCoords * 0.5 + 0.5;
-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    float closestDepth = texture(shadowMap, projCoords.xy).r; 
-    // get depth of current fragment from light's perspective
-    float currentDepth = projCoords.z;
-    // check whether current frag pos is in shadow
-	//float bias = 0.005;
-	float bias = max(0.05 * (1.0 - dot(norm, lightDir)), 0.0025); 
+float ShadowCalculation(vec3 fragPos, vec3 lightPos){
+	vec3 fragToLight = fragPos - lightPos;
+	float closestDepth = texture(shadowMap, fragToLight).r;
+	closestDepth *= far_plane;
+	float currentDepth = length(fragToLight);
+	//float bias = 0.9;
+	float bias = max((closestDepth - far_plane - dot(norm, fragToLight)), 0.005);
     float shadow = currentDepth -  bias > closestDepth  ? 1.0 : 0.0;
+    // perform perspective divide
+    //vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+	 
+    // transform to [0,1] range
+    //projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+//	vec4 shadowTexture = texture(shadowMap, fragToLight).r;
+//    float closestDepth = shadowTexture.r; 
+	
+//    // get depth of current fragment from light's perspective
+//	/*X = top-left, Y = top-right, Z = bottom-right, W = bottom-left*/
+//	//viusalize the perspective of the point light for a direction
+//	 if(projCoords.z > 1.0)
+//       return 0.80f;
+//	if(projCoords.x > shadowTexture.w)
+//		return 0.80f;
+//	if(projCoords.x < shadowTexture.z)
+//		return 0.80f;
+
+	//return projCoords.x / closestDepth.r;
+    //float currentDepth = projCoords.z;
+    // check whether current frag pos is in shadow
+	
+	 
+	
 
     return shadow;
 }
@@ -165,23 +182,19 @@ vec3 CalcDirLight(DirLight light, Material material,  vec3 normal, vec3 viewDir)
 vec3 CalcPointLight(PointLight light, Material material, vec3 normal, vec3 fragPos, vec3 viewDir){
     vec3 lightDir = normalize(light.position - fragPos);
 	vec3 halfwayDir = normalize(lightDir + viewDir);
-
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
     // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
-
 	//TODO::blinn
 	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
 	//TODO::phong
     //float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-	
     //attenuation
     float attenuation = Attenuation(fragPos, light);    
     // combine results
-	float shadow = ShadowCalculation(fs_in.FragPosLightSpace, lightDir); 
+	float shadow = ShadowCalculation(fs_in.FragPos, light.position); 
 	
-
     vec3 ambient  = light.ambient  * vec3(texture(material.texture_diffuse1, fs_in.textureUV));
     vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.texture_diffuse1, fs_in.textureUV));
     vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, fs_in.textureUV));
@@ -190,8 +203,7 @@ vec3 CalcPointLight(PointLight light, Material material, vec3 normal, vec3 fragP
     diffuse  *= attenuation;
     specular *= attenuation;
 
-	
-	return (ambient + ((1.0 - shadow) * (diffuse + specular)));
+	return (ambient + ((1.0 - shadow + 0.05f) * (diffuse + specular)));
     //return (ambient + diffuse + specular);// / (dot(viewPos, light.position));
 } 
 

@@ -3,6 +3,7 @@
 
 #include <GL/glew.h>
 #include "shader.h"
+
 class Framebuffer {
 public:
   Framebuffer(Shader screenShader);
@@ -12,8 +13,12 @@ public:
 
   void CreateDepthMap();
   unsigned int GetDepthMapFBO();
+  
+
   void BindDepthMap();
   void SetShadowMap(Shader shader);
+  void SetShadowCubemap(Shader shader);
+  void CreateDepthCubeMap();
 
   ~Framebuffer();
 private:
@@ -23,13 +28,14 @@ private:
   unsigned int quadVAO;
   unsigned int quadVBO;
 
+  unsigned int depthCubemap;
   unsigned int depthMapTextureKey;
 
   const unsigned int TEXTURE_ZERO = 0;
 
   unsigned int depthMapFBO;
-  const unsigned int SHADOW_WIDTH = 2048;
-  const unsigned int SHADOW_HEIGHT = 2048;
+  const unsigned int SHADOW_WIDTH = 1 << 7;
+  const unsigned int SHADOW_HEIGHT = 1 << 7;
 
 
 };

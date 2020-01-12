@@ -171,6 +171,9 @@
     <None Include="resources\shader\Shadow\Map\frag.glsl" />
     <None Include="resources\shader\Shadow\Map\geo.glsl" />
     <None Include="resources\shader\Shadow\Map\vert.glsl" />
+    <None Include="resources\shader\Shadow\DepthCubemap\frag.glsl" />
+    <None Include="resources\shader\Shadow\DepthCubemap\geo.glsl" />
+    <None Include="resources\shader\Shadow\DepthCubemap\vert.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">
