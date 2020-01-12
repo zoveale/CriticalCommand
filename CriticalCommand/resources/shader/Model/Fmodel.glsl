@@ -120,8 +120,8 @@ float ShadowCalculation(vec3 fragPos, vec3 lightPos){
 	float closestDepth = texture(shadowMap, fragToLight).r;
 	closestDepth *= far_plane;
 	float currentDepth = length(fragToLight);
-	//float bias = 0.9;
-	float bias = max((closestDepth - far_plane - dot(norm, fragToLight)), 0.005);
+	float bias = 0.5;
+	//float bias = max(0.5 * (1.0 - dot(norm, fragToLight)), 0.5);
     float shadow = currentDepth -  bias > closestDepth  ? 1.0 : 0.0;
     // perform perspective divide
     //vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;

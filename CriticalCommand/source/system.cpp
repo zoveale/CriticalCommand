@@ -154,23 +154,20 @@ void System::GameLoop(){
     //printf("deltaTime = %f\n", deltaTime);
     ///
     //TODO:update this somehow
-   /* input.IncrementDecrement(testBool);
+    /*input.IncrementDecrement(testBool);
     if (testBool)
       scenePhysics.StepPhysics(deltaRate);*/
-    
-    input.IncrementDecrement(index);
-    if (index > 5) 
-      index = 0;
-    
 
+    player.HandleInput(input, deltaTime);
+    
     //set to identity matrix
     model = glm::mat4(1.0f);
     view = glm::mat4(1.0f);
     projection = glm::mat4(1.0f);
     ///
-
+    //basicFramebuffer.Preprocess();
     
-    glViewport(0, 0, 1 << 7, 1 << 7);
+    basicFramebuffer.DepthMapViewPort();
     render.ClearScreen();
     
     glBindFramebuffer(GL_FRAMEBUFFER, basicFramebuffer.GetDepthMapFBO());
@@ -183,16 +180,7 @@ void System::GameLoop(){
     cubemapDepthShader.SetMat4("model", model);
     default_0.Draw(depthTestShader);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    //framebuffer
-    //basicFramebuffer.Preprocess();
-    
-    ///
-
-    
-    player.HandleInput(input, deltaTime);
-    ///
    
-    ///
 
     //TODO::TEST FUNCTIONS
     //input.IncrementDecrement(perspective);
@@ -228,12 +216,8 @@ void System::GameLoop(){
     simple.SetFloat("far_plane", far_plane);
     simple.SetVec3("viewPos", player.position);
     simple.SetMat4("model", model);
-    simple.SetMat4("lightSpaceMatrix", shadowTransforms[index]);
     basicFramebuffer.SetShadowCubemap(simple);
     sceneLights.SetDynamicAttributes(simple);
-    
-
-    
 
     default_0.Draw(simple);
     

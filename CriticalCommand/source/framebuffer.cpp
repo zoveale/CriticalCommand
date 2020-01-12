@@ -101,6 +101,10 @@ void Framebuffer::CreateDepthCubeMap() {
 
 
 
+void Framebuffer::DepthMapViewPort() {
+  glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+}
+
 void Framebuffer::BindDepthMap() {
    
 }

@@ -14,7 +14,7 @@ public:
   void CreateDepthMap();
   unsigned int GetDepthMapFBO();
   
-
+  void DepthMapViewPort();
   void BindDepthMap();
   void SetShadowMap(Shader shader);
   void SetShadowCubemap(Shader shader);
@@ -34,8 +34,8 @@ private:
   const unsigned int TEXTURE_ZERO = 0;
 
   unsigned int depthMapFBO;
-  const unsigned int SHADOW_WIDTH = 1 << 7;
-  const unsigned int SHADOW_HEIGHT = 1 << 7;
+  const unsigned int SHADOW_WIDTH = 1 << 10;
+  const unsigned int SHADOW_HEIGHT = 1 << 10;
 
 
 };
