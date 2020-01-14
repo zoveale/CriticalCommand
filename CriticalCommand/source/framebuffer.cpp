@@ -1,5 +1,6 @@
 #include "framebuffer.h"
 #include "render.h"
+unsigned int Framebuffer::count = 0;
 
 Framebuffer::Framebuffer(Shader screenShader) {
   Test();
@@ -96,7 +97,27 @@ void Framebuffer::CreateDepthCubeMap() {
   glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
   glDrawBuffer(GL_NONE);
   glReadBuffer(GL_NONE);
+  ++count;
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  depthMapTextureKey = count;
+}
+
+void Framebuffer::SetPointLightDepthToCubemap(glm::mat4 lightProjection, 
+                                              glm::mat4(&transformArray)[6],
+                                              glm::vec3 lightPosition) {
+  transformArray[0] = lightProjection * glm::lookAt(lightPosition,
+    lightPosition + glm::vec3(1.0, 0.0, 0.0),glm::vec3(0.0, -1.0, 0.0));
+  transformArray[1] = lightProjection * glm::lookAt(lightPosition,
+    lightPosition + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
+  transformArray[2] = lightProjection * glm::lookAt(lightPosition,
+    lightPosition + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0));
+  transformArray[3] = lightProjection * glm::lookAt(lightPosition,
+    lightPosition + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0));
+  transformArray[4] = lightProjection * glm::lookAt(lightPosition,
+    lightPosition + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0));
+  transformArray[5] = lightProjection * glm::lookAt(lightPosition,
+    lightPosition + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0));
+
 }
 
 
@@ -110,20 +131,21 @@ void Framebuffer::BindDepthMap() {
 }
 
 void Framebuffer::SetShadowMap(Shader shader) {
-  glActiveTexture(GL_TEXTURE1);
+  /*glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, depthMapTextureKey);
-  shader.SetInt("shadowMap", 1);
+  shader.SetInt("shadowMap", 1);*/ 
 }
 
 void Framebuffer::SetShadowCubemap(Shader shader) {
-  glActiveTexture(GL_TEXTURE1);
+  glActiveTexture(GL_TEXTURE0 + depthMapTextureKey);
   glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
-  shader.SetInt("shadowMap", 1);
+  shader.Use();
+  shader.SetInt("shadowMap[" + std::to_string(depthMapTextureKey - 1) + "]", depthMapTextureKey);
 }
 
 Framebuffer::~Framebuffer() {
   //delete buffers
-
+  --count;
 }
 
 void Framebuffer::Test() {

@@ -84,6 +84,7 @@ public:
 private:
   Model* modelPointer;
   Shader* icoShader;
+  Shader* icoShadowShader;
   LightFactory* lights;
   glm::mat4 model;
 };

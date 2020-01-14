@@ -6,6 +6,7 @@
 
 class Framebuffer {
 public:
+  Framebuffer() {}
   Framebuffer(Shader screenShader);
 
   void Preprocess();
@@ -18,7 +19,10 @@ public:
   void BindDepthMap();
   void SetShadowMap(Shader shader);
   void SetShadowCubemap(Shader shader);
+
   void CreateDepthCubeMap();
+
+  void SetPointLightDepthToCubemap(glm::mat4 lightProjection, glm::mat4 (&transformArray)[6], glm::vec3 lightPosition);
 
   ~Framebuffer();
 private:
@@ -34,9 +38,9 @@ private:
   const unsigned int TEXTURE_ZERO = 0;
 
   unsigned int depthMapFBO;
-  const unsigned int SHADOW_WIDTH = 1 << 10;
-  const unsigned int SHADOW_HEIGHT = 1 << 10;
+  const unsigned int SHADOW_WIDTH = 1 << 9;
+  const unsigned int SHADOW_HEIGHT = 1 << 9;
 
-
+  static unsigned int count;
 };
 #endif // !FRAMEBUFFER_H

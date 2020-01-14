@@ -46,7 +46,7 @@ struct SpotLight {
 float Attenuation(vec3 pos, PointLight l);
 float Intensity(float theta, SpotLight light);
 vec3 CalcDirLight(DirLight light, Material material, vec3 normal, vec3 viewDir);
-vec3 CalcPointLight(PointLight light, Material material,vec3 normal, vec3 fragPos, vec3 viewDir); 
+vec3 CalcPointLight(PointLight light, Material material,vec3 normal, vec3 fragPos, vec3 viewDir, samplerCube shadowCube); 
 vec3 CalcSpotLight(SpotLight light, Material material, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 uniform Material material;
@@ -91,15 +91,17 @@ uniform float gamma;
 
 //ShadowStuff
 uniform float far_plane;
-uniform samplerCube shadowMap;
+uniform samplerCube shadowMap[2];
 float near = 1.0f; 
 float far  = 10.0f; 
-float ShadowCalculation(vec4 fragPos, vec3 lightPos);
+float ShadowCalculationCubeMap(vec4 fragPos, vec3 lightPos, samplerCube shadowCube);
+//uniform int pointLightNum;
 
 void main(){   
 	for(uint i = 0; i < numPointLights; i++){
-        result += CalcPointLight(pointLights[i], material, norm, fs_in.FragPos, viewDir); 
+		result += CalcPointLight(pointLights[i], material, norm, fs_in.FragPos, viewDir, shadowMap[i]); 
 	}
+
 	for(uint i = 0; i < numSpotLights; i++){
         result += CalcSpotLight(spotLights[i], material, norm, fs_in.FragPos, viewDir); 
 	} 
@@ -115,9 +117,9 @@ void main(){
 	//FragColor = vec4(vec3(depth), 0.0 );
 }
 
-float ShadowCalculation(vec3 fragPos, vec3 lightPos){
+float ShadowCalculation(vec3 fragPos, vec3 lightPos, samplerCube shadowCube){
 	vec3 fragToLight = fragPos - lightPos;
-	float closestDepth = texture(shadowMap, fragToLight).r;
+	float closestDepth = texture(shadowCube, fragToLight).r;
 	closestDepth *= far_plane;
 	float currentDepth = length(fragToLight);
 	float bias = 0.5;
@@ -161,7 +163,7 @@ float Attenuation(vec3 pos, PointLight light){
 		float dis = length(light.position - pos);
 		float attenuation = (1.0 / (1 + (light.linear * (dis * dis)))); 
 		return attenuation;
-	}
+	} 
 
 vec3 CalcDirLight(DirLight light, Material material,  vec3 normal, vec3 viewDir){
     vec3 lightDir = normalize(-light.direction);
@@ -179,7 +181,7 @@ vec3 CalcDirLight(DirLight light, Material material,  vec3 normal, vec3 viewDir)
 }  
 
 
-vec3 CalcPointLight(PointLight light, Material material, vec3 normal, vec3 fragPos, vec3 viewDir){
+vec3 CalcPointLight(PointLight light, Material material, vec3 normal, vec3 fragPos, vec3 viewDir, samplerCube shadowCube){
     vec3 lightDir = normalize(light.position - fragPos);
 	vec3 halfwayDir = normalize(lightDir + viewDir);
     // diffuse shading
@@ -193,7 +195,7 @@ vec3 CalcPointLight(PointLight light, Material material, vec3 normal, vec3 fragP
     //attenuation
     float attenuation = Attenuation(fragPos, light);    
     // combine results
-	float shadow = ShadowCalculation(fs_in.FragPos, light.position); 
+	float shadow = ShadowCalculation(fs_in.FragPos, light.position, shadowCube); 
 	
     vec3 ambient  = light.ambient  * vec3(texture(material.texture_diffuse1, fs_in.textureUV));
     vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.texture_diffuse1, fs_in.textureUV));

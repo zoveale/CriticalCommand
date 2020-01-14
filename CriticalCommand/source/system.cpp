@@ -112,128 +112,129 @@ void System::GameLoop(){
   glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
     glm::vec3(0.0f, 0.0f, 0.0f),
     glm::vec3(0.0f, 1.0f, 0.0f));*/
-  //glm::mat4 lightView = glm::lookAt(sceneLights.GetPointLightPos(0),
-  //  sceneLights.GetPointLightPos(0) + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-
-  float near_plane = 1.0f, far_plane = 65.0f;
+  //glm::mat4 lightView = glm::lookAt(pointLightPos,
+  //pointLightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+  Framebuffer pointLightOne;
+  float near_plane = 1.0f, far_plane = 65.0f;//farplane == "radius" of point light
   glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
-
-
-  std::vector<glm::mat4> shadowTransforms;
-  shadowTransforms.push_back(lightProjection *
-    glm::lookAt(sceneLights.GetPointLightPos(0),
-                sceneLights.GetPointLightPos(0) + glm::vec3(1.0, 0.0, 0.0),
-                glm::vec3(0.0, -1.0, 0.0)));
-  shadowTransforms.push_back(lightProjection *
-    glm::lookAt(sceneLights.GetPointLightPos(0), sceneLights.GetPointLightPos(0) + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
-  shadowTransforms.push_back(lightProjection *
-    glm::lookAt(sceneLights.GetPointLightPos(0), sceneLights.GetPointLightPos(0) + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
-  shadowTransforms.push_back(lightProjection*
-    glm::lookAt(sceneLights.GetPointLightPos(0), sceneLights.GetPointLightPos(0) + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
-  shadowTransforms.push_back(lightProjection*
-    glm::lookAt(sceneLights.GetPointLightPos(0), sceneLights.GetPointLightPos(0) + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
-  shadowTransforms.push_back(lightProjection*
-    glm::lookAt(sceneLights.GetPointLightPos(0), sceneLights.GetPointLightPos(0) + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
-  
-  glm::mat4 lightSpaceMatrix(1.0f);
-
-  unsigned int index = 0;
-  //simple.Use();
-  //simple.SetInt("diffuseTexture", 0);
-  //simple.SetInt("shadowMap", 0);
-  basicFramebuffer.CreateDepthCubeMap();
-
-  while (!input.KEY.ESC) {
+  pointLightOne.CreateDepthCubeMap();
+  glm::vec3 pointLightPos = sceneLights.GetPointLightPos(0);
+  glm::mat4 shadowTransforms1[6];
+  pointLightOne.SetPointLightDepthToCubemap(lightProjection, shadowTransforms1, pointLightPos);
      
+  Framebuffer pointLightTwo;
+  //float near_plane = 1.0f, far_plane = 65.0f;//farplane == "radius" of point light
+  //glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
+  pointLightTwo.CreateDepthCubeMap();
+  pointLightPos = sceneLights.GetPointLightPos(1);
+  glm::mat4 shadowTransforms2[6];
+  pointLightTwo.SetPointLightDepthToCubemap(lightProjection, shadowTransforms2, pointLightPos);
+
+  bool swap = true;
+  unsigned int index = 0;
+  while (!input.KEY.ESC) {
+    
+    if (swap) {
+      far_plane += 0.1f;
+      if (far_plane > 75.0f)
+        swap = false;
+    }
+    else {
+      far_plane -= 0.1f;
+      if (far_plane < 40.0f)
+        swap = true;
+    }
     input.Process();
 
-    //
     currentFrame = (float)glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
-    //printf("deltaTime = %f\n", deltaTime);
-    ///
-    //TODO:update this somehow
+
     /*input.IncrementDecrement(testBool);
     if (testBool)
-      scenePhysics.StepPhysics(deltaRate);*/
+      scenePhysics.StepPhysics(deltaRate);
+      */ 
 
     player.HandleInput(input, deltaTime);
-    
-    //set to identity matrix
+
     model = glm::mat4(1.0f);
     view = glm::mat4(1.0f);
     projection = glm::mat4(1.0f);
     ///
-    //basicFramebuffer.Preprocess();
+
+    projection = glm::perspective(glm::radians((float)perspective),
+      (float)Render::Screen::WIDTH / (float)Render::Screen::HEIGHT, 0.1f, 1000.0f);
+    view = firstPerson.View();
+
     
-    basicFramebuffer.DepthMapViewPort();
+    basicFramebuffer.Preprocess();
+
     render.ClearScreen();
-    
-    glBindFramebuffer(GL_FRAMEBUFFER, basicFramebuffer.GetDepthMapFBO());
+    pointLightOne.DepthMapViewPort();
+    glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
+    glStencilMask(0xFF);
+    glBindFramebuffer(GL_FRAMEBUFFER, pointLightOne.GetDepthMapFBO());
     glClear(GL_DEPTH_BUFFER_BIT);
     cubemapDepthShader.Use();
     cubemapDepthShader.SetFloat("far_plane", far_plane);
-    cubemapDepthShader.SetVec3("lightPos", sceneLights.GetPointLightPos(0));
-    for (unsigned int i = 0; i < shadowTransforms.size(); ++i)
-      cubemapDepthShader.SetMat4("shadowTransforms[" + std::to_string(i) + "]", shadowTransforms[i]);
-    cubemapDepthShader.SetMat4("model", model);
+    pointLightPos = sceneLights.GetPointLightPos(0);
+    cubemapDepthShader.SetVec3("lightPos", pointLightPos);
+    pointLightOne.SetPointLightDepthToCubemap(lightProjection, shadowTransforms1, pointLightPos);
+    for (unsigned int i = 0; i < 6; ++i)
+      cubemapDepthShader.SetMat4("shadowTransforms[" + std::to_string(i) + "]", shadowTransforms1[i]);
+    cubemapDepthShader.SetMat4("model", glm::mat4(1.0f));
     default_0.Draw(depthTestShader);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    ////TODO::multiple light sources and shadows.
+    glBindFramebuffer(GL_FRAMEBUFFER, 1);
    
-
-    //TODO::TEST FUNCTIONS
-    //input.IncrementDecrement(perspective);
-    projection = glm::perspective(glm::radians((float)perspective),
-                (float)Render::Screen::WIDTH /(float)Render::Screen::HEIGHT, 0.1f, 1000.0f);
-    view = firstPerson.View();
     
-    //animated.Use();
-    //animated.SetMat4("projection", projection);
-    //animated.SetMat4("view", view);
-    //model = glm::translate(model, glm::vec3(4.0f, 0.0f, 0.0f));
-    ////model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	
-    //animated.SetMat4("model", model);
-    //ourModel_0.Animate(animated, currentFrame);
-    //normalShader.Use();
-    //normalShader.SetMat4("projection", projection);
-    //normalShader.SetMat4("view", view);
-    //normalShader.SetMat4("model", model);
-    //ourModel_0.Draw(normalShader);
-    //model = glm::mat4(1.0f);
+    glBindFramebuffer(GL_FRAMEBUFFER, pointLightTwo.GetDepthMapFBO());
+    glClear(GL_DEPTH_BUFFER_BIT);
+    cubemapDepthShader.Use();
+    cubemapDepthShader.SetFloat("far_plane", far_plane);
+    pointLightPos = sceneLights.GetPointLightPos(1);
+    cubemapDepthShader.SetVec3("lightPos", pointLightPos);
+    pointLightTwo.SetPointLightDepthToCubemap(lightProjection, shadowTransforms2, pointLightPos);
+    for (unsigned int i = 0; i < 6; ++i)
+      cubemapDepthShader.SetMat4("shadowTransforms[" + std::to_string(i) + "]", shadowTransforms2[i]);
+    cubemapDepthShader.SetMat4("model", glm::mat4(1.0f));
+    default_0.Draw(depthTestShader);
+    ////TODO::multiple light sources and shadows.
+    glBindFramebuffer(GL_FRAMEBUFFER, 1);
 
-
-    //default_0.Draw(depthTestShader);
-    glViewport(0, 0, Render::Screen::WIDTH, (float)Render::Screen::HEIGHT);
     render.ClearScreen();
-    glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
-    glStencilMask(0xFF);
-    //input.IncrementDecrement(gamma);
+    glViewport(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT);
     simple.Use();
+    input.IncrementDecrement(gamma);
     simple.SetFloat("gamma", gamma);
     simple.SetMat4("PVM", projection* view* model);
-
     simple.SetFloat("far_plane", far_plane);
     simple.SetVec3("viewPos", player.position);
     simple.SetMat4("model", model);
-    basicFramebuffer.SetShadowCubemap(simple);
-    sceneLights.SetDynamicAttributes(simple);
 
+    //SET CUBEMAP SHADOWS
+    pointLightOne.SetShadowCubemap(simple);
+    pointLightTwo.SetShadowCubemap(simple);
+    ///
+
+    sceneLights.SetDynamicAttributes(simple);
     default_0.Draw(simple);
-    
+
+
     /*normalShader.Use();
     normalShader.SetMat4("projection", projection);
     normalShader.SetMat4("view", view);
     normalShader.SetMat4("model", model);
     default_0.Draw(normalShader);*/
-    
-    glm::mat4 pvMatrix = projection * view;
     player.Update(deltaTime);
+
+/*
+    glm::mat4 pvMatrix = projection * view;
     bomb.Update(deltaTime, pvMatrix);
     bomb.Draw();
     
     icoSphere.Update(deltaTime, pvMatrix);
-    icoSphere.Draw();
+    icoSphere.Draw();*/
   
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
     glStencilMask(0x01);
@@ -261,7 +262,7 @@ void System::GameLoop(){
     glStencilMask(0xFF);
 
     //framebuffer test
-    //basicFramebuffer.Postprocess(basicFramebufferShader);
+    basicFramebuffer.Postprocess(basicFramebufferShader);
     ///
     
     /* Swap front and back buffers */
@@ -281,6 +282,40 @@ void System::Shutdown() {
   glfwTerminate();
 }
 
+
+
+
+//render.ClearScreen(); 
+//glViewport(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT);
+//glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
+//glStencilMask(0xFF);
+////input.IncrementDecrement(gamma);
+//simple.Use();
+//simple.SetFloat("gamma", gamma);
+//simple.SetMat4("PVM", projection* view* model);
+//simple.SetFloat("far_plane", far_plane);
+//simple.SetVec3("viewPos", player.position);
+//simple.SetMat4("model", model);
+//
+//sceneLights.SetDynamicAttributes(simple);
+////simple.SetInt("pointLightNum", 0);
+//default_0.Draw(simple);
+
+//basicFramebuffer.DepthMapViewPort();
+//TODO::animation stuff
+//animated.Use();
+    //animated.SetMat4("projection", projection);
+    //animated.SetMat4("view", view);
+    //model = glm::translate(model, glm::vec3(4.0f, 0.0f, 0.0f));
+    ////model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	
+    //animated.SetMat4("model", model);
+    //ourModel_0.Animate(animated, currentFrame);
+    //normalShader.Use();
+    //normalShader.SetMat4("projection", projection);
+    //normalShader.SetMat4("view", view);
+    //normalShader.SetMat4("model", model);
+    //ourModel_0.Draw(normalShader);
+    //model = glm::mat4(1.0f);
 //TODO:: setting ico80 models the physics deformations
     //for (int i = 0; i < 55; i++) {
     //  glDepthMask(GL_TRUE);
