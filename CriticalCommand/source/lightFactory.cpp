@@ -104,7 +104,7 @@ PointLight::PointLight(aiLight* light, aiNode* node) {
   specular = glm::vec3(light->mColorSpecular.r,
                        light->mColorSpecular.g,
                        light->mColorSpecular.b);
-
+  
   //TODO:: light example in blender is much brighter than in opengl rendering
   diffuse /= 1000.0f;
   ambient /= 1000.0f;

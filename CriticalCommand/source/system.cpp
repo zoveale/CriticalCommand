@@ -66,7 +66,7 @@ void System::GameLoop(){
   ///
 
  
-  Model default_0("resources/default/physxTestLightsTestTextureTest2.dae", sceneLights, scenePhysics , true);
+  Model default_0("resources/default/physxTestLightsTestTextureTest.dae", sceneLights, scenePhysics , true);
   
   //Lamp models
   Shader lamp("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
@@ -134,7 +134,7 @@ void System::GameLoop(){
   unsigned int index = 0;
   while (!input.KEY.ESC) {
     
-    if (swap) {
+    /*if (swap) {
       far_plane += 0.1f;
       if (far_plane > 75.0f)
         swap = false;
@@ -143,7 +143,7 @@ void System::GameLoop(){
       far_plane -= 0.1f;
       if (far_plane < 40.0f)
         swap = true;
-    }
+    }*/
     input.Process();
 
     currentFrame = (float)glfwGetTime();
