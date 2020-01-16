@@ -66,7 +66,7 @@ void System::GameLoop(){
   ///
 
  
-  Model default_0("resources/default/physxTestLightsTestTextureTest.dae", sceneLights, scenePhysics , true);
+  Model default_0("resources/SnowMap/snow_map_4k.dae", sceneLights, scenePhysics , true);
   
   //Lamp models
   Shader lamp("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
