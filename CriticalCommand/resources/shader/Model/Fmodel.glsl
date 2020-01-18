@@ -176,8 +176,8 @@ vec3 CalcDirLight(DirLight light, Material material,  vec3 normal, vec3 viewDir)
     vec3 ambient  = light.ambient  * vec3(texture(material.texture_diffuse1, fs_in.textureUV));
     vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.texture_diffuse1, fs_in.textureUV));
     vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, fs_in.textureUV));
-
-    return (ambient + diffuse + specular);
+    
+	return (ambient + diffuse + specular);
 }  
 
 
@@ -207,6 +207,8 @@ vec3 CalcPointLight(PointLight light, Material material, vec3 normal, vec3 fragP
 
 	return (ambient + ((1.0 - shadow + 0.05f) * (diffuse + specular)));
     //return (ambient + diffuse + specular);// / (dot(viewPos, light.position));
+	//return vec3(texture(material.texture_normal1, fs_in.textureUV).rgb);
+
 } 
 
 float Intensity(float theta, SpotLight light){

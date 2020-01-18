@@ -269,6 +269,8 @@
     <None Include="resources\shader\StencilShader\Gstencil.glsl" />
     <None Include="resources\shader\StencilShader\Vstencil.glsl" />
     <None Include="resources\shader\Vmodel.glsl" />
+    <None Include="resources\SnowMap\physxTestLightsTestTextureTest.dae" />
+    <None Include="resources\SnowMap\physxTestLightsTestTextureTest1.dae" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\bomb\gray.png" />

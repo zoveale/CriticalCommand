@@ -80,6 +80,10 @@ private:
   static const int MAX_BONES = 100;
   unsigned int bonesGPU[MAX_BONES];
   ///
+
+  //
+  std::string textureFileLocation;
+  ///
   /*  Functions   */
   // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
   void loadModel(std::string const& path, LightFactory& light, physx::Physics& physicsScene);

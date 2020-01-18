@@ -478,6 +478,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
   ///
 
   // process materials
+  textureFileLocation.clear();
+  textureFileLocation += '/';
   aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
   // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
   // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
@@ -512,10 +514,11 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
 // checks all material textures of a given type and loads the textures if they're not loaded yet.
 // the required info is returned as a Texture struct.
 vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName) {
-  
-  
+
+
   vector<Texture> textures;
-  for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
+  //TODO:: only loads one texture per texture type
+  for (unsigned int i = 0; i < mat->GetTextureCount(aiTextureType_DIFFUSE); i++) {
     aiString str;
     mat->GetTexture(type, i, &str);
     // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
@@ -527,32 +530,28 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
         break;
       }
     }
-    //
-    //texture.id = Texture::Load(normal, this->directory + '/'+ str.C_Str());
-    //texture.id = Texture::Load(height, this->directory + '/'+ str.C_Str());
-    if (!skip) {   // if texture hasn't been loaded already, load it
-      Texture texture;
-      texture.id = Texture::Load(str.C_Str(), this->directory);
-      texture.type = typeName;
-      texture.path = str.C_Str();
-      textures.push_back(texture);
-      textures_loaded.push_back(texture);// store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
-     
+    if (!skip) {
+        // if texture hasn't been loaded already, load it
+        Texture texture;
+        texture.id = Texture::Load(str.C_Str(), this->directory);
+        texture.type = typeName;
+        texture.path = str.C_Str();
+        textures.push_back(texture);
+        textures_loaded.push_back(texture);// store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
+      }
     }
-    
-  }
 
- /* aiString str;
-  mat->GetTexture(type, 0, &str);
-  if (type == aiTextureType_NORMALS) {
-    Texture texture;
-    std::string normalDir = this->directory + '/' + "snow";
-    texture.id = Texture::Load("normal.jpg", normalDir);
-    texture.type = "material.texture_normal";
-    texture.path = str.C_Str();
-    textures.push_back(texture);
-    textures_loaded.push_back(texture);
-  }*/
+  /* aiString str;
+   mat->GetTexture(type, 0, &str);
+   if (type == aiTextureType_NORMALS) {
+     Texture texture;
+     std::string normalDir = this->directory + '/' + "snow";
+     texture.id = Texture::Load("normal.jpg", normalDir);
+     texture.type = "material.texture_normal";
+     texture.path = str.C_Str();
+     textures.push_back(texture);
+     textures_loaded.push_back(texture);
+   }*/
   return textures;
 }
 ///
