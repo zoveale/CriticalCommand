@@ -7,13 +7,6 @@ void Model::Draw(Shader shader) {
   }
 }
 
-// TODO:: draws the stencil
-void Model::DrawStencil(Shader shader) {
-  for (unsigned int i = 0; i < meshes.size(); i++) {
-    meshes[i].DrawStencil(shader);
-  }
-}
-
 void Model::Animate(Shader shader, float time) {
 
   vector<glm::mat4> transforms;
@@ -129,6 +122,8 @@ void Model::loadModel(string const& path, LightFactory& light, physx::Physics& p
 
 
 }
+
+
 void Model::ProcessLights(const aiScene* scene, LightFactory& lights) {
   std::vector<aiLight*> light;
   std::vector< aiNode*> lightNode;
@@ -139,6 +134,7 @@ void Model::ProcessLights(const aiScene* scene, LightFactory& lights) {
     lights.AddLights(light[i], lightNode[i]);
   }
 }
+
 void Model::ProcessAnimatedNode(aiNode* node, const aiScene* scene) {
   for (unsigned int i = 0; i < node->mNumMeshes; i++) {
     aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -478,8 +474,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
   ///
 
   // process materials
-  textureFileLocation.clear();
-  textureFileLocation += '/';
   aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
   // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
   // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
@@ -650,6 +644,132 @@ void Model::ReadNodeHierarchy(float animationTime, const aiNode* parent, glm::ma
 }
 
 
+/*----------------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------------------*/
+void Model::LoadModelOnly(std::string const& path) {
+  this->scene = importer.ReadFile(path,
+    aiProcess_FlipUVs |
+    aiProcess_CalcTangentSpace |
+    aiProcess_FindInvalidData |
+    aiProcess_ImproveCacheLocality
+  );
+  // check for errors
+  if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+    cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
+    return;
+  }
+
+  //retrieve the directory path 
+  directory = path.substr(0, path.find_last_of('/'));
+  ProcessNodesOnly(scene->mRootNode, scene);
+
+}
+
+void Model::ProcessNodesOnly(aiNode* node, const aiScene* scene) {
+  for (unsigned int i = 0; i < node->mNumMeshes; i++) {
+    aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+    nodeTransform = aiToGlm(node->mTransformation);
+    meshes.push_back(ProcessMeshOnly(mesh, scene));
+  }
+  for (unsigned int i = 0; i < node->mNumChildren; i++) {
+    ProcessNodesOnly(node->mChildren[i], scene);
+  }
+}
+
+Mesh Model::ProcessMeshOnly(aiMesh* mesh, const aiScene* scene) {
+
+  std::vector<Vertex> vertices;
+  for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+    Vertex vertex;
+    vertex.Position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+    if (mesh->HasNormals()) {
+      vertex.Normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+    }
+    else {
+      vertex.Normal = glm::vec3(1.0f);
+    }
+    if (mesh->HasTextureCoords(0)){
+      vertex.TexCoords = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+    }
+    else {
+      vertex.TexCoords = glm::vec2(0.0f);
+    }
+    if (mesh->HasTangentsAndBitangents()) {
+      vertex.Tangent = glm::vec3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
+      vertex.Bitangent = glm::vec3(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z);
+    }
+    else {
+      vertex.Tangent = glm::vec3(1.0f);
+      vertex.Bitangent = glm::vec3(1.0f);
+    }
+    vertices.push_back(vertex);
+  }
+
+  std::vector<unsigned int> indices;
+  for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+    aiFace face = mesh->mFaces[i];
+    // retrieve all indices of the face and store them in the indices vector
+    for (unsigned int j = 0; j < face.mNumIndices; j++) {
+      indices.push_back(face.mIndices[j]);
+    }
+  }
+
+  std::vector<Texture> textures;
+  aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
 
+  std::vector<Texture> diffuseMaps = LoadATexture(aiTextureType_DIFFUSE, "material.texture_diffuse");
+  textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+  std::vector<Texture> specularMaps = LoadATexture(aiTextureType_SPECULAR, "material.texture_specular");
+  textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+  std::vector<Texture> normalMaps = LoadATexture(aiTextureType_NORMALS, "material.texture_normal");
+  textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+  std::vector<Texture> heightMaps = LoadATexture(aiTextureType_HEIGHT, "material.texture_height");
+  textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
+  //TODO::add emission textures
+
+  return Mesh(vertices, indices, textures);
+}
+
+
+vector<Texture> Model::LoadATexture(aiTextureType type, string typeName) {
+
+  std::string textureType;
+  switch (type) {
+    case aiTextureType_DIFFUSE:
+      textureType = "diffuse.png";
+      break;
+    case aiTextureType_SPECULAR:
+      textureType = "specular.png";
+      break;
+    case aiTextureType_NORMALS:
+      textureType = "normal.png";
+      break;
+    case aiTextureType_HEIGHT:
+      textureType = "height.png";
+      break;
+    default:
+      break;
+  }
+  vector<Texture> textures;
+  bool skip = false;
+  for (unsigned int j = 0; j < textures_loaded.size(); j++) {
+    if (std::strcmp(textures_loaded[j].path.data(), textureType.c_str()) == 0) {
+      textures.push_back(textures_loaded[j]);
+      skip = true; 
+      break;
+    }
+  }
+  if (!skip) {
+    // if texture hasn't been loaded already, load it
+    Texture texture;
+    texture.id = Texture::Load(textureType.c_str(), this->directory + "/images");
+    texture.type = typeName;
+    texture.path = textureType.c_str();
+    textures.push_back(texture);
+    textures_loaded.push_back(texture);
+  }
+
+  return textures;
+}

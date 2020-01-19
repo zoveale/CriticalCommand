@@ -44,18 +44,14 @@ public:
     loadModel(path, light, physicScene);
   }
 
-  //TODO:: create another constructor for model that only takes in a string
-  //Model(std::string const& path) : collisions(false), gammaCorrection(false) {
-  //  
-  //  LightFactory light;
-  //  physx::Physics physicScene;
-  //    
-  //  loadModel(path, light, physicScene);
-  //}
+  //textures must be located in same folder as .DAE named images
+  //Cannot load trimeshes from this constuctor;
+  Model(std::string const& path) {
+    LoadModelOnly(path);
+  }
 
   // draws the model, and thus all its meshes
   void Draw(Shader shader);
-  void DrawStencil(Shader shader);
   void Animate(Shader shader, float time);
   //FIXME::
   void InitializeBones(Shader shader);
@@ -88,6 +84,12 @@ private:
   // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
   void loadModel(std::string const& path, LightFactory& light, physx::Physics& physicsScene);
 
+  void LoadModelOnly(std::string const& path);
+  void ProcessNodesOnly(aiNode* node, const aiScene* scene);
+  Mesh ProcessMeshOnly(aiMesh* mesh, const aiScene* scene);
+
+  //void LoadTextures();
+  vector<Texture> LoadATexture(aiTextureType type, string typeName);
   void ProcessLights(const aiScene* scene, LightFactory& lights);
   void ProcessAnimatedNode(aiNode* node, const aiScene* scene);
   

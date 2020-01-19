@@ -6,6 +6,7 @@ struct Material{
 	sampler2D texture_specular1;
 	sampler2D texture_normal1;
 	sampler2D texture_height1;
+
 	sampler2D texture_emission1;
 
 	float shininess;
@@ -199,7 +200,7 @@ vec3 CalcPointLight(PointLight light, Material material, vec3 normal, vec3 fragP
     //attenuation
     float attenuation = Attenuation(fragPos, light);    
     // combine results
-	float shadow = ShadowCalculation(fragPos, light.position, shadowCube);
+	float shadow = ShadowCalculation(fragPos, fs_in.TangentLightPos, shadowCube);
 	  
     vec3 ambient  = light.ambient  * vec3(texture(material.texture_diffuse1, fs_in.textureUV));
     vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.texture_diffuse1, fs_in.textureUV));

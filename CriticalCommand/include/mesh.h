@@ -20,23 +20,20 @@ using namespace std;
 
 class Mesh {
 public:
-  /*  Mesh Data  */
   vector<Vertex> vertices;
   vector<unsigned int> indices;
   vector<Texture> textures;
   unsigned int VAO;
   
 
-  /*  Functions  */
-  
-  typedef vector<Vertex> vec;
-  typedef vector<unsigned int> iVec;
-  typedef vector<Texture> tVec;
-
   Mesh() {}
   static Mesh Empty() {
     return Mesh();
   }
+
+  typedef vector<Vertex> vec;
+  typedef vector<unsigned int> iVec;
+  typedef vector<Texture> tVec;
   // constructor
   Mesh(vec vertices, iVec indices, tVec textures) {
     this->vertices = vertices;
@@ -86,20 +83,6 @@ public:
     glActiveTexture(GL_TEXTURE0);
   }
 
-  void DrawStencil(Shader shader) {
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-    glActiveTexture(GL_TEXTURE0);
-  }
-
-
-  void DrawMesh() {
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-    glActiveTexture(GL_TEXTURE0);
-  }
 
 private:
   /*  Render data  */
@@ -126,7 +109,7 @@ private:
 
     // set the vertex attribute pointers
     // vertex Positions
-    //FIXME::replace 0,1,2.. with Enum
+    //TODO::replace 0,1,2.. with Enum
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
     // vertex normals

@@ -29,7 +29,7 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 PVM;
 
-uniform mat4 lightSpaceMatrix;
+//uniform mat4 lightSpaceMatrix;
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;

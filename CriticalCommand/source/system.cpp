@@ -77,10 +77,14 @@ void System::GameLoop(){
                       "resources/cubemap/shaders/fragment.glsl");
   Skybox skyboxOne(&skyboxShader);
 
+  Model testShpere("resources/brickSphere/bsp.dae");
+
   glm::mat4 model = glm::mat4(1.0f);
   glm::mat4 view = glm::mat4(1.0f);
   glm::mat4 projection = glm::mat4(1.0f);
   
+
+
   simple.Use();
   simple.SetFloat("material.shininess", 32.0f);
   sceneLights.SetFixedAttributes(simple);
@@ -211,7 +215,7 @@ void System::GameLoop(){
     //pointLightTwo.SetShadowCubemap(simple);
     ///
     sceneLights.SetDynamicAttributes(simple);
-
+    testShpere.Draw(simple);
     default_0.Draw(simple);
 
 
