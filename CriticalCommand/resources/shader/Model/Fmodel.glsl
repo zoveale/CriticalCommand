@@ -49,8 +49,8 @@ vec3 CalcDirLight(DirLight light, Material material, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, Material material,vec3 normal, vec3 fragPos, vec3 viewDir, samplerCube shadowCube); 
 vec3 CalcSpotLight(SpotLight light, Material material, vec3 normal, vec3 fragPos, vec3 viewDir);
 
-uniform Material material;
 
+uniform Material material;
 uniform DirLight dirLight;
 
 //TODO::
@@ -67,22 +67,25 @@ in VS_OUT {
     vec3 FragPos;
     vec2 textureUV;
 	vec3 normal;
+	vec3 viewPos;
 
     vec3 TangentLightPos;
     vec3 TangentViewPos;
     vec3 TangentFragPos;
 
 	//Shadow stuff
-	vec4 FragPosLightSpace;
-	
+	//vec4 FragPosLightSpace;
 } fs_in;
 
 //in vec2 textureUV;
 
-uniform vec3 viewPos;
 
-vec3 norm = normalize(fs_in.normal);
-vec3 viewDir = normalize(viewPos - fs_in.FragPos);
+//normal += texture(material.texture_normal1, fs_in.textureUV).rgb;
+//vec3 norm = normalize(fs_in.normal);
+vec3 nor = vec3(texture(material.texture_normal1, fs_in.textureUV).rgb);
+vec3 norm = vec3(normalize(nor) *2.0f - 1.0f);
+
+vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentFragPos);
 vec3 result = vec3(0.0);
 //vec3 emission = texture(material.texture_emission1, fs_in.textureUV).rgb ; 
 
@@ -91,19 +94,22 @@ uniform float gamma;
 
 //ShadowStuff
 uniform float far_plane;
-uniform samplerCube shadowMap[2];
+#define MAX_SHADOW_CASTING_POINT_LIGHTS 2
+uniform samplerCube shadowMap[MAX_SHADOW_CASTING_POINT_LIGHTS];
 float near = 1.0f; 
 float far  = 10.0f; 
 float ShadowCalculationCubeMap(vec4 fragPos, vec3 lightPos, samplerCube shadowCube);
 //uniform int pointLightNum;
 
+
 void main(){   
-	for(uint i = 0; i < numPointLights; i++){
-		result += CalcPointLight(pointLights[i], material, norm, fs_in.FragPos, viewDir, shadowMap[i]); 
+
+	for(uint i = 0; i < 1; i++){
+		result += CalcPointLight(pointLights[i], material, norm, fs_in.TangentFragPos, viewDir, shadowMap[i]); 
 	}
 
 	for(uint i = 0; i < numSpotLights; i++){
-        result += CalcSpotLight(spotLights[i], material, norm, fs_in.FragPos, viewDir); 
+        result += CalcSpotLight(spotLights[i], material, norm, fs_in.TangentFragPos, viewDir); 
 	} 
 	
 	
@@ -122,9 +128,11 @@ float ShadowCalculation(vec3 fragPos, vec3 lightPos, samplerCube shadowCube){
 	float closestDepth = texture(shadowCube, fragToLight).r;
 	closestDepth *= far_plane;
 	float currentDepth = length(fragToLight);
-	float bias = 0.5;
+	float bias = 0.5f;
 	//float bias = max(0.5 * (1.0 - dot(norm, fragToLight)), 0.5);
     float shadow = currentDepth -  bias > closestDepth  ? 1.0 : 0.0;
+	return shadow;
+	}
     // perform perspective divide
     //vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
 	 
@@ -147,12 +155,7 @@ float ShadowCalculation(vec3 fragPos, vec3 lightPos, samplerCube shadowCube){
 	//return projCoords.x / closestDepth.r;
     //float currentDepth = projCoords.z;
     // check whether current frag pos is in shadow
-	
-	 
-	
 
-    return shadow;
-}
 
 float LinearizeDepth(float depth){
     float z = depth * 2.0 - 1.0; 
@@ -160,7 +163,7 @@ float LinearizeDepth(float depth){
 }
  
 float Attenuation(vec3 pos, PointLight light){
-		float dis = length(light.position - pos);
+		float dis = length(fs_in.TangentLightPos - pos);
 		float attenuation = (1.0 / (1 + (light.linear * (dis * dis)))); 
 		return attenuation;
 	} 
@@ -182,7 +185,8 @@ vec3 CalcDirLight(DirLight light, Material material,  vec3 normal, vec3 viewDir)
 
 
 vec3 CalcPointLight(PointLight light, Material material, vec3 normal, vec3 fragPos, vec3 viewDir, samplerCube shadowCube){
-    vec3 lightDir = normalize(light.position - fragPos);
+	
+    vec3 lightDir = normalize(fs_in.TangentLightPos - fragPos);
 	vec3 halfwayDir = normalize(lightDir + viewDir);
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
@@ -195,18 +199,18 @@ vec3 CalcPointLight(PointLight light, Material material, vec3 normal, vec3 fragP
     //attenuation
     float attenuation = Attenuation(fragPos, light);    
     // combine results
-	float shadow = ShadowCalculation(fs_in.FragPos, light.position, shadowCube); 
-	
+	float shadow = ShadowCalculation(fragPos, light.position, shadowCube);
+	  
     vec3 ambient  = light.ambient  * vec3(texture(material.texture_diffuse1, fs_in.textureUV));
     vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.texture_diffuse1, fs_in.textureUV));
     vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, fs_in.textureUV));
-
+	
     ambient  *= attenuation;
     diffuse  *= attenuation;
     specular *= attenuation;
 
-	return (ambient + ((1.0 - shadow + 0.05f) * (diffuse + specular)));
-    //return (ambient + diffuse + specular);// / (dot(viewPos, light.position));
+	//return (ambient + ((1.0 - shadow + 0.05f) * (diffuse + specular)));
+    return (ambient + diffuse + specular);// / (dot(viewPos, light.position));
 	//return vec3(texture(material.texture_normal1, fs_in.textureUV).rgb);
 
 } 
@@ -218,11 +222,14 @@ float Intensity(float theta, SpotLight light){
 	}
 
 vec3 CalcSpotLight(SpotLight light, Material material, vec3 normal, vec3 fragPos, vec3 viewDir){
+	//vec3 nah = vec3(texture(material.texture_diffuse1, fs_in.textureUV)).xyz;
+	//vec3 nah = vec3(1.0f, 1.0f, 1.0f).xyz;
     vec3 lightDir = normalize(light.position - fragPos);
+
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
     // specular shading
-    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 reflectDir = reflect(-lightDir,normal);
 
 	//TODO::blinn
 	vec3 halfwayDir = normalize(lightDir+ viewDir);

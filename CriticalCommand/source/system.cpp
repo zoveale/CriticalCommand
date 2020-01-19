@@ -122,38 +122,32 @@ void System::GameLoop(){
   glm::mat4 shadowTransforms1[6];
   pointLightOne.SetPointLightDepthToCubemap(lightProjection, shadowTransforms1, pointLightPos);
      
-  Framebuffer pointLightTwo;
-  //float near_plane = 1.0f, far_plane = 65.0f;//farplane == "radius" of point light
-  //glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
-  pointLightTwo.CreateDepthCubeMap();
-  pointLightPos = sceneLights.GetPointLightPos(1);
-  glm::mat4 shadowTransforms2[6];
-  pointLightTwo.SetPointLightDepthToCubemap(lightProjection, shadowTransforms2, pointLightPos);
+  //Framebuffer pointLightTwo;
+  ////float near_plane = 1.0f, far_plane = 65.0f;//farplane == "radius" of point light
+  ////glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
+  //pointLightTwo.CreateDepthCubeMap();
+  //pointLightPos = sceneLights.GetPointLightPos(1);
+  //glm::mat4 shadowTransforms2[6];
+  //pointLightTwo.SetPointLightDepthToCubemap(lightProjection, shadowTransforms2, pointLightPos);
+
+
+  //since lights are not moving atm this does not need to be updated frequently(at all) 
 
   bool swap = true;
   unsigned int index = 0;
+
   while (!input.KEY.ESC) {
-    
-    /*if (swap) {
-      far_plane += 0.1f;
-      if (far_plane > 75.0f)
-        swap = false;
-    }
-    else {
-      far_plane -= 0.1f;
-      if (far_plane < 40.0f)
-        swap = true;
-    }*/
+ 
     input.Process();
 
     currentFrame = (float)glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    /*input.IncrementDecrement(testBool);
+    input.IncrementDecrement(testBool);
     if (testBool)
       scenePhysics.StepPhysics(deltaRate);
-      */ 
+       
 
     player.HandleInput(input, deltaTime);
 
@@ -177,7 +171,7 @@ void System::GameLoop(){
     glClear(GL_DEPTH_BUFFER_BIT);
     cubemapDepthShader.Use();
     cubemapDepthShader.SetFloat("far_plane", far_plane);
-    pointLightPos = sceneLights.GetPointLightPos(0);
+    pointLightPos.x += sin((float)glfwGetTime()) * 0.5f;
     cubemapDepthShader.SetVec3("lightPos", pointLightPos);
     pointLightOne.SetPointLightDepthToCubemap(lightProjection, shadowTransforms1, pointLightPos);
     for (unsigned int i = 0; i < 6; ++i)
@@ -188,19 +182,19 @@ void System::GameLoop(){
     glBindFramebuffer(GL_FRAMEBUFFER, 1);
    
     
-    glBindFramebuffer(GL_FRAMEBUFFER, pointLightTwo.GetDepthMapFBO());
-    glClear(GL_DEPTH_BUFFER_BIT);
-    cubemapDepthShader.Use();
-    cubemapDepthShader.SetFloat("far_plane", far_plane);
-    pointLightPos = sceneLights.GetPointLightPos(1);
-    cubemapDepthShader.SetVec3("lightPos", pointLightPos);
-    pointLightTwo.SetPointLightDepthToCubemap(lightProjection, shadowTransforms2, pointLightPos);
-    for (unsigned int i = 0; i < 6; ++i)
-      cubemapDepthShader.SetMat4("shadowTransforms[" + std::to_string(i) + "]", shadowTransforms2[i]);
-    cubemapDepthShader.SetMat4("model", glm::mat4(1.0f));
-    default_0.Draw(depthTestShader);
+    //glBindFramebuffer(GL_FRAMEBUFFER, pointLightTwo.GetDepthMapFBO());
+    //glClear(GL_DEPTH_BUFFER_BIT);
+    //cubemapDepthShader.Use();
+    //cubemapDepthShader.SetFloat("far_plane", far_plane);
+    //pointLightPos = sceneLights.GetPointLightPos(1);
+    //cubemapDepthShader.SetVec3("lightPos", pointLightPos);
+    //pointLightTwo.SetPointLightDepthToCubemap(lightProjection, shadowTransforms2, pointLightPos);
+    //for (unsigned int i = 0; i < 6; ++i)
+    //  cubemapDepthShader.SetMat4("shadowTransforms[" + std::to_string(i) + "]", shadowTransforms2[i]);
+    //cubemapDepthShader.SetMat4("model", glm::mat4(1.0f));
+    //default_0.Draw(depthTestShader);
     ////TODO::multiple light sources and shadows.
-    glBindFramebuffer(GL_FRAMEBUFFER, 1);
+    //glBindFramebuffer(GL_FRAMEBUFFER, 1);
 
     render.ClearScreen();
     glViewport(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT);
@@ -211,13 +205,13 @@ void System::GameLoop(){
     simple.SetFloat("far_plane", far_plane);
     simple.SetVec3("viewPos", player.position);
     simple.SetMat4("model", model);
-
+    simple.SetVec3("lightPos", pointLightPos);
     //SET CUBEMAP SHADOWS
     pointLightOne.SetShadowCubemap(simple);
-    pointLightTwo.SetShadowCubemap(simple);
+    //pointLightTwo.SetShadowCubemap(simple);
     ///
-
     sceneLights.SetDynamicAttributes(simple);
+
     default_0.Draw(simple);
 
 
@@ -226,15 +220,15 @@ void System::GameLoop(){
     normalShader.SetMat4("view", view);
     normalShader.SetMat4("model", model);
     default_0.Draw(normalShader);*/
+
     player.Update(deltaTime);
 
-/*
     glm::mat4 pvMatrix = projection * view;
     bomb.Update(deltaTime, pvMatrix);
     bomb.Draw();
     
     icoSphere.Update(deltaTime, pvMatrix);
-    icoSphere.Draw();*/
+    icoSphere.Draw();
   
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
     glStencilMask(0x01);
