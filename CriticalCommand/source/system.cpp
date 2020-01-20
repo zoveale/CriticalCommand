@@ -44,12 +44,14 @@ void System::GameLoop(){
 
   GameObject bomb(&bombGraphics, &bombPhysics);
 
+  //TODO::HEIGHTMAP LOADing
+  Model testShpere("resources/brickSphere/bb.dae");
+  ///
 
- 
   //TODO:: PHYSX testing
   Model ico_80("resources/default/ico_80.dae", sceneLights, scenePhysics);
 
-  IcoSphereGraphicsComponent icoGraphics(&ico_80, &simple, &sceneLights);
+  IcoSphereGraphicsComponent icoGraphics(&testShpere, &simple, &sceneLights);
   IcoSpherePhysicsComponent icoPhysics(&scenePhysics);
   //std::vector<GameObject> icoSpheres;
   GameObject icoSphere(&icoGraphics, &icoPhysics);
@@ -77,7 +79,7 @@ void System::GameLoop(){
                       "resources/cubemap/shaders/fragment.glsl");
   Skybox skyboxOne(&skyboxShader);
 
-  Model testShpere("resources/brickSphere/bsp.dae");
+  
 
   glm::mat4 model = glm::mat4(1.0f);
   glm::mat4 view = glm::mat4(1.0f);
@@ -93,7 +95,7 @@ void System::GameLoop(){
   float x = 1.0f;
   float gamma = 1.2f;
   int perspective = 55;
-  bool testBool = true;
+  bool testBool = false;
   ///
   // draw as wireframe
   //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -102,7 +104,6 @@ void System::GameLoop(){
   float deltaTime = 0.0f;
   float currentFrame = 0.0f;
   float lastFrame = (float)glfwGetTime();
-
   //
   
   //float aspect = (float)1024 / (float)1024;
@@ -175,7 +176,7 @@ void System::GameLoop(){
     glClear(GL_DEPTH_BUFFER_BIT);
     cubemapDepthShader.Use();
     cubemapDepthShader.SetFloat("far_plane", far_plane);
-    pointLightPos.x += sin((float)glfwGetTime()) * 0.5f;
+    //pointLightPos.x += sin((float)glfwGetTime()) * 0.5f;
     cubemapDepthShader.SetVec3("lightPos", pointLightPos);
     pointLightOne.SetPointLightDepthToCubemap(lightProjection, shadowTransforms1, pointLightPos);
     for (unsigned int i = 0; i < 6; ++i)
@@ -215,7 +216,6 @@ void System::GameLoop(){
     //pointLightTwo.SetShadowCubemap(simple);
     ///
     sceneLights.SetDynamicAttributes(simple);
-    testShpere.Draw(simple);
     default_0.Draw(simple);
 
 

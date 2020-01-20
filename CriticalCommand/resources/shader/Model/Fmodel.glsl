@@ -47,7 +47,7 @@ struct SpotLight {
 float Attenuation(vec3 pos, PointLight l);
 float Intensity(float theta, SpotLight light);
 vec3 CalcDirLight(DirLight light, Material material, vec3 normal, vec3 viewDir);
-vec3 CalcPointLight(PointLight light, Material material,vec3 normal, vec3 fragPos, vec3 viewDir, samplerCube shadowCube); 
+vec3 CalcPointLight(PointLight light, Material material, vec3 fragPos, vec3 viewDir, samplerCube shadowCube); 
 vec3 CalcSpotLight(SpotLight light, Material material, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 
@@ -83,8 +83,6 @@ in VS_OUT {
 
 //normal += texture(material.texture_normal1, fs_in.textureUV).rgb;
 //vec3 norm = normalize(fs_in.normal);
-vec3 nor = vec3(texture(material.texture_normal1, fs_in.textureUV).rgb);
-vec3 norm = vec3(normalize(nor) *2.0f - 1.0f);
 
 vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentFragPos);
 vec3 result = vec3(0.0);
@@ -102,15 +100,17 @@ float far  = 10.0f;
 float ShadowCalculationCubeMap(vec4 fragPos, vec3 lightPos, samplerCube shadowCube);
 //uniform int pointLightNum;
 
+//ParallaxMapping Stuff
+//vec2 ParallaxMapping(out vec2 texCoords, in vec3 viewDir, sampler2D height);
 
 void main(){   
 
 	for(uint i = 0; i < 1; i++){
-		result += CalcPointLight(pointLights[i], material, norm, fs_in.TangentFragPos, viewDir, shadowMap[i]); 
+		result += CalcPointLight(pointLights[i], material, fs_in.TangentFragPos, viewDir, shadowMap[i]); 
 	}
 
 	for(uint i = 0; i < numSpotLights; i++){
-        result += CalcSpotLight(spotLights[i], material, norm, fs_in.TangentFragPos, viewDir); 
+        result += CalcSpotLight(spotLights[i], material, vec3(1.0f), fs_in.TangentFragPos, viewDir); 
 	} 
 	
 	
@@ -134,29 +134,15 @@ float ShadowCalculation(vec3 fragPos, vec3 lightPos, samplerCube shadowCube){
     float shadow = currentDepth -  bias > closestDepth  ? 1.0 : 0.0;
 	return shadow;
 	}
-    // perform perspective divide
-    //vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-	 
-    // transform to [0,1] range
-    //projCoords = projCoords * 0.5 + 0.5;
-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-//	vec4 shadowTexture = texture(shadowMap, fragToLight).r;
-//    float closestDepth = shadowTexture.r; 
-	
-//    // get depth of current fragment from light's perspective
-//	/*X = top-left, Y = top-right, Z = bottom-right, W = bottom-left*/
-//	//viusalize the perspective of the point light for a direction
-//	 if(projCoords.z > 1.0)
-//       return 0.80f;
-//	if(projCoords.x > shadowTexture.w)
-//		return 0.80f;
-//	if(projCoords.x < shadowTexture.z)
-//		return 0.80f;
 
-	//return projCoords.x / closestDepth.r;
-    //float currentDepth = projCoords.z;
-    // check whether current frag pos is in shadow
+//Parallax Mapping
+void ParallaxMapping(in out vec2 texCoords, in vec3 viewDir, in sampler2D heightMap){
+	float heightScale = 0.015;
 
+	float height = 1 - texture(heightMap, texCoords).r;    
+    vec2 delta = viewDir.xy * height * heightScale / viewDir.z ;
+	texCoords = texCoords.xy - delta;
+	}
 
 float LinearizeDepth(float depth){
     float z = depth * 2.0 - 1.0; 
@@ -185,26 +171,27 @@ vec3 CalcDirLight(DirLight light, Material material,  vec3 normal, vec3 viewDir)
 }  
 
 
-vec3 CalcPointLight(PointLight light, Material material, vec3 normal, vec3 fragPos, vec3 viewDir, samplerCube shadowCube){
-	
+vec3 CalcPointLight(PointLight light, Material material, vec3 fragPos, vec3 viewDir, samplerCube shadowCube){
+	vec2 texCoords = fs_in.textureUV;
+	ParallaxMapping(texCoords, viewDir, material.texture_height1);
+
+	vec3 nor = vec3(texture(material.texture_normal1, texCoords).rgb);
+	vec3 norm = vec3(normalize(nor) *2.0f - 1.0f);
+
     vec3 lightDir = normalize(fs_in.TangentLightPos - fragPos);
 	vec3 halfwayDir = normalize(lightDir + viewDir);
-    // diffuse shading
-    float diff = max(dot(normal, lightDir), 0.0);
-    // specular shading
-    vec3 reflectDir = reflect(-lightDir, normal);
-	//TODO::blinn
-	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
-	//TODO::phong
-    //float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    //attenuation
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 reflectDir = reflect(-lightDir, norm);
+	float spec = pow(max(dot(norm, halfwayDir), 0.0), material.shininess);
     float attenuation = Attenuation(fragPos, light);    
-    // combine results
-	float shadow = ShadowCalculation(fragPos, fs_in.TangentLightPos, shadowCube);
-	  
-    vec3 ambient  = light.ambient  * vec3(texture(material.texture_diffuse1, fs_in.textureUV));
-    vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.texture_diffuse1, fs_in.textureUV));
-    vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, fs_in.textureUV));
+	
+	//float shadow = ShadowCalculation(fragPos, fs_in.TangentLightPos, shadowCube);
+
+	
+
+    vec3 ambient  = light.ambient;//  * vec3(texture(material.texture_diffuse1, texCoords));
+    vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.texture_diffuse1, texCoords));
+    vec3 specular = light.specular * spec;// * vec3(texture(material.texture_diffuse1, texCoords));
 	
     ambient  *= attenuation;
     diffuse  *= attenuation;

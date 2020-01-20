@@ -236,6 +236,7 @@
     <None Include="resources\bomb\shaders\fragment.glsl" />
     <None Include="resources\bomb\shaders\geometry.glsl" />
     <None Include="resources\bomb\shaders\vertex.glsl" />
+    <None Include="resources\brickSphere\bsp.dae" />
     <None Include="resources\cubemap\shaders\fragment.glsl" />
     <None Include="resources\cubemap\shaders\geometry.glsl" />
     <None Include="resources\cubemap\shaders\vertex.glsl" />

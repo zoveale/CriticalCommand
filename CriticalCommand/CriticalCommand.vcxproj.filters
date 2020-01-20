@@ -176,6 +176,7 @@
     <None Include="resources\shader\Shadow\DepthCubemap\vert.glsl" />
     <None Include="resources\SnowMap\physxTestLightsTestTextureTest.dae" />
     <None Include="resources\SnowMap\physxTestLightsTestTextureTest1.dae" />
+    <None Include="resources\brickSphere\bsp.dae" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">
