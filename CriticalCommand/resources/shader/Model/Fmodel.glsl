@@ -195,8 +195,7 @@ float Intensity(float theta, SpotLight light){
 	}
 
 vec3 CalcSpotLight(SpotLight light, Material material, vec3 normal, vec3 fragPos, vec3 viewDir){
-	//vec3 nah = vec3(texture(material.texture_diffuse1, fs_in.textureUV)).xyz;
-	//vec3 nah = vec3(1.0f, 1.0f, 1.0f).xyz;
+	
     vec3 lightDir = normalize(light.position - fragPos);
 
     // diffuse shading

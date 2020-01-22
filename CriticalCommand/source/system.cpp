@@ -69,6 +69,7 @@ void System::GameLoop(){
 
  
   Model default_0("resources/SnowMap/physxTestLightsTestTextureTest.dae", sceneLights, scenePhysics , true);
+  Model deadTree0("resources/DeadTree0/deadTree0.dae");// , sceneLights, scenePhysics, true);
   Model lights("resources/SnowMap/physxTestLightsTestTextureTest1.dae", sceneLights, scenePhysics);
   //Lamp models
   Shader lamp("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
@@ -180,6 +181,7 @@ void System::GameLoop(){
     for (unsigned int i = 0; i < 6; ++i)
       cubemapDepthShader.SetMat4("shadowTransforms[" + std::to_string(i) + "]", shadowTransforms1[i]);
     cubemapDepthShader.SetMat4("model", glm::mat4(1.0f));
+    deadTree0.Draw(cubemapDepthShader);
     default_0.DepthDraw(cubemapDepthShader);
     ////TODO::multiple light sources and shadows.
     glBindFramebuffer(GL_FRAMEBUFFER, 1);
@@ -215,7 +217,7 @@ void System::GameLoop(){
     ///
 
     sceneLights.SetDynamicAttributes(simple);
-
+    deadTree0.Draw(simple);
     default_0.Draw(simple);
 
 
