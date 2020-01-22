@@ -38,8 +38,8 @@ private:
   const unsigned int TEXTURE_ZERO = 0;
 
   unsigned int depthMapFBO;
-  const unsigned int SHADOW_WIDTH = 1 << 9;
-  const unsigned int SHADOW_HEIGHT = 1 << 9;
+  const unsigned int SHADOW_WIDTH = 1 << 8;
+  const unsigned int SHADOW_HEIGHT = 1 << 8;
 
   static unsigned int count;
 };

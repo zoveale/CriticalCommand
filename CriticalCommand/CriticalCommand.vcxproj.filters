@@ -245,6 +245,18 @@
     <Image Include="resources\cubemap\textures\back.jpg">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="resources\SnowMap\images\specular.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\SnowMap\images\diffuse.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\SnowMap\images\height.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\SnowMap\images\normal.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Text Include="resources\shader\Animated\Vanimated.glsl" />

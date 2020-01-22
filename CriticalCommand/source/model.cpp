@@ -6,6 +6,11 @@ void Model::Draw(Shader shader) {
     meshes[i].Draw(shader);
   }
 }
+void Model::DepthDraw(Shader shader) {
+  for (unsigned int i = 0; i < meshes.size(); i++) {
+    meshes[i].DepthDraw(shader);
+  }
+}
 
 void Model::Animate(Shader shader, float time) {
 
@@ -482,21 +487,15 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
   // specular: texture_specularN
   // normal: texture_normalN
   // 1. diffuse maps
-  std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "material.texture_diffuse");
+  std::vector<Texture> diffuseMaps = LoadATexture(aiTextureType_DIFFUSE, "material.texture_diffuse");
   textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-  // 2. specular maps
-  std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "material.texture_specular");
+  std::vector<Texture> specularMaps = LoadATexture(aiTextureType_SPECULAR, "material.texture_specular");
   textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-  // 3. normal maps
-  //FIXME:: .obj needs: aiTextureType_HEIGHT, while .dae needs: aiTextureType_NORMALS
-  std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, "material.texture_normal");
+  std::vector<Texture> normalMaps = LoadATexture(aiTextureType_NORMALS, "material.texture_normal");
   textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-  // 4. height maps
-  std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "material.texture_height");
+  std::vector<Texture> heightMaps = LoadATexture(aiTextureType_HEIGHT, "material.texture_height");
   textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
-  
-  
   
   return Mesh(vertices, indices, textures);
 }
@@ -662,7 +661,9 @@ void Model::LoadModelOnly(std::string const& path) {
   //retrieve the directory path 
   directory = path.substr(0, path.find_last_of('/'));
   ProcessNodesOnly(scene->mRootNode, scene);
+}
 
+void Model::LoadModelNoTextures(std::string const& path) {
 }
 
 void Model::ProcessNodesOnly(aiNode* node, const aiScene* scene) {
@@ -759,12 +760,14 @@ vector<Texture> Model::LoadATexture(aiTextureType type, string typeName) {
       textures.push_back(textures_loaded[j]);
       skip = true; 
       break;
-    }
+    } 
   }
   if (!skip) {
     // if texture hasn't been loaded already, load it
     Texture texture;
     texture.id = Texture::Load(textureType.c_str(), this->directory + "/images");
+    if(texture.id < 0)
+      return textures;
     texture.type = typeName;
     texture.path = textureType.c_str();
     textures.push_back(texture);

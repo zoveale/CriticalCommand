@@ -49,9 +49,12 @@ public:
   Model(std::string const& path) {
     LoadModelOnly(path);
   }
-
+  Model(std::string const& path, int i) {
+    LoadModelNoTextures(path);
+  }
   // draws the model, and thus all its meshes
   void Draw(Shader shader);
+  void DepthDraw(Shader shader);
   void Animate(Shader shader, float time);
   //FIXME::
   void InitializeBones(Shader shader);
@@ -85,6 +88,7 @@ private:
   void loadModel(std::string const& path, LightFactory& light, physx::Physics& physicsScene);
 
   void LoadModelOnly(std::string const& path);
+  void LoadModelNoTextures(std::string const& path);
   void ProcessNodesOnly(aiNode* node, const aiScene* scene);
   Mesh ProcessMeshOnly(aiMesh* mesh, const aiScene* scene);
 

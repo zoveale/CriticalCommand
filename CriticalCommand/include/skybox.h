@@ -95,6 +95,7 @@ public:
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
+    glActiveTexture(GL_TEXTURE0);
   }
   
 private:
