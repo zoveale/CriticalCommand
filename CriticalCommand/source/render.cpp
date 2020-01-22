@@ -29,6 +29,7 @@ void Render::StartUp(){
     printf("Error GLEW_OK = %i", GLEW_OK);
   }
 
+  glEnable(GL_MULTISAMPLE);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
 
@@ -39,7 +40,7 @@ void Render::StartUp(){
   glCullFace(GL_BACK);
   //glFrontFace(GL_CCW);
 
-  glEnable(GL_MULTISAMPLE);
+  
 }
 ///private fucntions
 void Render::ClearScreen() {

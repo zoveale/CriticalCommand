@@ -20,6 +20,8 @@ class LightFactory {
 private:
   
 public:
+  //TODO:: testing component system,
+  static LightFactory sceneLights;
   //FIXME:: make static
   static std::vector<PointLight> pointLights;
   static std::vector<SpotLight> spotLights;

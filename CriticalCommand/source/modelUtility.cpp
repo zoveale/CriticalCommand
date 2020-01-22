@@ -46,7 +46,7 @@ glm::quat aiToGlm(const aiQuaternion& quat) {
 unsigned int Texture::Load(const char* path, const std::string& directory, bool gamma) {
   std::string filename = std::string(path);
   filename = directory + '/' + filename;
-
+  glActiveTexture(GL_TEXTURE0);
   unsigned int textureID;
   glGenTextures(1, &textureID);
 
@@ -73,9 +73,38 @@ unsigned int Texture::Load(const char* path, const std::string& directory, bool 
     stbi_image_free(data);
   }
   else {
-    printf("Texture failed to load at path: %s", path);
+    printf("Texture failed to load at path: %s \n", filename.c_str());
     stbi_image_free(data);
+    glActiveTexture(GL_TEXTURE0);
+    return -1;
   }
+  glActiveTexture(GL_TEXTURE0);
+  return textureID;
+}
 
+unsigned int Texture::loadCubemap(std::vector<std::string> faces) {
+  unsigned int textureID;
+  glActiveTexture(GL_TEXTURE0);
+  glGenTextures(1, &textureID);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+  int width, height, nrComponents;
+  for (unsigned int i = 0; i < faces.size(); i++) {
+    unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrComponents, 0);
+    if (data) {
+      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+      stbi_image_free(data);
+    }
+    else {
+      printf("Cubemap texture failed to load at path: %s\n", faces[i].c_str());
+      stbi_image_free(data);
+    }
+  }
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+  glActiveTexture(GL_TEXTURE0);
   return textureID;
 }

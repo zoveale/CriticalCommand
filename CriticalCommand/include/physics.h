@@ -4,6 +4,7 @@
 //#define _DEBUG 
 ///added to project config
 #include <iostream>
+#include <string>
 #include <vector>
 
 #include <geometric.hpp>
@@ -39,9 +40,11 @@ namespace physx { class Physics; }
 class physx::Physics {
 
 public:
+  static Physics scenePhysics;
+
   Physics();
   //same for all instances of physx
-  //TODO::create more componet classes oh physics
+  //TODO::create more Component classes oh physics
   static void StartUp() {
 
     //Can make new scale
@@ -59,6 +62,8 @@ public:
     PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
     gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
 
+
+
     gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, scale, true, gPvd);
 
     gCooking = PxCreateCooking(PX_PHYSICS_VERSION, *gFoundation, scale);
@@ -69,9 +74,11 @@ public:
     
     /// 
   }
-  void TestA();
+  
+  void AddynamicActor(PxActor* actor);
   void AddActor(PxActor* actor);
-  void GetActors();
+
+  void UpdateDynamicActorArray();
   void StepPhysics(float dt);
 
   void CleanUp();
@@ -83,55 +90,88 @@ public:
     const std::string               &name,
     const float*                    vertex,
     const unsigned int*             indices,
-    const unsigned int              &indicesSize) const;
+    const unsigned int*             indicesSize,
+    const float                     variables[]);
 
+  
+
+ 
   void AddStaticTriangleMesh(
     const float*                    vertex,
     const unsigned int*             indices,
-    const unsigned int              &indicesSize) const;
+    const unsigned int*             indicesSize,
+    const glm::vec3                 position) const;
+
+  void AddStaticSphereActor(
+    glm::vec3 pos,
+    float radius,
+    PxMaterial* material = defaultMaterial) const;
+
+  void AddStaticBoxActor(
+    glm::vec3 pos,
+    glm::vec3 size,
+    PxMaterial* material = defaultMaterial);
+
+  //returns index for dynamic actor
+  unsigned int AddDynamicSphereActor(
+    glm::vec3 pos,
+    float radius,
+    PxMaterial* material = defaultMaterial);
+
+  unsigned int AddDynamicBoxActor(
+    glm::vec3 pos,
+    glm::vec3 size,
+    PxMaterial* material = defaultMaterial);
+
+  void ExplosionEffect(glm::vec3 pos, float radius);
+  void ReleaseActor(unsigned int index);
+  void DisableActorSimulation(unsigned int index);
+
+  //TODO:: test functions
+  void TestA();
+  //swap float to bool
+  
+  //void RayCastEffect()
+  ///
+  
+  unsigned int GetDynamicActorCount();
 
   
-  //TODO:: test functions
-  void CreateStack(const PxTransform& t, PxU32 size, PxReal halfExtent);
-  void AddCubeActor(glm::vec3 pos, float x = 1.0f, float y = 1.0f, float z = 1.0f);
+protected:
   
-  void ShootBall(glm::vec3 front, glm::vec3 pos);
-  
-  /*static PxTriangleMesh* createMeshGround();
-  static void updateVertices(PxVec3* verts, float amplitude);*/
   
 private:
   PxTriangleMesh* CreateTriangleMesh(
-    const float* vertex,
-    const unsigned int* indices,
-    const unsigned int              &numFaces) const;
+    const float*                     vertex,
+    const unsigned int*              indices,
+    const unsigned int*              numFaces) const;
 
-  //TODO:: remove static?
+
+  static PxPhysics* gPhysics;
+  static PxMaterial* defaultMaterial;
   static PxDefaultAllocator	gAllocator;
   static PxDefaultErrorCallback	gErrorCallback;
   static PxFoundation* gFoundation;
-  static PxPhysics* gPhysics;
   static PxCooking* gCooking;
   static PxDefaultCpuDispatcher* gDispatcher;
   static PxPvd* gPvd;
-  static PxMaterial* defaultMaterial;
+  
+  //TODO:: recycleing actors vector
+  std::vector<unsigned int> freeActors;
 
   PxScene* gScene;
   PxRigidActor* actors[MAX_ACTOR];
   PxU32 nbActors;
+  int dynamicActorCount;
 
-  /*
-  TODO:: remove test variables
-  remove static?
-  */
   PxMat44 globalPoseArray[MAX_ACTOR];
   PxReal stackZ = 10.0f;
-
   //PxTriangleMesh* triMesh;
   //PxRigidStatic* meshActor;
   /*struct Triangle {
     PxU32 ind0, ind1, ind2;
   };*/
+
 
 
   static std::unordered_map<std::string, unsigned int> geometryMap;

@@ -6,7 +6,6 @@
 #include <GLFW/glfw3.h>
 
 
-
 struct KEY_STATE {
 
   bool W = false;
@@ -24,8 +23,9 @@ class Input {
 private:
   
   GLFWwindow* window;
-
+  unsigned int timer;
 public:
+
   KEY_STATE KEY;
   double lastX, lastY, xpos, ypos, xoffset, yoffset;
   Input();
@@ -40,13 +40,14 @@ public:
   }*/
   ///
 
-  
+  //void HandleInput();
   void Process();
   void PollEvents();
 
   //test function
   void IncrementDecrement(float &i);
   void IncrementDecrement(int &i);
-  void IncrementDecrement(bool& i);
+  void IncrementDecrement(unsigned int& i);
+  void IncrementDecrement(bool &i);
 };
 #endif // !INPUT_H

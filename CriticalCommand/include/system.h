@@ -8,8 +8,14 @@
 #include "player.h"
 #include "camera.h"
 #include "model.h"
-#include "lightFactory.h"
-#include "physics.h"
+#include "skybox.h"
+//#include "lightFactory.h"
+//#include "physics.h"
+
+//TODO:: finish all component classes
+#include "objects.h"
+#include "graphics.h"
+#include "physicsComponent.h"
 
 #include "gtx/matrix_decompose.hpp"
 #include "gtc/matrix_transform.hpp"
@@ -20,12 +26,14 @@
 class System {
 private:
   Player player;
-  PlayerCamera playerCamera;
+  FirstPerson firstPerson;
   Render render;
   Input input;
-  LightFactory sceneLights;
 
-  physx::Physics scenePhysics;
+  
+  //LightFactory sceneLights;
+
+  //physx::Physics scenePhysics;
   physx::Physics test;
   
 

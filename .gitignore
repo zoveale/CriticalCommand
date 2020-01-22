@@ -347,3 +347,31 @@ healthchecksdb
 /CriticalCommand/resources/surface
 /CriticalCommand/resources/cowboy
 /CriticalCommand/resources/default
+/CriticalCommand/resources/cubemap/textures/top.jpg
+/CriticalCommand/resources/cubemap/textures/skybox/top.jpg
+/CriticalCommand/resources/cubemap/textures/skybox/right.jpg
+/CriticalCommand/resources/cubemap/textures/skybox/left.jpg
+/CriticalCommand/resources/cubemap/textures/skybox/front.jpg
+/CriticalCommand/resources/cubemap/textures/skybox/bottom.jpg
+/CriticalCommand/resources/cubemap/textures/skybox/back.jpg
+/CriticalCommand/resources/cubemap/textures/right.jpg
+/CriticalCommand/resources/cubemap/textures/left.jpg
+/CriticalCommand/resources/cubemap/textures/front.jpg
+/CriticalCommand/resources/cubemap/textures/bottom.jpg
+/CriticalCommand/resources/cubemap/textures/back.jpg
+/CriticalCommand/resources/cubemap/textures/top - Copy.jpg
+/CriticalCommand/resources/cubemap/textures/top.png
+/CriticalCommand/resources/cubemap/textures/right.png
+/CriticalCommand/resources/cubemap/textures/left.png
+/CriticalCommand/resources/cubemap/textures/front.png
+/CriticalCommand/resources/cubemap/textures/bottom.png
+/CriticalCommand/resources/cubemap/textures/back.png
+/CriticalCommand/resources/bomb/images/normal.jpeg
+/CriticalCommand/resources/bomb/images/height.jpeg
+/CriticalCommand/resources/bomb/images/diffuse.jpeg
+/CriticalCommand/resources/bomb/images/0height.jpeg
+/CriticalCommand/resources/SnowMap/images/0 (4).png
+/CriticalCommand/resources/SnowMap/images/0 (3).png
+/CriticalCommand/resources/SnowMap/images/0 (2).png
+/CriticalCommand/resources/SnowMap/images/0 (1).png
+/CriticalCommand/resources/SnowMap/ground.dae

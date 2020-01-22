@@ -41,6 +41,8 @@ public:
                const glm::vec3& vec3) const;
   void SetVec3(const std::string& name,
                float x, float y, float z) const;
+  void SetVec2(const std::string& name,
+               float x, float y) const;
 
   void SetFloat(const std::string& name, float f) const;
   void SetUnsignedInt(const std::string& name, unsigned int ui) const;

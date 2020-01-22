@@ -11,6 +11,7 @@ Input::Input() {
 }
 
 void Input::StartUp(GLFWwindow* window) {
+  timer = 0;
   lastX = 1280 / 2;
   lastY = 720 / 2;
   this->window = window;
@@ -100,11 +101,31 @@ void Input::IncrementDecrement(float &i) {
 }
 
 void Input::IncrementDecrement(int& i) {
+  
   if (KEY.UP) {
     i++;
   }
   if (KEY.DOWN) {
     i--;
+  }
+}
+
+void Input::IncrementDecrement(unsigned int& i) {
+  
+  if (KEY.UP) {
+    timer += 1;
+    if (timer > 100) {
+      i++;
+      timer = 0;
+    }
+  }
+  if (KEY.DOWN) {
+    timer += 1;
+    if (timer > 100) {
+      i--;
+      timer = 0;
+    }
+    
   }
 }
 

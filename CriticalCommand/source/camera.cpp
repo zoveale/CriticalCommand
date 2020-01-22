@@ -1,11 +1,11 @@
 #include "camera.h"
-glm::vec3 PlayerCamera::position;
-glm::vec3 PlayerCamera::front;
-glm::vec3 PlayerCamera::right;
-glm::vec3 PlayerCamera::up;
-glm::vec3 PlayerCamera::worldUp;
+glm::vec3 FirstPerson::position;
+glm::vec3 FirstPerson::front;
+glm::vec3 FirstPerson::right;
+glm::vec3 FirstPerson::up;
+glm::vec3 FirstPerson::worldUp;
 
-inline void PlayerCamera::SetView() {
+inline void FirstPerson::SetView() {
 
   //calculate the new front vector
   front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
@@ -18,7 +18,7 @@ inline void PlayerCamera::SetView() {
   up = glm::normalize(glm::cross(right, front));
 }
 
-PlayerCamera::PlayerCamera() {
+FirstPerson::FirstPerson() {
   
   position = glm::vec3(0.0f, 0.0f, 3.0f);
   front = glm::vec3(0.0f, 0.0f, 10.0f);
@@ -33,7 +33,7 @@ PlayerCamera::PlayerCamera() {
 }
 
 
-void PlayerCamera::Update(Player& player) {
+void FirstPerson::Update(Player& player) {
   this->position = player.position;
   this->front = player.front;
   this->right = player.right;
@@ -61,7 +61,7 @@ void PlayerCamera::Update(Player& player) {
   player.right = this->right;
 }
 
-glm::mat4 PlayerCamera::View() {
+glm::mat4 FirstPerson::View() {
   //keep camera on the xz plane
  // position.y = 0.0f;
   ///

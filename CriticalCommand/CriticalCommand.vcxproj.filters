@@ -60,6 +60,12 @@
     <ClCompile Include="source\cubemap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\objects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\graphics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\system.h">
@@ -116,6 +122,18 @@
     <ClInclude Include="include\utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\objects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\physicsComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shader\Fmodel.glsl" />
@@ -124,9 +142,6 @@
     <None Include="resources\shader\NormalShader\Fnormal.glsl" />
     <None Include="resources\shader\NormalShader\Gnormal.glsl" />
     <None Include="resources\shader\NormalShader\Vnormal.glsl" />
-    <None Include="resources\shader\CubeMap\Fcubemap.glsl" />
-    <None Include="resources\shader\CubeMap\Gcubemap.glsl" />
-    <None Include="resources\shader\CubeMap\Vcubemap.glsl" />
     <None Include="resources\shader\Framebuffer\Fframebuffer.glsl" />
     <None Include="resources\shader\Framebuffer\Gframebuffer.glsl" />
     <None Include="resources\shader\Framebuffer\Vframebuffer.glsl" />
@@ -142,9 +157,104 @@
     <None Include="resources\shader\Model\Fmodel.glsl" />
     <None Include="resources\shader\Model\Gmodel.glsl" />
     <None Include="resources\shader\Model\Vmodel.glsl" />
+    <None Include="resources\bomb\bomb.dae" />
+    <None Include="resources\bomb\bomb1.dae" />
+    <None Include="resources\bomb\shaders\vertex.glsl" />
+    <None Include="resources\bomb\shaders\fragment.glsl" />
+    <None Include="resources\bomb\shaders\geometry.glsl" />
+    <None Include="resources\cubemap\shaders\fragment.glsl" />
+    <None Include="resources\cubemap\shaders\geometry.glsl" />
+    <None Include="resources\cubemap\shaders\vertex.glsl" />
+    <None Include="resources\shader\Shadow\Depth\frag.glsl" />
+    <None Include="resources\shader\Shadow\Depth\geo.glsl" />
+    <None Include="resources\shader\Shadow\Depth\vert.glsl" />
+    <None Include="resources\shader\Shadow\Map\frag.glsl" />
+    <None Include="resources\shader\Shadow\Map\geo.glsl" />
+    <None Include="resources\shader\Shadow\Map\vert.glsl" />
+    <None Include="resources\shader\Shadow\DepthCubemap\frag.glsl" />
+    <None Include="resources\shader\Shadow\DepthCubemap\geo.glsl" />
+    <None Include="resources\shader\Shadow\DepthCubemap\vert.glsl" />
+    <None Include="resources\SnowMap\physxTestLightsTestTextureTest.dae" />
+    <None Include="resources\SnowMap\physxTestLightsTestTextureTest1.dae" />
+    <None Include="resources\brickSphere\bsp.dae" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\bomb\gray.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\bomb\Untitled.001.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\bomb\Untitled.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\frozendusk_bk.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\frozendusk_dn.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\frozendusk_ft.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\frozendusk_lf.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\frozendusk_rt.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\frozendusk_up.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\back.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\bottem.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\front.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\left.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\right.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\top.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\left.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\right.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\top.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\front.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\bottom.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\back.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\SnowMap\images\specular.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\SnowMap\images\diffuse.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\SnowMap\images\height.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\SnowMap\images\normal.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

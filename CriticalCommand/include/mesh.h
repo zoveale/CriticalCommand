@@ -20,23 +20,20 @@ using namespace std;
 
 class Mesh {
 public:
-  /*  Mesh Data  */
   vector<Vertex> vertices;
   vector<unsigned int> indices;
   vector<Texture> textures;
   unsigned int VAO;
   
 
-  /*  Functions  */
-  
-  typedef vector<Vertex> vec;
-  typedef vector<unsigned int> iVec;
-  typedef vector<Texture> tVec;
-
   Mesh() {}
   static Mesh Empty() {
     return Mesh();
   }
+
+  typedef vector<Vertex> vec;
+  typedef vector<unsigned int> iVec;
+  typedef vector<Texture> tVec;
   // constructor
   Mesh(vec vertices, iVec indices, tVec textures) {
     this->vertices = vertices;
@@ -69,9 +66,10 @@ public:
       else if (name == "material.texture_height")
         number = std::to_string(heightNr++); // transfer unsigned int to stream
 
-                         // now set the sampler to the correct texture unit
+      // now set the sampler to the correct texture unit
       //printf("%s\n", (name + number).c_str());
       glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
+      
       // and finally bind the texture
       glBindTexture(GL_TEXTURE_2D, textures[i].id);
     }
@@ -85,21 +83,14 @@ public:
     glActiveTexture(GL_TEXTURE0);
   }
 
-  void DrawStencil(Shader shader) {
+  void DepthDraw(Shader shader) {
+    // draw mesh
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+    // always good practice to set everything back to defaults once configured.
     glActiveTexture(GL_TEXTURE0);
   }
-
-
-  void DrawMesh() {
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-    glActiveTexture(GL_TEXTURE0);
-  }
-
 private:
   /*  Render data  */
   unsigned int VBO, EBO;
@@ -125,7 +116,7 @@ private:
 
     // set the vertex attribute pointers
     // vertex Positions
-    //FIXME::replace 0,1,2.. with Enum
+    //TODO::replace 0,1,2.. with Enum
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
     // vertex normals

@@ -3,19 +3,19 @@
 
 
 #include "vec2.hpp"
+#include "vec3.hpp"
 
+#include "input.h"
 
-
-
-
-#include "states.h"
-class InputState;
-
-#include "physics.h"
-class physx::Physics;
-
-#include "camera.h"
 class Camera;
+class InputState;
+//class Input;
+
+//#include "physics.h"
+//class physx::Physics;
+
+
+
 
 //class PlayerCamera;
 //class InputState;
@@ -40,7 +40,7 @@ public:
   //Add pointer to input class
   //Input* input;
   ///
-  physx::Physics* physics;
+  //physx::Physics* physics;
   InputState* state;
   Camera* camera;
   //Graphics* graphic
@@ -52,7 +52,7 @@ public:
   void Update(float dt);
   void Draw();
 
-  //input componets
+  //input Components
   void LongIdel();
   void MoveForward();
   void MoveBackward();

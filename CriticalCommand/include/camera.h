@@ -13,24 +13,24 @@
 #include "player.h"
 class Player;
 
-class PlayerCamera;
+class FirstPerson;
 class OverviewCamera;
 
 
 class Camera {
 public:
   virtual void Update(Player& player) = 0;
-  static PlayerCamera firstPerson;
+  static FirstPerson firstPerson;
 };
 /*
 
 */
-class PlayerCamera : public Camera {
+class FirstPerson : public Camera {
 private:
   static glm::vec3 position;
   static glm::vec3 front;
   static glm::vec3 right; //right angle axis
-  static glm::vec3 up;
+  
   static glm::vec3 worldUp;
 
   float mouseX;
@@ -53,7 +53,8 @@ private:
   inline void SetView();
   ///
 public:
-  PlayerCamera();
+  static glm::vec3 up;
+  FirstPerson();
   void Update(Player& player);
   glm::mat4 View();
 };

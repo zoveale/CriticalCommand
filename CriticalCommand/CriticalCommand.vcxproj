@@ -190,10 +190,12 @@
   <ItemGroup>
     <ClCompile Include="source\cubemap.cpp" />
     <ClCompile Include="source\framebuffer.cpp" />
+    <ClCompile Include="source\graphics.cpp" />
     <ClCompile Include="source\input.cpp" />
     <ClCompile Include="source\lightFactory.cpp" />
     <ClCompile Include="source\model.cpp" />
     <ClCompile Include="source\modelUtility.cpp" />
+    <ClCompile Include="source\objects.cpp" />
     <ClCompile Include="source\physics.cpp" />
     <ClCompile Include="source\player.cpp" />
     <ClCompile Include="source\camera.cpp" />
@@ -209,13 +211,17 @@
     <ClInclude Include="include\camera.h" />
     <ClInclude Include="include\cubemap.h" />
     <ClInclude Include="include\framebuffer.h" />
+    <ClInclude Include="include\graphics.h" />
     <ClInclude Include="include\lightFactory.h" />
     <ClInclude Include="include\mesh.h" />
     <ClInclude Include="include\model.h" />
     <ClInclude Include="include\modelUtility.h" />
+    <ClInclude Include="include\objects.h" />
     <ClInclude Include="include\physics.h" />
+    <ClInclude Include="include\physicsComponent.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\skeletal.h" />
+    <ClInclude Include="include\skybox.h" />
     <ClInclude Include="include\states.h" />
     <ClInclude Include="include\system.h" />
     <ClInclude Include="include\render.h" />
@@ -225,9 +231,15 @@
     <ClInclude Include="resources\data\testData.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shader\CubeMap\Fcubemap.glsl" />
-    <None Include="resources\shader\CubeMap\Gcubemap.glsl" />
-    <None Include="resources\shader\CubeMap\Vcubemap.glsl" />
+    <None Include="resources\bomb\bomb.dae" />
+    <None Include="resources\bomb\bomb1.dae" />
+    <None Include="resources\bomb\shaders\fragment.glsl" />
+    <None Include="resources\bomb\shaders\geometry.glsl" />
+    <None Include="resources\bomb\shaders\vertex.glsl" />
+    <None Include="resources\brickSphere\bsp.dae" />
+    <None Include="resources\cubemap\shaders\fragment.glsl" />
+    <None Include="resources\cubemap\shaders\geometry.glsl" />
+    <None Include="resources\cubemap\shaders\vertex.glsl" />
     <None Include="resources\shader\Animated\Fanimated.glsl" />
     <None Include="resources\shader\Fmodel.glsl" />
     <None Include="resources\shader\Framebuffer\Fframebuffer.glsl" />
@@ -245,12 +257,48 @@
     <None Include="resources\shader\PhysicsObjects\Fphysics.glsl" />
     <None Include="resources\shader\PhysicsObjects\Gphysics.glsl" />
     <None Include="resources\shader\PhysicsObjects\Vphysics.glsl" />
+    <None Include="resources\shader\Shadow\DepthCubemap\frag.glsl" />
+    <None Include="resources\shader\Shadow\DepthCubemap\geo.glsl" />
+    <None Include="resources\shader\Shadow\DepthCubemap\vert.glsl" />
+    <None Include="resources\shader\Shadow\Depth\frag.glsl" />
+    <None Include="resources\shader\Shadow\Depth\geo.glsl" />
+    <None Include="resources\shader\Shadow\Depth\vert.glsl" />
+    <None Include="resources\shader\Shadow\Map\frag.glsl" />
+    <None Include="resources\shader\Shadow\Map\geo.glsl" />
+    <None Include="resources\shader\Shadow\Map\vert.glsl" />
     <None Include="resources\shader\StencilShader\Fstencil.glsl" />
     <None Include="resources\shader\StencilShader\Gstencil.glsl" />
     <None Include="resources\shader\StencilShader\Vstencil.glsl" />
     <None Include="resources\shader\Vmodel.glsl" />
+    <None Include="resources\SnowMap\physxTestLightsTestTextureTest.dae" />
+    <None Include="resources\SnowMap\physxTestLightsTestTextureTest1.dae" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="resources\bomb\gray.png" />
+    <Image Include="resources\bomb\Untitled.001.png" />
+    <Image Include="resources\bomb\Untitled.png" />
+    <Image Include="resources\cubemap\textures\back.jpg" />
+    <Image Include="resources\cubemap\textures\back.png" />
+    <Image Include="resources\cubemap\textures\bottem.png" />
+    <Image Include="resources\cubemap\textures\bottom.jpg" />
+    <Image Include="resources\cubemap\textures\front.jpg" />
+    <Image Include="resources\cubemap\textures\front.png" />
+    <Image Include="resources\cubemap\textures\frozendusk_bk.jpg" />
+    <Image Include="resources\cubemap\textures\frozendusk_dn.jpg" />
+    <Image Include="resources\cubemap\textures\frozendusk_ft.jpg" />
+    <Image Include="resources\cubemap\textures\frozendusk_lf.jpg" />
+    <Image Include="resources\cubemap\textures\frozendusk_rt.jpg" />
+    <Image Include="resources\cubemap\textures\frozendusk_up.jpg" />
+    <Image Include="resources\cubemap\textures\left.jpg" />
+    <Image Include="resources\cubemap\textures\left.png" />
+    <Image Include="resources\cubemap\textures\right.jpg" />
+    <Image Include="resources\cubemap\textures\right.png" />
+    <Image Include="resources\cubemap\textures\top.jpg" />
+    <Image Include="resources\cubemap\textures\top.png" />
+    <Image Include="resources\SnowMap\images\diffuse.png" />
+    <Image Include="resources\SnowMap\images\height.png" />
+    <Image Include="resources\SnowMap\images\normal.png" />
+    <Image Include="resources\SnowMap\images\specular.png" />
     <Image Include="resources\texture\wall.jpg" />
   </ItemGroup>
   <ItemGroup>

@@ -18,13 +18,15 @@
 
 //#define PRINT_ASSIMP_INFO
 
+
 class Model {
 public:
 
+  Model() {}
   /*  Model Data */
-  vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
-  vector<Mesh> meshes;
-  vector<Animated> animatedMeshes;
+  std::vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
+  std::vector<Mesh> meshes;
+  std::vector<Animated> animatedMeshes;
   float baseVertexIDs;
   std::string directory;
   bool gammaCorrection;
@@ -34,22 +36,34 @@ public:
   // constructor, expects a filepath to a 3D model.
   Model(std::string const& path, 
         LightFactory &light,
-        physx::Physics &scene,
+        physx::Physics &physicScene,
         bool physics = false,
         bool gamma = false) 
-        :collisions(physics),gammaCorrection(gamma) {
+        :collisions(physics) {
 
-    loadModel(path, light, scene);
+    loadModel(path, light, physicScene);
   }
 
+  //textures must be located in same folder as .DAE named images
+  //Cannot load trimeshes from this constuctor;
+  Model(std::string const& path) {
+    LoadModelOnly(path);
+  }
+  Model(std::string const& path, int i) {
+    LoadModelNoTextures(path);
+  }
   // draws the model, and thus all its meshes
   void Draw(Shader shader);
-  void DrawStencil(Shader shader);
+  void DepthDraw(Shader shader);
   void Animate(Shader shader, float time);
   //FIXME::
   void InitializeBones(Shader shader);
-
+  
+  glm::vec3 Position();
 private:
+  glm::vec3 modelPosition;
+
+  glm::mat4 nodeTransform;
   glm::mat4 inverseRootNode;
   Assimp::Importer importer;
   const aiScene* scene;
@@ -65,10 +79,21 @@ private:
   static const int MAX_BONES = 100;
   unsigned int bonesGPU[MAX_BONES];
   ///
+
+  //
+  std::string textureFileLocation;
+  ///
   /*  Functions   */
   // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
   void loadModel(std::string const& path, LightFactory& light, physx::Physics& physicsScene);
 
+  void LoadModelOnly(std::string const& path);
+  void LoadModelNoTextures(std::string const& path);
+  void ProcessNodesOnly(aiNode* node, const aiScene* scene);
+  Mesh ProcessMeshOnly(aiMesh* mesh, const aiScene* scene);
+
+  //void LoadTextures();
+  vector<Texture> LoadATexture(aiTextureType type, string typeName);
   void ProcessLights(const aiScene* scene, LightFactory& lights);
   void ProcessAnimatedNode(aiNode* node, const aiScene* scene);
   
