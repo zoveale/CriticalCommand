@@ -92,7 +92,7 @@ vec3 result = vec3(0.0);
 
 //test stuff
 uniform float gamma;
-
+uniform float heightScale;
 //ShadowStuff
 uniform float far_plane;
 #define MAX_SHADOW_CASTING_POINT_LIGHTS 2
@@ -138,7 +138,7 @@ float ShadowCalculationCubeMap(vec3 fragPos, vec3 lightPos, samplerCube shadowCu
 
 //Parallax Mapping
 void ParallaxMapping(in out vec2 texCoords, in vec3 viewDir, in sampler2D heightMap){
-	float heightScale = 0.015;
+	
 //	float height =  texture(heightMap, texCoords).r;    
 //    vec2 p = viewDir.xy / viewDir.z * (height * heightScale);
 //    texCoords = texCoords - p;   
@@ -153,7 +153,7 @@ float LinearizeDepth(float depth){
 }
  
 float Attenuation(vec3 pos, PointLight light){
-		float dis = length(fs_in.TangentLightPos - pos);
+		float dis = length(light.position - pos);
 		float attenuation = (1.0 / (1 + (light.linear * (dis * dis)))); 
 		return attenuation;
 	} 

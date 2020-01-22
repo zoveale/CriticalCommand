@@ -49,7 +49,7 @@ void System::GameLoop(){
   ///
 
   //TODO:: PHYSX testing
-  Model ico_80("resources/default/ico_80.dae", sceneLights, scenePhysics);
+  //Model ico_80("resources/default/ico_80.dae", sceneLights, scenePhysics);
 
   IcoSphereGraphicsComponent icoGraphics(&testShpere, &simple, &sceneLights);
   IcoSpherePhysicsComponent icoPhysics(&scenePhysics);
@@ -68,8 +68,11 @@ void System::GameLoop(){
   ///
 
  
-  Model default_0("resources/SnowMap/physxTestLightsTestTextureTest.dae", sceneLights, scenePhysics , true);
-  Model deadTree0("resources/DeadTree0/deadTree0.dae");// , sceneLights, scenePhysics, true);
+  Model default_0("resources/SimpleGround/snowGround.dae", sceneLights, scenePhysics , true);
+  Model deadTree0("resources/DeadTree0/deadTrees0.dae");// , sceneLights, scenePhysics, true);
+  Model magicStoneCircle("resources/MagicStoneCircle/magicStoneCircle.dae");
+  Model largeRock0("resources/LargeRock0/largeRock0.dae");
+  Model simpleTorch("resources/SimpleTorch/torch.dae");
   Model lights("resources/SnowMap/physxTestLightsTestTextureTest1.dae", sceneLights, scenePhysics);
   //Lamp models
   Shader lamp("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
@@ -122,7 +125,7 @@ void System::GameLoop(){
   //pointLightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 
   Framebuffer pointLightOne;
-  float near_plane = 1.0f, far_plane = 65.0f;//farplane == "radius" of point light
+  float near_plane = 1.0f, far_plane = 35.0f;//farplane == "radius" of point light
   glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
   pointLightOne.CreateDepthCubeMap();
   glm::vec3 pointLightPos = sceneLights.GetPointLightPos(0);
@@ -140,6 +143,7 @@ void System::GameLoop(){
 
   bool swap = true;
   unsigned int index = 0;
+  float heightScale = 0.01;
 
   while (!input.KEY.ESC) {
  
@@ -175,13 +179,16 @@ void System::GameLoop(){
     glClear(GL_DEPTH_BUFFER_BIT);
     cubemapDepthShader.Use();
     cubemapDepthShader.SetFloat("far_plane", far_plane);
-    //pointLightPos.x += sin((float)glfwGetTime()) * 0.5f;
     cubemapDepthShader.SetVec3("lightPos", pointLightPos);
     pointLightOne.SetPointLightDepthToCubemap(lightProjection, shadowTransforms1, pointLightPos);
     for (unsigned int i = 0; i < 6; ++i)
       cubemapDepthShader.SetMat4("shadowTransforms[" + std::to_string(i) + "]", shadowTransforms1[i]);
     cubemapDepthShader.SetMat4("model", glm::mat4(1.0f));
-    deadTree0.Draw(cubemapDepthShader);
+    magicStoneCircle.DepthDraw(cubemapDepthShader);
+
+    simpleTorch.DepthDraw(cubemapDepthShader);
+    largeRock0.DepthDraw(cubemapDepthShader);
+    deadTree0.DepthDraw(cubemapDepthShader);
     default_0.DepthDraw(cubemapDepthShader);
     ////TODO::multiple light sources and shadows.
     glBindFramebuffer(GL_FRAMEBUFFER, 1);
@@ -204,7 +211,9 @@ void System::GameLoop(){
     render.ClearScreen();
     glViewport(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT);
     simple.Use();
-    //input.IncrementDecrement(gamma);
+    input.IncrementDecrement(heightScale);
+    //simple.SetFloat("heightScale", heightScale);
+    //printf("heightScale = %f\n", heightScale);
     simple.SetFloat("gamma", gamma);
     simple.SetMat4("PVM", projection* view* model);
     simple.SetFloat("far_plane", far_plane);
@@ -217,6 +226,9 @@ void System::GameLoop(){
     ///
 
     sceneLights.SetDynamicAttributes(simple);
+    simpleTorch.Draw(simple);
+    magicStoneCircle.Draw(simple);
+    largeRock0.Draw(simple);
     deadTree0.Draw(simple);
     default_0.Draw(simple);
 

@@ -462,6 +462,10 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
   ///
   
   if (collisions) {
+
+    /*for (unsigned int i = 0; i < vertices.size(); ++i) {
+      vertices[i].Position -= glm::vec3(nodeTransform[3][0], nodeTransform[3][1], nodeTransform[3][2]);
+    }*/
     bool buildMesh = physicsScene.AddPhysxObject(
                                                  mesh->mName.C_Str(),
                                                  &mesh->mVertices[0].x,
@@ -470,7 +474,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
                                                  minMaxXYZ);
     //If static mesh need to move graphics appropriately
     for (unsigned int i = 0; i < vertices.size(); ++i) {
-      vertices[i].Position += glm::vec3(nodeTransform[3][0], nodeTransform[3][1], nodeTransform[3][2]);
+      vertices[i].Position -= glm::vec3(nodeTransform[3][0], nodeTransform[3][1], nodeTransform[3][2]);
     }
 
     if (!buildMesh)
@@ -657,9 +661,9 @@ void Model::LoadModelOnly(std::string const& path) {
     cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
     return;
   }
-
   //retrieve the directory path 
   directory = path.substr(0, path.find_last_of('/'));
+
   ProcessNodesOnly(scene->mRootNode, scene);
 }
 
@@ -729,6 +733,7 @@ Mesh Model::ProcessMeshOnly(aiMesh* mesh, const aiScene* scene) {
   textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
   //TODO::add emission textures
+  modelPosition = glm::vec3(nodeTransform[3][0], nodeTransform[3][1], nodeTransform[3][2]);
 
   return Mesh(vertices, indices, textures);
 }

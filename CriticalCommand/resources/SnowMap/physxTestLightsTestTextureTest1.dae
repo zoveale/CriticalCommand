@@ -5,13 +5,13 @@
       <author>Blender User</author>
       <authoring_tool>Blender 2.80.75 commit date:2019-07-29, commit time:14:47, hash:f6cb5f54494e</authoring_tool>
     </contributor>
-    <created>2020-01-21T19:41:17</created>
-    <modified>2020-01-21T19:41:17</modified>
+    <created>2020-01-22T12:51:53</created>
+    <modified>2020-01-22T12:51:53</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
   <library_lights>
-    <light id="Point_000-light" name="Point.002">
+    <light id="Point-light" name="Point">
       <technique_common>
         <point>
           <color sid="color">1000 1000 1000</color>
@@ -60,7 +60,7 @@
     <geometry id="Plane-mesh" name="Plane">
       <mesh>
         <source id="Plane-mesh-positions">
-          <float_array id="Plane-mesh-positions-array" count="12">-1 0 1 1 0 1 -1 0 -1 1 0 -1</float_array>
+          <float_array id="Plane-mesh-positions-array" count="12">-1 -19.70689 1 1 -19.70689 1 -1 -19.70689 -1 1 -19.70689 -1</float_array>
           <technique_common>
             <accessor source="#Plane-mesh-positions-array" count="4" stride="3">
               <param name="X" type="float"/>
@@ -103,12 +103,12 @@
   <library_visual_scenes>
     <visual_scene id="Scene" name="Scene">
       <node id="Plane" name="Plane" type="NODE">
-        <matrix sid="transform">1 0 0 1.721506 0 1 0 -24.68922 0 0 1 2.656693 0 0 0 1</matrix>
+        <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
         <instance_geometry url="#Plane-mesh" name="Plane"/>
       </node>
-      <node id="Point_000" name="Point.000" type="NODE">
-        <matrix sid="transform">1 0 0 -7 0 1 0 10 0 0 1 0 0 0 0 1</matrix>
-        <instance_light url="#Point_000-light"/>
+      <node id="Point" name="Point" type="NODE">
+        <matrix sid="transform">0.9821684 0.1880034 -3.89662e-10 5.318644 -0.1874428 0.9792397 -0.07716764 6.948371 -0.01450778 0.07579162 0.9970182 3.106972 0 0 0 1</matrix>
+        <instance_light url="#Point-light"/>
       </node>
     </visual_scene>
   </library_visual_scenes>
