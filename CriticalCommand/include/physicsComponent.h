@@ -22,22 +22,22 @@ public:
   
   virtual void Update(GameObject& object) {
     object.modelMatrix = root->GetAPose(index);
-    timer++;
-    if (timer == 250) {
-      //TODO:: when an actor gets released all other
-      //actors get their component index messed up, because,
-      //once the GetDynamicActors() is called it redistribute 
-      //the actors in the array
-      //root->ReleaseActor(index);
-      //DisableActorSimulation is a work around for now,
-      //does exatly what it sounds like
-      //root->DisableActorSimulation(index);
-      root->ExplosionEffect(glm::vec3(
-        object.modelMatrix[3][0],
-        object.modelMatrix[3][1],
-        object.modelMatrix[3][2]), 55.0f);
-      //timer = 0;
-    }
+  //  timer++;
+  //  if (timer == 250) {
+  //    //TODO:: when an actor gets released all other
+  //    //actors get their component index messed up, because,
+  //    //once the GetDynamicActors() is called it redistribute 
+  //    //the actors in the array
+  //    //root->ReleaseActor(index);
+  //    //DisableActorSimulation is a work around for now,
+  //    //does exatly what it sounds like
+  //    //root->DisableActorSimulation(index);
+  //    root->ExplosionEffect(glm::vec3(
+  //      object.modelMatrix[3][0],
+  //      object.modelMatrix[3][1],
+  //      object.modelMatrix[3][2]), 55.0f);
+  //    //timer = 0;
+  //  }
   }
 
 private:

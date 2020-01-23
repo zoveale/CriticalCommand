@@ -125,7 +125,7 @@ void System::GameLoop(){
   //pointLightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 
   Framebuffer pointLightOne;
-  float near_plane = 1.0f, far_plane = 35.0f;//farplane == "radius" of point light
+  float near_plane = 1.0f, far_plane = 15.0f;//farplane == "radius" of point light
   glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
   pointLightOne.CreateDepthCubeMap();
   glm::vec3 pointLightPos = sceneLights.GetPointLightPos(0);
@@ -140,7 +140,10 @@ void System::GameLoop(){
   //glm::mat4 shadowTransforms2[6];
   //pointLightTwo.SetPointLightDepthToCubemap(lightProjection, shadowTransforms2, pointLightPos);
 
-
+  std::vector<GameObject> dynamicObjects;
+  dynamicObjects.push_back(icoSphere);
+  dynamicObjects.push_back(bomb);
+  
   bool swap = true;
   unsigned int index = 0;
   float heightScale = 0.01;
@@ -191,7 +194,7 @@ void System::GameLoop(){
     deadTree0.DepthDraw(cubemapDepthShader);
     default_0.DepthDraw(cubemapDepthShader);
     ////TODO::multiple light sources and shadows.
-    glBindFramebuffer(GL_FRAMEBUFFER, 1);
+    glBindFramebuffer(GL_FRAMEBUFFER, basicFramebuffer.GetFBO());
    
     
     //glBindFramebuffer(GL_FRAMEBUFFER, pointLightTwo.GetDepthMapFBO());
@@ -211,8 +214,8 @@ void System::GameLoop(){
     render.ClearScreen();
     glViewport(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT);
     simple.Use();
-    input.IncrementDecrement(heightScale);
-    //simple.SetFloat("heightScale", heightScale);
+    //input.IncrementDecrement(heightScale);
+    simple.SetFloat("heightScale", heightScale);
     //printf("heightScale = %f\n", heightScale);
     simple.SetFloat("gamma", gamma);
     simple.SetMat4("PVM", projection* view* model);
@@ -224,8 +227,8 @@ void System::GameLoop(){
     pointLightOne.SetShadowCubemap(simple);
     //pointLightTwo.SetShadowCubemap(simple);
     ///
-
     sceneLights.SetDynamicAttributes(simple);
+
     simpleTorch.Draw(simple);
     magicStoneCircle.Draw(simple);
     largeRock0.Draw(simple);
@@ -233,20 +236,27 @@ void System::GameLoop(){
     default_0.Draw(simple);
 
 
-    /*normalShader.Use();
+   /* normalShader.Use();
     normalShader.SetMat4("projection", projection);
     normalShader.SetMat4("view", view);
     normalShader.SetMat4("model", model);
+    simpleTorch.Draw(normalShader);
+    magicStoneCircle.Draw(normalShader);
+    largeRock0.Draw(normalShader);
+    deadTree0.Draw(normalShader);
     default_0.Draw(normalShader);*/
 
+
     player.Update(deltaTime);
-
     glm::mat4 pvMatrix = projection * view;
-    bomb.Update(deltaTime, pvMatrix);
+    for (GameObject dgo: dynamicObjects) {
+      dgo.Update(deltaTime, pvMatrix);
+      dgo.Draw();
+    }
+    /*bomb.Update(deltaTime, pvMatrix);
     bomb.Draw();
-
     icoSphere.Update(deltaTime, pvMatrix);
-    icoSphere.Draw();
+    icoSphere.Draw();*/
 
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
     glStencilMask(0x01);

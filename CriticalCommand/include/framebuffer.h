@@ -11,6 +11,7 @@ public:
 
   void Preprocess();
   void Postprocess(Shader screenShader);
+  unsigned int GetFBO();
 
   void CreateDepthMap();
   unsigned int GetDepthMapFBO();
@@ -19,10 +20,10 @@ public:
   void BindDepthMap();
   void SetShadowMap(Shader shader);
   void SetShadowCubemap(Shader shader);
-
   void CreateDepthCubeMap();
-
   void SetPointLightDepthToCubemap(glm::mat4 lightProjection, glm::mat4 (&transformArray)[6], glm::vec3 lightPosition);
+
+  void CreateHDRFramebuffer();
 
   ~Framebuffer();
 private:

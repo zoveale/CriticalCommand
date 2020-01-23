@@ -58,12 +58,19 @@ in VS_OUT {
 	//vec4 FragPosLightSpace;
 } fs_in;
 
-float Attenuation(vec3 pos, PointLight l);
+float Attenuation(vec3 pos, PointLight light);
+float Attenuation(vec3 pos, SpotLight light);
 float Intensity(float theta, SpotLight light);
 vec3 CalcDirLight(DirLight light, Material material, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, Material material, vec3 fragPos, vec3 viewDir, float shadow); 
-vec3 CalcSpotLight(SpotLight light, Material material, vec3 normal, vec3 fragPos, vec3 viewDir);
+vec3 CalcSpotLight(SpotLight light, Material material, vec3 fragPos, vec3 viewDir);
 
+//TODO: seperate shadowcasting and non shadow casting lights
+vec3 CalcShadowCastingPointLight(PointLight light,
+								 Material material,
+								 vec3 fragPos,
+								 vec3 viewDir,
+								 float shadow); 
 
 uniform Material material;
 uniform DirLight dirLight;
@@ -95,8 +102,8 @@ uniform float gamma;
 uniform float heightScale;
 //ShadowStuff
 uniform float far_plane;
-#define MAX_SHADOW_CASTING_POINT_LIGHTS 2
-uniform samplerCube shadowMap[1];
+#define MAX_SHADOW_CASTING_POINT_LIGHTS 1
+uniform samplerCube shadowCubeMap[1];
 float near = 1.0f; 
 float far  = 10.0f; 
 float ShadowCalculationCubeMap(vec3 fragPos, vec3 lightPos, samplerCube shadowCube);
@@ -108,15 +115,14 @@ float shadow = 0.5;
 void main(){   
 
 	for(uint i = 0; i < 1; i++){
-		shadow = ShadowCalculationCubeMap(fs_in.FragPos, pointLights[i].position, shadowMap[i]);
-
+		shadow = ShadowCalculationCubeMap(fs_in.FragPos, pointLights[i].position, shadowCubeMap[i]);
 		result += CalcPointLight(pointLights[i], material, fs_in.TangentFragPos, viewDir, shadow); 
 	}
-//
-//	for(uint i = 0; i < numSpotLights; i++){
-//        result += CalcSpotLight(spotLights[i], material, fs_in.normal, fs_in.TangentFragPos, viewDir); 
-//	} 
-//	
+
+	for(uint i = 0; i < numSpotLights; i++){
+        result += CalcSpotLight(spotLights[i], material, fs_in.FragPos, viewDir); 
+	} 
+	
 	
 	vec3 gammaCorrection = pow(result.rgb, vec3(1.0/gamma));
 	FragColor =  vec4(vec3(gammaCorrection), 1.0);
@@ -153,7 +159,14 @@ float LinearizeDepth(float depth){
 }
  
 float Attenuation(vec3 pos, PointLight light){
-		float dis = length(light.position - pos);
+		float dis = length(light.position - fs_in.FragPos);
+		float attenuation = 1.0 / (light.constant + light.linear * dis
+								 + light.quadratic * (dis * dis));   
+		return attenuation;
+	} 
+
+float Attenuation(vec3 pos, SpotLight light){
+		float dis = length(light.position - fs_in.FragPos);
 		float attenuation = (1.0 / (1 + (light.linear * (dis * dis)))); 
 		return attenuation;
 	} 
@@ -194,23 +207,26 @@ float Intensity(float theta, SpotLight light){
 		return intensity;
 	}
 
-vec3 CalcSpotLight(SpotLight light, Material material, vec3 normal, vec3 fragPos, vec3 viewDir){
-	
+vec3 CalcSpotLight(SpotLight light, Material material, vec3 fragPos, vec3 viewDir){
+	//vec2 texCoords = fs_in.textureUV;
+
+	//ParallaxMapping(texCoords, viewDir, material.texture_height1);
+
     vec3 lightDir = normalize(light.position - fragPos);
 
+	vec3 nor = vec3(texture(material.texture_normal1, fs_in.textureUV).rgb);
+	vec3 norm = vec3(normalize(nor) *2.0f - 1.0f);
+//fs_in.normal
     // diffuse shading
-    float diff = max(dot(normal, lightDir), 0.0);
+    float diff = max(dot(norm, lightDir), 0.0);
     // specular shading
-    vec3 reflectDir = reflect(-lightDir,normal);
+    vec3 reflectDir = reflect(-lightDir, norm);
 
-	//TODO::blinn
-	vec3 halfwayDir = normalize(lightDir+ viewDir);
-	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
-	//TODO::phong
-    //float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    // attenuation
+	vec3 halfwayDir = normalize(lightDir + viewDir);
+	float spec = pow(max(dot(norm, halfwayDir), 0.0), material.shininess);
+	
     float distance = length(light.position - fragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
+    float attenuation = Attenuation(fragPos, light);   
     // spotlight intensity
     float theta = dot(lightDir, normalize(-light.direction));
 

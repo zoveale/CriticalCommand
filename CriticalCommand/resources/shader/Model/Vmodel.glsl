@@ -41,9 +41,9 @@ void main(){
 	//mat3 normalMatrix = transpose(inverse(mat3(model)));
 	vec3 T = normalize(mat3(model) * aTangent);
     vec3 N = normalize(mat3(model) * aNormal);
-//    T = normalize(T - dot(T, N) * N);
-//    vec3 B = cross(N, T);
-	vec3 B = normalize(mat3(model) * bitTangent);
+    T = normalize(T - dot(T, N) * N);
+    vec3 B = cross(N, T);
+	//vec3 B = normalize(mat3(model) * bitTangent);
 
 	mat3 TBN = transpose(mat3(T, B, N)); 
 

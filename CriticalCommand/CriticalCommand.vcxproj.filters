@@ -177,6 +177,9 @@
     <None Include="resources\SnowMap\physxTestLightsTestTextureTest.dae" />
     <None Include="resources\SnowMap\physxTestLightsTestTextureTest1.dae" />
     <None Include="resources\brickSphere\bsp.dae" />
+    <None Include="resources\shader\HDR\frag.glsl" />
+    <None Include="resources\shader\HDR\geo.glsl" />
+    <None Include="resources\shader\HDR\vert.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">

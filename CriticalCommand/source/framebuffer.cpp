@@ -5,8 +5,7 @@ unsigned int Framebuffer::count = 0;
 Framebuffer::Framebuffer(Shader screenShader) {
   Test();
   
-  screenShader.Use();
-  screenShader.SetInt("screenTexture", 0);
+  
   
   glGenFramebuffers(1, &framebuffer);
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -15,6 +14,9 @@ Framebuffer::Framebuffer(Shader screenShader) {
   glGenTextures(1, &textureColorbuffer);
   glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
   
+  screenShader.Use();
+  screenShader.SetInt("screenTexture", textureColorbuffer);
+
   //TODO:: globally define screen height and width
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Render::Screen::WIDTH, Render::Screen::HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -51,12 +53,17 @@ void Framebuffer::Postprocess(Shader screenShader) {
   //bind buffer back to default
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glDisable(GL_DEPTH_TEST);
-  glActiveTexture(GL_TEXTURE0);
+  glActiveTexture(GL_TEXTURE0 + textureColorbuffer);
   glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+  screenShader.SetInt("screenTexture", textureColorbuffer);
   glBindVertexArray(quadVAO);
   //glViewport(0, 0, Render::Screen::WIDTH/2, Render::Screen::HEIGHT/2);
   glDrawArrays(GL_TRIANGLES, 0, 6);
   glActiveTexture(GL_TEXTURE0);
+}
+
+unsigned int Framebuffer::GetFBO() {
+  return framebuffer;
 }
 
 void Framebuffer::CreateDepthMap() {
@@ -144,7 +151,7 @@ void Framebuffer::SetShadowCubemap(Shader shader) {
   glActiveTexture(GL_TEXTURE0 + depthCubemap);
   glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
   //shader.Use();
-  shader.SetInt("shadowMap[" + std::to_string(depthMapTextureKey - 1) + "]", depthCubemap);
+  shader.SetInt("shadowCubeMap[" + std::to_string(depthMapTextureKey - 1) + "]", depthCubemap);
   //glBindTexture(GL_TEXTURE0, 0);
   glActiveTexture(GL_TEXTURE0);
 }
