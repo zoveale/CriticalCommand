@@ -68,8 +68,8 @@ public:
 
       // now set the sampler to the correct texture unit
       //printf("%s\n", (name + number).c_str());
-      glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
-      
+      //glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
+      shader.SetInt((name + number).c_str(), i);
       // and finally bind the texture
       glBindTexture(GL_TEXTURE_2D, textures[i].id);
     }

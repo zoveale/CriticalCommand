@@ -62,12 +62,16 @@ void System::GameLoop(){
                       "resources/shader/NormalShader/Gnormal.glsl");
 
   //Framebuffer testing
-  Shader basicFramebufferShader("resources/shader/Framebuffer/Vframebuffer.glsl",
+  /*Shader basicFramebufferShader("resources/shader/Framebuffer/Vframebuffer.glsl",
                            "resources/shader/Framebuffer/Fframebuffer.glsl");
-  Framebuffer basicFramebuffer(basicFramebufferShader);
+  Framebuffer basicFramebuffer(basicFramebufferShader);*/
   ///
+  Shader hdrShader("resources/shader/HDR/vert.glsl",
+                        "resources/shader/HDR/frag.glsl");
+    hdrShader.Use();
+    hdrShader.SetInt("hdrBuffer", 0);
+  Framebuffer hdrFramebuffer(hdrShader);
 
- 
   Model default_0("resources/SimpleGround/snowGround.dae", sceneLights, scenePhysics , true);
   Model deadTree0("resources/DeadTree0/deadTrees0.dae");// , sceneLights, scenePhysics, true);
   Model magicStoneCircle("resources/MagicStoneCircle/magicStoneCircle.dae");
@@ -172,9 +176,8 @@ void System::GameLoop(){
       (float)Render::Screen::WIDTH / (float)Render::Screen::HEIGHT, 0.1f, 1000.0f);
     view = firstPerson.View();
 
-    basicFramebuffer.Preprocess();
-
     render.ClearScreen();
+
     pointLightOne.DepthMapViewPort();
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
     glStencilMask(0xFF);
@@ -194,7 +197,7 @@ void System::GameLoop(){
     deadTree0.DepthDraw(cubemapDepthShader);
     default_0.DepthDraw(cubemapDepthShader);
     ////TODO::multiple light sources and shadows.
-    glBindFramebuffer(GL_FRAMEBUFFER, basicFramebuffer.GetFBO());
+    
    
     
     //glBindFramebuffer(GL_FRAMEBUFFER, pointLightTwo.GetDepthMapFBO());
@@ -210,6 +213,7 @@ void System::GameLoop(){
     //default_0.Draw(cubemapDepthShader);
     ////TODO::multiple light sources and shadows.
     //glBindFramebuffer(GL_FRAMEBUFFER, 1);
+    hdrFramebuffer.Preprocess();
 
     render.ClearScreen();
     glViewport(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT);
@@ -275,7 +279,6 @@ void System::GameLoop(){
     }
     glStencilMask(0xFF);
 
-
     glStencilFunc(GL_NOTEQUAL, 0x01, 0xFF);
     glStencilMask(0x00);
     glDisable(GL_DEPTH_TEST);
@@ -284,7 +287,7 @@ void System::GameLoop(){
     glStencilMask(0xFF);
 
     //framebuffer test
-    basicFramebuffer.Postprocess(basicFramebufferShader);
+    hdrFramebuffer.Postprocess(hdrShader);
     ///
     
     /* Swap front and back buffers */
