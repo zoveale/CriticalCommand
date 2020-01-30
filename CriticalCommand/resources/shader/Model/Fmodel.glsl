@@ -1,5 +1,6 @@
 #version 460
-out vec4 FragColor;
+layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 BrightColor;
 
 struct Material{
 	sampler2D texture_diffuse1;
@@ -48,7 +49,7 @@ in VS_OUT {
     vec3 FragPos;
     vec2 textureUV;
 	vec3 normal;
-	vec3 viewPos;
+	//vec3 viewPos;
 
     vec3 TangentLightPos;
     vec3 TangentViewPos;
@@ -123,12 +124,17 @@ void main(){
         result += CalcSpotLight(spotLights[i], material, fs_in.FragPos, viewDir); 
 	} 
 	
-	
-	//vec3 gammaCorrection = pow(result.rgb, vec3(1.0/gamma));
-	FragColor =  vec4(result.rgb, 1.0f);//vec4(vec3(gammaCorrection), 1.0);
+	FragColor =  vec4(result.rgb, 1.0f);
+	float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
 
-	//float depth = LinearizeDepth(gl_FragCoord.z) / far;
-	//FragColor = vec4(vec3(depth), 0.0 );
+    if(brightness > 0.4)
+        BrightColor = vec4(FragColor.rgb, 1.0);
+    else
+        BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
+
+	
+
+	
 }
 
 float ShadowCalculationCubeMap(vec3 fragPos, vec3 lightPos, samplerCube shadowCube){
@@ -175,10 +181,10 @@ float Attenuation(vec3 pos, SpotLight light){
 vec3 CalcPointLight(PointLight light, Material material, vec3 fragPos, vec3 viewDir, float shadow){
 	vec2 texCoords = fs_in.textureUV;
 
-	ParallaxMapping(texCoords, viewDir, material.texture_height1);
+	//ParallaxMapping(texCoords, viewDir, material.texture_height1);
 
-	vec3 nor = vec3(texture(material.texture_normal1, texCoords).rgb);
-	vec3 norm = vec3(normalize(nor) *2.0f - 1.0f);
+	vec3 nor = normalize(vec3(texture(material.texture_normal1, texCoords).rgb));
+	vec3 norm = vec3(nor *2.0f - 1.0f);
 
     vec3 lightDir = normalize(fs_in.TangentLightPos - fragPos);
 	vec3 halfwayDir = normalize(lightDir + viewDir);
@@ -208,14 +214,14 @@ float Intensity(float theta, SpotLight light){
 	}
 
 vec3 CalcSpotLight(SpotLight light, Material material, vec3 fragPos, vec3 viewDir){
-	//vec2 texCoords = fs_in.textureUV;
+	vec2 texCoords = fs_in.textureUV;
 
 	//ParallaxMapping(texCoords, viewDir, material.texture_height1);
 
     vec3 lightDir = normalize(light.position - fragPos);
 
-	vec3 nor = vec3(texture(material.texture_normal1, fs_in.textureUV).rgb);
-	vec3 norm = vec3(normalize(nor) *2.0f - 1.0f);
+	vec3 nor = normalize(vec3(texture(material.texture_normal1, texCoords).rgb));
+	vec3 norm = vec3(nor *2.0f - 1.0f);
 //fs_in.normal
     // diffuse shading
     float diff = max(dot(norm, lightDir), 0.0);
@@ -237,7 +243,7 @@ vec3 CalcSpotLight(SpotLight light, Material material, vec3 fragPos, vec3 viewDi
     // combine results
     vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse1, fs_in.textureUV));
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1,fs_in.textureUV));
-    vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, fs_in.textureUV));
+    vec3 specular = light.specular * spec;// * vec3(texture(material.texture_specular1, fs_in.textureUV));
 	
     ambient *= attenuation * intensity;
     diffuse *= attenuation * intensity;

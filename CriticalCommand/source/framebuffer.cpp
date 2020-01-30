@@ -5,24 +5,28 @@ unsigned int Framebuffer::count = 0;
 Framebuffer::Framebuffer(Shader screenShader) {
   Test();
   
-  
-  
+  screenShader.Use();
+  screenShader.SetInt("hdrBuffer", 0);
+  screenShader.SetInt("bloomBuffer", 1);
+
   glGenFramebuffers(1, &framebuffer);
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
   // create a color attachment texture
-  glGenTextures(1, &textureColorbuffer);
-  glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-  
-  screenShader.Use();
-  screenShader.SetInt("screenTexture", textureColorbuffer);
+  glGenTextures(2, textureColorbuffer);
+  for (unsigned int i = 0; i < 2; i++) {
+    glBindTexture(GL_TEXTURE_2D, textureColorbuffer[i]);
 
-  //TODO:: globally define screen height and width
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, Render::Screen::WIDTH, Render::Screen::HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
-
+    //TODO:: globally define screen height and width
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, Render::Screen::WIDTH, Render::Screen::HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, textureColorbuffer[i], 0);
+  }
+  unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+  glDrawBuffers(2, attachments);
   //create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
   unsigned int rbo;
   glGenRenderbuffers(1, &rbo);
@@ -39,11 +43,6 @@ Framebuffer::Framebuffer(Shader screenShader) {
 
 void Framebuffer::Preprocess() {
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-  glStencilFunc(GL_ALWAYS, 1, 0xFF); 
-  glStencilMask(0xFF);
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LESS);
-  glDepthMask(GL_TRUE);
 }
 
 void Framebuffer::Postprocess(Shader screenShader) {
@@ -53,10 +52,12 @@ void Framebuffer::Postprocess(Shader screenShader) {
   //CANT CLEAR SENTICL BUFFER HERE!
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   screenShader.Use();
-  //bind buffer back to default
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+  glBindTexture(GL_TEXTURE_2D, textureColorbuffer[0]);
   screenShader.SetInt("hdrBuffer", 0);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, textureColorbuffer[1]);
+  screenShader.SetInt("bloomBuffer", 1);
   glBindVertexArray(quadVAO);
   //glViewport(0, 0, Render::Screen::WIDTH/2, Render::Screen::HEIGHT/2);
   glDrawArrays(GL_TRIANGLES, 0, 6);

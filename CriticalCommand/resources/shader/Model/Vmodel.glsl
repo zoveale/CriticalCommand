@@ -13,7 +13,7 @@ out VS_OUT {
     vec2 textureUV;
 	vec3 normal;
 
-	vec3 viewPos;
+	//vec3 viewPos;
 
     vec3 TangentLightPos;
     vec3 TangentViewPos;
@@ -51,7 +51,7 @@ void main(){
     vs_out.TangentViewPos  = TBN * viewPos;
     vs_out.TangentFragPos  = TBN * vs_out.FragPos;
 
-	//vs_out.normal = mat3(transpose(inverse(model))) * aNormal;	
+	vs_out.normal = mat3(transpose(inverse(model))) * aNormal;	
 	//vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0f);
 
 

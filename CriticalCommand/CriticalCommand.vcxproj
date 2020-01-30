@@ -284,6 +284,7 @@
     <Image Include="resources\cubemap\textures\back.png" />
     <Image Include="resources\cubemap\textures\bottem.png" />
     <Image Include="resources\cubemap\textures\bottom.jpg" />
+    <Image Include="resources\cubemap\textures\bottom.png" />
     <Image Include="resources\cubemap\textures\front.jpg" />
     <Image Include="resources\cubemap\textures\front.png" />
     <Image Include="resources\cubemap\textures\frozendusk_bk.jpg" />

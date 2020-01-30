@@ -27,12 +27,20 @@ glm::mat4 LightFactory::GetPointLightTransformation(unsigned int i) {
   return pointLights[i].Transformation();
 }
 
+glm::vec3 LightFactory::GetPointLightColor(unsigned int i) {
+  return pointLights[i].DiffuseColor();
+}
+
 glm::vec3 LightFactory::GetSpotLightPos(unsigned int i) {
   return spotLights[i].Position();
 }
 
 glm::mat4 LightFactory::GetSpotLightTransformation(unsigned int i) {
   return spotLights[i].Transformation();
+}
+
+glm::vec3 LightFactory::GetSpotLightColor(unsigned int i) {
+  return spotLights[i].DiffuseColor();
 }
 
 unsigned int LightFactory::NumSpotLights() {
@@ -138,6 +146,10 @@ void PointLight::SetDynamicAttributes(Shader shader, unsigned int i) {
     shader.SetVec3(name + ".position", this->position);
 }
 
+glm::vec3 PointLight::DiffuseColor() {
+  return diffuse;
+}
+
 glm::vec3 PointLight::Position() {
   return position;
 }
@@ -215,6 +227,10 @@ void SpotLight::SetDynamicAttributes(Shader shader, unsigned int i) {
 
   
 
+}
+
+glm::vec3 SpotLight::DiffuseColor() {
+  return diffuse;
 }
 
 glm::vec3 SpotLight::Position() {

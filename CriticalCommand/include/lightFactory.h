@@ -29,10 +29,12 @@ public:
   void AddLights(aiLight* light, aiNode* node);
   glm::vec3 GetPointLightPos(unsigned int i);
   glm::mat4 GetPointLightTransformation(unsigned int i);
+  glm::vec3 GetPointLightColor(unsigned int i);
   unsigned int NumPointLights();
 
   glm::vec3 GetSpotLightPos(unsigned int i);
   glm::mat4 GetSpotLightTransformation(unsigned int i);
+  glm::vec3 GetSpotLightColor(unsigned int i);
   unsigned int NumSpotLights();
   
   void SetDynamicAttributes(Shader shader);
@@ -57,6 +59,7 @@ public:
   PointLight(aiLight* light, aiNode* node);
   void SetFixedAttributes(Shader shader, unsigned int i);
   void SetDynamicAttributes(Shader shader, unsigned int i);
+  glm::vec3 DiffuseColor();
   glm::vec3 Position();
   glm::mat4 Transformation();
 };
@@ -80,6 +83,7 @@ public:
   SpotLight(aiLight* light, aiNode* node);
   void SetFixedAttributes(Shader shader, unsigned int i);
   void SetDynamicAttributes(Shader shader, unsigned int i);
+  glm::vec3 DiffuseColor();
   glm::vec3 Position();
   glm::mat4 Transformation();
   //SpotLight Data();

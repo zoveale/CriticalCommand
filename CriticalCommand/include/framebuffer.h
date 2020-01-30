@@ -29,7 +29,7 @@ public:
 private:
   void Test();
   unsigned int framebuffer;
-  unsigned int textureColorbuffer;
+  unsigned int textureColorbuffer[2];
   unsigned int quadVAO;
   unsigned int quadVBO;
 

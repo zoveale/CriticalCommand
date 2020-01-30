@@ -68,8 +68,7 @@ void System::GameLoop(){
   ///
   Shader hdrShader("resources/shader/HDR/vert.glsl",
                         "resources/shader/HDR/frag.glsl");
-    hdrShader.Use();
-    hdrShader.SetInt("hdrBuffer", 0);
+ 
   Framebuffer hdrFramebuffer(hdrShader);
 
   Model default_0("resources/SimpleGround/snowGround.dae", sceneLights, scenePhysics , true);
@@ -96,7 +95,7 @@ void System::GameLoop(){
 
 
   simple.Use();
-  simple.SetFloat("material.shininess", 32.0f);
+  simple.SetFloat("material.shininess", 16.0f);
   sceneLights.SetFixedAttributes(simple);
 
   //test values
@@ -129,7 +128,7 @@ void System::GameLoop(){
   //pointLightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 
   Framebuffer pointLightOne;
-  float near_plane = 1.0f, far_plane = 15.0f;//farplane == "radius" of point light
+  float near_plane = 1.0f, far_plane = 115.0f;//farplane == "radius" of point light
   glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
   pointLightOne.CreateDepthCubeMap();
   glm::vec3 pointLightPos = sceneLights.GetPointLightPos(0);
@@ -215,6 +214,8 @@ void System::GameLoop(){
     //glBindFramebuffer(GL_FRAMEBUFFER, 1);
     hdrFramebuffer.Preprocess();
 
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
     render.ClearScreen();
     glViewport(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT);
     simple.Use();
@@ -239,8 +240,8 @@ void System::GameLoop(){
     deadTree0.Draw(simple);
     default_0.Draw(simple);
 
-
-   /* normalShader.Use();
+/*
+    normalShader.Use();
     normalShader.SetMat4("projection", projection);
     normalShader.SetMat4("view", view);
     normalShader.SetMat4("model", model);
@@ -268,12 +269,14 @@ void System::GameLoop(){
     for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
       model = sceneLights.GetPointLightTransformation(i);
       model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+      lamp.SetVec3("lampColor", sceneLights.GetPointLightColor(i));
       lamp.SetMat4("PVM", projection * view * model);
       pointLamp.Draw(lamp);
     }
     for (unsigned int i = 0; i < sceneLights.NumSpotLights(); i++) {
       model = sceneLights.GetSpotLightTransformation(i);
       model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+      lamp.SetVec3("lampColor", sceneLights.GetSpotLightColor(i));
       lamp.SetMat4("PVM", projection * view * model);
       spotLamp.Draw(lamp);
     }

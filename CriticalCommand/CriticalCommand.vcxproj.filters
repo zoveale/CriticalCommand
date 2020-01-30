@@ -260,6 +260,9 @@
     <Image Include="resources\SnowMap\images\normal.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="resources\cubemap\textures\bottom.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Text Include="resources\shader\Animated\Vanimated.glsl" />
