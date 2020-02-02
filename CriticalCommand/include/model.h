@@ -49,6 +49,13 @@ public:
   Model(std::string const& path) {
     LoadModelOnly(path);
   }
+  void Load(const std::string& path, LightFactory& light, physx::Physics& physicScene, 
+    bool physics = false, bool gamma = false) {
+    loadModel(path, light, physicScene);
+  }
+  void Load(std::string const& path) {
+    LoadModelOnly(path);
+  }
   Model(std::string const& path, int i) {
     LoadModelNoTextures(path);
   }

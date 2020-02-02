@@ -129,7 +129,7 @@ void PointLight::SetFixedAttributes(Shader shader, unsigned int i) {
   name += std::to_string(i);
   name += "]";
 
-
+  shader.SetVec3(name + ".position", this->position);
   shader.SetVec3(name + ".ambient", this->ambient);
   shader.SetVec3(name + ".diffuse", this->diffuse);
   shader.SetVec3(name + ".specular", this->specular);
@@ -142,7 +142,6 @@ void PointLight::SetDynamicAttributes(Shader shader, unsigned int i) {
   std::string name = "pointLights[";
   name += std::to_string(i);
   name += "]";
-  
     shader.SetVec3(name + ".position", this->position);
 }
 

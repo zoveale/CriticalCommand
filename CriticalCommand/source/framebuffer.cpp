@@ -2,9 +2,11 @@
 #include "render.h"
 unsigned int Framebuffer::count = 0;
 
-Framebuffer::Framebuffer(Shader screenShader) {
+
+
+void Framebuffer::Load(Shader screenShader) {
   Test();
-  
+
   screenShader.Use();
   screenShader.SetInt("hdrBuffer", 0);
   screenShader.SetInt("bloomBuffer", 1);
@@ -34,7 +36,7 @@ Framebuffer::Framebuffer(Shader screenShader) {
   //TODO::globally define screen height and width
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, Render::Screen::WIDTH, Render::Screen::HEIGHT); // use a single renderbuffer object for both a depth AND stencil buffer.
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
-  
+
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
     printf("ERROR::FRAMEBUFFER:: Framebuffer is not complete!\n");
   }
@@ -134,6 +136,75 @@ void Framebuffer::SetPointLightDepthToCubemap(glm::mat4 lightProjection,
 
 }
 
+//Geometry Buffer Stuff
+void Framebuffer::LoadGeometryBuffer() {
+  Test();
+  
+  
+  glGenFramebuffers(1, &geometryBuffer);
+  glBindFramebuffer(GL_FRAMEBUFFER, geometryBuffer);
+  // position color buffer
+  glGenTextures(1, &geometryPosition);
+  glBindTexture(GL_TEXTURE_2D, geometryPosition);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, Render::Screen::WIDTH, Render::Screen::HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, geometryPosition, 0);
+  // normal color buffer
+  glGenTextures(1, &geometryNormal);
+  glBindTexture(GL_TEXTURE_2D, geometryNormal);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, Render::Screen::WIDTH, Render::Screen::HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, geometryNormal, 0);
+  // color + specular color buffer
+  glGenTextures(1, &geometryAlbedoSpec);
+  glBindTexture(GL_TEXTURE_2D, geometryAlbedoSpec);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Render::Screen::WIDTH, Render::Screen::HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, geometryAlbedoSpec, 0);
+  // tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
+  unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+  glDrawBuffers(3, attachments);
+  // create and attach depth buffer (renderbuffer)
+  unsigned int rboDepth;
+  glGenRenderbuffers(1, &rboDepth);
+  glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, Render::Screen::WIDTH, Render::Screen::HEIGHT);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+  // finally check if framebuffer is complete
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    std::cout << "Framebuffer not complete!" << std::endl;
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+unsigned int Framebuffer::GetGeometryBufferFBO() {
+  return geometryBuffer;
+}
+void Framebuffer::BindGeometryBuffer() {
+  glBindFramebuffer(GL_FRAMEBUFFER, geometryBuffer);
+}
+void Framebuffer::SetGeometryBuffer(Shader geometryBuffer) {
+  glStencilFunc(GL_ALWAYS, 1, 0xFF);
+  glStencilMask(0xFF);
+  //CANT CLEAR SENTICL BUFFER HERE!
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  geometryBuffer.Use();
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, geometryPosition);
+  geometryBuffer.SetInt("gPosition", 0);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, geometryNormal);
+  geometryBuffer.SetInt("gNormal", 1);
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, geometryAlbedoSpec);
+  geometryBuffer.SetInt("gAlbedoSpec", 2);
+  glBindVertexArray(quadVAO);
+  //glViewport(0, 0, Render::Screen::WIDTH/2, Render::Screen::HEIGHT/2);
+  glDrawArrays(GL_TRIANGLES, 0, 6);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+///
 
 
 void Framebuffer::DepthMapViewPort() {

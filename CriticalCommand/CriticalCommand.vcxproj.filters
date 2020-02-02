@@ -180,6 +180,12 @@
     <None Include="resources\shader\HDR\frag.glsl" />
     <None Include="resources\shader\HDR\geo.glsl" />
     <None Include="resources\shader\HDR\vert.glsl" />
+    <None Include="resources\shader\DeferredShading\vert.glsl" />
+    <None Include="resources\shader\DeferredShading\frag.glsl" />
+    <None Include="resources\shader\DeferredShading\geo.glsl" />
+    <None Include="resources\shader\Gbuffer\vert.glsl" />
+    <None Include="resources\shader\Gbuffer\frag.glsl" />
+    <None Include="resources\shader\Gbuffer\geo.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">

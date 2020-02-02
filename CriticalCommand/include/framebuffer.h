@@ -7,8 +7,7 @@
 class Framebuffer {
 public:
   Framebuffer() {}
-  Framebuffer(Shader screenShader);
-
+  void Load(Shader screenShader);
   void Preprocess();
   void Postprocess(Shader screenShader);
   unsigned int GetFBO();
@@ -23,11 +22,22 @@ public:
   void CreateDepthCubeMap();
   void SetPointLightDepthToCubemap(glm::mat4 lightProjection, glm::mat4 (&transformArray)[6], glm::vec3 lightPosition);
 
-  void CreateHDRFramebuffer();
-
+  //
+  void LoadGeometryBuffer();
+  unsigned int GetGeometryBufferFBO();
+  void BindGeometryBuffer();
+  void SetGeometryBuffer(Shader geometryBuffer);
+  ///
   ~Framebuffer();
 private:
   void Test();
+
+  //Gbuffer Stuff
+  unsigned int geometryBuffer;
+  unsigned int geometryPosition, geometryNormal, geometryAlbedoSpec;
+  unsigned int attachments[3];
+  unsigned int rboDepth;
+  ///
   unsigned int framebuffer;
   unsigned int textureColorbuffer[2];
   unsigned int quadVAO;

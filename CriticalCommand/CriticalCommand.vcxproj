@@ -241,10 +241,16 @@
     <None Include="resources\cubemap\shaders\geometry.glsl" />
     <None Include="resources\cubemap\shaders\vertex.glsl" />
     <None Include="resources\shader\Animated\Fanimated.glsl" />
+    <None Include="resources\shader\DeferredShading\frag.glsl" />
+    <None Include="resources\shader\DeferredShading\geo.glsl" />
+    <None Include="resources\shader\DeferredShading\vert.glsl" />
     <None Include="resources\shader\Fmodel.glsl" />
     <None Include="resources\shader\Framebuffer\Fframebuffer.glsl" />
     <None Include="resources\shader\Framebuffer\Gframebuffer.glsl" />
     <None Include="resources\shader\Framebuffer\Vframebuffer.glsl" />
+    <None Include="resources\shader\Gbuffer\frag.glsl" />
+    <None Include="resources\shader\Gbuffer\geo.glsl" />
+    <None Include="resources\shader\Gbuffer\vert.glsl" />
     <None Include="resources\shader\Gmodel.glsl" />
     <None Include="resources\shader\HDR\frag.glsl" />
     <None Include="resources\shader\HDR\geo.glsl" />

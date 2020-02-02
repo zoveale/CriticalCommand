@@ -6,7 +6,8 @@ glm::vec3 FirstPerson::up;
 glm::vec3 FirstPerson::worldUp;
 
 inline void FirstPerson::SetView() {
-
+  
+  front = glm::vec3(0.0f);
   //calculate the new front vector
   front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
   front.y = sin(glm::radians(pitch));
@@ -20,9 +21,9 @@ inline void FirstPerson::SetView() {
 
 FirstPerson::FirstPerson() {
   
-  position = glm::vec3(0.0f, 0.0f, 3.0f);
-  front = glm::vec3(0.0f, 0.0f, 10.0f);
-  right = glm::vec3(0.0f, 1.0f, 0.0f);
+  position = glm::vec3(0.0f);
+  front = glm::vec3(0.0f, 0.0f, -1.0f);
+  right = glm::vec3(0.0f);
   up = glm::vec3(0.0f, 1.0f, 0.0f);
   worldUp = up;
   yaw = YAW - 150.0f;

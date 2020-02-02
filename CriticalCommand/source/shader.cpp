@@ -39,6 +39,39 @@ Shader::Shader(const GLchar* vertexShaderPath,
   glDeleteShader(geometry);
 }
 
+void Shader::Load(const GLchar* vertexShaderPath,
+  const GLchar* fragmentShaderPath,
+  const GLchar* geometryShaderPath) {
+
+
+  this->vertexShader = LoadShader(vertexShaderPath);
+  this->vertexShaderCode = vertexShader.c_str();
+
+  this->fragmentShader = LoadShader(fragmentShaderPath);
+  this->fragmentShaderCode = fragmentShader.c_str();
+
+  if (geometryShaderPath != nullptr) {
+    this->geometryShader = LoadShader(geometryShaderPath);
+    this->geometryShaderCode = geometryShader.c_str();
+    geometryShaderBit = true;
+  }
+
+
+  //Print();
+
+  unsigned int vertex, fragment, geometry;
+  CreateShaders(vertex, fragment, geometry, vertexShaderCode, fragmentShaderCode, geometryShaderCode);
+  AttachShaderID(vertex, fragment, geometry);
+
+  //detach and delete the shaders after memory allocation
+  glDetachShader(this->ID, vertex);
+  glDetachShader(this->ID, fragment);
+  glDetachShader(this->ID, geometry);
+  glDeleteShader(vertex);
+  glDeleteShader(fragment);
+  glDeleteShader(geometry);
+}
+
 void Shader::SetInit(const std::string& name, int value) const {
   int location = glGetUniformLocation(ID, name.c_str());
   glUniform1i(location, value);

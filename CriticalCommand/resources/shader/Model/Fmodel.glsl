@@ -220,9 +220,11 @@ vec3 CalcSpotLight(SpotLight light, Material material, vec3 fragPos, vec3 viewDi
 
     vec3 lightDir = normalize(light.position - fragPos);
 
-	vec3 nor = normalize(vec3(texture(material.texture_normal1, texCoords).rgb));
-	vec3 norm = normalize(fs_in.normal); //vec3(nor *2.0f - 1.0f);
-//fs_in.normal
+	//vec3 nor = normalize(vec3(texture(material.texture_normal1, texCoords).rgb));
+	//vec3 norm = normalize(fs_in.normal); //vec3(nor *2.0f - 1.0f);
+	vec3 nor = vec3(texture(material.texture_normal1, texCoords).rgb);
+	vec3 norm = vec3(nor *2.0f - 1.0f);
+	//fs_in.normal
     // diffuse shading
     float diff = max(dot(norm, lightDir), 0.0);
     // specular shading
