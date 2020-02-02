@@ -46,6 +46,7 @@ void System::SystemInit(){
   lights.Load("resources/SnowMap/physxTestLightsTestTextureTest1.dae", sceneLights, scenePhysics);
   pointLamp.Load("resources/surface/pointLamp.dae", sceneLights, scenePhysics);
   spotLamp.Load("resources/surface/spotLight.dae", sceneLights, scenePhysics);
+  testDefferedRenderSpheres.Load("resources/default/SceneInProgressDefferedRenderTest1.dae", sceneLights, scenePhysics, true);
 
   hdrFramebuffer.Load(hdrShader);
   //lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
@@ -75,7 +76,8 @@ void System::SystemInit(){
   deferredLightingPass.SetInt("gNormal", 1);
   deferredLightingPass.SetInt("gAlbedoSpec", 2);
   deferredLightingPass.SetVec3("viewPos", player.position);
-  
+  sceneLights.SetFixedAttributes(deferredLightingPass);
+
 }
 
 
@@ -108,9 +110,8 @@ void System::GameLoop(){
   float deltaTime = 0.0f;
   float currentFrame = 0.0f;
   float lastFrame = (float)glfwGetTime();
-
+ 
   
-  bool swap = true;
   unsigned int index = 0;
   float heightScale = 0.01;
 
@@ -128,12 +129,13 @@ void System::GameLoop(){
        
 
     player.HandleInput(input, deltaTime);
-    player.Update(deltaTime);
 
     model = glm::mat4(1.0f);
     view = glm::mat4(1.0f);
     projection = glm::mat4(1.0f);
     ///
+
+    player.Update(deltaTime);
 
     projection = glm::perspective(glm::radians((float)perspective),
       (float)Render::Screen::WIDTH / (float)Render::Screen::HEIGHT, 0.1f, 1000.0f);
@@ -152,37 +154,35 @@ void System::GameLoop(){
     multipleRenderTargetShader.SetMat4("projection", projection);
     multipleRenderTargetShader.SetMat4("view", view);
     multipleRenderTargetShader.SetMat4("model", model);
-
-    simpleTorch.Draw(multipleRenderTargetShader);
+    multipleRenderTargetShader.SetMat4("inverseModel", glm::inverse(model));
+    testDefferedRenderSpheres.Draw(multipleRenderTargetShader);
+    /*simpleTorch.Draw(multipleRenderTargetShader);
     magicStoneCircle.Draw(multipleRenderTargetShader);
     largeRock0.Draw(multipleRenderTargetShader);
     deadTree0.Draw(multipleRenderTargetShader);
-    default_0.Draw(multipleRenderTargetShader);
-
+    default_0.Draw(multipleRenderTargetShader);*/
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 
     //hdrFramebuffer.Preprocess();
     deferredLightingPass.Use();
     deferredLightingPass.SetVec3("viewPos", player.position);
-    sceneLights.SetFixedAttributes(deferredLightingPass);
-    geometryBuffer.SetGeometryBuffer(deferredLightingPass);
+    geometryBuffer.SetDeferredShading(deferredLightingPass);
+    //hdrFramebuffer.Postprocess(hdrShader);
     glStencilMask(0xFF);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     //framebuffer test
-    //hdrFramebuffer.Postprocess(hdrShader);
     ///
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
     glStencilMask(0x01);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, geometryBuffer.GetGeometryBufferFBO());
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
-    // blit to default framebuffer. Note that this may or may not work as the internal formats of both the FBO and default framebuffer have to match.
-    // the internal formats are implementation defined. This works on all of my systems, but if it doesn't on yours you'll likely have to write to the 		
-    // depth buffer in another shader stage (or somehow see to match the default framebuffer's internal format with the FBO's internal format).
-    glBlitFramebuffer(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT, 0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBlitFramebuffer(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT,
+                      0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT,
+                                                        GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     lamp.Use();
+    //sceneLights.NumPointLights()
     for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
       model = sceneLights.GetPointLightTransformation(i);
       model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
@@ -190,9 +190,8 @@ void System::GameLoop(){
       lamp.SetMat4("PVM", projection * view * model);
       pointLamp.Draw(lamp);
     }
-
     glStencilMask(0xFF);
-    //hdrFramebuffer.Postprocess(hdrShader);
+
     /* Swap front and back buffers */
     render.Display();
 

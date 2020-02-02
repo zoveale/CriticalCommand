@@ -9,7 +9,9 @@ layout (location = 2) in vec2 aTexCoords;
 out vec3 FragPos;
 out vec2 TexCoords;
 out vec3 Normal;
+out mat3 worldSpaceinverse;
 
+uniform mat4 inverseModel;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
@@ -19,8 +21,8 @@ void main(){
     FragPos = worldPos.xyz; 
     TexCoords = aTexCoords;
     
-    mat3 normalMatrix = transpose(inverse(mat3(model)));
-    Normal = normalMatrix * aNormal;
-
+    
+    Normal = transpose(mat3(inverseModel)) * aNormal;
+	//worldSpaceinverse = transpose(mat3(inverseModel));
     gl_Position = projection * view * worldPos;
 }    

@@ -55,6 +55,8 @@ private:
   Model lights;
   Model pointLamp;
   Model spotLamp;
+  Model testDefferedRenderSpheres;
+
 
   Framebuffer hdrFramebuffer;
   //Framebuffer pointLightOne;

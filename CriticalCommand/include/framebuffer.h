@@ -26,7 +26,7 @@ public:
   void LoadGeometryBuffer();
   unsigned int GetGeometryBufferFBO();
   void BindGeometryBuffer();
-  void SetGeometryBuffer(Shader geometryBuffer);
+  void SetDeferredShading(Shader deferredShading);
   ///
   ~Framebuffer();
 private:

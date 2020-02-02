@@ -50,11 +50,13 @@ private:
   ///
 
   //private functions
+  
   inline void SetView();
   ///
 public:
   static glm::vec3 up;
   FirstPerson();
+  void SetUp();
   void Update(Player& player);
   glm::mat4 View();
 };

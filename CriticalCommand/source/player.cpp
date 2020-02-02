@@ -22,22 +22,25 @@ FirstPerson Camera::firstPerson;
 
 
 Player::Player() {
-  position = glm::vec3(12.5f, 20.0f, -15.5f);
-  //position = glm::vec3(0.0f);
-  front = glm::vec3(1.0f, 0.0f, -1.0f);
-  right = glm::vec3(0.0f, 1.0f, 0.0f);
-  speed = 20.0f;
-  dt = 0.0f;
-  acc = 1.0f;
-  
-  camera = &Camera::firstPerson;
-  state = &InputState::idel;
+ 
 }
 
 void Player::StartUp() {
 /*
 
 */
+  position = glm::vec3(12.5f, 20.0f, -15.5f);
+  //position = glm::vec3(0.0f);
+  front = glm::vec3(1.0f, 0.0f, -1.0f);
+  right = glm::vec3(0.0f, 1.0f, 0.0f);
+  speed = 5.0f;
+  dt = 0.0f;
+  acc = 1.0f;
+
+  camera = &Camera::firstPerson;
+  state = &InputState::idel;
+  camera->Update(*this);
+  state->Update(*this);
 }
 
 

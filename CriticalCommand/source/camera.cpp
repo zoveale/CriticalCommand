@@ -5,6 +5,8 @@ glm::vec3 FirstPerson::right;
 glm::vec3 FirstPerson::up;
 glm::vec3 FirstPerson::worldUp;
 
+
+
 inline void FirstPerson::SetView() {
   
   front = glm::vec3(0.0f);
@@ -20,7 +22,6 @@ inline void FirstPerson::SetView() {
 }
 
 FirstPerson::FirstPerson() {
-  
   position = glm::vec3(0.0f);
   front = glm::vec3(0.0f, 0.0f, -1.0f);
   right = glm::vec3(0.0f);

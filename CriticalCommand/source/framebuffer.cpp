@@ -184,21 +184,21 @@ unsigned int Framebuffer::GetGeometryBufferFBO() {
 void Framebuffer::BindGeometryBuffer() {
   glBindFramebuffer(GL_FRAMEBUFFER, geometryBuffer);
 }
-void Framebuffer::SetGeometryBuffer(Shader geometryBuffer) {
+void Framebuffer::SetDeferredShading(Shader deferredShading) {
   glStencilFunc(GL_ALWAYS, 1, 0xFF);
   glStencilMask(0xFF);
   //CANT CLEAR SENTICL BUFFER HERE!
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  geometryBuffer.Use();
+  deferredShading.Use();
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, geometryPosition);
-  geometryBuffer.SetInt("gPosition", 0);
+  deferredShading.SetInt("gPosition", 0);
   glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, geometryNormal);
-  geometryBuffer.SetInt("gNormal", 1);
+  deferredShading.SetInt("gNormal", 1);
   glActiveTexture(GL_TEXTURE2);
   glBindTexture(GL_TEXTURE_2D, geometryAlbedoSpec);
-  geometryBuffer.SetInt("gAlbedoSpec", 2);
+  deferredShading.SetInt("gAlbedoSpec", 2);
   glBindVertexArray(quadVAO);
   //glViewport(0, 0, Render::Screen::WIDTH/2, Render::Screen::HEIGHT/2);
   glDrawArrays(GL_TRIANGLES, 0, 6);

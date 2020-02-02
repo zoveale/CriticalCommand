@@ -1,8 +1,10 @@
 //Fragment Deffered Shading
 #version 460 core
 //Out HDR and bloom from here?
-layout (location = 0) out vec4 FragColor;
-layout (location = 1) out vec4 BrightColor;
+//layout (location = 0) out vec4 FragColor;
+//layout (location = 1) out vec4 BrightColor;
+out vec4 FragColor;
+
 
 in vec2 TexCoords;
 
@@ -35,11 +37,12 @@ void main()
     vec3 FragPos = texture(gPosition, TexCoords).rgb;
     vec3 Normal = texture(gNormal, TexCoords).rgb;
     vec3 Diffuse = texture(gAlbedoSpec, TexCoords).rgb;
-    float Specular = 0.5f; //texture(gAlbedoSpec, TexCoords).a;
+    float Specular = texture(gAlbedoSpec, TexCoords).a;
     
     // then calculate lighting as usual
     vec3 lighting  = Diffuse * 0.1; // hard-coded ambient component
     vec3 viewDir  = normalize(viewPos - FragPos);
+	 //numPointLights
     for(int i = 0; i < numPointLights; ++i)
     {
         // diffuse
@@ -48,20 +51,21 @@ void main()
         // specular
         vec3 halfwayDir = normalize(lightDir + viewDir);  
         float spec = pow(max(dot(Normal, halfwayDir), 0.0), 16.0);
-        vec3 specular = pointLights[i].diffuse * spec * Specular;
+        vec3 specular = pointLights[i].specular * spec * Specular;
         // attenuation
         float dis = length(pointLights[i].position - FragPos);
-        float attenuation = 1.0 / (1.0 + 0.7 * dis + pointLights[i].quadratic * dis * dis);
+        float attenuation = 1.0 / (1.0 + pointLights[i].linear * dis + pointLights[i].linear * dis * dis);
 
         diffuse *= attenuation;
-        //specular *= attenuation;
+        specular *= attenuation;
         lighting += diffuse + specular;        
     }
 
     FragColor = vec4(lighting, 1.0);
+
 	float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-    if(brightness > 0.85)
-        BrightColor = vec4(FragColor.rgb, 1.0);
-    else
-        BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
+//    if(brightness > 0.85)
+//        BrightColor = vec4(FragColor.rgb, 1.0);
+//    else
+//        BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
 }
