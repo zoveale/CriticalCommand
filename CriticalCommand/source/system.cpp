@@ -38,7 +38,7 @@ void System::SystemInit(){
   bombModels.push_back(new Model("resources/bomb/bomb.dae", sceneLights, scenePhysics));
   //TODO::HEIGHTMAP LOADing
   testShpere.Load("resources/brickSphere/bb.dae");
-  default_0.Load("resources/SimpleGround/snowGround.dae", sceneLights, scenePhysics, true);
+  //default_0.Load("resources/SimpleGround/snowGround.dae", sceneLights, scenePhysics, true);
   deadTree0.Load("resources/DeadTree0/deadTrees0.dae");// , sceneLights, scenePhysics, true);
   magicStoneCircle.Load("resources/MagicStoneCircle/magicStoneCircle.dae");
   largeRock0.Load("resources/LargeRock0/largeRock0.dae");
@@ -46,7 +46,7 @@ void System::SystemInit(){
   lights.Load("resources/SnowMap/physxTestLightsTestTextureTest1.dae", sceneLights, scenePhysics);
   pointLamp.Load("resources/surface/pointLamp.dae", sceneLights, scenePhysics);
   spotLamp.Load("resources/surface/spotLight.dae", sceneLights, scenePhysics);
-  testDefferedRenderSpheres.Load("resources/default/SceneInProgressDefferedRenderTest1.dae", sceneLights, scenePhysics, true);
+  testDefferedRenderSpheres.Load("resources/default/SceneInProgressDefferedRenderTest2.dae", sceneLights, scenePhysics, true);
 
   hdrFramebuffer.Load(hdrShader);
   //lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
@@ -82,23 +82,7 @@ void System::SystemInit(){
 
 
 void System::GameLoop(){
-  //BombGraphicsComponent bombGraphics(bombModels, &simple);
-  //BombPhysicsComponent bombPhysics(&scenePhysics);
-
-  //GameObject bomb(&bombGraphics, &bombPhysics);
-
-  ////TODO:: PHYSX testing
-  ////Model ico_80("resources/default/ico_80.dae", sceneLights, scenePhysics);
-
-  //IcoSphereGraphicsComponent icoGraphics(&testShpere, &simple, &sceneLights);
-  //IcoSpherePhysicsComponent icoPhysics(&scenePhysics);
-  ////std::vector<GameObject> icoSpheres;
-  //GameObject icoSphere(&icoGraphics, &icoPhysics);
-
-
-  //std::vector<GameObject> dynamicObjects;
-  //dynamicObjects.push_back(icoSphere);
-  //dynamicObjects.push_back(bomb);
+  
 
   //test values
   float x = 1.0f;
@@ -124,8 +108,8 @@ void System::GameLoop(){
     lastFrame = currentFrame;
 
     input.IncrementDecrement(testBool);
-    if (testBool)
-      scenePhysics.StepPhysics(deltaRate);
+    //if (testBool)
+    scenePhysics.StepPhysics(deltaRate);
        
 
     player.HandleInput(input, deltaTime);
@@ -155,6 +139,7 @@ void System::GameLoop(){
     multipleRenderTargetShader.SetMat4("view", view);
     multipleRenderTargetShader.SetMat4("model", model);
     multipleRenderTargetShader.SetMat4("inverseModel", glm::inverse(model));
+
     testDefferedRenderSpheres.Draw(multipleRenderTargetShader);
     /*simpleTorch.Draw(multipleRenderTargetShader);
     magicStoneCircle.Draw(multipleRenderTargetShader);
@@ -184,9 +169,10 @@ void System::GameLoop(){
     lamp.Use();
     //sceneLights.NumPointLights()
     for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
-      model = sceneLights.GetPointLightTransformation(i);
+      model = glm::mat4(1.0f);
+      model = glm::translate(model, sceneLights.GetPointLightPos(i));
       model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-      lamp.SetVec3("lampColor", sceneLights.GetPointLightColor(i));
+      lamp.SetVec3("lampColor", sceneLights.GetPointLightColor(i) * 10.0f);
       lamp.SetMat4("PVM", projection * view * model);
       pointLamp.Draw(lamp);
     }

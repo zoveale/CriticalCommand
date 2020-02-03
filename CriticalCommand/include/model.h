@@ -49,8 +49,9 @@ public:
   Model(std::string const& path) {
     LoadModelOnly(path);
   }
-  void Load(const std::string& path, LightFactory& light, physx::Physics& physicScene, 
+  void Load(const std::string& path, LightFactory& light, physx::Physics& physicScene,
     bool physics = false, bool gamma = false) {
+    collisions = physics;
     loadModel(path, light, physicScene);
   }
   void Load(std::string const& path) {

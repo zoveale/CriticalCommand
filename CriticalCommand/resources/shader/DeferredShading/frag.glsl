@@ -31,8 +31,7 @@ uniform PointLight pointLights[NR_LIGHTS];
 uniform vec3 viewPos;
 
 
-void main()
-{             
+void main(){             
     // retrieve data from gbuffer
     vec3 FragPos = texture(gPosition, TexCoords).rgb;
     vec3 Normal = texture(gNormal, TexCoords).rgb;
@@ -40,30 +39,29 @@ void main()
     float Specular = texture(gAlbedoSpec, TexCoords).a;
     
     // then calculate lighting as usual
-    vec3 lighting  = Diffuse * 0.1; // hard-coded ambient component
+    vec3 lighting  = vec3(0.0f); // hard-coded ambient component
     vec3 viewDir  = normalize(viewPos - FragPos);
 	 //numPointLights
-    for(int i = 0; i < numPointLights; ++i)
-    {
+    for(int i = 0; i < numPointLights; ++i){
         // diffuse
         vec3 lightDir = normalize(pointLights[i].position - FragPos);
         vec3 diffuse = max(dot(Normal, lightDir), 0.0) * Diffuse * pointLights[i].diffuse;
         // specular
         vec3 halfwayDir = normalize(lightDir + viewDir);  
         float spec = pow(max(dot(Normal, halfwayDir), 0.0), 16.0);
-        vec3 specular = pointLights[i].specular * spec * Specular;
+        vec3 specular = pointLights[i].specular * spec * Specular * 1.1f;
         // attenuation
         float dis = length(pointLights[i].position - FragPos);
-        float attenuation = 1.0 / (1.0 + pointLights[i].linear * dis + pointLights[i].linear * dis * dis);
+        float attenuation = 1.0 / (1.0 + 0.09 * dis + 0.032 * dis * dis);
 
         diffuse *= attenuation;
-        specular *= attenuation;
+        specular *= attenuation * 0.1f;
         lighting += diffuse + specular;        
     }
 
     FragColor = vec4(lighting, 1.0);
 
-	float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+//	float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
 //    if(brightness > 0.85)
 //        BrightColor = vec4(FragColor.rgb, 1.0);
 //    else
