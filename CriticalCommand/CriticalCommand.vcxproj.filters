@@ -186,6 +186,9 @@
     <None Include="resources\shader\Gbuffer\vert.glsl" />
     <None Include="resources\shader\Gbuffer\frag.glsl" />
     <None Include="resources\shader\Gbuffer\geo.glsl" />
+    <None Include="resources\shader\PBR\vert.glsl" />
+    <None Include="resources\shader\PBR\frag.glsl" />
+    <None Include="resources\shader\PBR\geo.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">

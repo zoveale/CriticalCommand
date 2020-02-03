@@ -263,6 +263,9 @@
     <None Include="resources\shader\NormalShader\Fnormal.glsl" />
     <None Include="resources\shader\NormalShader\Gnormal.glsl" />
     <None Include="resources\shader\NormalShader\Vnormal.glsl" />
+    <None Include="resources\shader\PBR\frag.glsl" />
+    <None Include="resources\shader\PBR\geo.glsl" />
+    <None Include="resources\shader\PBR\vert.glsl" />
     <None Include="resources\shader\PhysicsObjects\Fphysics.glsl" />
     <None Include="resources\shader\PhysicsObjects\Gphysics.glsl" />
     <None Include="resources\shader\PhysicsObjects\Vphysics.glsl" />
