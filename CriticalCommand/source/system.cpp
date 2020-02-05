@@ -17,66 +17,23 @@ void System::SystemInit(){
   scenePhysics.TestA();
   printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 
-  simple.Load("resources/shader/Model/Vmodel.glsl", 
-    "resources/shader/Model/Fmodel.glsl");
-  depthTestShader.Load("resources/shader/Shadow/Depth/vert.glsl", 
-    "resources/shader/Shadow/Depth/frag.glsl");
-  cubemapDepthShader.Load("resources/shader/Shadow/DepthCubemap/vert.glsl",
-    "resources/shader/Shadow/DepthCubemap/frag.glsl",
-    "resources/shader/Shadow/DepthCubemap/geo.glsl");
-  bombShader.Load("resources/bomb/shaders/vertex.glsl", "resources/bomb/shaders/fragment.glsl");
-  normalShader.Load("resources/shader/NormalShader/Vnormal.glsl",
-    "resources/shader/NormalShader/Fnormal.glsl",
-    "resources/shader/NormalShader/Gnormal.glsl");
-  hdrShader.Load("resources/shader/HDR/vert.glsl",
-    "resources/shader/HDR/frag.glsl");
-  lamp.Load("resources/shader/Lamp/lampV.glsl", 
+  //light stuff
+  lights.LoadLights("resources/pbrTesting/lights/lights.dae", sceneLights);
+  lamp.Load("resources/shader/Lamp/lampV.glsl",
     "resources/shader/Lamp/lampF.glsl");
-  skyboxShader.Load("resources/cubemap/shaders/vertex.glsl",
-    "resources/cubemap/shaders/fragment.glsl");
+  pointLamp.LoadModel("resources/surface/pointLamp.dae");
+  ///
 
-  bombModels.push_back(new Model("resources/bomb/bomb.dae", sceneLights, scenePhysics));
-  //TODO::HEIGHTMAP LOADing
-  testShpere.Load("resources/brickSphere/bb.dae");
-  //default_0.Load("resources/SimpleGround/snowGround.dae", sceneLights, scenePhysics, true);
-  deadTree0.Load("resources/DeadTree0/deadTrees0.dae");// , sceneLights, scenePhysics, true);
-  magicStoneCircle.Load("resources/MagicStoneCircle/magicStoneCircle.dae");
-  largeRock0.Load("resources/LargeRock0/largeRock0.dae");
-  simpleTorch.Load("resources/SimpleTorch/torch.dae");
-  lights.Load("resources/SnowMap/physxTestLightsTestTextureTest1.dae", sceneLights, scenePhysics);
-  pointLamp.Load("resources/surface/pointLamp.dae", sceneLights, scenePhysics);
-  spotLamp.Load("resources/surface/spotLight.dae", sceneLights, scenePhysics);
-  testDefferedRenderSpheres.Load("resources/default/SceneInProgressDefferedRenderTest2.dae", sceneLights, scenePhysics, true);
-
-  hdrFramebuffer.Load(hdrShader);
-  //lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
-  //pointLightOne.CreateDepthCubeMap();
-  //pointLightPos = sceneLights.GetPointLightPos(0);
-  //pointLightOne.SetPointLightDepthToCubemap(lightProjection, shadowTransforms1, pointLightPos);
-
-  skyboxOne.Load(&skyboxShader);
-
+  //SceneStuff
+  scene.LoadModel("resources/pbrTesting/models/pbr_scene.dae");
+  pbrShader.Load("resources/shader/PBR/vert.glsl", "resources/shader/PBR/frag.glsl");
+  ///
   model = glm::mat4(1.0f);
   view = glm::mat4(1.0f);
   projection = glm::mat4(1.0f);
 
-  simple.Use();
-  simple.SetFloat("material.shininess", 16.0f);
-  //sceneLights.SetFixedAttributes(simple);
-
-  //gBuffer stuff
-  geometryBuffer.LoadGeometryBuffer();
-  multipleRenderTargetShader.Load("resources/shader/Gbuffer/vert.glsl",
-                                  "resources/shader/Gbuffer/frag.glsl");
-  deferredLightingPass.Load("resources/shader/DeferredShading/vert.glsl",
-                            "resources/shader/DeferredShading/frag.glsl");
-
-  deferredLightingPass.Use();
-  deferredLightingPass.SetInt("gPosition", 0);
-  deferredLightingPass.SetInt("gNormal", 1);
-  deferredLightingPass.SetInt("gAlbedoSpec", 2);
-  deferredLightingPass.SetVec3("viewPos", player.position);
-  sceneLights.SetFixedAttributes(deferredLightingPass);
+ 
+  //sceneLights.SetFixedAttributes( SHADER STUFF );
 
 }
 
@@ -97,7 +54,12 @@ void System::GameLoop(){
  
   
   unsigned int index = 0;
-  float heightScale = 0.01;
+  pbrShader.Use();
+  pbrShader.SetVec3("albedo", 0.5f, 0.0f, 0.0f);
+  pbrShader.SetFloat("ao", 1.0f);
+
+  float metallic = 0.05;
+  float roughness = 0.25;
 
   while (!input.KEY.ESC) {
  
@@ -107,9 +69,9 @@ void System::GameLoop(){
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    input.IncrementDecrement(testBool);
+    //input.IncrementDecrement(testBool);
     //if (testBool)
-    scenePhysics.StepPhysics(deltaRate);
+    //scenePhysics.StepPhysics(deltaRate);
        
 
     player.HandleInput(input, deltaTime);
@@ -121,54 +83,31 @@ void System::GameLoop(){
 
     player.Update(deltaTime);
 
+    render.ClearScreen();
+
     projection = glm::perspective(glm::radians((float)perspective),
       (float)Render::Screen::WIDTH / (float)Render::Screen::HEIGHT, 0.1f, 1000.0f);
     view = firstPerson.View();
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
-    geometryBuffer.BindGeometryBuffer();
-    glViewport(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT);
+    glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
+    glStencilMask(0xFF);
+    pbrShader.Use();
+    pbrShader.SetMat4("projection", projection);
+    pbrShader.SetMat4("model", model);
+    pbrShader.SetMat4("view", view);
+    pbrShader.SetVec3("camPos", player.position);
+    for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
+      pbrShader.SetVec3("lightPositions[" + std::to_string(i) + "]", sceneLights.GetPointLightPos(i));
+      pbrShader.SetVec3("lightColors[" + std::to_string(i) + "]", glm::vec3(300.0f, 300.0f, 300.0f));
+    }
+    scene.Draw(pbrShader);
 
     
-    render.ClearScreen();
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilMask(0xFF);
-    multipleRenderTargetShader.Use();
-    multipleRenderTargetShader.SetMat4("projection", projection);
-    multipleRenderTargetShader.SetMat4("view", view);
-    multipleRenderTargetShader.SetMat4("model", model);
-    multipleRenderTargetShader.SetMat4("inverseModel", glm::inverse(model));
-
-    testDefferedRenderSpheres.Draw(multipleRenderTargetShader);
-    /*simpleTorch.Draw(multipleRenderTargetShader);
-    magicStoneCircle.Draw(multipleRenderTargetShader);
-    largeRock0.Draw(multipleRenderTargetShader);
-    deadTree0.Draw(multipleRenderTargetShader);
-    default_0.Draw(multipleRenderTargetShader);*/
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    //hdrFramebuffer.Preprocess();
-    deferredLightingPass.Use();
-    deferredLightingPass.SetVec3("viewPos", player.position);
-    geometryBuffer.SetDeferredShading(deferredLightingPass);
-    //hdrFramebuffer.Postprocess(hdrShader);
-    glStencilMask(0xFF);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    //framebuffer test
-    ///
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
-    glStencilMask(0x01);
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, geometryBuffer.GetGeometryBufferFBO());
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBlitFramebuffer(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT,
-                      0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT,
-                                                        GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glStencilMask(0xFF);
     lamp.Use();
     //sceneLights.NumPointLights()
-    for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
+     for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
       model = glm::mat4(1.0f);
       model = glm::translate(model, sceneLights.GetPointLightPos(i));
       model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
@@ -191,9 +130,9 @@ void System::GameLoop(){
 }
 
 void System::Shutdown() {
-  for (auto a : bombModels)
+ /* for (auto a : bombModels)
     delete a;
-  bombModels.clear();
+  bombModels.clear();*/
 
   scenePhysics.CleanUp();
   glfwTerminate();

@@ -128,6 +128,25 @@ void Model::loadModel(string const& path, LightFactory& light, physx::Physics& p
 
 }
 
+void Model::LoadLightsOnly(std::string const& path, LightFactory& light) {
+  this->scene = importer.ReadFile(path,
+    aiProcess_FlipUVs |
+    aiProcess_CalcTangentSpace |
+    aiProcess_FindInvalidData |
+    aiProcess_ImproveCacheLocality
+  );
+  // check for errors
+  if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+    cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
+    return;
+  }
+  //retrieve the directory path 
+  directory = path.substr(0, path.find_last_of('/'));
+
+  //ProcessNodesOnly(scene->mRootNode, scene);
+  ProcessLights(scene, light);
+}
+
 
 void Model::ProcessLights(const aiScene* scene, LightFactory& lights) {
   std::vector<aiLight*> light;
@@ -248,34 +267,26 @@ Animated Model::ProcessAnimatedMesh(aiMesh* mesh, const aiScene* scene) {
   // diffuse: texture_diffuseN
   // specular: texture_specularN
   // normal: texture_normalN
-
+  FillTextureVector(textures);
   // 1. diffuse maps
-  vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-  textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-  // 2. specular maps
-  vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-  textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-  // 3. normal maps
-  std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-  textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-  // 4. height maps
-  std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
-  textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
-  // return a mesh object created from the extracted mesh data
+  //vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+  //textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+  //// 2. specular maps
+  //vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+  //textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+  //// 3. normal maps
+  //std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+  //textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+  //// 4. height maps
+  //std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
+  //textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+  //// return a mesh object created from the extracted mesh data
 
 
 
   return Animated(vertices, indices, textures, weights);
 }
 
-///
-//
-
-/*
-/
-/
-/non animated meshes below
-*/
 
 // processes a node in a recursive fashion. Processes 
 // each individual mesh located at the node and repeats 
@@ -491,16 +502,37 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
   // specular: texture_specularN
   // normal: texture_normalN
   // 1. diffuse maps
-  std::vector<Texture> diffuseMaps = LoadATexture(aiTextureType_DIFFUSE, "material.texture_diffuse");
+  FillPBRTextureVector(textures);
+
+  /*std::vector<Texture> diffuseMaps = LoadATexture(aiTextureType_DIFFUSE, "material.texture_diffuse");
   textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
   std::vector<Texture> specularMaps = LoadATexture(aiTextureType_SPECULAR, "material.texture_specular");
   textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
   std::vector<Texture> normalMaps = LoadATexture(aiTextureType_NORMALS, "material.texture_normal");
   textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
   std::vector<Texture> heightMaps = LoadATexture(aiTextureType_HEIGHT, "material.texture_height");
-  textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+  textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());*/
+  /*
+  Albedo Map
+  std::vector<Texture> diffuseMaps = LoadATexture(aiTextureType_DIFFUSE, "material.texture_diffuse");
+  textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
-  
+  Normal Map
+  std::vector<Texture> normalMaps = LoadATexture(aiTextureType_NORMALS, "material.texture_normal");
+  textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+
+  Metallic Map
+  std::vector<Texture> metallicMaps = LoadATexture(aiTextureType_METALNESS, "material.texture_metallic");
+  textures.insert(textures.end(), metallicMaps.begin(), metallicMaps.end());
+
+  Roughness Map
+  std::vector<Texture> roughnessMaps = LoadATexture(aiTextureType_SHININESS, "material.texture_roughness");
+  textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
+
+  AO Map
+  std::vector<Texture> aoMaps = LoadATexture(aiTextureType_LIGHTMAP, "material.texture_ao");
+  textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
+  */
   return Mesh(vertices, indices, textures);
 }
 ///
@@ -508,47 +540,86 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
 //
 ///
 
-// checks all material textures of a given type and loads the textures if they're not loaded yet.
-// the required info is returned as a Texture struct.
-vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName) {
 
 
+void Model::FillTextureVector(std::vector<Texture> &textureVector) {
+  std::vector<Texture> diffuseMaps = LoadATexture(aiTextureType_DIFFUSE, "material.texture_diffuse");
+  textureVector.insert(textureVector.end(), diffuseMaps.begin(), diffuseMaps.end());
+  std::vector<Texture> specularMaps = LoadATexture(aiTextureType_SPECULAR, "material.texture_specular");
+  textureVector.insert(textureVector.end(), specularMaps.begin(), specularMaps.end());
+  std::vector<Texture> normalMaps = LoadATexture(aiTextureType_NORMALS, "material.texture_normal");
+  textureVector.insert(textureVector.end(), normalMaps.begin(), normalMaps.end());
+  std::vector<Texture> heightMaps = LoadATexture(aiTextureType_HEIGHT, "material.texture_height");
+  textureVector.insert(textureVector.end(), heightMaps.begin(), heightMaps.end());
+
+}
+
+void Model::FillPBRTextureVector(std::vector<Texture>& pbrTextureVector) {
+  //Albedo Map
+  std::vector<Texture> diffuseMaps = LoadPBRTexture(aiTextureType_DIFFUSE, "material.texture_diffuse");
+  pbrTextureVector.insert(pbrTextureVector.end(), diffuseMaps.begin(), diffuseMaps.end());
+
+  //Normal Map
+  std::vector<Texture> normalMaps = LoadPBRTexture(aiTextureType_NORMALS, "material.texture_normal");
+  pbrTextureVector.insert(pbrTextureVector.end(), normalMaps.begin(), normalMaps.end());
+
+  //Metallic Map
+  std::vector<Texture> metallicMaps = LoadPBRTexture(aiTextureType_METALNESS, "material.texture_metallic");
+  pbrTextureVector.insert(pbrTextureVector.end(), metallicMaps.begin(), metallicMaps.end());
+
+  //Roughness Map
+  std::vector<Texture> roughnessMaps = LoadPBRTexture(aiTextureType_SHININESS, "material.texture_roughness");
+  pbrTextureVector.insert(pbrTextureVector.end(), roughnessMaps.begin(), roughnessMaps.end());
+
+  //AO Map
+  std::vector<Texture> aoMaps = LoadPBRTexture(aiTextureType_LIGHTMAP, "material.texture_ao");
+  pbrTextureVector.insert(pbrTextureVector.end(), aoMaps.begin(), aoMaps.end());
+}
+
+vector<Texture> Model::LoadPBRTexture(aiTextureType type, string typeName) {
+
+  std::string textureType;
+  switch (type) {
+  case aiTextureType_DIFFUSE:
+    textureType = "albedo.png";
+    break;
+  case aiTextureType_NORMALS:
+    textureType = "normal.png";
+    break;
+  case aiTextureType_METALNESS:
+    textureType = "metallic.png";
+    //TODO:: if no metallic, dont use albedo in shader
+    break;
+  case aiTextureType_SHININESS:
+    textureType = "roughness.png";
+    break;
+  case aiTextureType_LIGHTMAP:
+    textureType = "ao.png";
+    break;
+  default:
+    break;
+  }
   vector<Texture> textures;
-  //TODO:: only loads one texture per texture type
-  for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
-    aiString str;
-    mat->GetTexture(type, i, &str);
-    // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
-    bool skip = false;
-    for (unsigned int j = 0; j < textures_loaded.size(); j++) {
-      if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0) {
-        textures.push_back(textures_loaded[j]);
-        skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
-        break;
-      }
+  bool skip = false;
+  for (unsigned int j = 0; j < textures_loaded.size(); j++) {
+    if (std::strcmp(textures_loaded[j].path.data(), textureType.c_str()) == 0) {
+      textures.push_back(textures_loaded[j]);
+      skip = true;
+      break;
     }
-    if (!skip) {
-        // if texture hasn't been loaded already, load it
-        Texture texture;
-        texture.id = Texture::Load(str.C_Str(), this->directory);
-        texture.type = typeName;
-        texture.path = str.C_Str();
-        textures.push_back(texture);
-        textures_loaded.push_back(texture);// store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
-      }
-    }
+  }
+  if (!skip) {
+    // if texture hasn't been loaded already, load it
+    Texture texture;
+    texture.id = Texture::Load(textureType.c_str(), this->directory + "/images");
+    if (texture.id < 0)
+      return textures;
+    texture.type = typeName;
+    texture.path = textureType.c_str();
+    textures.push_back(texture);
+    textures_loaded.push_back(texture);
+  }
 
-  /* aiString str;
-   mat->GetTexture(type, 0, &str);
-   if (type == aiTextureType_NORMALS) {
-     Texture texture;
-     std::string normalDir = this->directory + '/' + "snow";
-     texture.id = Texture::Load("normal.jpg", normalDir);
-     texture.type = "material.texture_normal";
-     texture.path = str.C_Str();
-     textures.push_back(texture);
-     textures_loaded.push_back(texture);
-   }*/
   return textures;
 }
 ///
@@ -723,15 +794,7 @@ Mesh Model::ProcessMeshOnly(aiMesh* mesh, const aiScene* scene) {
   aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
 
-  std::vector<Texture> diffuseMaps = LoadATexture(aiTextureType_DIFFUSE, "material.texture_diffuse");
-  textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-  std::vector<Texture> specularMaps = LoadATexture(aiTextureType_SPECULAR, "material.texture_specular");
-  textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-  std::vector<Texture> normalMaps = LoadATexture(aiTextureType_NORMALS, "material.texture_normal");
-  textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-  std::vector<Texture> heightMaps = LoadATexture(aiTextureType_HEIGHT, "material.texture_height");
-  textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
-
+  FillPBRTextureVector(textures);
   //TODO::add emission textures
   modelPosition = glm::vec3(nodeTransform[3][0], nodeTransform[3][1], nodeTransform[3][2]);
 
@@ -781,3 +844,50 @@ vector<Texture> Model::LoadATexture(aiTextureType type, string typeName) {
 
   return textures;
 }
+
+
+
+
+//// checks all material textures of a given type and loads the textures if they're not loaded yet.
+//// the required info is returned as a Texture struct.
+//vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName) {
+//
+//
+//  vector<Texture> textures;
+//  //TODO:: only loads one texture per texture type
+//  for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
+//    aiString str;
+//    mat->GetTexture(type, i, &str);
+//    // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+//    bool skip = false;
+//    for (unsigned int j = 0; j < textures_loaded.size(); j++) {
+//      if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0) {
+//        textures.push_back(textures_loaded[j]);
+//        skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+//        break;
+//      }
+//    }
+//    if (!skip) {
+//        // if texture hasn't been loaded already, load it
+//        Texture texture;
+//        texture.id = Texture::Load(str.C_Str(), this->directory);
+//        texture.type = typeName;
+//        texture.path = str.C_Str();
+//        textures.push_back(texture);
+//        textures_loaded.push_back(texture);// store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
+//      }
+//    }
+//
+//  /* aiString str;
+//   mat->GetTexture(type, 0, &str);
+//   if (type == aiTextureType_NORMALS) {
+//     Texture texture;
+//     std::string normalDir = this->directory + '/' + "snow";
+//     texture.id = Texture::Load("normal.jpg", normalDir);
+//     texture.type = "material.texture_normal";
+//     texture.path = str.C_Str();
+//     textures.push_back(texture);
+//     textures_loaded.push_back(texture);
+//   }*/
+//  return textures;
+//}

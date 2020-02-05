@@ -46,20 +46,20 @@ public:
 
   //textures must be located in same folder as .DAE named images
   //Cannot load trimeshes from this constuctor;
-  Model(std::string const& path) {
-    LoadModelOnly(path);
-  }
   void Load(const std::string& path, LightFactory& light, physx::Physics& physicScene,
     bool physics = false, bool gamma = false) {
     collisions = physics;
     loadModel(path, light, physicScene);
   }
-  void Load(std::string const& path) {
+
+  void LoadLights(std::string const& path, LightFactory& lights) {
+    LoadLightsOnly(path, lights);
+  }
+
+  void LoadModel(std::string const& path) {
     LoadModelOnly(path);
   }
-  Model(std::string const& path, int i) {
-    LoadModelNoTextures(path);
-  }
+  
   // draws the model, and thus all its meshes
   void Draw(Shader shader);
   void DepthDraw(Shader shader);
@@ -94,7 +94,7 @@ private:
   /*  Functions   */
   // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
   void loadModel(std::string const& path, LightFactory& light, physx::Physics& physicsScene);
-
+  void LoadLightsOnly(std::string const& path, LightFactory& light);
   void LoadModelOnly(std::string const& path);
   void LoadModelNoTextures(std::string const& path);
   void ProcessNodesOnly(aiNode* node, const aiScene* scene);
@@ -107,37 +107,21 @@ private:
   
   Animated ProcessAnimatedMesh(aiMesh* mesh, const aiScene* scene);
   
-  ///
-  //
-  
-  /*
-  /
-  /
-  /non animated meshes below
-  */
 
-  // processes a node in a recursive fashion. Processes 
-  // each individual mesh located at the node and repeats 
-  // this process on its children nodes (if any).
+
   void processNode(aiNode* node, const aiScene* scene, physx::Physics& physicsScene);
-
   Mesh processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& physicsScene);
-  ///
-  
-  //
-  ///
-
-  // checks all material textures of a given type and loads the textures if they're not loaded yet.
-  // the required info is returned as a Texture struct.
-  vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
-  ///
-  //FIXME::Joint Loading
   void LoadBones(aiMesh* mesh, std::vector<VertexBoneData>& weights);
-  //
   void BoneTransform(double timeInSec, vector<glm::mat4>& transforms);
-
   void ReadNodeHierarchy(float animationTime, const aiNode* parent, glm::mat4 pTransform);
  
+
+  //std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+  void FillTextureVector(std::vector<Texture>& textureVector);
+
+  void FillPBRTextureVector(std::vector<Texture>& pbrTextureVector);
+  vector<Texture> LoadPBRTexture(aiTextureType type, string typeName);
+
 };
 
 #endif //MODEL_H

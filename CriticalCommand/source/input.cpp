@@ -93,10 +93,10 @@ void Input::PollEvents() {
 
 void Input::IncrementDecrement(float &i) {
   if (KEY.UP) {
-    i += 0.01f;
+    i += 0.001f;
   }
   if (KEY.DOWN) {
-    i -= 0.01f;
+    i -= 0.001f;
   }
 }
 
