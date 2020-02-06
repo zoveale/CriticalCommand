@@ -42,7 +42,7 @@ private:
   Model pointLamp;
 
   Shader pbrShader;
-  Model scene;
+  Model scene[9];
 
   glm::mat4 model;
   glm::mat4 view;

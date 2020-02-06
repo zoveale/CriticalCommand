@@ -18,14 +18,23 @@ void System::SystemInit(){
   printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 
   //light stuff
-  lights.LoadLights("resources/pbrTesting/lights/lights.dae", sceneLights);
+  lights.LoadLights("resources/pbrTesting/scene/lights/lights.dae", sceneLights);
   lamp.Load("resources/shader/Lamp/lampV.glsl",
     "resources/shader/Lamp/lampF.glsl");
   pointLamp.LoadModel("resources/surface/pointLamp.dae");
   ///
 
   //SceneStuff
-  scene.LoadModel("resources/pbrTesting/models/pbr_scene.dae");
+  scene[0].LoadModel("resources/pbrTesting/scene/floor/floor.dae");
+  scene[1].LoadModel("resources/pbrTesting/scene/barrel/barrel.dae");
+  scene[2].LoadModel("resources/pbrTesting/scene/brasier/brasier.dae");
+  scene[3].LoadModel("resources/pbrTesting/scene/doors/doors.dae");
+  scene[4].LoadModel("resources/pbrTesting/scene/pillars/pillars.dae");
+  scene[5].LoadModel("resources/pbrTesting/scene/torch/torch.dae");
+  scene[6].LoadModel("resources/pbrTesting/scene/wall1/wall1.dae");
+  scene[7].LoadModel("resources/pbrTesting/scene/wall2/wall2.dae");
+  scene[8].LoadModel("resources/pbrTesting/scene/wall3/wall3.dae");
+  //scene.LoadModel("resources/pbrTesting/models/sword/sword.dae");
   pbrShader.Load("resources/shader/PBR/vert.glsl", "resources/shader/PBR/frag.glsl");
   ///
   model = glm::mat4(1.0f);
@@ -93,6 +102,7 @@ void System::GameLoop(){
     glStencilMask(0xFF);
     pbrShader.Use();
     pbrShader.SetMat4("projection", projection);
+    //model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 1.0f, 0.5f));
     pbrShader.SetMat4("model", model);
     pbrShader.SetMat4("view", view);
     pbrShader.SetVec3("camPos", player.position);
@@ -100,7 +110,9 @@ void System::GameLoop(){
       pbrShader.SetVec3("lightPositions[" + std::to_string(i) + "]", sceneLights.GetPointLightPos(i));
       pbrShader.SetVec3("lightColors[" + std::to_string(i) + "]", glm::vec3(300.0f, 300.0f, 300.0f));
     }
-    scene.Draw(pbrShader);
+    for (unsigned int i = 0; i < 9; ++i) {
+      scene[i].Draw(pbrShader);
+    }
 
     
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);

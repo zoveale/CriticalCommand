@@ -64,6 +64,7 @@ struct Texture {
                       bool gamma = false);
 
   static unsigned int loadCubemap(std::vector<std::string> faces);
+  static unsigned int LoadHDR(const char* path);
 };
 
 
