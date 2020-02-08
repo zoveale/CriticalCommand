@@ -207,10 +207,11 @@ void Framebuffer::SetDeferredShading(Shader deferredShading) {
   glActiveTexture(GL_TEXTURE2);
   glBindTexture(GL_TEXTURE_2D, geometrymMetalRoughAo);
   deferredShading.SetInt("metalRoughAo", 2);
+  glActiveTexture(GL_TEXTURE3);
   glBindTexture(GL_TEXTURE_2D, geometryAlbedo);
   deferredShading.SetInt("gAlbedo", 3);
+
   glBindVertexArray(quadVAO);
-  //glViewport(0, 0, Render::Screen::WIDTH/2, Render::Screen::HEIGHT/2);
   glDrawArrays(GL_TRIANGLES, 0, 6);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

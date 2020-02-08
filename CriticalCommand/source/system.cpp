@@ -107,9 +107,12 @@ void System::GameLoop(){
 
     view = firstPerson.View();
 
-    glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
-    glStencilMask(0xFF);
     gFrameBuffer.BindGeometryBuffer();
+    glViewport(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT);
+    render.ClearScreen();
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
+
     multipleRenderTargetShader.Use();
     multipleRenderTargetShader.SetMat4("projection", projection);
     multipleRenderTargetShader.SetMat4("view", view);
@@ -119,6 +122,18 @@ void System::GameLoop(){
       scene[i].Draw(multipleRenderTargetShader);
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    pbrShader.Use();
+    pbrShader.SetVec3("camPos", player.position);
+    pbrShader.SetFloat("radius", 5.0f);// +rand() % 3 + 0.1);
+    for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
+      pbrShader.SetVec3("lightPositions[" + std::to_string(i) + "]", sceneLights.GetPointLightPos(i));
+      pbrShader.SetVec3("lightColors[" + std::to_string(i) + "]", sceneLights.GetPointLightColor(i));
+    }
+    gFrameBuffer.SetDeferredShading(pbrShader);
+    glStencilMask(0xFF);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     //pbrShader.Use();
     //pbrShader.SetMat4("projection", projection);
     ////model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 1.0f, 0.5f));
@@ -134,7 +149,13 @@ void System::GameLoop(){
     //for (unsigned int i = 0; i < 9; ++i) {
     //  scene[i].Draw(pbrShader);
     //}
-    
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, gFrameBuffer.GetGeometryBufferFBO());
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBlitFramebuffer(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT,
+      0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT,
+      GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
     glStencilMask(0xFF);

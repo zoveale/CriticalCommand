@@ -3,46 +3,39 @@
 out vec4 FragColor;
 
 in vec2 TexCoords;
-in vec3 WorldPos;
-in vec3 Normal;
-
 
 uniform unsigned int numPointLights;
 
-struct Material{
-	sampler2D texture_albedo;
-	sampler2D texture_normal;
-	sampler2D texture_metallic;
-	sampler2D texture_roughness;
-	sampler2D texture_ao;
-};
-uniform Material material;
-
+uniform sampler2D gPosition;
+uniform sampler2D gNormal;
+uniform sampler2D metalRoughAo;
+uniform sampler2D gAlbedo;
 
 // lights
-uniform vec3 lightPositions[4];
-uniform vec3 lightColors[4];
+const unsigned int maxPointLights = 100;
+uniform vec3 lightPositions[maxPointLights];
+uniform vec3 lightColors[maxPointLights];
 uniform float radius;
 uniform vec3 camPos;
 
 const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
-vec3 getNormalFromMap()
-{
-    vec3 tangentNormal = texture(material.texture_normal, TexCoords).xyz * 2.0 - 1.0;
-
-    vec3 Q1  = dFdx(WorldPos);
-    vec3 Q2  = dFdy(WorldPos);
-    vec2 st1 = dFdx(TexCoords);
-    vec2 st2 = dFdy(TexCoords);
-
-    vec3 N   = normalize(Normal);
-    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
-    vec3 B  = -normalize(cross(N, T));
-    mat3 TBN = mat3(T, B, N);
-
-    return normalize(TBN * tangentNormal);
-}
+//vec3 getNormalFromMap()
+//{
+//    vec3 tangentNormal = texture(material.texture_normal, TexCoords).xyz * 2.0 - 1.0;
+//
+//    vec3 Q1  = dFdx(WorldPos);
+//    vec3 Q2  = dFdy(WorldPos);
+//    vec2 st1 = dFdx(TexCoords);
+//    vec2 st2 = dFdy(TexCoords);
+//
+//    vec3 N   = normalize(Normal);
+//    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
+//    vec3 B  = -normalize(cross(N, T));
+//    mat3 TBN = mat3(T, B, N);
+//
+//    return normalize(TBN * tangentNormal);
+//}
 // ----------------------------------------------------------------------------
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -89,17 +82,21 @@ float random (vec2 st) {
 }
 // ---------------------------------------------------------------- ------------
 
-void main(){		
-	vec3 albedo = texture(material.texture_albedo, TexCoords).rgb;
-	albedo = vec3(pow(albedo.x, 2.2f), pow(albedo.y, 2.2f), pow(albedo.z, 2.2f));
+void main(){	
+	//uniform sampler2D gPosition;
+	//uniform sampler2D gNormal;
+	//uniform sampler2D metalRoughAo;
+	//uniform sampler2D gAlbedo;
+	vec3 albedo = texture(gAlbedo, TexCoords).rgb;
+	vec3 posTexture = texture(gPosition, TexCoords).rgb;
 
-	float metallic  = texture(material.texture_metallic, TexCoords).r;
-	float roughness = texture(material.texture_roughness, TexCoords).r;
-	float ao        = texture(material.texture_ao, TexCoords).r;
+	float metallic  = texture(metalRoughAo, TexCoords).r;
+	float roughness = texture(metalRoughAo, TexCoords).g;
+	float ao        = texture(metalRoughAo, TexCoords).b;
 
-    vec3 N = getNormalFromMap();
+    vec3 N = texture(gNormal, TexCoords).rgb;
 
-    vec3 V = normalize(camPos - WorldPos);
+    vec3 V = normalize(camPos - posTexture);
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow) 
@@ -112,12 +109,13 @@ void main(){
     vec3 Lo = vec3(0.0);
     for(int i = 0; i < numPointLights; ++i) 
     {
-		float dis = length(lightPositions[i] - WorldPos);
+		float dis = length(lightPositions[i] - posTexture);
+
 		if(dis < radius){
 			float attenuation = 1.0f / (1.0f + (0.7f * dis + (1.8f * (dis * dis)))); 
 			vec3 radiance = lightColors[i] * attenuation;
 			// calculate per-light radiance
-			vec3 L = normalize(lightPositions[i] - WorldPos);
+			vec3 L = normalize(lightPositions[i] - posTexture);
 			vec3 H = normalize (V + L);
 
         

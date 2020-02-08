@@ -7,5 +7,4 @@ out vec2 textureUV;
 void main(){
 	textureUV = aTexCoords;
     gl_Position = vec4(aPos, 1.0);
-	
 }    
