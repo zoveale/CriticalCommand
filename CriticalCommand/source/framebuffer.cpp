@@ -157,16 +157,24 @@ void Framebuffer::LoadGeometryBuffer() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, geometryNormal, 0);
-  // color + specular color buffer
-  glGenTextures(1, &geometryAlbedoSpec);
-  glBindTexture(GL_TEXTURE_2D, geometryAlbedoSpec);
+  // Metal Rough Ao
+  glGenTextures(1, &geometrymMetalRoughAo);
+  glBindTexture(GL_TEXTURE_2D, geometrymMetalRoughAo);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Render::Screen::WIDTH, Render::Screen::HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, geometryAlbedoSpec, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, geometrymMetalRoughAo, 0);
+  //gAlbedo
+  glGenTextures(1, &geometryAlbedo);
+  glBindTexture(GL_TEXTURE_2D, geometryAlbedo);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Render::Screen::WIDTH, Render::Screen::HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, geometryAlbedo, 0);
   // tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
-  unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-  glDrawBuffers(3, attachments);
+
+  unsigned int attachments[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+  glDrawBuffers(4, attachments);
   // create and attach depth buffer (renderbuffer)
   unsigned int rboDepth;
   glGenRenderbuffers(1, &rboDepth);
@@ -197,8 +205,10 @@ void Framebuffer::SetDeferredShading(Shader deferredShading) {
   glBindTexture(GL_TEXTURE_2D, geometryNormal);
   deferredShading.SetInt("gNormal", 1);
   glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_2D, geometryAlbedoSpec);
-  deferredShading.SetInt("gAlbedoSpec", 2);
+  glBindTexture(GL_TEXTURE_2D, geometrymMetalRoughAo);
+  deferredShading.SetInt("metalRoughAo", 2);
+  glBindTexture(GL_TEXTURE_2D, geometryAlbedo);
+  deferredShading.SetInt("gAlbedo", 3);
   glBindVertexArray(quadVAO);
   //glViewport(0, 0, Render::Screen::WIDTH/2, Render::Screen::HEIGHT/2);
   glDrawArrays(GL_TRIANGLES, 0, 6);

@@ -47,7 +47,7 @@ private:
   glm::mat4 projection;
 
   Framebuffer gFrameBuffer;
-  Shader gBuffer;
+  Shader multipleRenderTargetShader;
 
 
   //const float near_plane = 1.0f, far_plane = 115.0f;

@@ -41,7 +41,7 @@ void System::SystemInit(){
   ///
 
   //gBuffer
-  gBuffer.Load("resources/gBuffer/vert.glsl" , "resources/gBuffer/frag.glsl");
+  multipleRenderTargetShader.Load("resources/shader/gBuffer/vert.glsl" , "resources/shader/gBuffer/frag.glsl");
   gFrameBuffer.LoadGeometryBuffer();
   ///
 
@@ -105,16 +105,20 @@ void System::GameLoop(){
 
     render.ClearScreen();
 
-    
     view = firstPerson.View();
 
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
     glStencilMask(0xFF);
-    gBuffer.Use();
+    gFrameBuffer.BindGeometryBuffer();
+    multipleRenderTargetShader.Use();
+    multipleRenderTargetShader.SetMat4("projection", projection);
+    multipleRenderTargetShader.SetMat4("view", view);
+    multipleRenderTargetShader.SetMat4("model", model);
+    multipleRenderTargetShader.SetMat4("inverseModel", glm::inverse(model));
     for (unsigned int i = 0; i < 9; ++i) {
-      scene[i].Draw(gBuffer);
+      scene[i].Draw(multipleRenderTargetShader);
     }
-
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     //pbrShader.Use();
     //pbrShader.SetMat4("projection", projection);
     ////model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 1.0f, 0.5f));

@@ -34,7 +34,7 @@ private:
 
   //Gbuffer Stuff
   unsigned int geometryBuffer;
-  unsigned int geometryPosition, geometryNormal, geometryAlbedoSpec;
+  unsigned int geometryPosition, geometryNormal, geometrymMetalRoughAo, geometryAlbedo;
   unsigned int attachments[3];
   unsigned int rboDepth;
   ///

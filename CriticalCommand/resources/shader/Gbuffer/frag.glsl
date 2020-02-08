@@ -5,7 +5,7 @@ layout (location = 1) out vec3 gNormal;
 layout (location = 2) out vec4 metalRoughAo;
 layout (location = 3) out vec4 gAlbedo;
 
-  
+
 in vec2 TexCoords;
 in vec3 FragPos;
 in vec3 Normal;
@@ -53,7 +53,8 @@ void main(){
 	metalRoughAo.g = texture(material.texture_roughness, TexCoords).r;
 	metalRoughAo.b = texture(material.texture_ao, TexCoords).r;
 
-	gAlbedo.rgb = texture(material.texture_metallic, TexCoords).rgb;
+	gAlbedo.rgb = texture(material.texture_albedo, TexCoords).rgb;
+	gAlbedo.a = 1.0f;
     // store specular intensity in gAlbedoSpec's alpha component
     // gAlbedoSpec.a = normalize(texture(material.texture_specular1, TexCoords).r);
 }  

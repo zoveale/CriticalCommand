@@ -9,7 +9,7 @@ layout (location = 2) in vec2 aTexCoords;
 out vec3 FragPos;
 out vec2 TexCoords;
 out vec3 Normal;
-out mat3 worldSpaceinverse;
+//out mat3 worldSpaceinverse;
 
 uniform mat4 inverseModel;
 uniform mat4 model;
