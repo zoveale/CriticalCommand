@@ -6,6 +6,9 @@ in vec2 TexCoords;
 in vec3 WorldPos;
 in vec3 Normal;
 
+
+uniform unsigned int numPointLights;
+
 struct Material{
 	sampler2D texture_albedo;
 	sampler2D texture_normal;
@@ -14,16 +17,12 @@ struct Material{
 	sampler2D texture_ao;
 };
 uniform Material material;
-// material parameters
-// vec3 albedo;
-//uniform float metallic;
-//uniform float roughness;
-//uniform float ao;
+
 
 // lights
 uniform vec3 lightPositions[4];
 uniform vec3 lightColors[4];
-
+uniform float radius;
 uniform vec3 camPos;
 
 const float PI = 3.14159265359;
@@ -85,6 +84,11 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 // ----------------------------------------------------------------------------
+float random (vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898,78.233)))* 43758.5453123);
+}
+// ---------------------------------------------------------------- ------------
+
 void main(){		
 	vec3 albedo = texture(material.texture_albedo, TexCoords).rgb;
 	albedo = vec3(pow(albedo.x, 2.2f), pow(albedo.y, 2.2f), pow(albedo.z, 2.2f));
@@ -100,46 +104,51 @@ void main(){
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow) 
 	//TODO:: if no metallic, F0 = vec3(0.04f), if metallic, F0 = albedo
-    vec3 F0 = vec3(0.04); 
+    vec3 F0 = vec3(0.04f); 
     F0 = mix(F0, albedo, metallic);
 
-    // reflectance equation
+
+    //  reflectance equation
     vec3 Lo = vec3(0.0);
-    for(int i = 0; i < 4; ++i) 
+    for(int i = 0; i < numPointLights; ++i) 
     {
-        // calculate per-light radiance
-        vec3 L = normalize(lightPositions[i] - WorldPos);
-        vec3 H = normalize(V + L);
-        float distance = length(lightPositions[i] - WorldPos);
-        float attenuation = 1.0 / (distance * distance);
-        vec3 radiance = lightColors[i] * attenuation;
+		float dis = length(lightPositions[i] - WorldPos);
+		if(dis < radius){
+			float attenuation = 1.0f / (1.0f + (0.7f * dis + (1.8f * (dis * dis)))); 
+			vec3 radiance = lightColors[i] * attenuation;
+			// calculate per-light radiance
+			vec3 L = normalize(lightPositions[i] - WorldPos);
+			vec3 H = normalize (V + L);
 
-        // Cook-Torrance BRDF
-        float NDF = DistributionGGX(N, H, roughness);   
-        float G   = GeometrySmith(N, V, L, roughness);      
-        vec3 F    = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
-           
-        vec3 nominator    = NDF * G * F; 
-        float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
-        vec3 specular = nominator / max(denominator, 0.001); // prevent divide by zero for NdotV=0.0 or NdotL=0.0
         
-        // kS is equal to Fresnel
-        vec3 kS = F;
-        // for energy conservation, the diffuse and specular light can't
-        // be above 1.0 (unless the surface emits light); to preserve this
-        // relationship the diffuse component (kD) should equal 1.0 - kS.
-        vec3 kD = vec3(1.0) - kS;
-        // multiply kD by the inverse metalness such that only non-metals 
-        // have diffuse lighting, or a linear blend if partly metal (pure metals
-        // have no diffuse light).
-        kD *= 1.0 - metallic;	  
 
-        // scale light by NdotL
-        float NdotL = max(dot(N, L), 0.0);        
+			// Cook-Torrance BRDF
+			float NDF = DistributionGGX(N, H, roughness);   
+			float G   = GeometrySmith(N, V, L, roughness);      
+			vec3 F    = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
+           
+			vec3 nominator    = NDF * G * F; 
+			float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
+			vec3 specular = nominator / max(denominator, 0.001); // prevent divide by zero for NdotV=0.0 or NdotL=0.0
+        
+			// kS is equal to Fresnel
+			vec3 kS = F;
+			// for energy conservation, the diffuse and specular light can't
+			// be above 1.0 (unless the surface emits light); to preserve this
+			// relationship the diffuse component (kD) should equal 1.0 - kS.
+			vec3 kD = vec3(1.0) - kS;
+			// multiply kD by the inverse metalness such that only non-metals 
+			// have diffuse lighting, or a linear blend if partly metal (pure metals
+			// have no diffuse light).
+			kD *= 1.0 - metallic;	  
 
-        // add to outgoing radiance Lo
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
-    }   
+			// scale light by NdotL
+			float NdotL = max(dot(N, L), 0.0);         
+
+			// add to outgoing radiance Lo
+			Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+		}
+	}   
     
     // ambient lighting (note that the next IBL tutorial will replace 
     // this ambient lighting with environment lighting).

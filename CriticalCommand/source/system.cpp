@@ -17,10 +17,11 @@ void System::SystemInit(){
   scenePhysics.TestA();
   printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 
+
+
   //light stuff
   lights.LoadLights("resources/pbrTesting/scene/lights/lights.dae", sceneLights);
-  lamp.Load("resources/shader/Lamp/lampV.glsl",
-    "resources/shader/Lamp/lampF.glsl");
+  lamp.Load("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
   pointLamp.LoadModel("resources/surface/pointLamp.dae");
   ///
 
@@ -36,13 +37,20 @@ void System::SystemInit(){
   scene[8].LoadModel("resources/pbrTesting/scene/wall3/wall3.dae");
   //scene.LoadModel("resources/pbrTesting/models/sword/sword.dae");
   pbrShader.Load("resources/shader/PBR/vert.glsl", "resources/shader/PBR/frag.glsl");
+  sceneLights.SetFixedAttributes(pbrShader);
   ///
+
+  //gBuffer
+  gBuffer.Load("resources/gBuffer/vert.glsl" , "resources/gBuffer/frag.glsl");
+  gFrameBuffer.LoadGeometryBuffer();
+  ///
+
+
   model = glm::mat4(1.0f);
   view = glm::mat4(1.0f);
   projection = glm::mat4(1.0f);
 
  
-  //sceneLights.SetFixedAttributes( SHADER STUFF );
 
 }
 
@@ -69,7 +77,11 @@ void System::GameLoop(){
 
   float metallic = 0.05;
   float roughness = 0.25;
-
+  glm::vec3 change(0.01f);
+  int h = 0;
+  //projection = glm::mat4(1.0f);
+  projection = glm::perspective(glm::radians((float)perspective),
+    (float)Render::Screen::WIDTH / (float)Render::Screen::HEIGHT, 0.1f, 1000.0f);
   while (!input.KEY.ESC) {
  
     input.Process();
@@ -87,33 +99,38 @@ void System::GameLoop(){
 
     model = glm::mat4(1.0f);
     view = glm::mat4(1.0f);
-    projection = glm::mat4(1.0f);
     ///
 
     player.Update(deltaTime);
 
     render.ClearScreen();
 
-    projection = glm::perspective(glm::radians((float)perspective),
-      (float)Render::Screen::WIDTH / (float)Render::Screen::HEIGHT, 0.1f, 1000.0f);
+    
     view = firstPerson.View();
 
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
     glStencilMask(0xFF);
-    pbrShader.Use();
-    pbrShader.SetMat4("projection", projection);
-    //model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 1.0f, 0.5f));
-    pbrShader.SetMat4("model", model);
-    pbrShader.SetMat4("view", view);
-    pbrShader.SetVec3("camPos", player.position);
-    for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
-      pbrShader.SetVec3("lightPositions[" + std::to_string(i) + "]", sceneLights.GetPointLightPos(i));
-      pbrShader.SetVec3("lightColors[" + std::to_string(i) + "]", glm::vec3(300.0f, 300.0f, 300.0f));
-    }
+    gBuffer.Use();
     for (unsigned int i = 0; i < 9; ++i) {
-      scene[i].Draw(pbrShader);
+      scene[i].Draw(gBuffer);
     }
 
+    //pbrShader.Use();
+    //pbrShader.SetMat4("projection", projection);
+    ////model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 1.0f, 0.5f));
+    //pbrShader.SetMat4("model", model);
+    //pbrShader.SetMat4("view", view);
+    //pbrShader.SetVec3("camPos", player.position);
+    //pbrShader.SetFloat("radius", 10.0f);// +rand() % 3 + 0.1);
+
+    //for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
+    //  pbrShader.SetVec3("lightPositions[" + std::to_string(i) + "]", sceneLights.GetPointLightPos(i));
+    //  pbrShader.SetVec3("lightColors[" + std::to_string(i) + "]", sceneLights.GetPointLightColor(i));
+    //}
+    //for (unsigned int i = 0; i < 9; ++i) {
+    //  scene[i].Draw(pbrShader);
+    //}
+    
     
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
     glStencilMask(0xFF);
@@ -123,7 +140,7 @@ void System::GameLoop(){
       model = glm::mat4(1.0f);
       model = glm::translate(model, sceneLights.GetPointLightPos(i));
       model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-      lamp.SetVec3("lampColor", sceneLights.GetPointLightColor(i) * 10.0f);
+      lamp.SetVec3("lampColor", sceneLights.GetPointLightColor(i) * 0.010f);
       lamp.SetMat4("PVM", projection * view * model);
       pointLamp.Draw(lamp);
     }

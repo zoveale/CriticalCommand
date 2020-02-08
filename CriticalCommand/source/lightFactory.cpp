@@ -61,6 +61,7 @@ void LightFactory::SetDynamicAttributes(Shader shader) {
 }
 
 void LightFactory::SetFixedAttributes(Shader shader) {
+  shader.Use();
   shader.SetUnsignedInt("numSpotLights", spotLights.size());
   shader.SetUnsignedInt("numPointLights", pointLights.size());
 
@@ -114,10 +115,10 @@ PointLight::PointLight(aiLight* light, aiNode* node) {
                        light->mColorSpecular.b);
   
   //TODO:: light example in blender is much brighter than in opengl rendering
-  diffuse /= 1000.0f;
+  //PBR uses floating point numbers, no need to divided by 1000
+  /* diffuse /= 1000.0f;
   ambient /= 1000.0f;
-  specular /= 1000.0f;
-
+  specular /= 1000.0f;*/
   constant = light->mAttenuationConstant;
   linear = light->mAttenuationLinear;
   quadratic = light->mAttenuationQuadratic;

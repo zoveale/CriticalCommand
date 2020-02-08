@@ -9,8 +9,6 @@
 #include "camera.h"
 #include "model.h"
 #include "skybox.h"
-//#include "lightFactory.h"
-//#include "physics.h"
 
 //TODO:: finish all component classes
 #include "objects.h"
@@ -47,6 +45,10 @@ private:
   glm::mat4 model;
   glm::mat4 view;
   glm::mat4 projection;
+
+  Framebuffer gFrameBuffer;
+  Shader gBuffer;
+
 
   //const float near_plane = 1.0f, far_plane = 115.0f;
   //glm::mat4 lightProjection;
