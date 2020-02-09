@@ -71,17 +71,25 @@ void System::GameLoop(){
  
   
   unsigned int index = 0;
-  pbrShader.Use();
-  pbrShader.SetVec3("albedo", 0.5f, 0.0f, 0.0f);
-  pbrShader.SetFloat("ao", 1.0f);
+ 
+
 
   float metallic = 0.05;
   float roughness = 0.25;
-  glm::vec3 change(0.01f);
-  int h = 0;
+  
+
   //projection = glm::mat4(1.0f);
   projection = glm::perspective(glm::radians((float)perspective),
     (float)Render::Screen::WIDTH / (float)Render::Screen::HEIGHT, 0.1f, 1000.0f);
+
+  pbrShader.Use();
+  pbrShader.SetVec3("camPos", player.position);
+  pbrShader.SetFloat("radius", 7.0f);
+  for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
+    pbrShader.SetVec3("lightPositions[" + std::to_string(i) + "]", glm::vec3(sceneLights.GetPointLightPos(i).x, 3.0f, sceneLights.GetPointLightPos(i).z));
+    pbrShader.SetVec3("lightColors[" + std::to_string(i) + "]", sceneLights.GetPointLightColor(i));
+  }
+
   while (!input.KEY.ESC) {
  
     input.Process();
@@ -124,31 +132,12 @@ void System::GameLoop(){
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     pbrShader.Use();
-    pbrShader.SetVec3("camPos", player.position);
-    pbrShader.SetFloat("radius", 5.0f);// +rand() % 3 + 0.1);
-    for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
-      pbrShader.SetVec3("lightPositions[" + std::to_string(i) + "]", sceneLights.GetPointLightPos(i));
-      pbrShader.SetVec3("lightColors[" + std::to_string(i) + "]", sceneLights.GetPointLightColor(i));
-    }
     gFrameBuffer.SetDeferredShading(pbrShader);
     glStencilMask(0xFF);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    //pbrShader.Use();
-    //pbrShader.SetMat4("projection", projection);
-    ////model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 1.0f, 0.5f));
-    //pbrShader.SetMat4("model", model);
-    //pbrShader.SetMat4("view", view);
-    //pbrShader.SetVec3("camPos", player.position);
-    //pbrShader.SetFloat("radius", 10.0f);// +rand() % 3 + 0.1);
+    
 
-    //for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
-    //  pbrShader.SetVec3("lightPositions[" + std::to_string(i) + "]", sceneLights.GetPointLightPos(i));
-    //  pbrShader.SetVec3("lightColors[" + std::to_string(i) + "]", sceneLights.GetPointLightColor(i));
-    //}
-    //for (unsigned int i = 0; i < 9; ++i) {
-    //  scene[i].Draw(pbrShader);
-    //}
     glBindFramebuffer(GL_READ_FRAMEBUFFER, gFrameBuffer.GetGeometryBufferFBO());
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glBlitFramebuffer(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT,
@@ -163,7 +152,7 @@ void System::GameLoop(){
     //sceneLights.NumPointLights()
      for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
       model = glm::mat4(1.0f);
-      model = glm::translate(model, sceneLights.GetPointLightPos(i));
+      model = glm::translate(model, glm::vec3(sceneLights.GetPointLightPos(i).x, 3.0f, sceneLights.GetPointLightPos(i).z));
       model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
       lamp.SetVec3("lampColor", sceneLights.GetPointLightColor(i) * 0.010f);
       lamp.SetMat4("PVM", projection * view * model);
@@ -192,6 +181,21 @@ void System::Shutdown() {
   glfwTerminate();
 }
 
+
+//pbrShader.Use();
+//pbrShader.SetMat4("projection", projection);
+////model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 1.0f, 0.5f));
+//pbrShader.SetMat4("model", model);
+//pbrShader.SetMat4("view", view);
+//pbrShader.SetVec3("camPos", player.position);
+//pbrShader.SetFloat("radius", 10.0f);// +rand() % 3 + 0.1);
+//for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
+//  pbrShader.SetVec3("lightPositions[" + std::to_string(i) + "]", sceneLights.GetPointLightPos(i));
+//  pbrShader.SetVec3("lightColors[" + std::to_string(i) + "]", sceneLights.GetPointLightColor(i));
+//}
+//for (unsigned int i = 0; i < 9; ++i) {
+//  scene[i].Draw(pbrShader);
+//}
 
 /*render.ClearScreen();
 pointLightOne.DepthMapViewPort();

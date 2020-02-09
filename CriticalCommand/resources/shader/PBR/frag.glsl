@@ -101,7 +101,7 @@ void main(){
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow) 
 	//TODO:: if no metallic, F0 = vec3(0.04f), if metallic, F0 = albedo
-    vec3 F0 = vec3(0.04f); 
+    vec3 F0 = vec3(0.04); 
     F0 = mix(F0, albedo, metallic);
 
 
@@ -112,7 +112,8 @@ void main(){
 		float dis = length(lightPositions[i] - posTexture);
 
 		if(dis < radius){
-			float attenuation = 1.0f / (1.0f + (0.7f * dis + (1.8f * (dis * dis)))); 
+
+			float attenuation = 1.0 / (1.0 + ((4.5/radius) * dis) + ((75.0/(radius*radius)) * dis * dis)); 
 			vec3 radiance = lightColors[i] * attenuation;
 			// calculate per-light radiance
 			vec3 L = normalize(lightPositions[i] - posTexture);
@@ -145,6 +146,7 @@ void main(){
 
 			// add to outgoing radiance Lo
 			Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+			//Lo += vec3(0.03) * albedo * attenuation * ao;
 		}
 	}   
     

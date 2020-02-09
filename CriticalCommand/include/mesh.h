@@ -60,6 +60,7 @@ public:
     // draw mesh
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    //bind default vertex array
     glBindVertexArray(0);
 
     // always good practice to set everything back to defaults once configured.
