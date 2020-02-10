@@ -6,6 +6,7 @@
 
 class PhysicsComponent{
 public:
+  PhysicsComponent() {}
   virtual ~PhysicsComponent() {}
   virtual void Update(GameObject& object) = 0;
   virtual void SetUp(GameObject& object) = 0;
@@ -48,10 +49,14 @@ private:
 
 class IcoSpherePhysicsComponent : public PhysicsComponent{
 public:
-  IcoSpherePhysicsComponent(physx::Physics* rootPhysics): root(rootPhysics), index(0) {}
+  IcoSpherePhysicsComponent() {}
 
+  void Load(physx::Physics* rootPhysics) {
+    this->root = rootPhysics;
+    index = 0;
+  }
   virtual void SetUp(GameObject& object) {
-    index = root->AddDynamicBoxActor(object.position, glm::vec3(1.0f));
+    index = root->AddDynamicSphereActor(object.position, 2.0f);
   }
 
   virtual void Update(GameObject &object) {

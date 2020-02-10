@@ -11,14 +11,14 @@ void System::SystemInit(){
   render.StartUp();
   input.StartUp(render.Window());
   player.StartUp();
-  // \ or vise versa ?
-  //camera.startup /
   physx::Physics::StartUp();
   scenePhysics.TestA();
-  printf("OpenGl version: %s\n", glGetString(GL_VERSION));
+  // \ or vise versa ?
+  //camera.startup /
+  
+  //printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 
-
-
+  
   //light stuff
   lights.LoadLights("resources/pbrTesting/scene/lights/lights.dae", sceneLights);
   lamp.Load("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
@@ -26,6 +26,7 @@ void System::SystemInit(){
   ///
 
   //SceneStuff
+  sceneP.Load("resources/pbrTesting/scene/floor/physicfloor.dae", sceneLights, scenePhysics, true);
   scene[0].LoadModel("resources/pbrTesting/scene/floor/floor.dae");
   scene[1].LoadModel("resources/pbrTesting/scene/barrel/barrel.dae");
   scene[2].LoadModel("resources/pbrTesting/scene/brasier/brasier.dae");
@@ -36,27 +37,38 @@ void System::SystemInit(){
   scene[7].LoadModel("resources/pbrTesting/scene/wall2/wall2.dae");
   scene[8].LoadModel("resources/pbrTesting/scene/wall3/wall3.dae");
   //scene.LoadModel("resources/pbrTesting/models/sword/sword.dae");
-  pbrShader.Load("resources/shader/PBR/vert.glsl", "resources/shader/PBR/frag.glsl");
-  sceneLights.SetFixedAttributes(pbrShader);
+  
   ///
+
+ 
 
   //gBuffer
   multipleRenderTargetShader.Load("resources/shader/gBuffer/vert.glsl" , "resources/shader/gBuffer/frag.glsl");
   gFrameBuffer.LoadGeometryBuffer();
   ///
 
+  //Objects
+  icoSphereModel.LoadModel("resources/pbrTesting/models/icoSphere/ico.dae");
+  
+  gComp.Load(&icoSphereModel, &multipleRenderTargetShader);
+  pComp.Load(&scenePhysics);
+  icoSphereObject.Load(&gComp, &pComp);
+  ///
 
   model = glm::mat4(1.0f);
   view = glm::mat4(1.0f);
   projection = glm::mat4(1.0f);
 
- 
+
+  pbrShader.Load("resources/shader/PBR/vert.glsl", "resources/shader/PBR/frag.glsl");
+  sceneLights.SetFixedAttributes(pbrShader);
 
 }
 
 
 void System::GameLoop(){
-  
+
+
 
   //test values
   float x = 1.0f;
@@ -91,16 +103,17 @@ void System::GameLoop(){
   }
 
   while (!input.KEY.ESC) {
- 
+
+    input.PollEvents();
     input.Process();
 
     currentFrame = (float)glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    //input.IncrementDecrement(testBool);
-    //if (testBool)
-    //scenePhysics.StepPhysics(deltaRate);
+    input.IncrementDecrement(testBool);
+    if (testBool)
+      scenePhysics.StepPhysics(deltaRate);
        
 
     player.HandleInput(input, deltaTime);
@@ -109,11 +122,14 @@ void System::GameLoop(){
     view = glm::mat4(1.0f);
     ///
 
-    player.Update(deltaTime);
-
+   
     render.ClearScreen();
 
     view = firstPerson.View();
+
+    player.Update(deltaTime);
+    icoSphereObject.Update(deltaTime, projection * view);
+
 
     gFrameBuffer.BindGeometryBuffer();
     glViewport(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT);
@@ -129,6 +145,8 @@ void System::GameLoop(){
     for (unsigned int i = 0; i < 9; ++i) {
       scene[i].Draw(multipleRenderTargetShader);
     }
+    icoSphereObject.Draw();
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     pbrShader.Use();
@@ -164,7 +182,6 @@ void System::GameLoop(){
     render.Display();
 
     /* Poll for and process events */
-    input.PollEvents();
   }
 
   //FIXME:: quit function

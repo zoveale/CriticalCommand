@@ -8,58 +8,61 @@ class GraphicsComponent {
 public:
 
   virtual ~GraphicsComponent() {}
-  virtual void Update(GameObject &object, const glm::mat4 PV) = 0;
+  virtual void Load(Model* modelPointers, Shader* shader, LightFactory* lightContainer) = 0;
+  virtual void Update(GameObject &object, const glm::mat4 P, const glm::mat4 V) = 0;
   virtual void SetUp(GameObject& object) = 0;
   virtual void Draw() = 0;
   
   
 };
 
-class BombGraphicsComponent : public GraphicsComponent {
-public:
-
-//TODO::make less awful
-  BombGraphicsComponent(std::vector<Model*> modelPointers, Shader* shader) {
-    this->modelPointers = modelPointers;
-    this->bombShader = shader;
-    timer = 0.0f;
-    bombModel = this->modelPointers[0]; 
-  }
-  virtual void SetUp(GameObject& object) {
-    object.position = modelPointers[0]->Position();
-  }
-
-  virtual void Update(GameObject& object, const glm::mat4 PV = glm::mat4(1.0f)) {
-    timer += 0.1f;
-    if (timer > 25.0f) {
-      //bombModel = modelPointers[1];
-    }
-    else {
-      //object.modelMatrix = glm::translate(object.modelMatrix, -object.position);
-    }
-    bombShader->Use();
-    bombShader->SetMat4("PVM", PV * object.modelMatrix);
-    bombShader->SetFloat("iTime", (timer - 30.0f) * 0.25f);
-    bombShader->SetFloat("timer", timer);
-    //bombShader->SetVec2("iResolution", 1280, 720);
-    //bombShader->SetVec2("iMouse", 0, 0);
-  }
-
-  virtual void Draw() {
-    bombModel->Draw(*bombShader);
-  }
-
-private:
-  Model* bombModel;
-  Shader* bombShader;
-  std::vector<Model*> modelPointers;
-  float timer;
-};
+//class BombGraphicsComponent : public GraphicsComponent {
+//public:
+//
+////TODO::make less awful
+//  virtual void Load(std::vector<Model*> modelPointers, Shader* shader) {
+//    this->modelPointers = modelPointers;
+//    this->bombShader = shader;
+//    timer = 0.0f;
+//    bombModel = this->modelPointers[0]; 
+//  }
+//  virtual void SetUp(GameObject& object) {
+//    object.position = modelPointers[0]->Position();
+//  }
+//
+//  virtual void Update(GameObject& object, const glm::mat4 PV = glm::mat4(1.0f)) {
+//    timer += 0.1f;
+//    if (timer > 25.0f) {
+//      //bombModel = modelPointers[1];
+//    }
+//    else {
+//      //object.modelMatrix = glm::translate(object.modelMatrix, -object.position);
+//    }
+//    bombShader->Use();
+//    bombShader->SetMat4("PVM", PV * object.modelMatrix);
+//    bombShader->SetFloat("iTime", (timer - 30.0f) * 0.25f);
+//    bombShader->SetFloat("timer", timer);
+//    //bombShader->SetVec2("iResolution", 1280, 720);
+//    //bombShader->SetVec2("iMouse", 0, 0);
+//  }
+//
+//  virtual void Draw() {
+//    bombModel->Draw(*bombShader);
+//  }
+//
+//private:
+//  Model* bombModel;
+//  Shader* bombShader;
+//  std::vector<Model*> modelPointers;
+//  float timer;
+//};
 
 
 class IcoSphereGraphicsComponent : public GraphicsComponent {
 public:
-  IcoSphereGraphicsComponent(Model* modelPointers, Shader* shader, LightFactory* lightContainer = nullptr) {
+  IcoSphereGraphicsComponent():modelPointer(nullptr), icoShader(nullptr), lights(nullptr) {}
+
+  virtual void Load(Model* modelPointers, Shader* shader, LightFactory* lightContainer = nullptr) {
     modelPointer = modelPointers;
     icoShader = shader;
     lights = lightContainer;
@@ -68,23 +71,27 @@ public:
   virtual void SetUp(GameObject& object) {
     object.position = modelPointer->Position();
   }
-  virtual void Update(GameObject& object, const glm::mat4 PV) {
-    //object.modelMatrix = glm::translate(object.modelMatrix, -object.position);
-    icoShader->Use();
+  virtual void Update(GameObject& object, const glm::mat4 P, const glm::mat4 V) {
+    //object.modelMatrix = glm::translate(object.modelMatrix, object.position);
+    model = object.modelMatrix;
+    /*icoShader->Use();
     icoShader->SetMat4("model", object.modelMatrix);
-    icoShader->SetMat4("PVM", PV * object.modelMatrix);
-    lights->SetDynamicAttributes(*icoShader);
+    icoShader->SetMat4("view", V);
+    icoShader->SetMat4("projection", P);*/
+    //icoShader->SetMat4("PVM", PV * object.modelMatrix);
+    //lights->SetDynamicAttributes(*icoShader);
   }
 
   virtual void Draw() {
-    //icoShader->Use();
+    icoShader->Use();
+    icoShader->SetMat4("model", model);
+    icoShader->SetMat4("inverseModel", glm::inverse(model));
     modelPointer->Draw(*icoShader);
   }
 
 private:
   Model* modelPointer;
   Shader* icoShader;
-  Shader* icoShadowShader;
   LightFactory* lights;
   glm::mat4 model;
 };

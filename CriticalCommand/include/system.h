@@ -31,8 +31,7 @@ private:
 
   //LightFactory sceneLights;
 
-  //physx::Physics scenePhysics;
-  physx::Physics test;
+  
 
   Shader lamp;
 
@@ -41,6 +40,12 @@ private:
 
   Shader pbrShader;
   Model scene[9];
+  Model sceneP;
+
+  Model icoSphereModel;
+  IcoSphereGraphicsComponent gComp;
+  IcoSpherePhysicsComponent pComp;
+  GameObject icoSphereObject;
 
   glm::mat4 model;
   glm::mat4 view;

@@ -466,3 +466,15 @@ healthchecksdb
 /CriticalCommand/resources/pbrTesting/scene/brasier/images/ao.png
 /CriticalCommand/resources/pbrTesting/scene/brasier/images/albedo.png
 /CriticalCommand/resources/pbrTesting/scene/brasier/brasier.dae
+/CriticalCommand/resources/pbrTesting/models/icoSphere/images/roughness.png
+/CriticalCommand/resources/pbrTesting/models/icoSphere/images/normal.png
+/CriticalCommand/resources/pbrTesting/models/icoSphere/images/metallic.png
+/CriticalCommand/resources/pbrTesting/models/icoSphere/images/castle_brick_07_rough_ao_2k.png
+/CriticalCommand/resources/pbrTesting/models/icoSphere/images/castle_brick_07_rough_2k.png
+/CriticalCommand/resources/pbrTesting/models/icoSphere/images/castle_brick_07_nor_2k.png
+/CriticalCommand/resources/pbrTesting/models/icoSphere/images/castle_brick_07_disp_2k.png
+/CriticalCommand/resources/pbrTesting/models/icoSphere/images/castle_brick_07_diff_2k.png
+/CriticalCommand/resources/pbrTesting/models/icoSphere/images/castle_brick_07_ao_2k.png
+/CriticalCommand/resources/pbrTesting/models/icoSphere/images/ao.png
+/CriticalCommand/resources/pbrTesting/models/icoSphere/images/albedo.png
+/CriticalCommand/resources/pbrTesting/models/icoSphere/ico.dae
