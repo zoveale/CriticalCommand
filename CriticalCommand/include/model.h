@@ -62,6 +62,7 @@ public:
   
   // draws the model, and thus all its meshes
   void Draw(Shader shader);
+  void DrawModelOnly(Shader shader);
   void DepthDraw(Shader shader);
   void Animate(Shader shader, float time);
   //FIXME::

@@ -9,6 +9,7 @@
 #include "camera.h"
 #include "model.h"
 #include "skybox.h"
+#include "utility.h"
 
 //TODO:: finish all component classes
 #include "objects.h"
@@ -29,14 +30,15 @@ private:
   Input input;
 
 
-  //LightFactory sceneLights;
-
-  
-
   Shader lamp;
 
   Model lights;
   Model pointLamp;
+  Model spotLight;
+
+  Framebuffer pointShadowCasters[10];
+  glm::mat4 pointShadowMatrix[6][10];
+  Shader depthShadowCubeShader;
 
   Shader pbrShader;
   Model scene[9];

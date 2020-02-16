@@ -4,7 +4,6 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
-uniform unsigned int numPointLights;
 
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
@@ -12,31 +11,20 @@ uniform sampler2D metalRoughAo;
 uniform sampler2D gAlbedo;
 
 // lights
+const unsigned int maxShadowCastingPointLights = 10;
 const unsigned int maxPointLights = 100;
-uniform vec3 lightPositions[maxPointLights];
-uniform vec3 lightColors[maxPointLights];
-uniform float radius;
+
+uniform unsigned int numPointLights;
+uniform unsigned int numShadowPointLights;
+uniform vec3 pointLightPositions[maxPointLights];
+uniform vec3 pointLightColors[maxPointLights];
+uniform float radius[maxPointLights];
+uniform samplerCube pointLightShadowCube[10];
+
 uniform vec3 camPos;
 
 const float PI = 3.14159265359;
-// ----------------------------------------------------------------------------
-//vec3 getNormalFromMap()
-//{
-//    vec3 tangentNormal = texture(material.texture_normal, TexCoords).xyz * 2.0 - 1.0;
-//
-//    vec3 Q1  = dFdx(WorldPos);
-//    vec3 Q2  = dFdy(WorldPos);
-//    vec2 st1 = dFdx(TexCoords);
-//    vec2 st2 = dFdy(TexCoords);
-//
-//    vec3 N   = normalize(Normal);
-//    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
-//    vec3 B  = -normalize(cross(N, T));
-//    mat3 TBN = mat3(T, B, N);
-//
-//    return normalize(TBN * tangentNormal);
-//}
-// ----------------------------------------------------------------------------
+
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
     float a = roughness*roughness;
@@ -104,19 +92,22 @@ void main(){
     vec3 F0 = vec3(0.04); 
     F0 = mix(F0, albedo, metallic);
 
+	 // ambient lighting (note that the next IBL tutorial will replace 
+    // this ambient lighting with environment lighting).
+    vec3 ambient = vec3(0.03) * albedo * ao;
 
     //  reflectance equation
     vec3 Lo = vec3(0.0);
     for(int i = 0; i < numPointLights; ++i) 
     {
-		float dis = length(lightPositions[i] - posTexture);
+		float dis = length(pointLightPositions[i] - posTexture);
 
-		if(dis < radius){
+		if(dis < radius[i] * 4.0){
 
-			float attenuation = 1.0 / (1.0 + ((4.5/radius) * dis) + ((75.0/(radius*radius)) * dis * dis)); 
-			vec3 radiance = lightColors[i] * attenuation;
+			float attenuation = 1.0 / (1.0 + ((4.5/radius[i]) * dis) + ((75.0/(radius[i]*radius[i])) * dis * dis)); 
+			vec3 radiance = pointLightColors[i] * attenuation;
 			// calculate per-light radiance
-			vec3 L = normalize(lightPositions[i] - posTexture);
+			vec3 L = normalize(pointLightPositions[i] - posTexture);
 			vec3 H = normalize (V + L);
 
         
@@ -150,9 +141,7 @@ void main(){
 		}
 	}   
     
-    // ambient lighting (note that the next IBL tutorial will replace 
-    // this ambient lighting with environment lighting).
-    vec3 ambient = vec3(0.03) * albedo * ao;
+   
 
     vec3 color = ambient + Lo;
 
@@ -163,3 +152,22 @@ void main(){
 
     FragColor = vec4(color, 1.0);
 }
+
+// ----------------------------------------------------------------------------
+//vec3 getNormalFromMap()
+//{
+//    vec3 tangentNormal = texture(material.texture_normal, TexCoords).xyz * 2.0 - 1.0;
+//
+//    vec3 Q1  = dFdx(WorldPos);
+//    vec3 Q2  = dFdy(WorldPos);
+//    vec2 st1 = dFdx(TexCoords);
+//    vec2 st2 = dFdy(TexCoords);
+//
+//    vec3 N   = normalize(Normal);
+//    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
+//    vec3 B  = -normalize(cross(N, T));
+//    mat3 TBN = mat3(T, B, N);
+//
+//    return normalize(TBN * tangentNormal);
+//}
+// ----------------------------------------------------------------------------

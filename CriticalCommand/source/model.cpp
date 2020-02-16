@@ -6,6 +6,11 @@ void Model::Draw(Shader shader) {
     meshes[i].Draw(shader);
   }
 }
+void Model::DrawModelOnly(Shader shader) {
+  for (unsigned int i = 0; i < meshes.size(); i++) {
+    meshes[i].DrawMesh(shader);
+  }
+}
 void Model::DepthDraw(Shader shader) {
   for (unsigned int i = 0; i < meshes.size(); i++) {
     meshes[i].DepthDraw(shader);
@@ -723,9 +728,10 @@ void Model::ReadNodeHierarchy(float animationTime, const aiNode* parent, glm::ma
 void Model::LoadModelOnly(std::string const& path) {
   this->scene = importer.ReadFile(path,
     aiProcess_FlipUVs |
-    aiProcess_CalcTangentSpace |
+    //aiProcess_CalcTangentSpace |
     aiProcess_FindInvalidData |
-    aiProcess_ImproveCacheLocality
+    aiProcess_ImproveCacheLocality //|
+    //aiProcess_JoinIdenticalVertices
   );
   // check for errors
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {

@@ -1,5 +1,5 @@
 #version 460 core
-#define BIAS 0.01
+
 in vec4 FragPos;
 
 uniform vec3 lightPos;
