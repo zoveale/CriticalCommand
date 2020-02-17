@@ -36,8 +36,8 @@ private:
   Model pointLamp;
   Model spotLight;
 
-  Framebuffer pointShadowCasters[10];
-  glm::mat4 pointShadowMatrix[6][10];
+  Framebuffer pointShadowCastersBuffer[10];
+  std::vector<glm::mat4> pointShadowMatrix;
   Shader depthShadowCubeShader;
 
   Shader pbrShader;

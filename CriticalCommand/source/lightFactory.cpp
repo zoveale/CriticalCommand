@@ -74,12 +74,7 @@ void LightFactory::SetFixedAttributes(Shader shader) {
 }
 
 void LightFactory::Draw(Shader shader) {
-  for (unsigned int i = 0; i < NumPointLights(); i++) {
-    /*model = GetPointLightTransformation(i);
-    model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-    shader.SetMat4("PVM", projection * view * model);
-    pointLamp.Draw(lamp);*/
-  }
+ 
 }
 
 PointLight::PointLight() {
@@ -88,21 +83,16 @@ PointLight::PointLight() {
 
 PointLight::PointLight(aiLight* light, aiNode* node) {
   transformation = aiToGlm(node->mTransformation);
-  
-  /*position = glm::vec3(-transformation[3][0],
-                       transformation[3][2],
-                      -transformation[3][1]);*/
-  
-  
+
   position = glm::vec3(transformation[3][0],
                        transformation[3][1],
                        transformation[3][2]);
-  transformation = glm::mat4(1.0f);
+  /*transformation = glm::mat4(1.0f);
   transformation[3][0] = position.x;
   transformation[3][1] = position.y;
-  transformation[3][2] = position.z;
+  transformation[3][2] = position.z;*/
   //TODO:: Blender export rotates wrong way
-  transformation = glm::rotate(transformation, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
+  //transformation = glm::rotate(transformation, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
 
   ambient = glm::vec3(light->mColorAmbient.r,
                       light->mColorAmbient.g,
@@ -167,15 +157,11 @@ SpotLight::SpotLight(aiLight* light, aiNode* node) {
   position = glm::vec3(transformation[3][0],
                        transformation[3][1],
                        transformation[3][2]);
-  //direction = glm::rotate(direction, glm::radians(90.0f), glm::vec3(1.0, 1.0, 0.0));
-  //direction = glm::rotateX(direction, 90.0f);
-  //TODO:: Blender export rotates wrong way
-  transformation = glm::rotate(transformation, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
+;
   direction = glm::vec3(transformation[2][0],
                         transformation[2][1],
                         transformation[2][2]);
-  transformation = glm::rotate(transformation, glm::radians(90.0f), glm::vec3(-1.0, 0.0, 0.0));
-  ///
+ 
   ambient = glm::vec3(light->mColorAmbient.r,
                       light->mColorAmbient.g,
                       light->mColorAmbient.b);
@@ -191,15 +177,13 @@ SpotLight::SpotLight(aiLight* light, aiNode* node) {
   specular /= 1000.0f;
   ambient /= 1000.0f;
 
+  //these all suck
   constant = light->mAttenuationConstant;
   linear = light->mAttenuationLinear;
   quadratic = light->mAttenuationQuadratic;
   
-  //FIXME::Note creates neagative light space
- /* innerCut = glm::cos(light->mAngleInnerCone/1);
-  outerCut = glm::cos(light->mAngleOuterCone/4);*/
-  innerCut = glm::cos(light->mAngleInnerCone / 4);
-  outerCut = glm::cos(light->mAngleOuterCone / 4);
+  innerCut = glm::cos(light->mAngleInnerCone);
+  outerCut = glm::cos(light->mAngleOuterCone);
 }
 
 void SpotLight::SetFixedAttributes(Shader shader, unsigned int i) {

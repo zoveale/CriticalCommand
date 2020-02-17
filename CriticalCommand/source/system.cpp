@@ -3,6 +3,8 @@
 static LightFactory sceneLights;
 static physx::Physics scenePhysics;
 
+const unsigned int shadowCastingLights = 1;
+
 System::System() {
   model = glm::mat4(1.0f);
   view = glm::mat4(1.0f);
@@ -65,14 +67,25 @@ void System::SystemInit(){
 
   pbrShader.Load("resources/shader/PBR/vert.glsl", "resources/shader/PBR/frag.glsl");
   sceneLights.SetFixedAttributes(pbrShader);
-
-
+  pbrShader.Use();
+  pbrShader.SetUnsignedInt("numShadowPointLights", shadowCastingLights);
+  
   //Shadow Stuff
   depthShadowCubeShader.Load("resources/shader/Shadow/DepthCubemap/vert.glsl",
                              "resources/shader/Shadow/DepthCubemap/frag.glsl",
                              "resources/shader/Shadow/DepthCubemap/geo.glsl");
-  for(unsigned int i = 0; i < 10; ++i)
-    pointShadowCasters[i].CreateDepthCubeMap();
+
+  float near_plane = 0.10f, far_plane = 55.0f;//farplane == "radius" of point light
+  for (unsigned int i = 0; i < shadowCastingLights; ++i) {
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
+    pointShadowCastersBuffer[i].CreateDepthCubeMap();
+    glm::vec3 pointLightPos = sceneLights.GetPointLightPos(i);
+    glm::mat4 shadowTransforms[6];
+    pointShadowCastersBuffer[i].SetPointLightDepthToCubemap(lightProjection, shadowTransforms, pointLightPos);
+    for(unsigned int j = 0; j < 6; ++j)
+      pointShadowMatrix.push_back(shadowTransforms[j]);
+  }
 
 
   ///
@@ -113,14 +126,14 @@ void System::GameLoop(){
     //input.IncrementDecrement(testBool);
     //if (testBool)
     scenePhysics.StepPhysics(deltaRate * 0.1);
-       
+
 
     player.HandleInput(input, deltaTime);
 
     model = glm::mat4(1.0f);
     view = glm::mat4(1.0f);
     ///
-   
+
     render.ClearScreen();
 
     view = firstPerson.View();
@@ -128,6 +141,25 @@ void System::GameLoop(){
     player.Update(deltaTime);
     icoSphereObject.Update(deltaTime, projection * view);
 
+    float near_plane = 0.10f, far_plane = 55.0f;
+
+    glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
+    glStencilMask(0xFF);
+    for (unsigned int i = 0; i < shadowCastingLights; ++i) {
+      pointShadowCastersBuffer[i].DepthMapViewPort();
+      glBindFramebuffer(GL_FRAMEBUFFER, pointShadowCastersBuffer[i].GetDepthMapFBO());
+      glClear(GL_DEPTH_BUFFER_BIT);
+      depthShadowCubeShader.Use();
+      depthShadowCubeShader.SetFloat("far_plane", far_plane);
+      depthShadowCubeShader.SetVec3("lightPos", sceneLights.GetPointLightPos(i));
+      //pointLightOne.SetPointLightDepthToCubemap(lightProjection, shadowTransforms1, pointLightPos);
+      for (unsigned int j = 0; j < 6; ++j)
+        depthShadowCubeShader.SetMat4("shadowTransforms[" + std::to_string(j) + "]", pointShadowMatrix[i * 6 + j]);
+
+      depthShadowCubeShader.SetMat4("model", glm::mat4(1.0f));
+      for (unsigned int j = 0; j < 9; ++j) 
+        scene[j].DrawModelOnly(depthShadowCubeShader);
+    }
 
     gFrameBuffer.BindGeometryBuffer();
     glViewport(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT);
@@ -152,6 +184,8 @@ void System::GameLoop(){
     glStencilMask(0xFF);
     pbrShader.Use();
     gFrameBuffer.SetDeferredShading(pbrShader);
+    for (unsigned int i = 0; i < shadowCastingLights; ++i)
+      pointShadowCastersBuffer[i].SetShadowCubemap(pbrShader);
     glStencilMask(0xFF);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -401,3 +435,23 @@ glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
     //cool acceleration effect
     //player.Update(xpos, ypos); 
 
+//Framebuffer pointLightOne;
+//float near_plane = 1.0f, far_plane = 115.0f;//farplane == "radius" of point light
+//glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
+//pointLightOne.CreateDepthCubeMap();
+//glm::vec3 pointLightPos = sceneLights.GetPointLightPos(0);
+//glm::mat4 shadowTransforms1[6];
+//pointLightOne.SetPointLightDepthToCubemap(lightProjection, shadowTransforms1, pointLightPos);
+//pointLightOne.DepthMapViewPort();
+//glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
+//glStencilMask(0xFF);
+//glBindFramebuffer(GL_FRAMEBUFFER, pointLightOne.GetDepthMapFBO());
+//glClear(GL_DEPTH_BUFFER_BIT);
+//cubemapDepthShader.Use();
+//cubemapDepthShader.SetFloat("far_plane", far_plane);
+//cubemapDepthShader.SetVec3("lightPos", pointLightPos);
+//pointLightOne.SetPointLightDepthToCubemap(lightProjection, shadowTransforms1, pointLightPos);
+//for (unsigned int i = 0; i < 6; ++i)
+//  cubemapDepthShader.SetMat4("shadowTransforms[" + std::to_string(i) + "]", shadowTransforms1[i]);
+//cubemapDepthShader.SetMat4("model", glm::mat4(1.0f));
+//magicStoneCircle.DepthDraw(cubemapDepthShader);

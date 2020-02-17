@@ -111,8 +111,8 @@ void Framebuffer::CreateDepthCubeMap() {
   glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
   glDrawBuffer(GL_NONE);
   glReadBuffer(GL_NONE);
-  ++count;
   depthMapTextureKey = count;
+  ++count;
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glActiveTexture(GL_TEXTURE0);
 }
@@ -233,12 +233,13 @@ void Framebuffer::SetShadowMap(Shader shader) {
 }
 
 void Framebuffer::SetShadowCubemap(Shader shader) {
-  glActiveTexture(GL_TEXTURE0 + depthCubemap);
+  //wtf is it suppose to be
+  glActiveTexture(GL_TEXTURE5 + depthMapTextureKey);
   glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
-  //shader.Use();
-  shader.SetInt("shadowCubeMap[" + std::to_string(depthMapTextureKey - 1) + "]", depthCubemap);
+  shader.Use();
+  shader.SetInt("pointLightShadowCube[" + std::to_string(depthMapTextureKey) + "]", 5 + depthMapTextureKey);
   //glBindTexture(GL_TEXTURE0, 0);
-  glActiveTexture(GL_TEXTURE0);
+  //glActiveTexture(GL_TEXTURE0);
 }
 
 Framebuffer::~Framebuffer() {
