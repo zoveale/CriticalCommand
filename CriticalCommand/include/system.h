@@ -21,6 +21,7 @@
 #include "gtc/type_ptr.hpp"
 
 
+const unsigned int SHADOW_CASTING_POINT_LIGHTS = 2;
 
 class System {
 private:
@@ -36,7 +37,8 @@ private:
   Model pointLamp;
   Model spotLight;
 
-  Framebuffer pointShadowCastersBuffer[10];
+  
+  Framebuffer pointShadowCastersBuffer[SHADOW_CASTING_POINT_LIGHTS];
   std::vector<glm::mat4> pointShadowMatrix;
   Shader depthShadowCubeShader;
 
@@ -68,6 +70,7 @@ private:
   Shader deferredLightingPass;*/
 
 public:
+
   System();
   void SystemInit();
   void GameLoop();

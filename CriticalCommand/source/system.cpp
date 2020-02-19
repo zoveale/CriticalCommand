@@ -3,7 +3,6 @@
 static LightFactory sceneLights;
 static physx::Physics scenePhysics;
 
-const unsigned int shadowCastingLights = 1;
 
 System::System() {
   model = glm::mat4(1.0f);
@@ -68,7 +67,7 @@ void System::SystemInit(){
   pbrShader.Load("resources/shader/PBR/vert.glsl", "resources/shader/PBR/frag.glsl");
   sceneLights.SetFixedAttributes(pbrShader);
   pbrShader.Use();
-  pbrShader.SetUnsignedInt("numShadowPointLights", shadowCastingLights);
+  pbrShader.SetUnsignedInt("numShadowPointLights", SHADOW_CASTING_POINT_LIGHTS);
   
   //Shadow Stuff
   depthShadowCubeShader.Load("resources/shader/Shadow/DepthCubemap/vert.glsl",
@@ -76,7 +75,7 @@ void System::SystemInit(){
                              "resources/shader/Shadow/DepthCubemap/geo.glsl");
 
   float near_plane = 0.10f, far_plane = 55.0f;//farplane == "radius" of point light
-  for (unsigned int i = 0; i < shadowCastingLights; ++i) {
+  for (unsigned int i = 0; i < SHADOW_CASTING_POINT_LIGHTS; ++i) {
     glClear(GL_DEPTH_BUFFER_BIT);
     glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
     pointShadowCastersBuffer[i].CreateDepthCubeMap();
@@ -145,7 +144,7 @@ void System::GameLoop(){
 
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
     glStencilMask(0xFF);
-    for (unsigned int i = 0; i < shadowCastingLights; ++i) {
+    for (unsigned int i = 0; i < SHADOW_CASTING_POINT_LIGHTS; ++i) {
       pointShadowCastersBuffer[i].DepthMapViewPort();
       glBindFramebuffer(GL_FRAMEBUFFER, pointShadowCastersBuffer[i].GetDepthMapFBO());
       glClear(GL_DEPTH_BUFFER_BIT);
@@ -184,7 +183,7 @@ void System::GameLoop(){
     glStencilMask(0xFF);
     pbrShader.Use();
     gFrameBuffer.SetDeferredShading(pbrShader);
-    for (unsigned int i = 0; i < shadowCastingLights; ++i)
+    for (unsigned int i = 0; i < SHADOW_CASTING_POINT_LIGHTS; ++i)
       pointShadowCastersBuffer[i].SetShadowCubemap(pbrShader);
     glStencilMask(0xFF);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

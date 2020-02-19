@@ -103,7 +103,7 @@ uniform float gamma;
 uniform float heightScale;
 //ShadowStuff
 uniform float far_plane;
-#define MAX_SHADOW_CASTING_POINT_LIGHTS 1
+//#define MAX_SHADOW_CASTING_POINT_LIGHTS 1
 uniform samplerCube shadowCubeMap[1];
 float near = 1.0f; 
 float far  = 10.0f; 

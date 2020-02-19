@@ -11,7 +11,7 @@ uniform sampler2D metalRoughAo;
 uniform sampler2D gAlbedo;
 
 // lights
-const unsigned int maxShadowCastingPointLights = 1;
+const unsigned int maxShadowCastingPointLights = 2;
 const unsigned int maxPointLights = 100;
 
 uniform unsigned int numPointLights;
@@ -109,11 +109,11 @@ void main(){
 
     //  reflectance equation
     vec3 Lo = vec3(0.0);
-    for(int i = 0; i < maxShadowCastingPointLights; ++i) 
+    for(int i = 0; i < numShadowPointLights; ++i) 
     {
 		float dis = length(pointLightPositions[i] - posTexture);
 		//
-		if(dis < radius[i]* 4.0){
+		//if(dis < radius[i]* 4.0){
 			float visibility  = ShadowCalculationCubeMap(posTexture, pointLightPositions[i], pointLightShadowCube[i]);
 
 			float attenuation = 1.0 / (1.0 + ((4.5/radius[i]) * dis) + ((75.0/(radius[i]*radius[i])) * dis * dis)); 
@@ -130,7 +130,7 @@ void main(){
 			vec3 nominator    = NDF * G * F; 
 			float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
 			vec3 specular = nominator / max(denominator, 0.001); // prevent divide by zero for NdotV=0.0 or NdotL=0.0
-
+			//(1.0 - visibility)
 			// kS is equal to Fresnel
 			vec3 kS = F;
 			// for energy conservation, the diffuse and specular light can't
@@ -146,10 +146,10 @@ void main(){
 			float NdotL = max(dot(N, L), 0.0);         
 
 			// add to outgoing radiance Lo
-			Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
-			Lo *= (1.0 - visibility);
+			Lo += (kD * albedo / (PI + specular * (1.0 - visibility)) * radiance * (1.0 - visibility) * NdotL);  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+			
 			//Lo += vec3(0.03) * albedo * attenuation * ao;
-		}
+		//}
 		
 	}   
     
