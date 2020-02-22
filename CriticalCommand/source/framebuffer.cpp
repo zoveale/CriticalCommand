@@ -237,7 +237,11 @@ void Framebuffer::SetShadowCubemap(Shader shader) {
   glActiveTexture(GL_TEXTURE5 + depthMapTextureKey);
   glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
   shader.Use();
-  shader.SetInt("pointLightShadowCube[" + std::to_string(depthMapTextureKey) + "]", 5 + depthMapTextureKey);
+  shader.SetInt("shadowCastingPointLights[" +  std::to_string(depthMapTextureKey) + "]"
+                 + ".shadowMap", 
+                 5 + depthMapTextureKey);
+  std::string test = "shadowCastingPointLights[" + std::to_string(depthMapTextureKey) + "]"
+    + ".shadowMap";
   //glBindTexture(GL_TEXTURE0, 0);
   //glActiveTexture(GL_TEXTURE0);
 }

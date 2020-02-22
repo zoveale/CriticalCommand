@@ -21,8 +21,8 @@
 #include "gtc/type_ptr.hpp"
 
 
-const unsigned int SHADOW_CASTING_POINT_LIGHTS = 2;
-
+const unsigned int SHADOW_CASTING_POINT_LIGHTS = 13;
+const unsigned int SHADOW_CASTING_SPOT_LIGHTS = 1;
 class System {
 private:
   Player player;
@@ -33,7 +33,7 @@ private:
 
   Shader lamp;
 
-  Model lights;
+  Model shadowLights;
   Model pointLamp;
   Model spotLight;
 

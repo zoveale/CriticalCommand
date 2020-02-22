@@ -77,6 +77,19 @@ void LightFactory::Draw(Shader shader) {
  
 }
 
+void LightFactory::SetFixedShadowAttributes(Shader shader) {
+  shader.Use();
+  shader.SetUnsignedInt("numShadowSpotLights", spotLights.size());
+  shader.SetUnsignedInt("numShadowPointLights", pointLights.size());
+
+  for (unsigned int i = 0; i < pointLights.size(); i++) {
+    pointLights[i].SetFixedShadowAttributes(shader, i);
+  }
+  for (unsigned int i = 0; i < spotLights.size(); i++) {
+    spotLights[i].SetFixedShadowAttributes(shader, i);
+  }
+}
+
 PointLight::PointLight() {
 
 }
@@ -112,7 +125,6 @@ PointLight::PointLight(aiLight* light, aiNode* node) {
   constant = light->mAttenuationConstant;
   linear = light->mAttenuationLinear;
   quadratic = light->mAttenuationQuadratic;
-
 }
 
 void PointLight::SetFixedAttributes(Shader shader, unsigned int i) {
@@ -121,12 +133,24 @@ void PointLight::SetFixedAttributes(Shader shader, unsigned int i) {
   name += "]";
 
   shader.SetVec3(name + ".position", this->position);
-  shader.SetVec3(name + ".ambient", this->ambient);
+  shader.SetVec3(name + ".color", this->diffuse);
+  shader.SetFloat(name + ".radius", 7.0f);
+  /*shader.SetVec3(name + ".ambient", this->ambient);
   shader.SetVec3(name + ".diffuse", this->diffuse);
   shader.SetVec3(name + ".specular", this->specular);
   shader.SetFloat(name + ".constant", this->constant);
   shader.SetFloat(name + ".linear", this->linear);
-  shader.SetFloat(name + ".quadratic", this->quadratic);
+  shader.SetFloat(name + ".quadratic", this->quadratic);*/
+}
+
+void PointLight::SetFixedShadowAttributes(Shader shader, unsigned int i) {
+  std::string name = "shadowCastingPointLights[";
+  name += std::to_string(i);
+  name += "]";
+
+  shader.SetVec3(name + ".position", this->position);
+  shader.SetVec3(name + ".color", this->diffuse);
+  shader.SetFloat(name + ".radius", 7.0f);
 }
 
 void PointLight::SetDynamicAttributes(Shader shader, unsigned int i) {
@@ -190,13 +214,9 @@ void SpotLight::SetFixedAttributes(Shader shader, unsigned int i) {
   std::string name = "spotLights[";
   name += std::to_string(i);
   name += "]";
-
-  shader.SetVec3(name + ".ambient", this->ambient);
-  shader.SetVec3(name + ".diffuse", this->diffuse);
-  shader.SetVec3(name + ".specular", this->specular);
-  shader.SetFloat(name + ".constant", this->constant);
-  shader.SetFloat(name + ".linear", this->linear);
-  shader.SetFloat(name + ".quadratic", this->quadratic);
+  shader.SetVec3(name + ".position", this->position);
+  shader.SetVec3(name + ".color", this->diffuse);
+  shader.SetFloat(name + ".radius", 7.0f);
   shader.SetFloat(name + ".cutoff", this->innerCut);
   shader.SetFloat(name + ".outerCutoff", this->outerCut);
 }
@@ -208,9 +228,9 @@ void SpotLight::SetDynamicAttributes(Shader shader, unsigned int i) {
 
   shader.SetVec3(name + ".position", this->position);
   shader.SetVec3(name + ".direction", this->direction);
+}
 
-  
-
+void SpotLight::SetFixedShadowAttributes(Shader shader, unsigned int i) {
 }
 
 glm::vec3 SpotLight::DiffuseColor() {

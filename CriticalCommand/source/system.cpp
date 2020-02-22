@@ -3,6 +3,7 @@
 static LightFactory sceneLights;
 static physx::Physics scenePhysics;
 
+static LightFactory sceneShadowLights;
 
 System::System() {
   model = glm::mat4(1.0f);
@@ -23,7 +24,7 @@ void System::SystemInit(){
 
   
   //light stuff
-  lights.LoadLights("resources/pbrTesting/scene/lights/lights.dae", sceneLights);
+  shadowLights.LoadLights("resources/pbrTesting/scene/lights/lights.dae", sceneShadowLights);
   lamp.Load("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
   pointLamp.LoadModel("resources/surface/pointLamp.dae");
   spotLight.LoadModel("resources/surface/spotLight.dae");
@@ -65,16 +66,16 @@ void System::SystemInit(){
 
 
   pbrShader.Load("resources/shader/PBR/vert.glsl", "resources/shader/PBR/frag.glsl");
-  sceneLights.SetFixedAttributes(pbrShader);
+  sceneLights.SetFixedShadowAttributes(pbrShader);
   pbrShader.Use();
-  pbrShader.SetUnsignedInt("numShadowPointLights", SHADOW_CASTING_POINT_LIGHTS);
+  pbrShader.SetVec3("camPos", player.position);
   
   //Shadow Stuff
   depthShadowCubeShader.Load("resources/shader/Shadow/DepthCubemap/vert.glsl",
                              "resources/shader/Shadow/DepthCubemap/frag.glsl",
                              "resources/shader/Shadow/DepthCubemap/geo.glsl");
 
-  float near_plane = 0.10f, far_plane = 55.0f;//farplane == "radius" of point light
+  float near_plane = 0.0010f, far_plane = 55.0f;//farplane == "radius" of point light
   for (unsigned int i = 0; i < SHADOW_CASTING_POINT_LIGHTS; ++i) {
     glClear(GL_DEPTH_BUFFER_BIT);
     glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
@@ -106,14 +107,30 @@ void System::GameLoop(){
   //projection = glm::mat4(1.0f);
   projection = glm::perspective(glm::radians((float)perspective),
     (float)Render::Screen::WIDTH / (float)Render::Screen::HEIGHT, 0.1f, 1000.0f);
+  model = glm::mat4(1.0f);
+  view = glm::mat4(1.0f);
+  ///
 
-  pbrShader.Use();
-  pbrShader.SetVec3("camPos", player.position);
-  for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
-    pbrShader.SetVec3("pointLightPositions[" + std::to_string(i) + "]", sceneLights.GetPointLightPos(i));
-    pbrShader.SetVec3("pointLightColors[" + std::to_string(i) + "]", sceneLights.GetPointLightColor(i));
-    pbrShader.SetFloat("radius[" + std::to_string(i) + "]", 7.0f * Random::Jitter(0.25f, 1.0f));
+  float near_plane = 0.0010f, far_plane = 55.0f;
+
+  glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
+  glStencilMask(0xFF);
+  for (unsigned int i = 0; i < SHADOW_CASTING_POINT_LIGHTS; ++i) {
+    pointShadowCastersBuffer[i].DepthMapViewPort();
+    glBindFramebuffer(GL_FRAMEBUFFER, pointShadowCastersBuffer[i].GetDepthMapFBO());
+    glClear(GL_DEPTH_BUFFER_BIT);
+    depthShadowCubeShader.Use();
+    depthShadowCubeShader.SetFloat("far_plane", far_plane);
+    depthShadowCubeShader.SetVec3("lightPos", sceneShadowLights.GetPointLightPos(i));
+    //pointLightOne.SetPointLightDepthToCubemap(lightProjection, shadowTransforms1, pointLightPos);
+    for (unsigned int j = 0; j < 6; ++j)
+      depthShadowCubeShader.SetMat4("shadowTransforms[" + std::to_string(j) + "]", pointShadowMatrix[i * 6 + j]);
+
+    depthShadowCubeShader.SetMat4("model", glm::mat4(1.0f));
+    for (unsigned int j = 0; j < 9; ++j)
+      scene[j].DrawModelOnly(depthShadowCubeShader);
   }
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   while (!input.KEY.ESC) {
     input.PollEvents();
@@ -131,54 +148,34 @@ void System::GameLoop(){
 
     model = glm::mat4(1.0f);
     view = glm::mat4(1.0f);
+    view = firstPerson.View();
+    
     ///
 
     render.ClearScreen();
 
-    view = firstPerson.View();
-
+   
     player.Update(deltaTime);
     icoSphereObject.Update(deltaTime, projection * view);
 
-    float near_plane = 0.10f, far_plane = 55.0f;
-
-    glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
-    glStencilMask(0xFF);
-    for (unsigned int i = 0; i < SHADOW_CASTING_POINT_LIGHTS; ++i) {
-      pointShadowCastersBuffer[i].DepthMapViewPort();
-      glBindFramebuffer(GL_FRAMEBUFFER, pointShadowCastersBuffer[i].GetDepthMapFBO());
-      glClear(GL_DEPTH_BUFFER_BIT);
-      depthShadowCubeShader.Use();
-      depthShadowCubeShader.SetFloat("far_plane", far_plane);
-      depthShadowCubeShader.SetVec3("lightPos", sceneLights.GetPointLightPos(i));
-      //pointLightOne.SetPointLightDepthToCubemap(lightProjection, shadowTransforms1, pointLightPos);
-      for (unsigned int j = 0; j < 6; ++j)
-        depthShadowCubeShader.SetMat4("shadowTransforms[" + std::to_string(j) + "]", pointShadowMatrix[i * 6 + j]);
-
-      depthShadowCubeShader.SetMat4("model", glm::mat4(1.0f));
-      for (unsigned int j = 0; j < 9; ++j) 
-        scene[j].DrawModelOnly(depthShadowCubeShader);
-    }
+   
 
     gFrameBuffer.BindGeometryBuffer();
     glViewport(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT);
     render.ClearScreen();
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilMask(0xFF);
-
-
+    glDisable(GL_STENCIL_TEST);
     multipleRenderTargetShader.Use();
     multipleRenderTargetShader.SetMat4("projection", projection);
     multipleRenderTargetShader.SetMat4("view", view);
     multipleRenderTargetShader.SetMat4("model", model);
-    multipleRenderTargetShader.SetMat4("inverseModel", glm::inverse(model));
+    multipleRenderTargetShader.SetMat4("inverseModel", glm::transpose(glm::inverse(model)));
     for (unsigned int i = 0; i < 9; ++i) {
       scene[i].Draw(multipleRenderTargetShader);
     }
     icoSphereObject.Draw();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
+    glEnable(GL_STENCIL_TEST);
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
     pbrShader.Use();
@@ -200,18 +197,18 @@ void System::GameLoop(){
     glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
     glStencilMask(0xFF);
     lamp.Use();
-    for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
+    for (unsigned int i = 0; i < sceneShadowLights.NumPointLights(); i++) {
       model = glm::mat4(1.0f);
-      model = glm::translate(model, sceneLights.GetPointLightPos(i));
+      model = glm::translate(model, sceneShadowLights.GetPointLightPos(i));
       model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-      lamp.SetVec3("lampColor", sceneLights.GetPointLightColor(i) * 0.010f);
+      lamp.SetVec3("lampColor", sceneShadowLights.GetPointLightColor(i) * 0.010f);
       lamp.SetMat4("PVM", projection * view * model);
       pointLamp.DrawModelOnly(lamp);
     }
-    for (unsigned int i = 0; i < sceneLights.NumSpotLights(); i++) {
-      model = sceneLights.GetSpotLightTransformation(i);
+    for (unsigned int i = 0; i < sceneShadowLights.NumSpotLights(); i++) {
+      model = sceneShadowLights.GetSpotLightTransformation(i);
       model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-      lamp.SetVec3("lampColor", sceneLights.GetSpotLightColor(i));
+      lamp.SetVec3("lampColor", sceneShadowLights.GetSpotLightColor(i));
       lamp.SetMat4("PVM", projection * view * model);
       spotLight.DrawModelOnly(lamp);
     }

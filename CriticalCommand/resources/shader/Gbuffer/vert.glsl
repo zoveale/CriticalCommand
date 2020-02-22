@@ -22,7 +22,7 @@ void main(){
     TexCoords = aTexCoords;
     
     
-    Normal = transpose(mat3(inverseModel)) * aNormal;
+    Normal = mat3(inverseModel) * aNormal;
 	//worldSpaceinverse = transpose(mat3(inverseModel));
     gl_Position = projection * view * worldPos;
 }    

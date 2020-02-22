@@ -54,9 +54,9 @@ void main(){
 	metalRoughAo.b = texture(material.texture_ao, TexCoords).r;
 
 	gAlbedo.rgb = texture(material.texture_albedo, TexCoords).rgb;
+	//I like the way it looks when gamma correct commented out
 	gAlbedo.rgb = vec3(pow(gAlbedo.r, 2.2f), pow(gAlbedo.g, 2.2f), pow(gAlbedo.b, 2.2f));
 	gAlbedo.a = 1.0f;
 
-    // store specular intensity in gAlbedoSpec's alpha component
-    // gAlbedoSpec.a = normalize(texture(material.texture_specular1, TexCoords).r);
+    
 }  
