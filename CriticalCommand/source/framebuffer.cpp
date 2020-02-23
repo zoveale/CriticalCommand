@@ -233,17 +233,12 @@ void Framebuffer::SetShadowMap(Shader shader) {
 }
 
 void Framebuffer::SetShadowCubemap(Shader shader) {
-  //wtf is it suppose to be
   glActiveTexture(GL_TEXTURE5 + depthMapTextureKey);
   glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
   shader.Use();
   shader.SetInt("shadowCastingPointLights[" +  std::to_string(depthMapTextureKey) + "]"
                  + ".shadowMap", 
                  5 + depthMapTextureKey);
-  std::string test = "shadowCastingPointLights[" + std::to_string(depthMapTextureKey) + "]"
-    + ".shadowMap";
-  //glBindTexture(GL_TEXTURE0, 0);
-  //glActiveTexture(GL_TEXTURE0);
 }
 
 Framebuffer::~Framebuffer() {

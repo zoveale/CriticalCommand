@@ -181,44 +181,40 @@ SpotLight::SpotLight(aiLight* light, aiNode* node) {
   position = glm::vec3(transformation[3][0],
                        transformation[3][1],
                        transformation[3][2]);
-;
+
   direction = glm::vec3(transformation[2][0],
-                        transformation[2][1],
+                        -1.0f,
                         transformation[2][2]);
- 
-  ambient = glm::vec3(light->mColorAmbient.r,
-                      light->mColorAmbient.g,
-                      light->mColorAmbient.b);
+  direction = glm::rotate(direction, -90.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+
   diffuse = glm::vec3(light->mColorDiffuse.r,
                       light->mColorDiffuse.g,
                       light->mColorDiffuse.b);
   
-  specular = glm::vec3(light->mColorSpecular.r,
-                       light->mColorSpecular.g,
-                       light->mColorSpecular.b);
-  //TODO:: light example in blender is much brighter than in opengl rendering
-  diffuse /= 1000.0f;
-  specular /= 1000.0f;
-  ambient /= 1000.0f;
 
-  //these all suck
-  constant = light->mAttenuationConstant;
-  linear = light->mAttenuationLinear;
-  quadratic = light->mAttenuationQuadratic;
-  
-  innerCut = glm::cos(light->mAngleInnerCone);
-  outerCut = glm::cos(light->mAngleOuterCone);
+  constant = 1.0f;
+  linear = 0.7f;
+  quadratic = 1.8f;
+  innerCut = glm::cos(glm::radians(12.5f));
+  outerCut = glm::cos(glm::radians(17.5f));
 }
 
 void SpotLight::SetFixedAttributes(Shader shader, unsigned int i) {
   std::string name = "spotLights[";
   name += std::to_string(i);
   name += "]";
+
   shader.SetVec3(name + ".position", this->position);
+  shader.SetVec3(name + ".direction", this->direction);
+
   shader.SetVec3(name + ".color", this->diffuse);
-  shader.SetFloat(name + ".radius", 7.0f);
+  
   shader.SetFloat(name + ".cutoff", this->innerCut);
   shader.SetFloat(name + ".outerCutoff", this->outerCut);
+
+  shader.SetFloat(name + ".constant", this->constant);
+  shader.SetFloat(name + ".linear", this->linear);
+  shader.SetFloat(name + ".quadratic", this->quadratic);
 }
 
 void SpotLight::SetDynamicAttributes(Shader shader, unsigned int i) {

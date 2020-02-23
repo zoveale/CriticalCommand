@@ -721,9 +721,8 @@ void Model::ReadNodeHierarchy(float animationTime, const aiNode* parent, glm::ma
     ReadNodeHierarchy(animationTime, parent->mChildren[i], globalTransform);
   }
 }
-
-
 /*----------------------------------------------------------------------------------------------*/
+
 /*----------------------------------------------------------------------------------------------*/
 void Model::LoadModelOnly(std::string const& path) {
   this->scene = importer.ReadFile(path,

@@ -24,7 +24,8 @@ void System::SystemInit(){
 
   
   //light stuff
-  shadowLights.LoadLights("resources/pbrTesting/scene/lights/lights.dae", sceneShadowLights);
+  shadowLights.LoadLights("resources/pbrTesting/scene/lights/shadowLights.dae", sceneShadowLights);
+  shadowLights.LoadLights("resources/pbrTesting/scene/lights/lights1.dae", sceneLights);
   lamp.Load("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
   pointLamp.LoadModel("resources/surface/pointLamp.dae");
   spotLight.LoadModel("resources/surface/spotLight.dae");
@@ -60,16 +61,18 @@ void System::SystemInit(){
   icoSphereObject.Load(&gComp, &pComp);
   ///
 
-  model = glm::mat4(1.0f);
+  model = glm::mat4(1.0f); 
   view = glm::mat4(1.0f);
   projection = glm::mat4(1.0f);
 
 
   pbrShader.Load("resources/shader/PBR/vert.glsl", "resources/shader/PBR/frag.glsl");
-  sceneLights.SetFixedShadowAttributes(pbrShader);
+  sceneShadowLights.SetFixedShadowAttributes(pbrShader);
+  sceneLights.SetFixedAttributes(pbrShader);
+
   pbrShader.Use();
-  pbrShader.SetVec3("camPos", player.position);
-  
+  pbrShader.SetVec3("camPos", player.position); 
+   
   //Shadow Stuff
   depthShadowCubeShader.Load("resources/shader/Shadow/DepthCubemap/vert.glsl",
                              "resources/shader/Shadow/DepthCubemap/frag.glsl",
