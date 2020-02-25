@@ -70,6 +70,7 @@ void System::SystemInit(){
   playerModel.LoadModel("resources/pbrTesting/models/icoSphere/ico.dae");
   playerGraphicsComp.Load(&icoSphereModel, &multipleRenderTargetShader);
   playerPhysicsComp.Load(&scenePhysics);
+  playerInputComp.Load(); //temp function
   playerObject.Load(&playerGraphicsComp, &playerPhysicsComp, &playerInputComp);
   ///
 
