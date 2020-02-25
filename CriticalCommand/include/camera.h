@@ -38,11 +38,11 @@ private:
   const float ZOOM = 45.0f;
   inline void SetView();
 public:
-  glm::vec3 position;
-  glm::vec3 front;
-  glm::vec3 right; //right angle axis
-  glm::vec3 up;
-  glm::vec3 worldUp;
+  static glm::vec3 position;
+  static glm::vec3 front;
+  static glm::vec3 right; //right angle axis
+  static glm::vec3 up;
+  static glm::vec3 worldUp;
 
   float mouseX;
   float mouseY;
