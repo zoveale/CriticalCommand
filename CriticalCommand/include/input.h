@@ -26,7 +26,7 @@ private:
   unsigned int timer;
 public:
 
-  KEY_STATE KEY;
+  static KEY_STATE KEY;
   double lastX, lastY, xpos, ypos, xoffset, yoffset;
   Input();
   void StartUp(GLFWwindow* window);

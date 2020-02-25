@@ -1,5 +1,6 @@
 #include "input.h"
 
+KEY_STATE Input::KEY;
 
 Input::Input() {
   lastX = 0.0;

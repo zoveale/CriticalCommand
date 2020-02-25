@@ -49,7 +49,7 @@ private:
 
 class IcoSpherePhysicsComponent : public PhysicsComponent{
 public:
-  IcoSpherePhysicsComponent() {}
+  IcoSpherePhysicsComponent() : root(nullptr), index(unsigned int(0)) {}
 
   void Load(physx::Physics* rootPhysics) {
     this->root = rootPhysics;
@@ -67,4 +67,43 @@ private:
   unsigned int index;
 };
 
+class PlayerPhysicsComponent : public PhysicsComponent {
+public:
+  PlayerPhysicsComponent() : root(nullptr), index(unsigned int(0)) {}
+
+  void Load(physx::Physics* rootPhysics) {
+    this->root = rootPhysics;
+    index = 0;
+  }
+  virtual void SetUp(GameObject& object) {
+    //index = root->AddDynamicSphereActor(object.position, 2.0f);
+  }
+
+  virtual void Update(GameObject& object) {
+    //object.modelMatrix = root->GetAPose(index);
+  }
+private:
+  physx::Physics* root;
+  unsigned int index;
+};
+
+class DefaultPhysicsComponent : public PhysicsComponent {
+public:
+  DefaultPhysicsComponent() : root(nullptr), index(unsigned int(0)) {}
+
+  void Load(physx::Physics* rootPhysics) {
+    this->root = rootPhysics;
+    index = 0;
+  }
+  virtual void SetUp(GameObject& object) {
+    index = root->AddDynamicSphereActor(object.position, 2.0f);
+  }
+
+  virtual void Update(GameObject& object) {
+    object.modelMatrix = root->GetAPose(index);
+  }
+private:
+  physx::Physics* root;
+  unsigned int index;
+};
 #endif // !VEALE_AA1FE13E_F758_453D_B604_EF8EF26A9833_H

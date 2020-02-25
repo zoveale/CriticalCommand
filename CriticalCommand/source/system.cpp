@@ -25,7 +25,7 @@ void System::SystemInit(){
   
   //light stuff
   shadowLights.LoadLights("resources/pbrTesting/scene/lights/shadowLights.dae", sceneShadowLights);
-  shadowLights.LoadLights("resources/pbrTesting/scene/lights/lights1.dae", sceneLights);
+  shadowLights.LoadLights("resources/pbrTesting/scene/lights/lights.dae", sceneLights);
   lamp.Load("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
   pointLamp.LoadModel("resources/surface/pointLamp.dae");
   spotLight.LoadModel("resources/surface/spotLight.dae");
@@ -45,8 +45,9 @@ void System::SystemInit(){
   //scene.LoadModel("resources/pbrTesting/models/sword/sword.dae");
   
   ///
-
- 
+  //skybox
+  skyBox.Load("resources/cubemap/shaders/vertex.glsl", "resources/cubemap/shaders/fragment.glsl");
+  skyBoxOne.Load(&skyBox);
 
   //gBuffer
   multipleRenderTargetShader.Load("resources/shader/gBuffer/vert.glsl" , "resources/shader/gBuffer/frag.glsl");
@@ -55,10 +56,21 @@ void System::SystemInit(){
 
   //Objects
   icoSphereModel.LoadModel("resources/pbrTesting/models/icoSphere/ico.dae");
-  
   gComp.Load(&icoSphereModel, &multipleRenderTargetShader);
   pComp.Load(&scenePhysics);
   icoSphereObject.Load(&gComp, &pComp);
+  ///
+  //player object
+  /*
+  Model playerModel;
+  PlayerGraphicsComponent playerGraphicsComp;
+  PlayerPhysicsComponent playerPhysicsComp;
+  PlayerInputComponent playerInputComp;
+  */
+  playerModel.LoadModel("resources/pbrTesting/models/icoSphere/ico.dae");
+  playerGraphicsComp.Load(&icoSphereModel, &multipleRenderTargetShader);
+  playerPhysicsComp.Load(&scenePhysics);
+  playerObject.Load(&playerGraphicsComp, &playerPhysicsComp, &playerInputComp);
   ///
 
   model = glm::mat4(1.0f); 
@@ -144,15 +156,15 @@ void System::GameLoop(){
 
     //input.IncrementDecrement(testBool);
     //if (testBool)
-    scenePhysics.StepPhysics(deltaRate * 0.1);
+    scenePhysics.StepPhysics(deltaRate * 0.1f);
 
 
     player.HandleInput(input, deltaTime);
 
+    
     model = glm::mat4(1.0f);
     view = glm::mat4(1.0f);
     view = firstPerson.View();
-    
     ///
 
     render.ClearScreen();
@@ -160,13 +172,14 @@ void System::GameLoop(){
    
     player.Update(deltaTime);
     icoSphereObject.Update(deltaTime, projection * view);
-
+    playerObject.Update(deltaTime, projection * view);
    
 
     gFrameBuffer.BindGeometryBuffer();
-    glViewport(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT);
+    glViewport(0, 0, (GLsizei)Render::Screen::WIDTH, (GLsizei)Render::Screen::HEIGHT);
     render.ClearScreen();
     glDisable(GL_STENCIL_TEST);
+    
     multipleRenderTargetShader.Use();
     multipleRenderTargetShader.SetMat4("projection", projection);
     multipleRenderTargetShader.SetMat4("view", view);
@@ -176,6 +189,7 @@ void System::GameLoop(){
       scene[i].Draw(multipleRenderTargetShader);
     }
     icoSphereObject.Draw();
+    playerObject.Draw();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glEnable(GL_STENCIL_TEST);
@@ -191,8 +205,8 @@ void System::GameLoop(){
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, gFrameBuffer.GetGeometryBufferFBO());
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBlitFramebuffer(0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT,
-      0, 0, (float)Render::Screen::WIDTH, (float)Render::Screen::HEIGHT,
+    glBlitFramebuffer(0, 0, (GLint)Render::Screen::WIDTH, (GLint)Render::Screen::HEIGHT,
+      0, 0, (GLint)Render::Screen::WIDTH, (GLint)Render::Screen::HEIGHT,
       GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
@@ -211,12 +225,12 @@ void System::GameLoop(){
     for (unsigned int i = 0; i < sceneShadowLights.NumSpotLights(); i++) {
       model = sceneShadowLights.GetSpotLightTransformation(i);
       model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-      lamp.SetVec3("lampColor", sceneShadowLights.GetSpotLightColor(i));
+      lamp.SetVec3("lampColor", sceneShadowLights.GetSpotLightColor(i) * 0.010f);
       lamp.SetMat4("PVM", projection * view * model);
       spotLight.DrawModelOnly(lamp);
     }
+    //skyBoxOne.Draw(view, projection);
     glStencilMask(0xFF);
-
 
     /* Swap front and back buffers */
     render.Display();

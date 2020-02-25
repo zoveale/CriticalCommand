@@ -14,7 +14,7 @@ const unsigned int MAX_SHADOW_CASTING_POINT_LIGHTS = 13;
 const unsigned int MAX_POINT_LIGHTS = 100;
 
 const unsigned int MAX_SHADOW_CASTING_SPOT_LIGHTS = 1;
-const unsigned int MAX_SPOT_LIGHTS = 2;
+const unsigned int MAX_SPOT_LIGHTS = 100;
 
 	
 struct Material{
@@ -106,7 +106,8 @@ void main(){
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow) 
 	//TODO:: if no metallic, F0 = vec3(0.04f), if metallic, F0 = albedo
-    vec3 F0 = vec3(material.albedo); 
+	//vec3 F0 = (material.metallic >= 0.04f) ?   vec3(0.04f) : material.albedo ;
+    vec3 F0 = material.albedo; 
     F0 = mix(F0, material.albedo, material.metallic);
 
 	 // ambient lighting (note that the next IBL tutorial will replace 
@@ -250,7 +251,7 @@ void SpotLightCalculator(in SpotLight light[MAX_SPOT_LIGHTS],
 		//specular *= intensity;
 		
 		// kS is equal to Fresnel
-		vec3 kS = F;// * intensity;
+		vec3 kS = F ;// * intensity;
 		// for energy conservation, the diffuse and specular light can't
 		// be above 1.0 (unless the surface emits light); to preserve this
 		// relationship the diffuse component (kD) should equal 1.0 - kS.
@@ -265,7 +266,7 @@ void SpotLightCalculator(in SpotLight light[MAX_SPOT_LIGHTS],
 		
 		// add to outgoing radiance Lo
 		// note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
-		reflectance += (kD * mat.albedo / PI + specular * radiance * NdotL) * intensity ; 
+		reflectance += (kD * mat.albedo / (PI + specular * intensity) * radiance * intensity * NdotL);  
 	}  
 }
 float DistributionGGX(vec3 N, vec3 H, float roughness){

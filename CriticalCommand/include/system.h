@@ -13,8 +13,9 @@
 
 //TODO:: finish all component classes
 #include "objects.h"
-#include "graphics.h"
+#include "graphicsComponent.h"
 #include "physicsComponent.h"
+#include "inputComponent.h"
 
 #include "gtx/matrix_decompose.hpp"
 #include "gtc/matrix_transform.hpp"
@@ -23,6 +24,7 @@
 
 const unsigned int SHADOW_CASTING_POINT_LIGHTS = 13;
 const unsigned int SHADOW_CASTING_SPOT_LIGHTS = 1;
+
 class System {
 private:
   Player player;
@@ -30,6 +32,8 @@ private:
   Render render;
   Input input;
 
+  Shader skyBox;
+  Skybox skyBoxOne;
 
   Shader lamp;
 
@@ -58,6 +62,11 @@ private:
   Framebuffer gFrameBuffer;
   Shader multipleRenderTargetShader;
 
+  GameObject playerObject;
+  Model playerModel;
+  PlayerGraphicsComponent playerGraphicsComp;
+  PlayerPhysicsComponent playerPhysicsComp;
+  PlayerInputComponent playerInputComp;
 
   //const float near_plane = 1.0f, far_plane = 115.0f;
   //glm::mat4 lightProjection;

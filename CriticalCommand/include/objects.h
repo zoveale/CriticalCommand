@@ -15,9 +15,11 @@ class InputComponent;
 //Probably rename DumbGameObject
 class GameObject {
 public:
-  float dt;
+  float deltaTime;
   float velocity;
   float acc;
+  glm::vec3 front;
+  glm::vec3 right;
   glm::vec3 position;
   glm::vec3 direction;
   glm::mat4 modelMatrix;

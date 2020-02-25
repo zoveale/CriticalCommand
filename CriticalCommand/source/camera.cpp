@@ -1,11 +1,10 @@
 #include "camera.h"
+
 glm::vec3 FirstPerson::position;
 glm::vec3 FirstPerson::front;
 glm::vec3 FirstPerson::right;
 glm::vec3 FirstPerson::up;
 glm::vec3 FirstPerson::worldUp;
-
-
 
 inline void FirstPerson::SetView() {
   

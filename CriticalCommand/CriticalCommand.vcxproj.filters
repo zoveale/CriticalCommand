@@ -125,13 +125,16 @@
     <ClInclude Include="include\objects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\graphics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\physicsComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphicsComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\inputComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
