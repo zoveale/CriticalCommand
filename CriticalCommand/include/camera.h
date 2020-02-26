@@ -9,8 +9,8 @@
 #include "geometric.hpp"
 
 class Player;
-
 class GameObject;
+
 //class Camera;
 class FirstPerson;
 class ThirdPerson;
@@ -28,7 +28,8 @@ public:
   virtual void Update(Player& player) = 0;
   virtual void Update(GameObject& player) = 0;
   virtual void StartUp() = 0;
-  
+  virtual glm::mat4 View() = 0;
+
   static Overview overview;
   static ThirdPerson thirdPerson;
 };

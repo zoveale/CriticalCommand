@@ -67,6 +67,7 @@ private:
   PlayerPhysicsComponent playerPhysicsComp;
   PlayerInputComponent playerInputComp;
 
+  Camera* cameraState;
   //const float near_plane = 1.0f, far_plane = 115.0f;
   //glm::mat4 lightProjection;
   //glm::vec3 pointLightPos;
