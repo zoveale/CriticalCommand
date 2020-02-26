@@ -10,7 +10,7 @@ StrafeLeftState InputState::left;
 StrafeRightState InputState::right;
 ///
 //player camera, FIXME:: add more, "topleft" "topright" etc...
-FirstPerson Camera::firstPerson;
+//FirstPerson Camera::firstPerson;
 //PlayerCamera Camera::firstPerson;
 //PlayerCamera Camera::thirdPerson;
 //PlayerCamera Camera::TopDown;
@@ -37,9 +37,9 @@ void Player::StartUp() {
   dt = 0.0f;
   acc = 1.0f;
 
-  camera = &Camera::firstPerson;
+  //camera = &Camera::firstPerson;
   state = &InputState::idel;
-  camera->Update(*this);
+  //camera->Update(*this);
   state->Update(*this);
 }
 
@@ -60,7 +60,7 @@ void Player::Update(float dt) {
   //phyics->update(*this);
   //graphics->update(*this);
   this->dt = dt;
-  camera->Update(*this);
+  //camera->Update(*this);
   state->Update(*this);
 }
 

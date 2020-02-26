@@ -188,6 +188,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\Cameras\overview.cpp" />
+    <ClCompile Include="source\Cameras\thirdPerson.cpp" />
     <ClCompile Include="source\cubemap.cpp" />
     <ClCompile Include="source\framebuffer.cpp" />
     <ClCompile Include="source\input.cpp" />
@@ -197,7 +199,7 @@
     <ClCompile Include="source\objects.cpp" />
     <ClCompile Include="source\physics.cpp" />
     <ClCompile Include="source\player.cpp" />
-    <ClCompile Include="source\camera.cpp" />
+    <ClCompile Include="source\Cameras\firstPerson.cpp" />
     <ClCompile Include="source\render.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\shader.cpp" />

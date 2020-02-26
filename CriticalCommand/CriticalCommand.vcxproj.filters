@@ -27,9 +27,6 @@
     <ClCompile Include="source\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -61,6 +58,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\objects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Cameras\overview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Cameras\thirdPerson.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Cameras\firstPerson.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

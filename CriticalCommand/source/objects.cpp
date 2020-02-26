@@ -7,7 +7,7 @@ GameObject::GameObject() {
   this->graphics = nullptr;
   this->physics = nullptr;
   this->input = nullptr;
-
+  look = glm::vec2(0.0f);
   deltaTime = 0.0f;
   front = glm::vec3(0.0f);
   position = glm::vec3(0.0f);

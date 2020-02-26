@@ -8,21 +8,20 @@ glm::vec3 FirstPerson::up;
 glm::vec3 FirstPerson::worldUp;
 
 
-inline void FirstPerson::SetView() {
-
+FirstPerson::FirstPerson() {
+  position = glm::vec3(0.0f);
   front = glm::vec3(0.0f);
-  //calculate the new front vector
-  front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-  front.y = sin(glm::radians(pitch));
-  front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-  front = glm::normalize(front);
-
-  //calculate the right and up vector
-  right = glm::normalize(glm::cross(front, worldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-  up = glm::normalize(glm::cross(right, front));
+  right = glm::vec3(0.0f);
+  up = glm::vec3(0.0f);
+  worldUp = glm::vec3(0.0f);
+  yaw = 0.0f;
+  pitch = 0.0f;
+  sensitivity = 0.0f;
+  mouseX = 0;
+  mouseY = 0;
 }
 
-FirstPerson::FirstPerson() {
+void FirstPerson::StartUp() {
   position = glm::vec3(0.0f);
   front = glm::vec3(0.0f, 0.0f, -1.0f);
   right = glm::vec3(0.0f);
@@ -32,7 +31,8 @@ FirstPerson::FirstPerson() {
   pitch = PITCH;
   sensitivity = SENSITIVITY;
 
-  SetView();
+  //CAMERA_FUNCTIONS::SET_FRONT_VECTOR(*this);
+
 }
 
 
@@ -59,7 +59,7 @@ void FirstPerson::Update(Player& player) {
   //}
 
   // Update Front, Right and Up Vectors using the updated Euler angles
-  SetView();
+  //CAMERA_FUNCTIONS::SET_FRONT_VECTOR(*this);
   player.front = this->front;
   player.right = this->right;
 }
@@ -69,4 +69,17 @@ glm::mat4 FirstPerson::View() {
  // position.y = 0.0f;
   ///
   return glm::lookAt(position, (position + front), up);
+}
+
+void CAMERA_FUNCTIONS::SET_FRONT_VECTOR(FirstPerson& camera) {
+  camera.front = glm::vec3(0.0f);
+  //calculate the new front vector
+  camera.front.x = glm::cos(glm::radians(camera.yaw)) * glm::cos(glm::radians(camera.pitch));
+  camera.front.y = glm::sin(glm::radians(camera.pitch));
+  camera.front.z = glm::sin(glm::radians(camera.yaw)) * glm::cos(glm::radians(camera.pitch));
+  camera.front = glm::normalize(camera.front);
+
+  //calculate the right and up vector
+  camera.right = glm::normalize(glm::cross(camera.front, camera.worldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+  camera.up = glm::normalize(glm::cross(camera.right, camera.front));
 }

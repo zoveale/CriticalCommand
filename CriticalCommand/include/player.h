@@ -7,7 +7,7 @@
 
 #include "input.h"
 
-class Camera;
+//class Camera;
 class InputState;
 //class Input;
 
@@ -42,7 +42,7 @@ public:
   ///
   //physx::Physics* physics;
   InputState* state;
-  Camera* camera;
+  //Camera* camera;
   //Graphics* graphic
   //model* draw
 

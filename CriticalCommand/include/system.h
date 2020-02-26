@@ -28,7 +28,6 @@ const unsigned int SHADOW_CASTING_SPOT_LIGHTS = 1;
 class System {
 private:
   Player player;
-  FirstPerson firstPerson;
   Render render;
   Input input;
 

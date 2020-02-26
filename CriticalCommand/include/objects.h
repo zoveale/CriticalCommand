@@ -22,7 +22,9 @@ public:
   glm::vec3 right;
   glm::vec3 position;
   glm::vec3 direction;
+  glm::vec2 look;
   glm::mat4 modelMatrix;
+
   GameObject();
   //TODO:: future pointers
   void Load(GraphicsComponent* graphics, PhysicsComponent* physics, InputComponent* input = nullptr);

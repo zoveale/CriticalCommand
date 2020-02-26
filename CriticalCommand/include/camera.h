@@ -13,30 +13,28 @@ class Player;
 //class GameObject;
 //class Camera;
 class FirstPerson;
-//class OverviewCamera;
+class ThirdPerson;
+class Overview;
 
-//namespace CAMERA_FUNCTIONS {
-//  inline void SetView(FirstPerson &camera);
-//}
+namespace CAMERA_FUNCTIONS {
+  inline void SET_FRONT_VECTOR(FirstPerson &camera);
+  inline void SET_FRONT_VECTOR(ThirdPerson &camera);
+  inline void SET_FRONT_VECTOR(Overview &camera);
+}
 
 class Camera {
 public:
-  //Camera();
+  //Camera() {}
   virtual void Update(Player& player) = 0;
-  static FirstPerson firstPerson;
+  virtual void StartUp() = 0;
+  static Overview overview;
 };
 
 /*
 
 */
 class FirstPerson : public Camera {
-private:
-  const float YAW = -90.0f;
-  const float PITCH = 0.0f;
-  const float SPEED = 2.5f;
-  const float SENSITIVITY = 0.08f;
-  const float ZOOM = 45.0f;
-  inline void SetView();
+
 public:
   static glm::vec3 position;
   static glm::vec3 front;
@@ -44,39 +42,84 @@ public:
   static glm::vec3 up;
   static glm::vec3 worldUp;
 
-  float mouseX;
-  float mouseY;
-  //int* mouseScrollValue;
-  //mouse stuff
   float yaw;
   float pitch;
   float sensitivity;
-  ///
 
-  //private functions
-public:
-  ///
-  
+  float mouseX;
+  float mouseY;
+ 
   FirstPerson();
-  void SetUp();
+  void StartUp();
   void Update(Player& player);
   glm::mat4 View();
+private:
+  const float YAW = -90.0f;
+  const float PITCH = 0.0f;
+  const float SPEED = 2.5f;
+  const float SENSITIVITY = 0.08f;
+  const float ZOOM = 45.0f;
+
 };
 
-//class ThirdPerson : public Camera {
-//public:
-//  glm::vec3 up;
-//  ThirdPerson();
-//  void SetUp();
-//  void Update(GameObject& object);
-//  glm::mat4 View();
-//};
-//
-//class OverviewCamera : public Camera {
-//  /*
-//  
-//  */
-//};
+class ThirdPerson : public Camera {
 
+public:
+  static glm::vec3 position;
+  static glm::vec3 front;
+  static glm::vec3 right; //right angle axis
+  static glm::vec3 up;
+  static glm::vec3 worldUp;
+
+  float yaw;
+  float pitch;
+  float sensitivity;
+
+  float mouseX;
+  float mouseY;
+
+  ThirdPerson();
+  void StartUp();
+  void Update(Player& player);
+  glm::mat4 View();
+
+private:
+  const float YAW = -90.0f;
+  const float PITCH = 0.0f;
+  const float SPEED = 2.5f;
+  const float SENSITIVITY = 0.08f;
+  const float ZOOM = 45.0f;
+
+};
+
+class Overview : public Camera {
+
+public:
+  Overview();
+
+  static glm::vec3 position;
+  static glm::vec3 front;
+  static glm::vec3 right; //right angle axis
+  static glm::vec3 up;
+  static glm::vec3 worldUp;
+
+  float yaw;
+  float pitch;
+  float sensitivity;
+
+  float mouseX;
+  float mouseY;
+
+  void StartUp();
+  void Update(Player& player);
+  glm::mat4 View();
+private:
+  const float YAW = -90.0f;
+  const float PITCH = 0.0f;
+  const float SPEED = 2.5f;
+  const float SENSITIVITY = 0.08f;
+  const float ZOOM = 45.0f;
+
+};
 #endif //CAMERA_H
 
