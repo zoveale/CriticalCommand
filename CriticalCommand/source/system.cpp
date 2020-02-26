@@ -6,7 +6,7 @@ static physx::Physics scenePhysics;
 static LightFactory sceneShadowLights;
 
 Overview Camera::overview;
-
+ThirdPerson Camera::thirdPerson;
 System::System() {
   model = glm::mat4(1.0f);
   view = glm::mat4(1.0f);
@@ -17,7 +17,7 @@ void System::SystemInit(){
   render.StartUp();
   input.StartUp(render.Window());
   player.StartUp();
-  Camera::overview.StartUp();
+  Camera::thirdPerson.StartUp();
   physx::Physics::StartUp();
   scenePhysics.TestA();
   // \ or vise versa ?
@@ -167,13 +167,13 @@ void System::GameLoop(){
 
     model = glm::mat4(1.0f);
     view = glm::mat4(1.0f);
-    view = Camera::overview.View();
+    view = Camera::thirdPerson.View();
 
 
     render.ClearScreen();
 
     player.Update(deltaTime);
-    Camera::overview.Update(player);
+    Camera::thirdPerson.Update(playerObject);
 
     
     ///

@@ -1,11 +1,12 @@
 #include "camera.h"
-#include "player.h"
+#include "objects.h"
 
 glm::vec3 ThirdPerson::position;
 glm::vec3 ThirdPerson::front;
 glm::vec3 ThirdPerson::right;
 glm::vec3 ThirdPerson::up;
 glm::vec3 ThirdPerson::worldUp;
+glm::vec3 ThirdPerson::look;
 
 
 ThirdPerson::ThirdPerson() {
@@ -36,8 +37,9 @@ void ThirdPerson::StartUp() {
 }
 
 
-void ThirdPerson::Update(Player& player) {
-  this->position = player.position;
+void ThirdPerson::Update(GameObject& player) {
+  this->position = player.position - glm::vec3(8.0f, -12.0f, -1.0f);
+  this->look = player.position -glm::vec3(0.0f, -1.0f, -1.0f);
   this->front = player.front;
   this->right = player.right;
 
@@ -68,7 +70,7 @@ glm::mat4 ThirdPerson::View() {
   //keep camera on the xz plane
  // position.y = 0.0f;
   ///
-  return glm::lookAt(position, (position + front), up);
+  return glm::lookAt(position, (look), up);
 }
 
 void CAMERA_FUNCTIONS::SET_FRONT_VECTOR(ThirdPerson& camera) {

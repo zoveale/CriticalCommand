@@ -10,7 +10,7 @@
 
 class Player;
 
-//class GameObject;
+class GameObject;
 //class Camera;
 class FirstPerson;
 class ThirdPerson;
@@ -26,8 +26,11 @@ class Camera {
 public:
   //Camera() {}
   virtual void Update(Player& player) = 0;
+  virtual void Update(GameObject& player) = 0;
   virtual void StartUp() = 0;
+  
   static Overview overview;
+  static ThirdPerson thirdPerson;
 };
 
 /*
@@ -52,6 +55,7 @@ public:
   FirstPerson();
   void StartUp();
   void Update(Player& player);
+  void Update(GameObject& player) {}
   glm::mat4 View();
 private:
   const float YAW = -90.0f;
@@ -66,6 +70,7 @@ class ThirdPerson : public Camera {
 
 public:
   static glm::vec3 position;
+  static glm::vec3 look;
   static glm::vec3 front;
   static glm::vec3 right; //right angle axis
   static glm::vec3 up;
@@ -80,7 +85,8 @@ public:
 
   ThirdPerson();
   void StartUp();
-  void Update(Player& player);
+  void Update(Player& player) {}
+  void Update(GameObject& player);
   glm::mat4 View();
 
 private:
@@ -112,6 +118,7 @@ public:
 
   void StartUp();
   void Update(Player& player);
+  void Update(GameObject& player) {}
   glm::mat4 View();
 private:
   const float YAW = -90.0f;

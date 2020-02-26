@@ -28,16 +28,16 @@ public:
   virtual void Update(GameObject& object) {
     
     if (Input::KEY.W) {
-      object.position += object.front * (object.deltaTime * object.velocity);
+      object.position += object.front * ((object.deltaTime * object.velocity) + 0.5f * 0.25f * object.deltaTime * object.deltaTime);
     }
     else if (Input::KEY.S) {
-      object.position -= object.front * (object.deltaTime * object.velocity);
+      object.position -= object.front * ((object.deltaTime * object.velocity) + 0.5f * 0.25f * object.deltaTime * object.deltaTime);
     }
     else if (Input::KEY.A) {
-      object.position -= object.right * (object.deltaTime * object.velocity);
+      object.position -= object.right * ((object.deltaTime * object.velocity) + 0.5f * 0.25f * object.deltaTime * object.deltaTime);
     }
     else if (Input::KEY.D) {
-      object.position += object.right * (object.deltaTime * object.velocity);
+      object.position += object.right * ((object.deltaTime * object.velocity) + 0.5f * 0.25f * object.deltaTime * object.deltaTime);
     }
 
   }
