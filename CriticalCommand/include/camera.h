@@ -71,7 +71,7 @@ class ThirdPerson : public Camera {
 
 public:
   static glm::vec3 position;
-  static glm::vec3 look;
+  static glm::vec3 lookAtPosition;
   static glm::vec3 front;
   static glm::vec3 right; //right angle axis
   static glm::vec3 up;
@@ -91,7 +91,8 @@ public:
   glm::mat4 View();
 
 private:
-  const float YAW = -90.0f;
+  const float distanceOffset = 15.0f;
+  const float YAW = 90.0f;
   const float PITCH = 0.0f;
   const float SPEED = 2.5f;
   const float SENSITIVITY = 0.08f;

@@ -112,7 +112,7 @@ void main(){
 
 	 // ambient lighting (note that the next IBL tutorial will replace 
     // this ambient lighting with environment lighting).
-    vec3 ambient = vec3(0.001) * material.albedo * material.ao;
+    vec3 ambient = vec3(0.1) * material.albedo * material.ao;
 	//vec3 ambient = vec3(0.0);
     //  reflectance equation
     vec3 Lo = vec3(0.0);

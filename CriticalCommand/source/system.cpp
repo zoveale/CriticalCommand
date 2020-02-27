@@ -21,7 +21,7 @@ void System::SystemInit(){
 
   //Camera::thirdPerson
   //Camera::overview
-  cameraState = &Camera::overview;
+  cameraState = &Camera::thirdPerson;
   cameraState->StartUp();
 
   physx::Physics::StartUp();
@@ -179,7 +179,7 @@ void System::GameLoop(){
     render.ClearScreen();
 
     player.Update(deltaTime);
-    cameraState->Update(player);
+    cameraState->Update(playerObject);
 
     
     ///

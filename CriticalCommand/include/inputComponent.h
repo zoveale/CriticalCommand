@@ -26,22 +26,25 @@ public:
   //make a state machine? 
 
   virtual void Update(GameObject& object) {
+    object.look.x = (float)Input::xoffset;
+    object.look.y = (float)Input::yoffset;
     
     if (Input::KEY.W) {
       object.position += object.front * (object.deltaTime * object.velocity);
     }
-    else if (Input::KEY.S) {
+    if (Input::KEY.S) {
       object.position -= object.front * (object.deltaTime * object.velocity);
     }
-    else if (Input::KEY.A) {
+    if (Input::KEY.A) {
       object.position -= object.right * (object.deltaTime * object.velocity);
     }
-    else if (Input::KEY.D) {
+    if (Input::KEY.D) {
       object.position += object.right * (object.deltaTime * object.velocity);
     }
 
   }
 };
+
 class DefaultInputComponent : public InputComponent {
 public:
   //DefaultInputComponent() {}

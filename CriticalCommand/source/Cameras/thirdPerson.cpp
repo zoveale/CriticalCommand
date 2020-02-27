@@ -6,7 +6,7 @@ glm::vec3 ThirdPerson::front;
 glm::vec3 ThirdPerson::right;
 glm::vec3 ThirdPerson::up;
 glm::vec3 ThirdPerson::worldUp;
-glm::vec3 ThirdPerson::look;
+glm::vec3 ThirdPerson::lookAtPosition;
 
 
 ThirdPerson::ThirdPerson() {
@@ -24,64 +24,79 @@ ThirdPerson::ThirdPerson() {
 
 void ThirdPerson::StartUp() {
   position = glm::vec3(0.0f);
-  front = glm::vec3(0.0f, 0.0f, -1.0f);
+  front = glm::vec3(0.0f);
   right = glm::vec3(0.0f);
   up = glm::vec3(0.0f, 1.0f, 0.0f);
   worldUp = up;
-  yaw = YAW - 150.0f;
+  yaw = YAW;
   pitch = PITCH;
   sensitivity = SENSITIVITY;
 
   //CAMERA_FUNCTIONS::SET_FRONT_VECTOR(*this);
-
 }
 
 
-void ThirdPerson::Update(GameObject& player) {
-  this->position = player.position - glm::vec3(8.0f, -12.0f, -1.0f);
-  this->look = player.position -glm::vec3(0.0f, -1.0f, -1.0f);
-  this->front = player.front;
-  this->right = player.right;
+void ThirdPerson::Update(GameObject& object) {
+  //this->front = object.front;
+  this->mouseX = object.look.x;
+  this->mouseY = object.look.y;
 
-  this->mouseX = player.look.x;
-  this->mouseY = player.look.y;
+  float yawChange = this->mouseX * sensitivity;
+  float pitchChange = this->mouseY * sensitivity;
 
-  this->mouseX *= sensitivity;
-  this->mouseY *= sensitivity;
+  yaw -= yawChange;
+  pitch -= pitchChange;
 
-  yaw += this->mouseX;
-  pitch += this->mouseY;
+
+  
+  float offsetX = distanceOffset * glm::sin(glm::radians(yaw));
+  this->position.x = object.position.x - offsetX;
+
+  float offsetZ = distanceOffset * glm::cos(glm::radians(yaw));
+  this->position.z = object.position.z - offsetZ;
+
+  this->position.y = object.position.y + distanceOffset;
+
+
+  this->lookAtPosition = object.position - glm::vec3(0.0f, -1.0f, -1.0f);
+  this->front = glm::vec3(object.front.x, 0.0f, object.front.z);
+  this->right = glm::vec3(object.right.x, 0.0f, object.right.z);
+
+
+  //cool fixed cam positon effect
+  //this->position.x *= glm::sin(glm::radians(pitch));
+  //this->position.z *= glm::sin(glm::radians(pitch));
 
   // Make sure that when pitch is out of bounds, screen doesn't get flipped
   //if (constrainPitch) {
-  if (pitch > 89.0f)
+ /* if (pitch > 89.0f)
     pitch = 89.0f;
   if (pitch < -89.0f)
-    pitch = -89.0f;
+    pitch = -89.0f;*/
   //}
 
   // Update Front, Right and Up Vectors using the updated Euler angles
-  //CAMERA_FUNCTIONS::SET_FRONT_VECTOR(*this);
-  player.front = this->front;
-  player.right = this->right;
+  CAMERA_FUNCTIONS::SET_FRONT_VECTOR(*this);
+  object.front = glm::vec3(this->front.x, 0.0f, -this->front.z);
+  object.right = glm::vec3(-this->right.x, 0.0f, this->right.z);
 }
 
 glm::mat4 ThirdPerson::View() {
   //keep camera on the xz plane
  // position.y = 0.0f;
   ///
-  return glm::lookAt(position, (look), up);
+  return glm::lookAt(position, (lookAtPosition), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void CAMERA_FUNCTIONS::SET_FRONT_VECTOR(ThirdPerson& camera) {
   camera.front = glm::vec3(0.0f);
   //calculate the new front vector
-  camera.front.x = glm::cos(glm::radians(camera.yaw)) * glm::cos(glm::radians(camera.pitch));
+  camera.front.x = glm::cos(glm::radians(camera.yaw - 90.0f)) * glm::cos(glm::radians(camera.pitch));
   camera.front.y = glm::sin(glm::radians(camera.pitch));
-  camera.front.z = glm::sin(glm::radians(camera.yaw)) * glm::cos(glm::radians(camera.pitch));
+  camera.front.z = glm::sin(glm::radians(camera.yaw - 90.0f)) * glm::cos(glm::radians(camera.pitch));
   camera.front = glm::normalize(camera.front);
 
   //calculate the right and up vector
   camera.right = glm::normalize(glm::cross(camera.front, camera.worldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-  camera.up = glm::normalize(glm::cross(camera.right, camera.front));
+  //camera.up = glm::normalize(glm::cross(camera.right, camera.front));
 }

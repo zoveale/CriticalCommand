@@ -27,7 +27,9 @@ private:
 public:
 
   static KEY_STATE KEY;
-  double lastX, lastY, xpos, ypos, xoffset, yoffset;
+  double lastX, lastY, xpos, ypos;
+  static double  xoffset, yoffset;
+
   Input();
   void StartUp(GLFWwindow* window);
 

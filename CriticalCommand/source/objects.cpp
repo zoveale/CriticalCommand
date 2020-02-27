@@ -25,6 +25,7 @@ void GameObject::Load(GraphicsComponent* g, PhysicsComponent* p, InputComponent*
   if (input == nullptr) {
     input = new DefaultInputComponent();
   }
+ 
   deltaTime = 0.0f;
   right = glm::vec3(0.0f, 0.0f, 1.0f);
   position = glm::vec3(0.0f);
@@ -33,6 +34,7 @@ void GameObject::Load(GraphicsComponent* g, PhysicsComponent* p, InputComponent*
   velocity = 10.0f;
   acc = 2.0f;
   modelMatrix = glm::mat4(1.0f);
+
   //TODO:: fix this workaround
   //Graphics needs to be first to set up proper position
   graphics->SetUp(*this);
