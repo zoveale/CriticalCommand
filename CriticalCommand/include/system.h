@@ -13,9 +13,9 @@
 
 //TODO:: finish all component classes
 #include "objects.h"
-#include "graphicsComponent.h"
-#include "physicsComponent.h"
-#include "inputComponent.h"
+#include "../include/Components/Graphics/graphicsComponent.h"
+#include "../include/Components/Physics/physicsComponent.h"
+#include "../include/Components/Input/inputComponent.h"
 
 #include "gtx/matrix_decompose.hpp"
 #include "gtc/matrix_transform.hpp"

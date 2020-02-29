@@ -1,7 +1,7 @@
 #include "objects.h"
-#include "graphicsComponent.h"
-#include "physicsComponent.h"
-#include "inputComponent.h"
+#include "../include/Components/Graphics/graphicsComponent.h"
+#include "../include/Components/Physics/physicsComponent.h"
+#include "../include/Components/Input/inputComponent.h"
 
 GameObject::GameObject() {
   this->graphics = nullptr;
@@ -46,8 +46,9 @@ void GameObject::Load(GraphicsComponent* g, PhysicsComponent* p, InputComponent*
 void GameObject::Update(float dt, const glm::mat4 P, const glm::mat4 V) {
   deltaTime = dt;
   input->Update(*this);
-  physics->Update(*this);
   graphics->Update(*this, P, V);
+  physics->Update(*this);
+
 }
 
 void GameObject::Draw() {

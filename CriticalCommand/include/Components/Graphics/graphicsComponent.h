@@ -116,7 +116,7 @@ public:
   virtual void Update(GameObject& object, const glm::mat4 P, const glm::mat4 V) {
     model = object.modelMatrix;
     model = glm::translate(model, object.position);
-    //object.modelMatrix = model;
+    object.modelMatrix = model;
   }
 
   virtual void Draw() {

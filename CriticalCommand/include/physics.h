@@ -85,7 +85,7 @@ public:
 
   PxU32 NumberOfActors();
   glm::mat4 GetAPose(int i);
-
+  void SetAPose(int i, glm::mat4 &pose);
   bool AddPhysxObject(
     const std::string               &name,
     const float*                    vertex,

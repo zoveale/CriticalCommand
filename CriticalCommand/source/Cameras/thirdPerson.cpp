@@ -55,7 +55,9 @@ void ThirdPerson::Update(GameObject& object) {
   float offsetZ = distanceOffset * glm::cos(glm::radians(yaw));
   this->position.z = object.position.z - offsetZ;
 
+  //float offsetY = distanceOffset * glm::sin(glm::radians(pitch));
   this->position.y = object.position.y + distanceOffset;
+  
 
 
   this->lookAtPosition = object.position - glm::vec3(0.0f, -1.0f, -1.0f);
@@ -82,9 +84,6 @@ void ThirdPerson::Update(GameObject& object) {
 }
 
 glm::mat4 ThirdPerson::View() {
-  //keep camera on the xz plane
- // position.y = 0.0f;
-  ///
   return glm::lookAt(position, (lookAtPosition), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 

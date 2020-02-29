@@ -128,16 +128,16 @@
     <ClInclude Include="include\objects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\physicsComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\skybox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\graphicsComponent.h">
+    <ClInclude Include="include\Components\Physics\physicsComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\inputComponent.h">
+    <ClInclude Include="include\Components\Graphics\graphicsComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Components\Input\inputComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

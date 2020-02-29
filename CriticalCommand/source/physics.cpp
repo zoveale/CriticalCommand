@@ -260,7 +260,6 @@ physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
 
 glm::mat4 physx::Physics::GetAPose(int i) {
 
- 
 
   return glm::mat4(globalPoseArray[i].column0.x,
     globalPoseArray[i].column0.y,
@@ -278,6 +277,16 @@ glm::mat4 physx::Physics::GetAPose(int i) {
     globalPoseArray[i].column3.y,
     globalPoseArray[i].column3.z,
     globalPoseArray[i].column3.w);
+}
+
+void physx::Physics::SetAPose(int i, glm::mat4 &pose) {
+  PxMat44 newPose;
+  newPose.column0 = { pose[0][0], pose[0][1], pose[0][2], pose[0][3] };
+  newPose.column1 = { pose[1][0], pose[1][1], pose[1][2], pose[1][3] };
+  newPose.column2 = { pose[2][0], pose[2][1], pose[2][2], pose[2][3] };
+  newPose.column3 = { pose[3][0], pose[3][1], pose[3][2], pose[3][3] };
+  PxTransform transform(newPose);
+  actors[i]->setGlobalPose(transform);
 }
 
 bool physx::Physics::AddPhysxObject(const std::string  &name, 
