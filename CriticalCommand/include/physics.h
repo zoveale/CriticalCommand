@@ -118,6 +118,13 @@ public:
     float radius,
     PxMaterial* material = defaultMaterial);
 
+  void SetKinematicActorTarget(unsigned int index, glm::vec3 position);
+  
+  unsigned int AddKinematicSphereActor(
+    glm::vec3 pos,
+    float radius,
+    PxMaterial* material = defaultMaterial);
+
   unsigned int AddDynamicBoxActor(
     glm::vec3 pos,
     glm::vec3 size,
@@ -156,6 +163,8 @@ private:
   static PxDefaultCpuDispatcher* gDispatcher;
   static PxPvd* gPvd;
   
+  PxRigidDynamic* kinematicActor;
+
   //TODO:: recycleing actors vector
   std::vector<unsigned int> freeActors;
 

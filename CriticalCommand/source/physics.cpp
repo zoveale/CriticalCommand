@@ -279,16 +279,6 @@ glm::mat4 physx::Physics::GetAPose(int i) {
     globalPoseArray[i].column3.w);
 }
 
-void physx::Physics::SetAPose(int i, glm::mat4 &pose) {
-  PxMat44 newPose;
-  newPose.column0 = { pose[0][0], pose[0][1], pose[0][2], pose[0][3] };
-  newPose.column1 = { pose[1][0], pose[1][1], pose[1][2], pose[1][3] };
-  newPose.column2 = { pose[2][0], pose[2][1], pose[2][2], pose[2][3] };
-  newPose.column3 = { pose[3][0], pose[3][1], pose[3][2], pose[3][3] };
-  PxTransform transform(newPose);
-  actors[i]->setGlobalPose(transform);
-}
-
 bool physx::Physics::AddPhysxObject(const std::string  &name, 
                                     const float        *vertex, 
                                     const unsigned int *indices,
@@ -382,14 +372,12 @@ void physx::Physics::AddStaticBoxActor(glm::vec3 pos, glm::vec3 size, PxMaterial
   shape->release();
 
   gScene->addActor(*body);
-
+  
 
 }
 
 //TODO:: reduces rotational velocity 
 unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius, PxMaterial* material) {
-  
-
   //Physx uses "Halfextents" for length claculation
   //so inputing appropriate size into the function should
   //return the correct size;
@@ -399,11 +387,44 @@ unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius, 
   
   
   PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
-  
+
   PxShape* sphereShape = PxRigidActorExt::createExclusiveShape(*body, sphere, *defaultMaterial);
   PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+
   //rolls slower
   body->setMaxAngularVelocity(PxReal(3.0f));
+  gScene->addActor(*body);
+  
+  
+  //UpdateDynamicActorArray();
+  return ++dynamicActorCount;
+}
+
+void physx::Physics::SetKinematicActorTarget(unsigned int index, glm::vec3 position) {
+  PxVec3 nextPosition(position.x, position.y, position.z);
+  PxTransform target(nextPosition);
+  kinematicActor->setKinematicTarget(target);
+}
+
+unsigned int physx::Physics::AddKinematicSphereActor(glm::vec3 pos, float radius, PxMaterial* material) {
+
+  //Physx uses "Halfextents" for length claculation
+  //so inputing appropriate size into the function should
+  //return the correct size;
+  PxReal distance(radius * 0.5f);
+  PxSphereGeometry sphere(distance);
+  PxTransform location(PxVec3(pos.x, pos.y, pos.z));
+
+
+  PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
+  body->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
+
+  PxShape* sphereShape = PxRigidActorExt::createExclusiveShape(*body, sphere, *defaultMaterial);
+  PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+
+  //rolls slower
+  body->setMaxAngularVelocity(PxReal(3.0f));
+  kinematicActor = body;
   gScene->addActor(*body);
   
   

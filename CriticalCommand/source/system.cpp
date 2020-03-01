@@ -166,7 +166,7 @@ void System::GameLoop(){
 
     //input.IncrementDecrement(testBool);
     //if (testBool)
-    scenePhysics.StepPhysics(deltaRate * 0.1f);
+    scenePhysics.StepPhysics(deltaRate);
 
 
     player.HandleInput(input, deltaTime);

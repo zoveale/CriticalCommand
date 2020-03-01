@@ -76,11 +76,11 @@ public:
     index = 0;
   }
   virtual void SetUp(GameObject& object) {
-    index = root->AddDynamicSphereActor(object.position, 2.0f);
+    index = root->AddKinematicSphereActor(object.position, 2.0f);
   }
 
   virtual void Update(GameObject& object) {
-    root->SetAPose(index, object.modelMatrix);
+    root->SetKinematicActorTarget(index, object.position);
     object.modelMatrix = root->GetAPose(index);
   }
 private:
@@ -97,11 +97,11 @@ public:
     index = 0;
   }
   virtual void SetUp(GameObject& object) {
-    index = root->AddDynamicSphereActor(object.position, 2.0f);
+    //index = root->AddDynamicSphereActor(object.position, 2.0f);
   }
 
   virtual void Update(GameObject& object) {
-    object.modelMatrix = root->GetAPose(index);
+    //object.modelMatrix = root->GetAPose(index);
   }
 private:
   physx::Physics* root;
