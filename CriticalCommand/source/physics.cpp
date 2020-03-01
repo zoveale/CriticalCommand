@@ -38,10 +38,8 @@ void physx::Physics::TestA() {
   gDispatcher = PxDefaultCpuDispatcherCreate(2);
   sceneDesc.cpuDispatcher = gDispatcher;
   sceneDesc.filterShader = PxDefaultSimulationFilterShader;
+  sceneDesc.kineKineFilteringMode = PxPairFilteringMode::eKEEP;
   gScene = gPhysics->createScene(sceneDesc);
-
-  
-
 }
 
 //TODO::make less awful
@@ -115,22 +113,18 @@ void physx::Physics::AddActor(PxActor* actor) {
 
 void physx::Physics::UpdateDynamicActorArray(/*PxActor** actor*/) {
 
-  typedef PxActorTypeFlag FLAG;
-  nbActors = gScene->getNbActors(FLAG::eRIGID_DYNAMIC);
+  //typedef PxActorTypeFlag FLAG;
+  nbActors = gScene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC);
   if (nbActors > MAX_ACTOR) {
     printf("\n # of actors > MAX_ACTORS\n");
     int i;
     scanf_s("%d", &i);
   }
   
-  gScene->getActors(FLAG::eRIGID_DYNAMIC,
+  gScene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC,
     reinterpret_cast<PxActor * *>(&actors[0]), nbActors);
-  //printf("\n");
   for(PxU32 i = 0; i < nbActors; i++){
     globalPoseArray[i] = actors[i]->getGlobalPose();
-    //printf("actor[%i].name: %s\n",i, actors[i]->getName());
-    //globalPose = actors[i]->getGlobalPose();
-    //pos[i] = globalPose.getPosition();
   }
 }
 

@@ -1,4 +1,5 @@
 #include "objects.h"
+
 #include "../include/Components/Graphics/graphicsComponent.h"
 #include "../include/Components/Physics/physicsComponent.h"
 #include "../include/Components/Input/inputComponent.h"
@@ -35,7 +36,7 @@ void GameObject::Load(GraphicsComponent* g, PhysicsComponent* p, InputComponent*
   acc = 2.0f;
   modelMatrix = glm::mat4(1.0f);
 
-  //TODO:: fix this workaround
+  //TODO:: fix this workaround?? or its a feature 
   //Graphics needs to be first to set up proper position
   graphics->SetUp(*this);
   physics->SetUp(*this);
@@ -46,9 +47,8 @@ void GameObject::Load(GraphicsComponent* g, PhysicsComponent* p, InputComponent*
 void GameObject::Update(float dt, const glm::mat4 P, const glm::mat4 V) {
   deltaTime = dt;
   input->Update(*this);
-  graphics->Update(*this, P, V);
   physics->Update(*this);
-
+  graphics->Update(*this, P, V);
 }
 
 void GameObject::Draw() {

@@ -10,8 +10,8 @@ public:
   GraphicsComponent() {}
   virtual ~GraphicsComponent() {}
   virtual void Load(Model* modelPointers, Shader* shader, LightFactory* lightContainer) = 0;
-  virtual void Update(GameObject &object, const glm::mat4 P, const glm::mat4 V) = 0;
   virtual void SetUp(GameObject& object) = 0;
+  virtual void Update(GameObject &object, const glm::mat4 P, const glm::mat4 V) = 0;
   virtual void Draw() = 0;
   
   
