@@ -40,6 +40,8 @@ void physx::Physics::TestA() {
   sceneDesc.filterShader = PxDefaultSimulationFilterShader;
   sceneDesc.kineKineFilteringMode = PxPairFilteringMode::eKEEP;
   gScene = gPhysics->createScene(sceneDesc);
+
+
 }
 
 //TODO::make less awful
@@ -138,10 +140,15 @@ void physx::Physics::CleanUp() {
   /*
   Must be in this order to exit correctly with out errors
   */
+ 
+
   gScene->release();
   gDispatcher->release();
   gPhysics->release();
   gCooking->release();
+  CCTcontroller->release();
+  CCTmanager->release();
+
   if (gPvd) {
     PxPvdTransport* transport = gPvd->getTransport();
     gPvd->release();	
@@ -187,6 +194,42 @@ void physx::Physics::AddStaticTriangleMesh(
 
 unsigned int physx::Physics::GetDynamicActorCount() {
   return dynamicActorCount;
+}
+
+unsigned int physx::Physics::CreateKinematicController(glm::vec3 position) {
+  CCTmanager = PxCreateControllerManager(*gScene);
+  PxUserControllerHitReport* mReportCallback = nullptr;
+  PxControllerBehaviorCallback* mBehaviorCallback = nullptr;
+  PxControllerDesc* cDesc;
+  PxCapsuleControllerDesc capsuleDesc;
+  
+  capsuleDesc.height = PxF32(1.0f);
+  capsuleDesc.radius = PxF32(0.5f);
+  capsuleDesc.climbingMode = PxCapsuleClimbingMode::eCONSTRAINED;
+  cDesc = &capsuleDesc;
+  cDesc->density = PxF32(10.0f);
+  cDesc->scaleCoeff = PxF32(0.8f);
+  cDesc->position.x = position.x;
+  cDesc->position.y = position.y;
+  cDesc->position.z = position.z;
+  cDesc->slopeLimit = PxF32(0.707f);
+  cDesc->contactOffset = PxF32(0.1f);
+  cDesc->stepOffset = PxF32(0.5f);
+  cDesc->invisibleWallHeight = PxF32(0.0f);
+  cDesc->maxJumpHeight = PxF32(0.0f);
+  cDesc->volumeGrowth = PxF32(1.5f);
+  cDesc->upDirection = PxVec3(0.0f, 1.0f, 0.0f);
+  cDesc->material = defaultMaterial;
+  cDesc->reportCallback = mReportCallback;
+  cDesc->behaviorCallback = mBehaviorCallback;
+  CCTcontroller = CCTmanager->createController(capsuleDesc);
+  
+  return ++dynamicActorCount;
+}
+
+void physx::Physics::SetKinematicControllerPosition(glm::vec3 newPos, float dt) {
+  PxTransform setPosition(PxVec3(newPos.x, newPos.y, newPos.z));
+  CCTcontroller->getActor()->setKinematicTarget(setPosition); 
 }
 
 void physx::Physics::ReleaseActor(unsigned int index) {

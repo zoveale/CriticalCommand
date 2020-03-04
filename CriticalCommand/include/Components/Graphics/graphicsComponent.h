@@ -135,7 +135,7 @@ private:
 
 class DefaultGraphicsComponent : public GraphicsComponent {
 public:
-  DefaultGraphicsComponent() : modelData(nullptr), shader(nullptr), lights(nullptr) {}
+  DefaultGraphicsComponent() : modelData(nullptr), shader(nullptr), lights(nullptr), model(glm::mat4(1.0f)) {}
 
   virtual void Load(Model* m, Shader* s, LightFactory* l = nullptr) {
     modelData = m;

@@ -79,7 +79,7 @@ void System::SystemInit(){
   playerModel.LoadModel("resources/pbrTesting/models/icoSphere/ico.dae");
   playerGraphicsComp.Load(&icoSphereModel, &multipleRenderTargetShader);
   playerPhysicsComp.Load(&scenePhysics);
-  playerInputComp.Load(); //temp function
+  playerInputComp.Load(); //filler function
   playerObject.Load(&playerGraphicsComp, &playerPhysicsComp, &playerInputComp);
   ///
 
@@ -100,7 +100,7 @@ void System::SystemInit(){
                              "resources/shader/Shadow/DepthCubemap/frag.glsl",
                              "resources/shader/Shadow/DepthCubemap/geo.glsl");
 
-  float near_plane = 0.0010f, far_plane = 55.0f;//farplane == "radius" of point light
+  float near_plane = 0.0010f, far_plane = 55.0f;
   for (unsigned int i = 0; i < SHADOW_CASTING_POINT_LIGHTS; ++i) {
     glClear(GL_DEPTH_BUFFER_BIT);
     glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
@@ -201,6 +201,7 @@ void System::GameLoop(){
     for (unsigned int i = 0; i < 9; ++i) {
       scene[i].Draw(multipleRenderTargetShader);
     }
+    
     icoSphereObject.Draw();
     playerObject.Draw();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

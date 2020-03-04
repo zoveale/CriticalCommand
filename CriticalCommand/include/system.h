@@ -47,6 +47,7 @@ private:
 
   Shader pbrShader;
   Model scene[9];
+  
   Model sceneP;
 
   Model icoSphereModel;

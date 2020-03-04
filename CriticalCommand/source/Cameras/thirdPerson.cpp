@@ -8,6 +8,8 @@ glm::vec3 ThirdPerson::up;
 glm::vec3 ThirdPerson::worldUp;
 glm::vec3 ThirdPerson::lookAtPosition;
 
+//TODO::fix this stuff
+
 
 ThirdPerson::ThirdPerson() {
   position = glm::vec3(0.0f);

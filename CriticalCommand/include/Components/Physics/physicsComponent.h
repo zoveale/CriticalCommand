@@ -76,11 +76,12 @@ public:
     index = 0;
   }
   virtual void SetUp(GameObject& object) {
-    index = root->AddKinematicSphereActor(object.position, 2.0f);
+    index = root->CreateKinematicController(object.position);
+    //index = root->AddKinematicSphereActor(object.position, 2.0f);
   }
 
   virtual void Update(GameObject& object) {
-    root->SetKinematicActorTarget(index, object.position);
+    root->SetKinematicControllerPosition(object.position, object.deltaTime);
     object.modelMatrix = root->GetAPose(index);
   }
 private:
