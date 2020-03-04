@@ -188,9 +188,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\Cameras\overview.cpp" />
+    <ClCompile Include="source\Cameras\thirdPerson.cpp" />
     <ClCompile Include="source\cubemap.cpp" />
     <ClCompile Include="source\framebuffer.cpp" />
-    <ClCompile Include="source\graphics.cpp" />
     <ClCompile Include="source\input.cpp" />
     <ClCompile Include="source\lightFactory.cpp" />
     <ClCompile Include="source\model.cpp" />
@@ -198,7 +199,7 @@
     <ClCompile Include="source\objects.cpp" />
     <ClCompile Include="source\physics.cpp" />
     <ClCompile Include="source\player.cpp" />
-    <ClCompile Include="source\camera.cpp" />
+    <ClCompile Include="source\Cameras\firstPerson.cpp" />
     <ClCompile Include="source\render.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\shader.cpp" />
@@ -211,14 +212,15 @@
     <ClInclude Include="include\camera.h" />
     <ClInclude Include="include\cubemap.h" />
     <ClInclude Include="include\framebuffer.h" />
-    <ClInclude Include="include\graphics.h" />
+    <ClInclude Include="include\Components\Graphics\graphicsComponent.h" />
+    <ClInclude Include="include\Components\Input\inputComponent.h" />
     <ClInclude Include="include\lightFactory.h" />
     <ClInclude Include="include\mesh.h" />
     <ClInclude Include="include\model.h" />
     <ClInclude Include="include\modelUtility.h" />
     <ClInclude Include="include\objects.h" />
     <ClInclude Include="include\physics.h" />
-    <ClInclude Include="include\physicsComponent.h" />
+    <ClInclude Include="include\Components\Physics\physicsComponent.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\skeletal.h" />
     <ClInclude Include="include\skybox.h" />
@@ -241,11 +243,20 @@
     <None Include="resources\cubemap\shaders\geometry.glsl" />
     <None Include="resources\cubemap\shaders\vertex.glsl" />
     <None Include="resources\shader\Animated\Fanimated.glsl" />
+    <None Include="resources\shader\DeferredShading\frag.glsl" />
+    <None Include="resources\shader\DeferredShading\geo.glsl" />
+    <None Include="resources\shader\DeferredShading\vert.glsl" />
     <None Include="resources\shader\Fmodel.glsl" />
     <None Include="resources\shader\Framebuffer\Fframebuffer.glsl" />
     <None Include="resources\shader\Framebuffer\Gframebuffer.glsl" />
     <None Include="resources\shader\Framebuffer\Vframebuffer.glsl" />
+    <None Include="resources\shader\Gbuffer\frag.glsl" />
+    <None Include="resources\shader\Gbuffer\geo.glsl" />
+    <None Include="resources\shader\Gbuffer\vert.glsl" />
     <None Include="resources\shader\Gmodel.glsl" />
+    <None Include="resources\shader\HDR\frag.glsl" />
+    <None Include="resources\shader\HDR\geo.glsl" />
+    <None Include="resources\shader\HDR\vert.glsl" />
     <None Include="resources\shader\Lamp\lampF.glsl" />
     <None Include="resources\shader\Lamp\lampV.glsl" />
     <None Include="resources\shader\Model\Fmodel.glsl" />
@@ -254,6 +265,9 @@
     <None Include="resources\shader\NormalShader\Fnormal.glsl" />
     <None Include="resources\shader\NormalShader\Gnormal.glsl" />
     <None Include="resources\shader\NormalShader\Vnormal.glsl" />
+    <None Include="resources\shader\PBR\frag.glsl" />
+    <None Include="resources\shader\PBR\geo.glsl" />
+    <None Include="resources\shader\PBR\vert.glsl" />
     <None Include="resources\shader\PhysicsObjects\Fphysics.glsl" />
     <None Include="resources\shader\PhysicsObjects\Gphysics.glsl" />
     <None Include="resources\shader\PhysicsObjects\Vphysics.glsl" />
@@ -281,6 +295,7 @@
     <Image Include="resources\cubemap\textures\back.png" />
     <Image Include="resources\cubemap\textures\bottem.png" />
     <Image Include="resources\cubemap\textures\bottom.jpg" />
+    <Image Include="resources\cubemap\textures\bottom.png" />
     <Image Include="resources\cubemap\textures\front.jpg" />
     <Image Include="resources\cubemap\textures\front.png" />
     <Image Include="resources\cubemap\textures\frozendusk_bk.jpg" />

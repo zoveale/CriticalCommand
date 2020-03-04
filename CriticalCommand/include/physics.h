@@ -85,7 +85,7 @@ public:
 
   PxU32 NumberOfActors();
   glm::mat4 GetAPose(int i);
-
+  void SetAPose(int i, glm::mat4 &pose);
   bool AddPhysxObject(
     const std::string               &name,
     const float*                    vertex,
@@ -118,6 +118,13 @@ public:
     float radius,
     PxMaterial* material = defaultMaterial);
 
+  void SetKinematicActorTarget(unsigned int index, glm::vec3 position);
+  
+  unsigned int AddKinematicSphereActor(
+    glm::vec3 pos,
+    float radius,
+    PxMaterial* material = defaultMaterial);
+
   unsigned int AddDynamicBoxActor(
     glm::vec3 pos,
     glm::vec3 size,
@@ -136,10 +143,10 @@ public:
   
   unsigned int GetDynamicActorCount();
 
-  
-protected:
-  
-  
+  //Kinematic Character Stuff
+  unsigned int CreateKinematicController(glm::vec3 position);
+  void SetKinematicControllerPosition(glm::vec3 newPos, float dt);
+  ///
 private:
   PxTriangleMesh* CreateTriangleMesh(
     const float*                     vertex,
@@ -156,6 +163,15 @@ private:
   static PxDefaultCpuDispatcher* gDispatcher;
   static PxPvd* gPvd;
   
+  PxRigidDynamic* kinematicActor;
+  PxControllerManager* CCTmanager;
+  PxController* CCTcontroller;
+
+  const PxFilterData* mFilterData;
+  PxQueryFilterCallback* mFilterCallback;
+  PxControllerFilterCallback* mCCTFilterCallback;
+  const PxControllerFilters filters;
+
   //TODO:: recycleing actors vector
   std::vector<unsigned int> freeActors;
 

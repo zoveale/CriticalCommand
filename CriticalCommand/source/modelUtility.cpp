@@ -53,13 +53,18 @@ unsigned int Texture::Load(const char* path, const std::string& directory, bool 
   int width, height, nrComponents;
   unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
   if (data) {
+    GLenum internalFormat = GL_RED;
     GLenum format = 0;
     if (nrComponents == 1)
-      format = GL_RED;
-    else if (nrComponents == 3)
+      internalFormat = format = GL_RED;
+    else if (nrComponents == 3) {
+      internalFormat = GL_SRGB;
       format = GL_RGB;
-    else if (nrComponents == 4)
+    }
+    else if (nrComponents == 4) {
+      internalFormat = GL_SRGB_ALPHA;
       format = GL_RGBA;
+    }
 
     glBindTexture(GL_TEXTURE_2D, textureID);
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
@@ -107,4 +112,26 @@ unsigned int Texture::loadCubemap(std::vector<std::string> faces) {
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
   glActiveTexture(GL_TEXTURE0);
   return textureID;
+}
+
+unsigned int Texture::LoadHDR(const char* path) {
+  int width, height, nrComponents;
+  float* data = stbi_loadf(path, &width, &height, &nrComponents, 0);
+  unsigned int hdrTexture;
+  if (data) {
+    glGenTextures(1, &hdrTexture);
+    glBindTexture(GL_TEXTURE_2D, hdrTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    stbi_image_free(data);
+  }
+  else {
+    printf("HDR texture failed to load at path: %s\n", path);
+  }
+  return hdrTexture;
 }

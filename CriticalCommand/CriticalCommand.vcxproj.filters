@@ -27,9 +27,6 @@
     <ClCompile Include="source\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -63,7 +60,13 @@
     <ClCompile Include="source\objects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\graphics.cpp">
+    <ClCompile Include="source\Cameras\overview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Cameras\thirdPerson.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Cameras\firstPerson.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -125,13 +128,16 @@
     <ClInclude Include="include\objects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\graphics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\physicsComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Components\Physics\physicsComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Components\Graphics\graphicsComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Components\Input\inputComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -177,6 +183,18 @@
     <None Include="resources\SnowMap\physxTestLightsTestTextureTest.dae" />
     <None Include="resources\SnowMap\physxTestLightsTestTextureTest1.dae" />
     <None Include="resources\brickSphere\bsp.dae" />
+    <None Include="resources\shader\HDR\frag.glsl" />
+    <None Include="resources\shader\HDR\geo.glsl" />
+    <None Include="resources\shader\HDR\vert.glsl" />
+    <None Include="resources\shader\DeferredShading\vert.glsl" />
+    <None Include="resources\shader\DeferredShading\frag.glsl" />
+    <None Include="resources\shader\DeferredShading\geo.glsl" />
+    <None Include="resources\shader\Gbuffer\vert.glsl" />
+    <None Include="resources\shader\Gbuffer\frag.glsl" />
+    <None Include="resources\shader\Gbuffer\geo.glsl" />
+    <None Include="resources\shader\PBR\vert.glsl" />
+    <None Include="resources\shader\PBR\frag.glsl" />
+    <None Include="resources\shader\PBR\geo.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">
@@ -255,6 +273,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="resources\SnowMap\images\normal.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\cubemap\textures\bottom.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

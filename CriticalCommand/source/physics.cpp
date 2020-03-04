@@ -38,9 +38,9 @@ void physx::Physics::TestA() {
   gDispatcher = PxDefaultCpuDispatcherCreate(2);
   sceneDesc.cpuDispatcher = gDispatcher;
   sceneDesc.filterShader = PxDefaultSimulationFilterShader;
+  sceneDesc.kineKineFilteringMode = PxPairFilteringMode::eKEEP;
   gScene = gPhysics->createScene(sceneDesc);
 
-  
 
 }
 
@@ -115,22 +115,18 @@ void physx::Physics::AddActor(PxActor* actor) {
 
 void physx::Physics::UpdateDynamicActorArray(/*PxActor** actor*/) {
 
-  typedef PxActorTypeFlag FLAG;
-  nbActors = gScene->getNbActors(FLAG::eRIGID_DYNAMIC);
+  //typedef PxActorTypeFlag FLAG;
+  nbActors = gScene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC);
   if (nbActors > MAX_ACTOR) {
     printf("\n # of actors > MAX_ACTORS\n");
     int i;
     scanf_s("%d", &i);
   }
   
-  gScene->getActors(FLAG::eRIGID_DYNAMIC,
+  gScene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC,
     reinterpret_cast<PxActor * *>(&actors[0]), nbActors);
-  //printf("\n");
   for(PxU32 i = 0; i < nbActors; i++){
     globalPoseArray[i] = actors[i]->getGlobalPose();
-    //printf("actor[%i].name: %s\n",i, actors[i]->getName());
-    //globalPose = actors[i]->getGlobalPose();
-    //pos[i] = globalPose.getPosition();
   }
 }
 
@@ -144,10 +140,15 @@ void physx::Physics::CleanUp() {
   /*
   Must be in this order to exit correctly with out errors
   */
+ 
+
   gScene->release();
   gDispatcher->release();
   gPhysics->release();
   gCooking->release();
+  CCTcontroller->release();
+  CCTmanager->release();
+
   if (gPvd) {
     PxPvdTransport* transport = gPvd->getTransport();
     gPvd->release();	
@@ -193,6 +194,42 @@ void physx::Physics::AddStaticTriangleMesh(
 
 unsigned int physx::Physics::GetDynamicActorCount() {
   return dynamicActorCount;
+}
+
+unsigned int physx::Physics::CreateKinematicController(glm::vec3 position) {
+  CCTmanager = PxCreateControllerManager(*gScene);
+  PxUserControllerHitReport* mReportCallback = nullptr;
+  PxControllerBehaviorCallback* mBehaviorCallback = nullptr;
+  PxControllerDesc* cDesc;
+  PxCapsuleControllerDesc capsuleDesc;
+  
+  capsuleDesc.height = PxF32(1.0f);
+  capsuleDesc.radius = PxF32(0.5f);
+  capsuleDesc.climbingMode = PxCapsuleClimbingMode::eCONSTRAINED;
+  cDesc = &capsuleDesc;
+  cDesc->density = PxF32(10.0f);
+  cDesc->scaleCoeff = PxF32(0.8f);
+  cDesc->position.x = position.x;
+  cDesc->position.y = position.y;
+  cDesc->position.z = position.z;
+  cDesc->slopeLimit = PxF32(0.707f);
+  cDesc->contactOffset = PxF32(0.1f);
+  cDesc->stepOffset = PxF32(0.5f);
+  cDesc->invisibleWallHeight = PxF32(0.0f);
+  cDesc->maxJumpHeight = PxF32(0.0f);
+  cDesc->volumeGrowth = PxF32(1.5f);
+  cDesc->upDirection = PxVec3(0.0f, 1.0f, 0.0f);
+  cDesc->material = defaultMaterial;
+  cDesc->reportCallback = mReportCallback;
+  cDesc->behaviorCallback = mBehaviorCallback;
+  CCTcontroller = CCTmanager->createController(capsuleDesc);
+  
+  return ++dynamicActorCount;
+}
+
+void physx::Physics::SetKinematicControllerPosition(glm::vec3 newPos, float dt) {
+  PxTransform setPosition(PxVec3(newPos.x, newPos.y, newPos.z));
+  CCTcontroller->getActor()->setKinematicTarget(setPosition); 
 }
 
 void physx::Physics::ReleaseActor(unsigned int index) {
@@ -260,7 +297,6 @@ physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
 
 glm::mat4 physx::Physics::GetAPose(int i) {
 
- 
 
   return glm::mat4(globalPoseArray[i].column0.x,
     globalPoseArray[i].column0.y,
@@ -373,14 +409,12 @@ void physx::Physics::AddStaticBoxActor(glm::vec3 pos, glm::vec3 size, PxMaterial
   shape->release();
 
   gScene->addActor(*body);
-
+  
 
 }
 
 //TODO:: reduces rotational velocity 
 unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius, PxMaterial* material) {
-  
-
   //Physx uses "Halfextents" for length claculation
   //so inputing appropriate size into the function should
   //return the correct size;
@@ -390,11 +424,44 @@ unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius, 
   
   
   PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
-  
+
   PxShape* sphereShape = PxRigidActorExt::createExclusiveShape(*body, sphere, *defaultMaterial);
   PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+
   //rolls slower
   body->setMaxAngularVelocity(PxReal(3.0f));
+  gScene->addActor(*body);
+  
+  
+  //UpdateDynamicActorArray();
+  return ++dynamicActorCount;
+}
+
+void physx::Physics::SetKinematicActorTarget(unsigned int index, glm::vec3 position) {
+  PxVec3 nextPosition(position.x, position.y, position.z);
+  PxTransform target(nextPosition);
+  kinematicActor->setKinematicTarget(target);
+}
+
+unsigned int physx::Physics::AddKinematicSphereActor(glm::vec3 pos, float radius, PxMaterial* material) {
+
+  //Physx uses "Halfextents" for length claculation
+  //so inputing appropriate size into the function should
+  //return the correct size;
+  PxReal distance(radius * 0.5f);
+  PxSphereGeometry sphere(distance);
+  PxTransform location(PxVec3(pos.x, pos.y, pos.z));
+
+
+  PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
+  body->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
+
+  PxShape* sphereShape = PxRigidActorExt::createExclusiveShape(*body, sphere, *defaultMaterial);
+  PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+
+  //rolls slower
+  body->setMaxAngularVelocity(PxReal(3.0f));
+  kinematicActor = body;
   gScene->addActor(*body);
   
   

@@ -13,7 +13,7 @@ out VS_OUT {
     vec2 textureUV;
 	vec3 normal;
 
-	vec3 viewPos;
+	//vec3 viewPos;
 
     vec3 TangentLightPos;
     vec3 TangentViewPos;
@@ -41,9 +41,9 @@ void main(){
 	//mat3 normalMatrix = transpose(inverse(mat3(model)));
 	vec3 T = normalize(mat3(model) * aTangent);
     vec3 N = normalize(mat3(model) * aNormal);
-//    T = normalize(T - dot(T, N) * N);
-//    vec3 B = cross(N, T);
-	vec3 B = normalize(mat3(model) * bitTangent);
+    T = normalize(T - dot(T, N) * N);
+    vec3 B = cross(N, T);
+	//vec3 B = normalize(mat3(model) * bitTangent);
 
 	mat3 TBN = transpose(mat3(T, B, N)); 
 
@@ -51,7 +51,7 @@ void main(){
     vs_out.TangentViewPos  = TBN * viewPos;
     vs_out.TangentFragPos  = TBN * vs_out.FragPos;
 
-	//vs_out.normal = mat3(transpose(inverse(model))) * aNormal;	
+	vs_out.normal = mat3(transpose(inverse(model))) * aNormal;	
 	//vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0f);
 
 

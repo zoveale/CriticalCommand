@@ -1,13 +1,15 @@
 #include "input.h"
 
+KEY_STATE Input::KEY;
+
+double Input::xoffset;
+double Input::yoffset;
 
 Input::Input() {
   lastX = 0.0;
   lastY = 0.0;
   xpos = 0.0; 
   ypos = 0.0;
-  xoffset = 0.0;
-  yoffset = 0.0;
 }
 
 void Input::StartUp(GLFWwindow* window) {
@@ -93,10 +95,10 @@ void Input::PollEvents() {
 
 void Input::IncrementDecrement(float &i) {
   if (KEY.UP) {
-    i += 0.01f;
+    i += 0.001f;
   }
   if (KEY.DOWN) {
-    i -= 0.01f;
+    i -= 0.001f;
   }
 }
 

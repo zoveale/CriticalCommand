@@ -2,61 +2,73 @@
 #include "render.h"
 unsigned int Framebuffer::count = 0;
 
-Framebuffer::Framebuffer(Shader screenShader) {
+
+
+void Framebuffer::Load(Shader screenShader) {
   Test();
-  
+
   screenShader.Use();
-  screenShader.SetInt("screenTexture", 0);
-  
+  screenShader.SetInt("hdrBuffer", 0);
+  screenShader.SetInt("bloomBuffer", 1);
+
   glGenFramebuffers(1, &framebuffer);
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-  // create a color attachment texture
-  
-  glGenTextures(1, &textureColorbuffer);
-  glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-  
-  //TODO:: globally define screen height and width
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Render::Screen::WIDTH, Render::Screen::HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
 
-  // create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
+  // create a color attachment texture
+  glGenTextures(2, textureColorbuffer);
+  for (unsigned int i = 0; i < 2; i++) {
+    glBindTexture(GL_TEXTURE_2D, textureColorbuffer[i]);
+
+    //TODO:: globally define screen height and width
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, Render::Screen::WIDTH, Render::Screen::HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, textureColorbuffer[i], 0);
+  }
+  unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+  glDrawBuffers(2, attachments);
+  //create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
   unsigned int rbo;
   glGenRenderbuffers(1, &rbo);
   glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-  //TODO:: globally define screen height and width
+  //TODO::globally define screen height and width
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, Render::Screen::WIDTH, Render::Screen::HEIGHT); // use a single renderbuffer object for both a depth AND stencil buffer.
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
-  // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
-  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
     printf("ERROR::FRAMEBUFFER:: Framebuffer is not complete!\n");
+  }
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Framebuffer::Preprocess() {
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-  glStencilFunc(GL_ALWAYS, 1, 0xFF); 
-  glStencilMask(0xFF);
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LESS);
-  glDepthMask(GL_TRUE);
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Framebuffer::Postprocess(Shader screenShader) {
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glStencilFunc(GL_ALWAYS, 1, 0xFF);
   glStencilMask(0xFF);
+  //CANT CLEAR SENTICL BUFFER HERE!
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   screenShader.Use();
-  //bind buffer back to default
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glDisable(GL_DEPTH_TEST);
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+  glBindTexture(GL_TEXTURE_2D, textureColorbuffer[0]);
+  screenShader.SetInt("hdrBuffer", 0);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, textureColorbuffer[1]);
+  screenShader.SetInt("bloomBuffer", 1);
   glBindVertexArray(quadVAO);
   //glViewport(0, 0, Render::Screen::WIDTH/2, Render::Screen::HEIGHT/2);
   glDrawArrays(GL_TRIANGLES, 0, 6);
-  glActiveTexture(GL_TEXTURE0);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+}
+
+unsigned int Framebuffer::GetFBO() {
+  return framebuffer;
 }
 
 void Framebuffer::CreateDepthMap() {
@@ -99,8 +111,8 @@ void Framebuffer::CreateDepthCubeMap() {
   glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
   glDrawBuffer(GL_NONE);
   glReadBuffer(GL_NONE);
-  ++count;
   depthMapTextureKey = count;
+  ++count;
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glActiveTexture(GL_TEXTURE0);
 }
@@ -124,6 +136,86 @@ void Framebuffer::SetPointLightDepthToCubemap(glm::mat4 lightProjection,
 
 }
 
+//Geometry Buffer Stuff
+void Framebuffer::LoadGeometryBuffer() {
+  Test();
+  
+  
+  glGenFramebuffers(1, &geometryBuffer);
+  glBindFramebuffer(GL_FRAMEBUFFER, geometryBuffer);
+  // position color buffer
+  glGenTextures(1, &geometryPosition);
+  glBindTexture(GL_TEXTURE_2D, geometryPosition);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, Render::Screen::WIDTH, Render::Screen::HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, geometryPosition, 0);
+  // normal color buffer
+  glGenTextures(1, &geometryNormal);
+  glBindTexture(GL_TEXTURE_2D, geometryNormal);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, Render::Screen::WIDTH, Render::Screen::HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, geometryNormal, 0);
+  // Metal Rough Ao
+  glGenTextures(1, &geometrymMetalRoughAo);
+  glBindTexture(GL_TEXTURE_2D, geometrymMetalRoughAo);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Render::Screen::WIDTH, Render::Screen::HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, geometrymMetalRoughAo, 0);
+  //gAlbedo
+  glGenTextures(1, &geometryAlbedo);
+  glBindTexture(GL_TEXTURE_2D, geometryAlbedo);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Render::Screen::WIDTH, Render::Screen::HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, geometryAlbedo, 0);
+  // tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
+
+  unsigned int attachments[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+  glDrawBuffers(4, attachments);
+  // create and attach depth buffer (renderbuffer)
+  unsigned int rboDepth;
+  glGenRenderbuffers(1, &rboDepth);
+  glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, Render::Screen::WIDTH, Render::Screen::HEIGHT);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+  // finally check if framebuffer is complete
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    std::cout << "Framebuffer not complete!" << std::endl;
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+unsigned int Framebuffer::GetGeometryBufferFBO() {
+  return geometryBuffer;
+}
+void Framebuffer::BindGeometryBuffer() {
+  glBindFramebuffer(GL_FRAMEBUFFER, geometryBuffer);
+}
+void Framebuffer::SetDeferredShading(Shader deferredShading) {
+  glStencilFunc(GL_ALWAYS, 1, 0xFF);
+  glStencilMask(0xFF);
+  //CANT CLEAR SENTICL BUFFER HERE!
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  deferredShading.Use();
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, geometryPosition);
+  deferredShading.SetInt("gPosition", 0);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, geometryNormal);
+  deferredShading.SetInt("gNormal", 1);
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, geometrymMetalRoughAo);
+  deferredShading.SetInt("metalRoughAo", 2);
+  glActiveTexture(GL_TEXTURE3);
+  glBindTexture(GL_TEXTURE_2D, geometryAlbedo);
+  deferredShading.SetInt("gAlbedo", 3);
+
+  glBindVertexArray(quadVAO);
+  glDrawArrays(GL_TRIANGLES, 0, 6);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+///
 
 
 void Framebuffer::DepthMapViewPort() {
@@ -141,12 +233,13 @@ void Framebuffer::SetShadowMap(Shader shader) {
 }
 
 void Framebuffer::SetShadowCubemap(Shader shader) {
-  glActiveTexture(GL_TEXTURE0 + depthCubemap);
+  glActiveTexture(GL_TEXTURE5 + depthMapTextureKey);
   glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
-  //shader.Use();
-  shader.SetInt("shadowMap[" + std::to_string(depthMapTextureKey - 1) + "]", depthCubemap);
-  //glBindTexture(GL_TEXTURE0, 0);
-  glActiveTexture(GL_TEXTURE0);
+  
+  shader.Use();
+  shader.SetInt("shadowCastingPointLights[" +  std::to_string(depthMapTextureKey) + "]"
+                 + ".shadowMap", 
+                 5 + depthMapTextureKey);
 }
 
 Framebuffer::~Framebuffer() {

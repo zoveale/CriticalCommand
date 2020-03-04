@@ -4,11 +4,11 @@
 
 
 #include <cstdio>
+#include "input.h"
 
 
 //#include "player.h"
 //#define PRINT_STATES
-#include "input.h"
 //class Input;
 
 class Player;

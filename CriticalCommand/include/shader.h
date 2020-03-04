@@ -26,6 +26,9 @@ public:
   Shader(const GLchar* vertexShaderPath,
          const GLchar* fragmentShaderPath, 
          const GLchar* geometryShaderPath = nullptr);
+  void Load(const GLchar* vertexShaderPath,
+    const GLchar* fragmentShaderPath,
+    const GLchar* geometryShaderPath = nullptr);
 
   //Select Shader ID
   void Use();
