@@ -31,8 +31,8 @@ private:
   Render render;
   Input input;
 
-  Shader skyBox;
-  Skybox skyBoxOne;
+  /*Shader skyBox;
+  Skybox skyBoxOne;*/
 
   Shader lamp;
 
