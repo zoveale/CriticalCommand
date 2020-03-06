@@ -9,7 +9,6 @@ layout (location = 4) in vec3 aBitTangent;
 out vec3 FragPos;
 out vec2 TexCoords;
 out vec3 Normal;
-//out mat3 worldSpaceinverse;
 
 uniform mat4 inverseModel;
 uniform mat4 model;
@@ -23,6 +22,5 @@ void main(){
     
     
     Normal = mat3(inverseModel) * aNormal;
-	//worldSpaceinverse = transpose(mat3(inverseModel));
     gl_Position = projection * view * worldPos;
 }    

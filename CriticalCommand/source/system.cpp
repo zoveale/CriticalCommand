@@ -21,11 +21,11 @@ void System::SystemInit(){
 
   //Camera::thirdPerson
   //Camera::overview
-  cameraState = &Camera::thirdPerson;
+  cameraState = &Camera::overview;
   cameraState->StartUp();
 
-  physx::Physics::StartUp();
-  scenePhysics.TestA();
+  //physx::Physics::StartUp();
+  //scenePhysics.TestA();
   // \ or vise versa ?
   //camera.startup /
   
@@ -33,52 +33,20 @@ void System::SystemInit(){
 
   
   //light stuff
-  shadowLights.LoadLights("resources/pbrTesting/scene/lights/shadowLights.dae", sceneShadowLights);
-  shadowLights.LoadLights("resources/pbrTesting/scene/lights/lights.dae", sceneLights);
+  m_Lights.LoadLights("resources/imagedBasedLighting/lights.dae", sceneLights);
   lamp.Load("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
   pointLamp.LoadModel("resources/surface/pointLamp.dae");
   spotLight.LoadModel("resources/surface/spotLight.dae");
   ///
 
-  //SceneStuff
-  sceneP.Load("resources/pbrTesting/scene/floor/physicfloor.dae", sceneLights, scenePhysics, true);
-  scene[0].LoadModel("resources/pbrTesting/scene/floor/floor.dae");
-  scene[1].LoadModel("resources/pbrTesting/scene/barrel/barrel.dae");
-  scene[2].LoadModel("resources/pbrTesting/scene/brasier/brasier.dae");
-  scene[3].LoadModel("resources/pbrTesting/scene/doors/doors.dae");
-  scene[4].LoadModel("resources/pbrTesting/scene/pillars/pillars.dae");
-  scene[5].LoadModel("resources/pbrTesting/scene/torch/torch.dae");
-  scene[6].LoadModel("resources/pbrTesting/scene/wall1/wall1.dae"); 
-  scene[7].LoadModel("resources/pbrTesting/scene/wall2/wall2.dae");
-  scene[8].LoadModel("resources/pbrTesting/scene/wall3/wall3.dae");
-  //scene.LoadModel("resources/pbrTesting/models/sword/sword.dae");
+  //
+  uvSphere.LoadModel("resources/imagedBasedLighting/sphere.dae");
   
-  ///
   //skybox
   skyBox.Load("resources/cubemap/shaders/vertex.glsl", "resources/cubemap/shaders/fragment.glsl");
   skyBoxOne.Load(&skyBox);
 
   
-
-  //Objects
-  icoSphereModel.LoadModel("resources/pbrTesting/models/icoSphere/ico.dae");
-  gComp.Load(&icoSphereModel, &multipleRenderTargetShader);
-  pComp.Load(&scenePhysics);
-  icoSphereObject.Load(&gComp, &pComp);
-  ///
-  //player object
-  /*
-  Model playerModel;
-  PlayerGraphicsComponent playerGraphicsComp;
-  PlayerPhysicsComponent playerPhysicsComp;
-  PlayerInputComponent playerInputComp;
-  */
-  playerModel.LoadModel("resources/pbrTesting/models/icoSphere/ico.dae");
-  playerGraphicsComp.Load(&icoSphereModel, &multipleRenderTargetShader);
-  playerPhysicsComp.Load(&scenePhysics);
-  playerInputComp.Load(); //filler function
-  playerObject.Load(&playerGraphicsComp, &playerPhysicsComp, &playerInputComp);
-  ///
 
   model = glm::mat4(1.0f); 
   view = glm::mat4(1.0f);
@@ -90,29 +58,12 @@ void System::SystemInit(){
   ///
 
   pbrShader.Load("resources/shader/PBR/vert.glsl", "resources/shader/PBR/frag.glsl");
-  sceneShadowLights.SetFixedShadowAttributes(pbrShader);
   sceneLights.SetFixedAttributes(pbrShader);
+  sceneLights.SetFixedShadowAttributes(pbrShader);
 
   pbrShader.Use();
-  pbrShader.SetVec3("camPos", player.position); 
-   
-  //Shadow Stuff
-  depthShadowCubeShader.Load("resources/shader/Shadow/DepthCubemap/vert.glsl",
-                             "resources/shader/Shadow/DepthCubemap/frag.glsl",
-                             "resources/shader/Shadow/DepthCubemap/geo.glsl");
-
-  float near_plane = 0.0010f, far_plane = 55.0f;
-  for (unsigned int i = 0; i < SHADOW_CASTING_POINT_LIGHTS; ++i) {
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
-    pointShadowCastersBuffer[i].CreateDepthCubeMap();
-    glm::vec3 pointLightPos = sceneLights.GetPointLightPos(i);
-    glm::mat4 shadowTransforms[6];
-    pointShadowCastersBuffer[i].SetPointLightDepthToCubemap(lightProjection, shadowTransforms, pointLightPos);
-    for(unsigned int j = 0; j < 6; ++j)
-      pointShadowMatrix.push_back(shadowTransforms[j]);
-  }
-  ///
+  pbrShader.SetVec3("camPos", player.position);
+  
 }
 
 
@@ -128,33 +79,11 @@ void System::GameLoop(){
   float currentFrame = 0.0f;
   float lastFrame = (float)glfwGetTime();
  
-  //projection = glm::mat4(1.0f);
   projection = glm::perspective(glm::radians((float)perspective),
     (float)Render::Screen::WIDTH / (float)Render::Screen::HEIGHT, 0.1f, 1000.0f);
   model = glm::mat4(1.0f);
   view = glm::mat4(1.0f);
   ///
-
-  float near_plane = 0.0010f, far_plane = 55.0f;
-
-  glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
-  glStencilMask(0xFF);
-  for (unsigned int i = 0; i < SHADOW_CASTING_POINT_LIGHTS; ++i) {
-    pointShadowCastersBuffer[i].DepthMapViewPort();
-    glBindFramebuffer(GL_FRAMEBUFFER, pointShadowCastersBuffer[i].GetDepthMapFBO());
-    glClear(GL_DEPTH_BUFFER_BIT);
-    depthShadowCubeShader.Use();
-    depthShadowCubeShader.SetFloat("far_plane", far_plane);
-    depthShadowCubeShader.SetVec3("lightPos", sceneShadowLights.GetPointLightPos(i));
-    //pointLightOne.SetPointLightDepthToCubemap(lightProjection, shadowTransforms1, pointLightPos);
-    for (unsigned int j = 0; j < 6; ++j)
-      depthShadowCubeShader.SetMat4("shadowTransforms[" + std::to_string(j) + "]", pointShadowMatrix[i * 6 + j]);
-
-    depthShadowCubeShader.SetMat4("model", glm::mat4(1.0f));
-    for (unsigned int j = 0; j < 9; ++j)
-      scene[j].DrawModelOnly(depthShadowCubeShader);
-  }
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   while (!input.KEY.ESC) {
     input.PollEvents();
@@ -164,8 +93,9 @@ void System::GameLoop(){
     lastFrame = currentFrame;
 
 
-
     player.HandleInput(input, deltaTime);
+    player.Update(deltaTime);
+    cameraState->Update(player);
 
     model = glm::mat4(1.0f);
     view = glm::mat4(1.0f);
@@ -173,43 +103,32 @@ void System::GameLoop(){
 
 
 
-    player.Update(deltaTime);
-    cameraState->Update(playerObject);
-
+    
     
     ///
 
-    icoSphereObject.Update(deltaTime, projection * view);
-    playerObject.Update(deltaTime, projection * view);
 
     {
       render.ClearScreen();
 
       gFrameBuffer.BindGeometryBuffer();
       glViewport(0, 0, (GLsizei)Render::Screen::WIDTH, (GLsizei)Render::Screen::HEIGHT);
-      render.ClearScreen();
       glDisable(GL_STENCIL_TEST);
-
       multipleRenderTargetShader.Use();
       multipleRenderTargetShader.SetMat4("projection", projection);
       multipleRenderTargetShader.SetMat4("view", view);
       multipleRenderTargetShader.SetMat4("model", model);
       multipleRenderTargetShader.SetMat4("inverseModel", glm::transpose(glm::inverse(model)));
-      for (unsigned int i = 0; i < 9; ++i) {
-        scene[i].Draw(multipleRenderTargetShader);
-      }
-      icoSphereObject.Draw();
-      playerObject.Draw();
-
+      uvSphere.Draw(multipleRenderTargetShader);
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
       glEnable(GL_STENCIL_TEST);
       glStencilFunc(GL_ALWAYS, 1, 0xFF);
       glStencilMask(0xFF);
       pbrShader.Use();
       pbrShader.SetVec3("camPos", player.position);
       gFrameBuffer.SetDeferredShading(pbrShader);
-      for (unsigned int i = 0; i < SHADOW_CASTING_POINT_LIGHTS; ++i)
-        pointShadowCastersBuffer[i].SetShadowCubemap(pbrShader);
       glStencilMask(0xFF);
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -225,18 +144,18 @@ void System::GameLoop(){
       glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
       glStencilMask(0xFF);
       lamp.Use();
-      for (unsigned int i = 0; i < sceneShadowLights.NumPointLights(); i++) {
+      for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
         model = glm::mat4(1.0f);
-        model = glm::translate(model, sceneShadowLights.GetPointLightPos(i));
+        model = glm::translate(model, sceneLights.GetPointLightPos(i));
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-        lamp.SetVec3("lampColor", sceneShadowLights.GetPointLightColor(i) * 0.010f);
+        lamp.SetVec3("lampColor", sceneLights.GetPointLightColor(i) * 0.010f);
         lamp.SetMat4("PVM", projection * view * model);
         pointLamp.DrawModelOnly(lamp);
       }
-      for (unsigned int i = 0; i < sceneShadowLights.NumSpotLights(); i++) {
-        model = sceneShadowLights.GetSpotLightTransformation(i);
+      for (unsigned int i = 0; i < sceneLights.NumSpotLights(); i++) {
+        model = sceneLights.GetSpotLightTransformation(i);
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-        lamp.SetVec3("lampColor", sceneShadowLights.GetSpotLightColor(i) * 0.010f);
+        lamp.SetVec3("lampColor", sceneLights.GetSpotLightColor(i) * 0.010f);
         lamp.SetMat4("PVM", projection * view * model);
         spotLight.DrawModelOnly(lamp);
       }
@@ -248,8 +167,9 @@ void System::GameLoop(){
     }
 
 
+    //scenePhysics.StepPhysics(deltaRate);
+
     /* Poll for and process events */
-    scenePhysics.StepPhysics(deltaRate);
     input.Process();
   }
 
@@ -266,7 +186,57 @@ void System::Shutdown() {
   scenePhysics.CleanUp();
   glfwTerminate();
 }
+////SceneStuff
+  //sceneP.Load("resources/pbrTesting/scene/floor/physicfloor.dae", sceneLights, scenePhysics, true);
+  //scene[0].LoadModel("resources/pbrTesting/scene/floor/floor.dae");
+  //scene[1].LoadModel("resources/pbrTesting/scene/barrel/barrel.dae");
+  //scene[2].LoadModel("resources/pbrTesting/scene/brasier/brasier.dae");
+  //scene[3].LoadModel("resources/pbrTesting/scene/doors/doors.dae");
+  //scene[4].LoadModel("resources/pbrTesting/scene/pillars/pillars.dae");
+  //scene[5].LoadModel("resources/pbrTesting/scene/torch/torch.dae");
+  //scene[6].LoadModel("resources/pbrTesting/scene/wall1/wall1.dae"); 
+  //scene[7].LoadModel("resources/pbrTesting/scene/wall2/wall2.dae");
+  //scene[8].LoadModel("resources/pbrTesting/scene/wall3/wall3.dae");
+  ////scene.LoadModel("resources/pbrTesting/models/sword/sword.dae");
+  //
+  ///
+  ////Objects
+  //icoSphereModel.LoadModel("resources/pbrTesting/models/icoSphere/ico.dae");
+  //gComp.Load(&icoSphereModel, &multipleRenderTargetShader);
+  //pComp.Load(&scenePhysics);
+  //icoSphereObject.Load(&gComp, &pComp);
+  /////
+  //player object
+  /*
+  Model playerModel;
+  PlayerGraphicsComponent playerGraphicsComp;
+  PlayerPhysicsComponent playerPhysicsComp;
+  PlayerInputComponent playerInputComp;
+  */
+  //playerModel.LoadModel("resources/pbrTesting/models/icoSphere/ico.dae");
+  //playerGraphicsComp.Load(&icoSphereModel, &multipleRenderTargetShader);
+  //playerPhysicsComp.Load(&scenePhysics);
+  //playerInputComp.Load(); //filler function
+  //playerObject.Load(&playerGraphicsComp, &playerPhysicsComp, &playerInputComp);
+  /////
 
+  ////Shadow Stuff
+  //depthShadowCubeShader.Load("resources/shader/Shadow/DepthCubemap/vert.glsl",
+  //                           "resources/shader/Shadow/DepthCubemap/frag.glsl",
+  //                           "resources/shader/Shadow/DepthCubemap/geo.glsl");
+
+  //float near_plane = 0.0010f, far_plane = 55.0f;
+  //for (unsigned int i = 0; i < SHADOW_CASTING_POINT_LIGHTS; ++i) {
+  //  glClear(GL_DEPTH_BUFFER_BIT);
+  //  glm::mat4 lightProjection = glm::perspective(glm::radians(90.0f), 1.00f, near_plane, far_plane);
+  //  pointShadowCastersBuffer[i].CreateDepthCubeMap();
+  //  glm::vec3 pointLightPos = sceneLights.GetPointLightPos(i);
+  //  glm::mat4 shadowTransforms[6];
+  //  pointShadowCastersBuffer[i].SetPointLightDepthToCubemap(lightProjection, shadowTransforms, pointLightPos);
+  //  for(unsigned int j = 0; j < 6; ++j)
+  //    pointShadowMatrix.push_back(shadowTransforms[j]);
+  //}
+  /////
 
 //pbrShader.Use();
 //pbrShader.SetMat4("projection", projection);

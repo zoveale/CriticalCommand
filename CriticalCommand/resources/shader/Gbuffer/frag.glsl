@@ -17,7 +17,7 @@ struct Material{
 	sampler2D texture_roughness;
 	sampler2D texture_ao;
 };
-
+ 
 uniform Material material;
 
 vec3 getNormalFromMap(){

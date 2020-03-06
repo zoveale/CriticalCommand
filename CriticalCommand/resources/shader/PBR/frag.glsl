@@ -117,8 +117,9 @@ void main(){
     //  reflectance equation
     vec3 Lo = vec3(0.0);
 
-	ShadowCastPointLightCalculator(shadowCastingPointLights, material, N, V, F0, Lo);
-	SpotLightCalculator(spotLights, material, N, V, F0, Lo);
+	//ShadowCastPointLightCalculator(shadowCastingPointLights, material, N, V, F0, Lo);
+	//SpotLightCalculator(spotLights, material, N, V, F0, Lo);
+	PointLightCalculator(pointLights, material, N, V, F0, Lo);
     
     vec3 color = ambient + Lo;
 
@@ -180,7 +181,7 @@ void PointLightCalculator(in PointLight light[MAX_POINT_LIGHTS],
 									in Material mat, in vec3 normal,
 									in vec3 view, in vec3 fzero,
 									in out vec3 reflectance){
-	for(int i = 0; i < numShadowPointLights; ++i){
+	for(int i = 0; i < numPointLights; ++i){
 		float dis = length(light[i].position - mat.posTexture);
 
 		float attenuation = 1.0 / (1.0 + ((4.5 / light[i].radius) * dis) + 

@@ -36,49 +36,23 @@ private:
 
   Shader lamp;
 
-  Model shadowLights;
+  Model m_Lights;
   Model pointLamp;
   Model spotLight;
-
-  
-  Framebuffer pointShadowCastersBuffer[SHADOW_CASTING_POINT_LIGHTS];
-  std::vector<glm::mat4> pointShadowMatrix;
-  Shader depthShadowCubeShader;
+ 
+  Model uvSphere;
 
   Shader pbrShader;
-  Model scene[9];
   
-  Model sceneP;
-
-  Model icoSphereModel;
-  IcoSphereGraphicsComponent gComp;
-  IcoSpherePhysicsComponent pComp;
-  GameObject icoSphereObject;
-
   glm::mat4 model;
   glm::mat4 view;
   glm::mat4 projection;
 
   Framebuffer gFrameBuffer;
   Shader multipleRenderTargetShader;
-
-  GameObject playerObject;
-  Model playerModel;
-  PlayerGraphicsComponent playerGraphicsComp;
-  PlayerPhysicsComponent playerPhysicsComp;
-  PlayerInputComponent playerInputComp;
+  
 
   Camera* cameraState;
-  //const float near_plane = 1.0f, far_plane = 115.0f;
-  //glm::mat4 lightProjection;
-  //glm::vec3 pointLightPos;
-  //glm::mat4 shadowTransforms1[6];
-
-/*
-  Framebuffer geometryBuffer;
-  Shader multipleRenderTargetShader;
-  Shader deferredLightingPass;*/
-
 public:
 
   System();
@@ -87,6 +61,28 @@ public:
   void Shutdown();
 
 };
+
+/*
+  Framebuffer geometryBuffer;
+  Shader multipleRenderTargetShader;
+  Shader deferredLightingPass;*/
+  /* Framebuffer pointShadowCastersBuffer[SHADOW_CASTING_POINT_LIGHTS];
+  std::vector<glm::mat4> pointShadowMatrix;
+  Shader depthShadowCubeShader;
+*/
+/*Model scene[9];*/
+
+/*Model sceneP;*/
+
+/* Model icoSphereModel;
+ IcoSphereGraphicsComponent gComp;
+ IcoSpherePhysicsComponent pComp;
+ GameObject icoSphereObject;*/
+ /*GameObject playerObject;
+ Model playerModel;
+ PlayerGraphicsComponent playerGraphicsComp;
+ PlayerPhysicsComponent playerPhysicsComp;
+ PlayerInputComponent playerInputComp;*/
 #endif // !SYSTEM_H
 
 
