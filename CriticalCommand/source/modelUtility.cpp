@@ -117,7 +117,7 @@ unsigned int Texture::loadCubemap(std::vector<std::string> faces) {
 unsigned int Texture::LoadHDR(const char* path) {
   int width, height, nrComponents;
   float* data = stbi_loadf(path, &width, &height, &nrComponents, 0);
-  unsigned int hdrTexture;
+  unsigned int hdrTexture = 0;
   if (data) {
     glGenTextures(1, &hdrTexture);
     glBindTexture(GL_TEXTURE_2D, hdrTexture);
