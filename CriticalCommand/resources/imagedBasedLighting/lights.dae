@@ -5,8 +5,8 @@
       <author>Blender User</author>
       <authoring_tool>Blender 2.80.75 commit date:2019-07-29, commit time:14:47, hash:f6cb5f54494e</authoring_tool>
     </contributor>
-    <created>2020-03-06T11:23:56</created>
-    <modified>2020-03-06T11:23:56</modified>
+    <created>2020-03-06T12:52:23</created>
+    <modified>2020-03-06T12:52:23</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -14,7 +14,7 @@
     <light id="Point_003-light" name="Point.003">
       <technique_common>
         <point>
-          <color sid="color">10 10 10</color>
+          <color sid="color">250 250 250</color>
           <constant_attenuation>1</constant_attenuation>
           <linear_attenuation>0</linear_attenuation>
           <quadratic_attenuation>0.001599967</quadratic_attenuation>
@@ -32,7 +32,7 @@
           <shadow_r sid="blender_shadow_r" type="float">0</shadow_r>
           <shadow_g sid="blender_shadow_g" type="float">0</shadow_g>
           <shadow_b sid="blender_shadow_b" type="float">0</shadow_b>
-          <energy sid="blender_energy" type="float">10</energy>
+          <energy sid="blender_energy" type="float">250</energy>
           <dist sid="blender_dist" type="float">25</dist>
           <spotsize sid="spotsize" type="float">45</spotsize>
           <spotblend sid="spotblend" type="float">0.15</spotblend>
@@ -56,7 +56,7 @@
     <light id="Point_002-light" name="Point.002">
       <technique_common>
         <point>
-          <color sid="color">10 10 10</color>
+          <color sid="color">250 250 250</color>
           <constant_attenuation>1</constant_attenuation>
           <linear_attenuation>0</linear_attenuation>
           <quadratic_attenuation>0.001599967</quadratic_attenuation>
@@ -74,7 +74,7 @@
           <shadow_r sid="blender_shadow_r" type="float">0</shadow_r>
           <shadow_g sid="blender_shadow_g" type="float">0</shadow_g>
           <shadow_b sid="blender_shadow_b" type="float">0</shadow_b>
-          <energy sid="blender_energy" type="float">10</energy>
+          <energy sid="blender_energy" type="float">250</energy>
           <dist sid="blender_dist" type="float">25</dist>
           <spotsize sid="spotsize" type="float">45</spotsize>
           <spotblend sid="spotblend" type="float">0.15</spotblend>
@@ -98,7 +98,7 @@
     <light id="Point-light" name="Point">
       <technique_common>
         <point>
-          <color sid="color">10 10 10</color>
+          <color sid="color">250 250 250</color>
           <constant_attenuation>1</constant_attenuation>
           <linear_attenuation>0</linear_attenuation>
           <quadratic_attenuation>0.001599967</quadratic_attenuation>
@@ -116,7 +116,7 @@
           <shadow_r sid="blender_shadow_r" type="float">0</shadow_r>
           <shadow_g sid="blender_shadow_g" type="float">0</shadow_g>
           <shadow_b sid="blender_shadow_b" type="float">0</shadow_b>
-          <energy sid="blender_energy" type="float">10</energy>
+          <energy sid="blender_energy" type="float">250</energy>
           <dist sid="blender_dist" type="float">25</dist>
           <spotsize sid="spotsize" type="float">45</spotsize>
           <spotblend sid="spotblend" type="float">0.15</spotblend>
@@ -140,7 +140,7 @@
     <light id="Point_001-light" name="Point.001">
       <technique_common>
         <point>
-          <color sid="color">10 10 10</color>
+          <color sid="color">250 250 250</color>
           <constant_attenuation>1</constant_attenuation>
           <linear_attenuation>0</linear_attenuation>
           <quadratic_attenuation>0.001599967</quadratic_attenuation>
@@ -158,7 +158,7 @@
           <shadow_r sid="blender_shadow_r" type="float">0</shadow_r>
           <shadow_g sid="blender_shadow_g" type="float">0</shadow_g>
           <shadow_b sid="blender_shadow_b" type="float">0</shadow_b>
-          <energy sid="blender_energy" type="float">10</energy>
+          <energy sid="blender_energy" type="float">250</energy>
           <dist sid="blender_dist" type="float">25</dist>
           <spotsize sid="spotsize" type="float">45</spotsize>
           <spotblend sid="spotblend" type="float">0.15</spotblend>

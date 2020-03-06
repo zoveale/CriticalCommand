@@ -105,6 +105,7 @@ void System::GameLoop(){
 
       gFrameBuffer.BindGeometryBuffer();
       glViewport(0, 0, (GLsizei)Render::Screen::WIDTH, (GLsizei)Render::Screen::HEIGHT);
+      render.ClearScreen();
       glDisable(GL_STENCIL_TEST);
       multipleRenderTargetShader.Use();
       multipleRenderTargetShader.SetMat4("projection", projection);
