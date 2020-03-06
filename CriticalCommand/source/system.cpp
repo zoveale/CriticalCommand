@@ -58,10 +58,7 @@ void System::SystemInit(){
   skyBox.Load("resources/cubemap/shaders/vertex.glsl", "resources/cubemap/shaders/fragment.glsl");
   skyBoxOne.Load(&skyBox);
 
-  //gBuffer
-  multipleRenderTargetShader.Load("resources/shader/gBuffer/vert.glsl" , "resources/shader/gBuffer/frag.glsl");
-  gFrameBuffer.LoadGeometryBuffer();
-  ///
+  
 
   //Objects
   icoSphereModel.LoadModel("resources/pbrTesting/models/icoSphere/ico.dae");
@@ -87,6 +84,10 @@ void System::SystemInit(){
   view = glm::mat4(1.0f);
   projection = glm::mat4(1.0f);
 
+  //gBuffer
+  multipleRenderTargetShader.Load("resources/shader/gBuffer/vert.glsl", "resources/shader/gBuffer/frag.glsl");
+  gFrameBuffer.LoadGeometryBuffer();
+  ///
 
   pbrShader.Load("resources/shader/PBR/vert.glsl", "resources/shader/PBR/frag.glsl");
   sceneShadowLights.SetFixedShadowAttributes(pbrShader);
@@ -111,8 +112,6 @@ void System::SystemInit(){
     for(unsigned int j = 0; j < 6; ++j)
       pointShadowMatrix.push_back(shadowTransforms[j]);
   }
-
-
   ///
 }
 
@@ -164,9 +163,6 @@ void System::GameLoop(){
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    //input.IncrementDecrement(testBool);
-    //if (testBool)
-    scenePhysics.StepPhysics(deltaRate);
 
 
     player.HandleInput(input, deltaTime);
@@ -176,7 +172,6 @@ void System::GameLoop(){
     view = cameraState->View();
 
 
-    render.ClearScreen();
 
     player.Update(deltaTime);
     cameraState->Update(playerObject);
@@ -186,70 +181,75 @@ void System::GameLoop(){
 
     icoSphereObject.Update(deltaTime, projection * view);
     playerObject.Update(deltaTime, projection * view);
-   
 
-    gFrameBuffer.BindGeometryBuffer();
-    glViewport(0, 0, (GLsizei)Render::Screen::WIDTH, (GLsizei)Render::Screen::HEIGHT);
-    render.ClearScreen();
-    glDisable(GL_STENCIL_TEST);
-    
-    multipleRenderTargetShader.Use();
-    multipleRenderTargetShader.SetMat4("projection", projection);
-    multipleRenderTargetShader.SetMat4("view", view);
-    multipleRenderTargetShader.SetMat4("model", model);
-    multipleRenderTargetShader.SetMat4("inverseModel", glm::transpose(glm::inverse(model)));
-    for (unsigned int i = 0; i < 9; ++i) {
-      scene[i].Draw(multipleRenderTargetShader);
+    {
+      render.ClearScreen();
+
+      gFrameBuffer.BindGeometryBuffer();
+      glViewport(0, 0, (GLsizei)Render::Screen::WIDTH, (GLsizei)Render::Screen::HEIGHT);
+      render.ClearScreen();
+      glDisable(GL_STENCIL_TEST);
+
+      multipleRenderTargetShader.Use();
+      multipleRenderTargetShader.SetMat4("projection", projection);
+      multipleRenderTargetShader.SetMat4("view", view);
+      multipleRenderTargetShader.SetMat4("model", model);
+      multipleRenderTargetShader.SetMat4("inverseModel", glm::transpose(glm::inverse(model)));
+      for (unsigned int i = 0; i < 9; ++i) {
+        scene[i].Draw(multipleRenderTargetShader);
+      }
+      icoSphereObject.Draw();
+      playerObject.Draw();
+
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      glEnable(GL_STENCIL_TEST);
+      glStencilFunc(GL_ALWAYS, 1, 0xFF);
+      glStencilMask(0xFF);
+      pbrShader.Use();
+      pbrShader.SetVec3("camPos", player.position);
+      gFrameBuffer.SetDeferredShading(pbrShader);
+      for (unsigned int i = 0; i < SHADOW_CASTING_POINT_LIGHTS; ++i)
+        pointShadowCastersBuffer[i].SetShadowCubemap(pbrShader);
+      glStencilMask(0xFF);
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+      glBindFramebuffer(GL_READ_FRAMEBUFFER, gFrameBuffer.GetGeometryBufferFBO());
+      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+      glBlitFramebuffer(0, 0, (GLint)Render::Screen::WIDTH, (GLint)Render::Screen::HEIGHT,
+        0, 0, (GLint)Render::Screen::WIDTH, (GLint)Render::Screen::HEIGHT,
+        GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+      glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
+      glStencilMask(0xFF);
+      lamp.Use();
+      for (unsigned int i = 0; i < sceneShadowLights.NumPointLights(); i++) {
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, sceneShadowLights.GetPointLightPos(i));
+        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+        lamp.SetVec3("lampColor", sceneShadowLights.GetPointLightColor(i) * 0.010f);
+        lamp.SetMat4("PVM", projection * view * model);
+        pointLamp.DrawModelOnly(lamp);
+      }
+      for (unsigned int i = 0; i < sceneShadowLights.NumSpotLights(); i++) {
+        model = sceneShadowLights.GetSpotLightTransformation(i);
+        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+        lamp.SetVec3("lampColor", sceneShadowLights.GetSpotLightColor(i) * 0.010f);
+        lamp.SetMat4("PVM", projection * view * model);
+        spotLight.DrawModelOnly(lamp);
+      }
+      //skyBoxOne.Draw(view, projection);
+      glStencilMask(0xFF);
+
+      /* Swap front and back buffers */
+      render.Display();
     }
-    
-    icoSphereObject.Draw();
-    playerObject.Draw();
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    glEnable(GL_STENCIL_TEST);
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilMask(0xFF);
-    pbrShader.Use();
-    gFrameBuffer.SetDeferredShading(pbrShader);
-    for (unsigned int i = 0; i < SHADOW_CASTING_POINT_LIGHTS; ++i)
-      pointShadowCastersBuffer[i].SetShadowCubemap(pbrShader);
-    glStencilMask(0xFF);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, gFrameBuffer.GetGeometryBufferFBO());
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBlitFramebuffer(0, 0, (GLint)Render::Screen::WIDTH, (GLint)Render::Screen::HEIGHT,
-      0, 0, (GLint)Render::Screen::WIDTH, (GLint)Render::Screen::HEIGHT,
-      GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
-
-    glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
-    glStencilMask(0xFF);
-    lamp.Use();
-    for (unsigned int i = 0; i < sceneShadowLights.NumPointLights(); i++) {
-      model = glm::mat4(1.0f);
-      model = glm::translate(model, sceneShadowLights.GetPointLightPos(i));
-      model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-      lamp.SetVec3("lampColor", sceneShadowLights.GetPointLightColor(i) * 0.010f);
-      lamp.SetMat4("PVM", projection * view * model);
-      pointLamp.DrawModelOnly(lamp);
-    }
-    for (unsigned int i = 0; i < sceneShadowLights.NumSpotLights(); i++) {
-      model = sceneShadowLights.GetSpotLightTransformation(i);
-      model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-      lamp.SetVec3("lampColor", sceneShadowLights.GetSpotLightColor(i) * 0.010f);
-      lamp.SetMat4("PVM", projection * view * model);
-      spotLight.DrawModelOnly(lamp);
-    }
-    //skyBoxOne.Draw(view, projection);
-    glStencilMask(0xFF);
-
-    /* Swap front and back buffers */
-    render.Display();
 
     /* Poll for and process events */
+    scenePhysics.StepPhysics(deltaRate);
     input.Process();
   }
 

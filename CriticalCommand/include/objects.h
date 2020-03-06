@@ -21,14 +21,18 @@ public:
   glm::mat4 modelMatrix;
 
   GameObject();
-  void Load(GraphicsComponent* graphics, PhysicsComponent* physics, InputComponent* input = nullptr);
-  void Update(float dt, const glm::mat4 P = glm::mat4(1.0f), const glm::mat4 V = glm::mat4(1.0f));
+  void Load(GraphicsComponent *graphics = nullptr,
+            PhysicsComponent  *physics  = nullptr,
+            InputComponent    *input    = nullptr);
+  void Update(float dt,
+              const glm::mat4 P = glm::mat4(1.0f),
+              const glm::mat4 V = glm::mat4(1.0f));
   void Draw();
 
 private:
-  GraphicsComponent* graphics;
-  PhysicsComponent* physics;
-  InputComponent* input;
+  GraphicsComponent *graphics;
+  PhysicsComponent  *physics;
+  InputComponent    *input;
 };
 
 
