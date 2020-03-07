@@ -3,6 +3,7 @@
 
 #include <GL/glew.h>
 #include "shader.h"
+#include "modelUtility.h"
 
 class Framebuffer {
 public:
@@ -28,15 +29,27 @@ public:
   void BindGeometryBuffer();
   void SetDeferredShading(Shader deferredShading);
   ///
+
+  //PBR Area sampling
+  //pbr: convert HDR equirectangular environment map to cubemap equivalent
+  void CreateEnvironmentMapBuffer(Shader equiShader, std::string hdrPath);
+  ///
   ~Framebuffer();
 private:
   void Test();
+
 
   //Gbuffer Stuff
   unsigned int geometryBuffer;
   unsigned int geometryPosition, geometryNormal, geometrymMetalRoughAo, geometryAlbedo;
   unsigned int attachments[3];
   unsigned int rboDepth;
+  ///
+
+  //
+  unsigned int captureFBO, captureRBO;
+  unsigned int envCubemap;
+  unsigned int hdrTexture;
   ///
   unsigned int framebuffer;
   unsigned int textureColorbuffer[2];

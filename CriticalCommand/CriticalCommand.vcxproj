@@ -246,6 +246,9 @@
     <None Include="resources\shader\DeferredShading\frag.glsl" />
     <None Include="resources\shader\DeferredShading\geo.glsl" />
     <None Include="resources\shader\DeferredShading\vert.glsl" />
+    <None Include="resources\shader\EnvironmentMap\frag.glsl" />
+    <None Include="resources\shader\EnvironmentMap\geo.glsl" />
+    <None Include="resources\shader\EnvironmentMap\vert.glsl" />
     <None Include="resources\shader\EquiRectMap\frag.glsl" />
     <None Include="resources\shader\EquiRectMap\geo.glsl" />
     <None Include="resources\shader\EquiRectMap\vert.glsl" />

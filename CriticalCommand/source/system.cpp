@@ -43,8 +43,8 @@ void System::SystemInit(){
   uvSphere.LoadModel("resources/imagedBasedLighting/sphere.dae");
   
   //skybox
-  /*skyBox.Load("resources/cubemap/shaders/vertex.glsl", "resources/cubemap/shaders/fragment.glsl");
-  skyBoxOne.Load(&skyBox);*/
+  skyBox.Load("resources/cubemap/shaders/vertex.glsl", "resources/cubemap/shaders/fragment.glsl");
+  skyBoxOne.Load(&skyBox);
 
   
 
@@ -100,13 +100,14 @@ void System::GameLoop(){
     view = glm::mat4(1.0f);
     view = cameraState->View();
 
+    //TODO:: reimplement stencil testing
+    glDisable(GL_STENCIL_TEST);
     {
       render.ClearScreen();
 
       gFrameBuffer.BindGeometryBuffer();
       glViewport(0, 0, (GLsizei)Render::Screen::WIDTH, (GLsizei)Render::Screen::HEIGHT);
       render.ClearScreen();
-      glDisable(GL_STENCIL_TEST);
       multipleRenderTargetShader.Use();
       multipleRenderTargetShader.SetMat4("projection", projection);
       multipleRenderTargetShader.SetMat4("view", view);
@@ -115,13 +116,11 @@ void System::GameLoop(){
         uvSphere.Draw(multipleRenderTargetShader);
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-      glEnable(GL_STENCIL_TEST);
-      glStencilFunc(GL_ALWAYS, 1, 0xFF);
-      glStencilMask(0xFF);
+     
       pbrShader.Use();
       pbrShader.SetVec3("camPos", player.position);
       gFrameBuffer.SetDeferredShading(pbrShader);
-      glStencilMask(0xFF);
+
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       glBindFramebuffer(GL_READ_FRAMEBUFFER, gFrameBuffer.GetGeometryBufferFBO());
@@ -131,8 +130,12 @@ void System::GameLoop(){
         GL_DEPTH_BUFFER_BIT, GL_NEAREST);
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-      glStencilFunc(GL_ALWAYS, 0x01, 0xFF);
-      glStencilMask(0xFF);
+
+      
+      //glDepthFunc(GL_LEQUAL);
+      skyBox.Use();
+      skyBoxOne.Draw(view, projection);
+      //glDepthFunc(GL_LESS);
       lamp.Use();
       for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
         model = glm::mat4(1.0f);
@@ -149,7 +152,7 @@ void System::GameLoop(){
         lamp.SetMat4("PVM", projection * view * model);
         spotLight.DrawModelOnly(lamp);
       }
-      glStencilMask(0xFF);
+
       ///
 
 
