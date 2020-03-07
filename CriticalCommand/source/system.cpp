@@ -101,10 +101,10 @@ void System::GameLoop(){
     view = cameraState->View();
 
     //TODO:: reimplement stencil testing
-    glDisable(GL_STENCIL_TEST);
+    //TODO:: Implement multisampling on framebuffers
     {
-      render.ClearScreen();
-
+      //render.ClearScreen();
+      
       gFrameBuffer.BindGeometryBuffer();
       glViewport(0, 0, (GLsizei)Render::Screen::WIDTH, (GLsizei)Render::Screen::HEIGHT);
       render.ClearScreen();
@@ -113,15 +113,14 @@ void System::GameLoop(){
       multipleRenderTargetShader.SetMat4("view", view);
       multipleRenderTargetShader.SetMat4("model", model);
       multipleRenderTargetShader.SetMat4("inverseModel", glm::transpose(glm::inverse(model)));
-        uvSphere.Draw(multipleRenderTargetShader);
+      uvSphere.Draw(multipleRenderTargetShader);
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-     
+
       pbrShader.Use();
       pbrShader.SetVec3("camPos", player.position);
       gFrameBuffer.SetDeferredShading(pbrShader);
 
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
       glBindFramebuffer(GL_READ_FRAMEBUFFER, gFrameBuffer.GetGeometryBufferFBO());
       glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -129,13 +128,8 @@ void System::GameLoop(){
         0, 0, (GLint)Render::Screen::WIDTH, (GLint)Render::Screen::HEIGHT,
         GL_DEPTH_BUFFER_BIT, GL_NEAREST);
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
       
-      //glDepthFunc(GL_LEQUAL);
-      skyBox.Use();
-      skyBoxOne.Draw(view, projection);
-      //glDepthFunc(GL_LESS);
+      
       lamp.Use();
       for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++) {
         model = glm::mat4(1.0f);
@@ -153,6 +147,13 @@ void System::GameLoop(){
         spotLight.DrawModelOnly(lamp);
       }
 
+      glDepthFunc(GL_LEQUAL);
+      glDepthMask(GL_FALSE);
+
+      skyBoxOne.Draw(view, projection);
+
+      glDepthMask(GL_TRUE);
+      glDepthFunc(GL_LESS);
       ///
 
 

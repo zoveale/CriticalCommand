@@ -90,13 +90,11 @@ public:
     //remove translation from the view matrix
     shaderPointer->SetMat4("view", glm::mat4(glm::mat3(view)));
     shaderPointer->SetMat4("projection", projection);
-    // skybox cube
-    glBindVertexArray(skyboxVAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+    // skybox cube
+    glBindVertexArray(skyboxVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    glBindVertexArray(0);
-    glActiveTexture(GL_TEXTURE0);
   }
 
   void RenderCube() {

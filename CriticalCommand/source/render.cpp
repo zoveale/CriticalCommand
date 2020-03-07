@@ -29,16 +29,17 @@ void Render::StartUp(){
     printf("Error GLEW_OK = %i", GLEW_OK);
   }
 
-  glEnable(GL_MULTISAMPLE);
+  //TODO:: multisampling on framebuffers
+  //glEnable(GL_MULTISAMPLE);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
 
-  glEnable(GL_STENCIL_TEST);
-  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+  //TODO::reimplment stencil testing 
+  //glEnable(GL_STENCIL_TEST);
+  //glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
-  //glFrontFace(GL_CCW);
 
   
 }
