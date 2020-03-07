@@ -147,13 +147,8 @@ void System::GameLoop(){
         spotLight.DrawModelOnly(lamp);
       }
 
-      glDepthFunc(GL_LEQUAL);
-      glDepthMask(GL_FALSE);
-
+      //skybox
       skyBoxOne.Draw(view, projection);
-
-      glDepthMask(GL_TRUE);
-      glDepthFunc(GL_LESS);
       ///
 
 

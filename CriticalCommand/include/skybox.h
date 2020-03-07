@@ -85,7 +85,10 @@ public:
     shaderPointer->Use();
     shaderPointer->SetInt("skybox", 0);
   }
-  void Draw(glm::mat4 view, glm::mat4 projection) {
+  //handles all depth masking inside the function
+  void Draw(glm::mat4 view, glm::mat4 projection) {\
+    glDepthFunc(GL_LEQUAL);
+    glDepthMask(GL_FALSE);
     shaderPointer->Use();
     //remove translation from the view matrix
     shaderPointer->SetMat4("view", glm::mat4(glm::mat3(view)));
@@ -95,6 +98,8 @@ public:
     // skybox cube
     glBindVertexArray(skyboxVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
   }
 
   void RenderCube() {
