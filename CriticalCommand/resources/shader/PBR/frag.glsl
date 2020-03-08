@@ -4,10 +4,13 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
+
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D metalRoughAo;
 uniform sampler2D gAlbedo;
+
+uniform samplerCube irradianceMap;
 
 // lights
 const unsigned int MAX_SHADOW_CASTING_POINT_LIGHTS = 13;
@@ -73,12 +76,14 @@ uniform ShadowCastingSpotLight shadowCastingSpotLights[MAX_SHADOW_CASTING_SPOT_L
 
 uniform vec3 camPos;
 
+
 // ----------------------------------------------------------------------------
 const float PI = 3.14159265359;
 float DistributionGGX(vec3 N, vec3 H, float roughness);
 float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness);
 float random (vec2 st);
 // ----------------------------------------------------------------------------
 float ShadowCalculationCubeMap(vec3 fragPos, vec3 lightPos, samplerCube shadowCube);
@@ -112,8 +117,10 @@ void main(){
 
 	 // ambient lighting (note that the next IBL tutorial will replace 
     // this ambient lighting with environment lighting).
-    vec3 ambient = vec3(0.1) * material.albedo * material.ao;
+	
+    //vec3 ambient = irradiance * material.albedo * material.ao;
 	//vec3 ambient = vec3(0.0);
+
     //  reflectance equation
     vec3 Lo = vec3(0.0);
 
@@ -121,6 +128,15 @@ void main(){
 	//SpotLightCalculator(spotLights, material, N, V, F0, Lo);
 	PointLightCalculator(pointLights, material, N, V, F0, Lo);
     
+	vec3 irradiance = texture(irradianceMap, -N).rgb;
+	vec3 kS = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, material.roughness);
+    vec3 kD = 1.0 - kS;
+	//kD *= 1.0 - material.metallic;	
+	kD *= material.metallic;	
+    vec3 diffuse = irradiance * material.albedo;
+    vec3 ambient = (kD * diffuse) *  material.ao;
+
+
     vec3 color = ambient + Lo;
 
     // HDR tonemapping
@@ -130,6 +146,7 @@ void main(){
     color = pow(color, vec3(1.0/2.2)); 
 
     FragColor = vec4(color, 1.0);
+	//FragColor = vec4(irradiance, 1.0);
 }
 
 void ShadowCastPointLightCalculator(in ShadowCastingPointLight light[MAX_SHADOW_CASTING_POINT_LIGHTS],
@@ -300,6 +317,10 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness){
 // ----------------------------------------------------------------------------
 vec3 fresnelSchlick(float cosTheta, vec3 F0){
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+// ----------------------------------------------------------------------------
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness){
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
 // ----------------------------------------------------------------------------
 float random (vec2 st) {

@@ -31,7 +31,7 @@ private:
   Render render;
   Input input;
 
-  Shader skyBox;
+  Shader skyBoxShader;
   Skybox skyBoxOne;
 
   Shader lamp;
@@ -51,6 +51,11 @@ private:
   Framebuffer gFrameBuffer;
   Shader multipleRenderTargetShader;
   
+  Framebuffer equivBuffer;
+  Shader equivShader;
+  Shader irradianceShader;
+  Shader enviromentShader;
+
 
   Camera* cameraState;
 public:

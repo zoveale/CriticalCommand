@@ -263,6 +263,9 @@
     <None Include="resources\shader\HDR\frag.glsl" />
     <None Include="resources\shader\HDR\geo.glsl" />
     <None Include="resources\shader\HDR\vert.glsl" />
+    <None Include="resources\shader\IrradianceMap\frag.glsl" />
+    <None Include="resources\shader\IrradianceMap\geo.glsl" />
+    <None Include="resources\shader\IrradianceMap\vert.glsl" />
     <None Include="resources\shader\Lamp\lampF.glsl" />
     <None Include="resources\shader\Lamp\lampV.glsl" />
     <None Include="resources\shader\Model\Fmodel.glsl" />

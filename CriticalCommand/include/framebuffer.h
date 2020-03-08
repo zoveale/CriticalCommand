@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include "shader.h"
 #include "modelUtility.h"
+#include "skybox.h"
 
 class Framebuffer {
 public:
@@ -32,7 +33,11 @@ public:
 
   //PBR Area sampling
   //pbr: convert HDR equirectangular environment map to cubemap equivalent
-  void CreateEnvironmentMapBuffer(Shader equiShader, std::string hdrPath);
+  void CreateEnvironmentMapBuffer(Shader equiShader, std::string hdrPath, unsigned int resolution = 1 << 9);
+  void CreateIrradianceMapBuffer(Shader equiShader, unsigned int resolution = 1 << 5);
+  void DrawEnvironmentSkyBox(glm::mat4 view, glm::mat4 projection, Shader skyboxShader);
+  void DrawIrradianceSkyBox(glm::mat4 view, glm::mat4 projection, Shader skyboxShader);
+  void SetIrradianceTexture(Shader pbrShader);
   ///
   ~Framebuffer();
 private:
@@ -49,7 +54,9 @@ private:
   //
   unsigned int captureFBO, captureRBO;
   unsigned int envCubemap;
+  unsigned int irradianceMap;
   unsigned int hdrTexture;
+  Skybox basicCube;
   ///
   unsigned int framebuffer;
   unsigned int textureColorbuffer[2];

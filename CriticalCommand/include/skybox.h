@@ -1,7 +1,7 @@
 #ifndef VEALE_909BC959_DC2C_4B6D_A279_3100195E4C83_H
 #define VEALE_909BC959_DC2C_4B6D_A279_3100195E4C83_H
 
-#include "model.h"
+#include "modelUtility.h"
 
 const float skyboxVertices[] = {
   // positions          
@@ -85,8 +85,9 @@ public:
     shaderPointer->Use();
     shaderPointer->SetInt("skybox", 0);
   }
-  //handles all depth masking inside the function
-  void Draw(glm::mat4 view, glm::mat4 projection) {\
+
+  void Draw(glm::mat4 view, glm::mat4 projection) {
+    
     glDepthFunc(GL_LEQUAL);
     glDepthMask(GL_FALSE);
     shaderPointer->Use();
@@ -101,6 +102,18 @@ public:
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LESS);
   }
+
+  void LoadCubeOnly() {
+    glGenVertexArrays(1, &skyboxVAO);
+    glGenBuffers(1, &skyboxVBO);
+    glBindVertexArray(skyboxVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+  }
+  //handles all depth masking inside the function
+ 
 
   void RenderCube() {
     glBindVertexArray(skyboxVAO);

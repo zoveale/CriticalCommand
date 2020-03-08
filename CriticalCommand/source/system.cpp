@@ -43,10 +43,17 @@ void System::SystemInit(){
   uvSphere.LoadModel("resources/imagedBasedLighting/sphere.dae");
   
   //skybox
-  skyBox.Load("resources/cubemap/shaders/vertex.glsl", "resources/cubemap/shaders/fragment.glsl");
-  skyBoxOne.Load(&skyBox);
+  skyBoxShader.Load("resources/cubemap/shaders/vertex.glsl", "resources/cubemap/shaders/fragment.glsl");
+  skyBoxOne.Load(&skyBoxShader);
 
-  
+  //equirectangularMap
+  equivShader.Load("resources/shader/EquiRectMap/vert.glsl", "resources/shader/EquiRectMap/frag.glsl");
+  irradianceShader.Load("resources/shader/IrradianceMap/vert.glsl", "resources/shader/IrradianceMap/frag.glsl");
+  equivBuffer.CreateEnvironmentMapBuffer(equivShader, "resources/imagedBasedLighting/monoLake.hdr");
+  equivBuffer.CreateIrradianceMapBuffer(irradianceShader);
+  glViewport(0, 0, (GLsizei)Render::Screen::WIDTH, (GLsizei)Render::Screen::HEIGHT);
+  //enviromentShader.Load("resources/shader/EnvironmentMap/vert.glsl", "resources/shader/EnvironmentMap/frag.glsl");
+  ///
 
   model = glm::mat4(1.0f); 
   view = glm::mat4(1.0f);
@@ -120,7 +127,7 @@ void System::GameLoop(){
       pbrShader.Use();
       pbrShader.SetVec3("camPos", player.position);
       gFrameBuffer.SetDeferredShading(pbrShader);
-
+      equivBuffer.SetIrradianceTexture(pbrShader);
 
       glBindFramebuffer(GL_READ_FRAMEBUFFER, gFrameBuffer.GetGeometryBufferFBO());
       glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -148,9 +155,10 @@ void System::GameLoop(){
       }
 
       //skybox
-      skyBoxOne.Draw(view, projection);
+      //skyBoxOne.Draw(view, projection);
+      equivBuffer.DrawEnvironmentSkyBox(view, projection, skyBoxShader);
+      //equivBuffer.DrawIrradianceSkyBox(view, projection, skyBoxShader);
       ///
-
 
       /* Swap front and back buffers */
       render.Display();

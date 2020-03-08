@@ -12,7 +12,7 @@ void main()
     TexCoords = aPos;
     vec4 pos  = projection * view * vec4(aPos, 1.0);
 
-	//have the z position always equal to zero for
-	//depth testing purposes
+	//xyww trick here that ensures the depth value of the 
+	//rendered cube fragments always end up at 1.0
 	gl_Position = pos.xyww;
 } 

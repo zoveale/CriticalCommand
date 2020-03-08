@@ -201,6 +201,9 @@
     <None Include="resources\shader\EnvironmentMap\frag.glsl" />
     <None Include="resources\shader\EnvironmentMap\geo.glsl" />
     <None Include="resources\shader\EnvironmentMap\vert.glsl" />
+    <None Include="resources\shader\IrradianceMap\frag.glsl" />
+    <None Include="resources\shader\IrradianceMap\geo.glsl" />
+    <None Include="resources\shader\IrradianceMap\vert.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">
