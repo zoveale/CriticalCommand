@@ -130,7 +130,7 @@ void main(){
     
 	vec3 irradiance = texture(irradianceMap, -N).rgb;
 	vec3 kS = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, material.roughness);
-    vec3 kD = 1.0 - kS;
+    vec3 kD = kS;
 	//kD *= 1.0 - material.metallic;	
 	kD *= material.metallic;	
     vec3 diffuse = irradiance * material.albedo;
@@ -138,7 +138,7 @@ void main(){
 
 
     vec3 color = ambient + Lo;
-
+	//color = color * diffuse;
     // HDR tonemapping
     color = color / (color + vec3(1.0));
     // gamma correct
