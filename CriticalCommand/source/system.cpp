@@ -49,10 +49,8 @@ void System::SystemInit(){
   //equirectangularMap
   equivShader.Load("resources/shader/EquiRectMap/vert.glsl", "resources/shader/EquiRectMap/frag.glsl");
   irradianceShader.Load("resources/shader/IrradianceMap/vert.glsl", "resources/shader/IrradianceMap/frag.glsl");
-  equivBuffer.CreateEnvironmentMapBuffer(equivShader, "resources/imagedBasedLighting/monoLake.hdr");
-  equivBuffer.CreateIrradianceMapBuffer(irradianceShader);
-  glViewport(0, 0, (GLsizei)Render::Screen::WIDTH, (GLsizei)Render::Screen::HEIGHT);
-  //enviromentShader.Load("resources/shader/EnvironmentMap/vert.glsl", "resources/shader/EnvironmentMap/frag.glsl");
+  diffuseIrradianceBuffer.CreateEnvironmentMapFromHdrEquirectangularMap(equivShader, "resources/imagedBasedLighting/small_cave_2k.hdr");
+  diffuseIrradianceBuffer.CreateIrradianceMapFromEnvironmentMap(irradianceShader);
   ///
 
   model = glm::mat4(1.0f); 
@@ -116,18 +114,19 @@ void System::GameLoop(){
       glViewport(0, 0, (GLsizei)Render::Screen::WIDTH, (GLsizei)Render::Screen::HEIGHT);
       render.ClearScreen();
       multipleRenderTargetShader.Use();
+      multipleRenderTargetShader.SetVec3("camPos", player.position);
       multipleRenderTargetShader.SetMat4("projection", projection);
       multipleRenderTargetShader.SetMat4("view", view);
       multipleRenderTargetShader.SetMat4("model", model);
-      multipleRenderTargetShader.SetMat4("inverseModel", glm::transpose(glm::inverse(model)));
+      //multipleRenderTargetShader.SetMat4("inverseModel", glm::transpose(glm::inverse(model)));
       uvSphere.Draw(multipleRenderTargetShader);
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
       pbrShader.Use();
-      pbrShader.SetVec3("camPos", player.position);
+      //pbrShader.SetVec3("camPos", player.position);
       gFrameBuffer.SetDeferredShading(pbrShader);
-      equivBuffer.SetIrradianceTexture(pbrShader);
+      diffuseIrradianceBuffer.SetIrradianceTexture(pbrShader);
 
       glBindFramebuffer(GL_READ_FRAMEBUFFER, gFrameBuffer.GetGeometryBufferFBO());
       glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -156,8 +155,8 @@ void System::GameLoop(){
 
       //skybox
       //skyBoxOne.Draw(view, projection);
-      equivBuffer.DrawEnvironmentSkyBox(view, projection, skyBoxShader);
-      //equivBuffer.DrawIrradianceSkyBox(view, projection, skyBoxShader);
+      diffuseIrradianceBuffer.DrawEnvironmentSkyBox(view, projection, skyBoxShader);
+      //diffuseIrradianceBuffer.DrawIrradianceSkyBox(view, projection, skyBoxShader);
       ///
 
       /* Swap front and back buffers */

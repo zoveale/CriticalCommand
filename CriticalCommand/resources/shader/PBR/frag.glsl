@@ -74,7 +74,7 @@ uniform unsigned int numShadowSpotLights;
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 uniform ShadowCastingSpotLight shadowCastingSpotLights[MAX_SHADOW_CASTING_SPOT_LIGHTS];
 
-uniform vec3 camPos;
+//uniform vec3 camPos;
 
 
 // ----------------------------------------------------------------------------
@@ -104,8 +104,8 @@ void main(){
 	material.roughness = texture(metalRoughAo, TexCoords).g;
 	material.ao        = texture(metalRoughAo, TexCoords).b;
 
-    vec3 N = texture(gNormal, TexCoords).rgb;
-    vec3 V = normalize(camPos - material.posTexture);
+    vec3 N = texture(gNormal, TexCoords).rgb;;
+    vec3 V = material.posTexture.rgb;
 
 	//surface reflection at zero incidence
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
@@ -132,12 +132,13 @@ void main(){
 	vec3 kS = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, material.roughness);
     vec3 kD = kS;
 	//kD *= 1.0 - material.metallic;	
+	//TODO:: metallic textures are in the wrong format? cant subtract by 1.0
 	kD *= material.metallic;	
     vec3 diffuse = irradiance * material.albedo;
     vec3 ambient = (kD * diffuse) *  material.ao;
 
 
-    vec3 color = ambient + Lo;
+    vec3 color =  ambient + Lo;
 	//color = color * diffuse;
     // HDR tonemapping
     color = color / (color + vec3(1.0));
@@ -192,6 +193,7 @@ void ShadowCastPointLightCalculator(in ShadowCastingPointLight light[MAX_SHADOW_
 		// note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 		reflectance += (kD * mat.albedo / (PI + specular * (1.0 - visibility)) * radiance * (1.0 - visibility) * NdotL);  
 	}  
+
 }
 
 void PointLightCalculator(in PointLight light[MAX_POINT_LIGHTS],
@@ -207,7 +209,7 @@ void PointLightCalculator(in PointLight light[MAX_POINT_LIGHTS],
 		vec3 radiance = light[i].color * attenuation;
 		// calculate per-light radiance
 		vec3 L = normalize(light[i].position - mat.posTexture);
-		vec3 H = normalize (view + L);
+		vec3 H = normalize(view + L);
 
 		// Cook-Torrance BRDF
 		float NDF = DistributionGGX(normal, H, mat.roughness);   
@@ -234,7 +236,7 @@ void PointLightCalculator(in PointLight light[MAX_POINT_LIGHTS],
 
 		// add to outgoing radiance Lo
 		// note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
-		reflectance += (kD * mat.albedo / PI + specular * radiance * NdotL);  
+		(reflectance += ((kD * mat.albedo  / PI + specular) * radiance * NdotL));  
 	}  
 }
 

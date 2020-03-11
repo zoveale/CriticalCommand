@@ -19,6 +19,7 @@ struct Material{
 };
  
 uniform Material material;
+uniform vec3 camPos;
 
 vec3 getNormalFromMap(){
     vec3 tangentNormal = texture(material.texture_normal, TexCoords).xyz * 2.0 - 1.0;
@@ -40,12 +41,12 @@ vec3 getNormalFromMap(){
 
 void main(){             
 	// store the fragment position vector in the first gbuffer texture
-    gPosition = FragPos;
+    gPosition = normalize(camPos - FragPos);
     // also store the per-fragment normals into the gbuffer
 	//TODO::swap to texture_normal1;
     //gNormal = worldSpaceinverse * texture(material.texture_normal1, TexCoords).rgb;
 	//gNormal = normalize(texture(material.texture_normal1, TexCoords).rgb);
-	//gNormal = gNormal * 2.0f - 1.0f;
+	//gNormal = Normal * 2.0f - 1.0f;
 	gNormal = getNormalFromMap();
 	
     // and the diffuse per-fragment color

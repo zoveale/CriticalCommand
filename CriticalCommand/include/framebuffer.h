@@ -33,8 +33,8 @@ public:
 
   //PBR Area sampling
   //pbr: convert HDR equirectangular environment map to cubemap equivalent
-  void CreateEnvironmentMapBuffer(Shader equiShader, std::string hdrPath, unsigned int resolution = 1 << 9);
-  void CreateIrradianceMapBuffer(Shader equiShader, unsigned int resolution = 1 << 5);
+  void CreateEnvironmentMapFromHdrEquirectangularMap(Shader equiShader, std::string hdrPath, unsigned int resolution = 1 << 9);
+  void CreateIrradianceMapFromEnvironmentMap(Shader equiShader, unsigned int resolution = 1 << 5);
   void DrawEnvironmentSkyBox(glm::mat4 view, glm::mat4 projection, Shader skyboxShader);
   void DrawIrradianceSkyBox(glm::mat4 view, glm::mat4 projection, Shader skyboxShader);
   void SetIrradianceTexture(Shader pbrShader);

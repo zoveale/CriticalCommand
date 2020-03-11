@@ -51,7 +51,7 @@ private:
   Framebuffer gFrameBuffer;
   Shader multipleRenderTargetShader;
   
-  Framebuffer equivBuffer;
+  Framebuffer diffuseIrradianceBuffer;
   Shader equivShader;
   Shader irradianceShader;
   Shader enviromentShader;
