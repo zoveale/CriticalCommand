@@ -41,14 +41,14 @@ vec3 getNormalFromMap(){
 
 void main(){             
 	// store the fragment position vector in the first gbuffer texture
-    gPosition = normalize(camPos - FragPos);
+    gPosition = FragPos.xyz;
     // also store the per-fragment normals into the gbuffer
 	//TODO::swap to texture_normal1;
     //gNormal = worldSpaceinverse * texture(material.texture_normal1, TexCoords).rgb;
 	//gNormal = normalize(texture(material.texture_normal1, TexCoords).rgb);
 	//gNormal = Normal * 2.0f - 1.0f;
-	gNormal = getNormalFromMap();
-	
+	//gNormal = getNormalFromMap();
+	gNormal = Normal;
     // and the diffuse per-fragment color
     metalRoughAo.r = texture(material.texture_metallic, TexCoords).r;
 	metalRoughAo.g = texture(material.texture_roughness, TexCoords).r;

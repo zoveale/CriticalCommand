@@ -66,8 +66,7 @@ void System::SystemInit(){
   sceneLights.SetFixedAttributes(pbrShader);
   sceneLights.SetFixedShadowAttributes(pbrShader);
 
-  pbrShader.Use();
-  pbrShader.SetVec3("camPos", player.position);
+  
   
 }
 
@@ -114,7 +113,7 @@ void System::GameLoop(){
       glViewport(0, 0, (GLsizei)Render::Screen::WIDTH, (GLsizei)Render::Screen::HEIGHT);
       render.ClearScreen();
       multipleRenderTargetShader.Use();
-      multipleRenderTargetShader.SetVec3("camPos", player.position);
+      //multipleRenderTargetShader.SetVec3("camPos", player.position);
       multipleRenderTargetShader.SetMat4("projection", projection);
       multipleRenderTargetShader.SetMat4("view", view);
       multipleRenderTargetShader.SetMat4("model", model);
@@ -123,10 +122,11 @@ void System::GameLoop(){
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-      pbrShader.Use();
-      //pbrShader.SetVec3("camPos", player.position);
+      pbrShader.Use();                 
+      pbrShader.SetVec3("camPos", player.position);
       gFrameBuffer.SetDeferredShading(pbrShader);
       diffuseIrradianceBuffer.SetIrradianceTexture(pbrShader);
+
 
       glBindFramebuffer(GL_READ_FRAMEBUFFER, gFrameBuffer.GetGeometryBufferFBO());
       glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);

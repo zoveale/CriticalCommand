@@ -134,7 +134,7 @@ void PointLight::SetFixedAttributes(Shader shader, unsigned int i) {
 
   shader.SetVec3(name + ".position", this->position);
   shader.SetVec3(name + ".color", this->diffuse);
-  shader.SetFloat(name + ".radius", 25.0f);
+  shader.SetFloat(name + ".radius", 7.0f);
   /*shader.SetVec3(name + ".ambient", this->ambient);
   shader.SetVec3(name + ".diffuse", this->diffuse);
   shader.SetVec3(name + ".specular", this->specular);

@@ -22,7 +22,7 @@ const unsigned int MAX_SPOT_LIGHTS = 100;
 	
 struct Material{
 	vec3 albedo;
-	vec3 posTexture;
+	vec3 fragmentPosition;
 	float metallic ;
 	float roughness;
 	float ao;    
@@ -74,7 +74,7 @@ uniform unsigned int numShadowSpotLights;
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 uniform ShadowCastingSpotLight shadowCastingSpotLights[MAX_SHADOW_CASTING_SPOT_LIGHTS];
 
-//uniform vec3 camPos;
+uniform vec3 camPos;
 
 
 // ----------------------------------------------------------------------------
@@ -90,6 +90,7 @@ float ShadowCalculationCubeMap(vec3 fragPos, vec3 lightPos, samplerCube shadowCu
 // ----------------------------------------------------------------------------
 void ShadowCastPointLightCalculator(in ShadowCastingPointLight light[MAX_SHADOW_CASTING_POINT_LIGHTS],
 									in Material mat, in vec3 normal, in vec3 view, in vec3 fzero, in out vec3 reflectance);
+// ----------------------------------------------------------------------------
 void PointLightCalculator(in PointLight light[MAX_POINT_LIGHTS], in Material mat, in vec3 normal,
 									in vec3 view, in vec3 fzero, in out vec3 reflectance);
 // ----------------------------------------------------------------------------
@@ -99,13 +100,13 @@ void SpotLightCalculator(in SpotLight light[MAX_SPOT_LIGHTS], in Material mat, i
 
 void main(){	
 	material.albedo = texture(gAlbedo, TexCoords).rgb;
-	material.posTexture = texture(gPosition, TexCoords).rgb;
+	material.fragmentPosition = texture(gPosition, TexCoords).rgb;
 	material.metallic  = texture(metalRoughAo, TexCoords).r;
 	material.roughness = texture(metalRoughAo, TexCoords).g;
 	material.ao        = texture(metalRoughAo, TexCoords).b;
 
     vec3 N = texture(gNormal, TexCoords).rgb;;
-    vec3 V = material.posTexture.rgb;
+    vec3 V = normalize(camPos - material.fragmentPosition.rgb);
 
 	//surface reflection at zero incidence
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
@@ -147,7 +148,6 @@ void main(){
     color = pow(color, vec3(1.0/2.2)); 
 
     FragColor = vec4(color, 1.0);
-	//FragColor = vec4(irradiance, 1.0);
 }
 
 void ShadowCastPointLightCalculator(in ShadowCastingPointLight light[MAX_SHADOW_CASTING_POINT_LIGHTS],
@@ -155,21 +155,21 @@ void ShadowCastPointLightCalculator(in ShadowCastingPointLight light[MAX_SHADOW_
 									in vec3 view, in vec3 fzero,
 									in out vec3 reflectance){
 	for(int i = 0; i < numShadowPointLights; ++i){
-		float dis = length(light[i].position - mat.posTexture);
-		float visibility  = ShadowCalculationCubeMap(mat.posTexture, light[i].position, light[i].shadowMap);
+		float dis = length(light[i].position - mat.fragmentPosition);
+		float visibility  = ShadowCalculationCubeMap(mat.fragmentPosition, light[i].position, light[i].shadowMap);
 
 		float attenuation = 1.0 / (1.0 + ((4.5 / light[i].radius) * dis) + 
 			((75.0/(light[i].radius * light[i].radius)) * dis * dis)); 
 			
 		vec3 radiance = light[i].color * attenuation;
 		// calculate per-light radiance
-		vec3 L = normalize(light[i].position - mat.posTexture);
+		vec3 L = normalize(light[i].position - mat.fragmentPosition);
 		vec3 H = normalize (view + L);
 
 		// Cook-Torrance BRDF
 		float NDF = DistributionGGX(normal, H, mat.roughness);   
 		float G   = GeometrySmith(normal, view, L, mat.roughness);      
-		vec3 F    = fresnelSchlick(clamp(dot(H, view), 0.0, 1.0), reflectance);
+		vec3 F    = fresnelSchlick(clamp(dot(H, view), 0.0, 1.0), fzero);
            
 		vec3 nominator    = NDF * G * F; 
 		float denominator = 4 * max(dot(normal, view), 0.0) * max(dot(normal, L), 0.0);
@@ -201,20 +201,22 @@ void PointLightCalculator(in PointLight light[MAX_POINT_LIGHTS],
 									in vec3 view, in vec3 fzero,
 									in out vec3 reflectance){
 	for(int i = 0; i < numPointLights; ++i){
-		float dis = length(light[i].position - mat.posTexture);
+
+		float dis = length(light[i].position - mat.fragmentPosition);
+		//float attenuation = 1.0 / (dis * dis);
 
 		float attenuation = 1.0 / (1.0 + ((4.5 / light[i].radius) * dis) + 
 			((75.0/(light[i].radius * light[i].radius)) * dis * dis)); 
-			
+
 		vec3 radiance = light[i].color * attenuation;
 		// calculate per-light radiance
-		vec3 L = normalize(light[i].position - mat.posTexture);
+		vec3 L = normalize(light[i].position - mat.fragmentPosition);
 		vec3 H = normalize(view + L);
 
 		// Cook-Torrance BRDF
 		float NDF = DistributionGGX(normal, H, mat.roughness);   
 		float G   = GeometrySmith(normal, view, L, mat.roughness);      
-		vec3 F    = fresnelSchlick(clamp(dot(H, view), 0.0, 1.0), reflectance);
+		vec3 F    = fresnelSchlick(clamp(dot(H, view), 0.0, 1.0), fzero);
            
 		vec3 nominator    = NDF * G * F; 
 		float denominator = 4 * max(dot(normal, view), 0.0) * max(dot(normal, L), 0.0);
@@ -247,13 +249,14 @@ void SpotLightCalculator(in SpotLight light[MAX_SPOT_LIGHTS],
 
 	for(int i = 0; i < numSpotLights; ++i){
 
-		float dis = length(light[i].position - mat.posTexture);
+		float dis = length(light[i].position - mat.fragmentPosition);
 
 		float attenuation = 1.0 / (light[i].constant + light[i].linear * dis + light[i].quadratic * (dis * dis));
+		//float attenuation = 1.0 / (dis * dis);
 			
 		vec3 radiance = light[i].color * attenuation;
 		// calculate per-light radiance
-		vec3 L = normalize(light[i].position - mat.posTexture);
+		vec3 L = normalize(light[i].position - mat.fragmentPosition);
 		vec3 H = normalize (view + L);
 
 		float theta = dot(L, normalize(-light[i].direction)); 
@@ -263,7 +266,7 @@ void SpotLightCalculator(in SpotLight light[MAX_SPOT_LIGHTS],
 		// Cook-Torrance BRDF
 		float NDF = DistributionGGX(normal, H, mat.roughness);   
 		float G   = GeometrySmith(normal, view, L, mat.roughness);      
-		vec3 F    = fresnelSchlick(clamp(dot(H, view), 0.0, 1.0), reflectance);
+		vec3 F    = fresnelSchlick(clamp(dot(H, view), 0.0, 1.0), fzero);
            
 		vec3 nominator    = NDF * G * F; 
 		float denominator = 4 * max(dot(normal, view), 0.0) * max(dot(normal, L), 0.0);
