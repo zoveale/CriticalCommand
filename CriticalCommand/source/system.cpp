@@ -46,10 +46,20 @@ void System::SystemInit(){
   skyBoxShader.Load("resources/cubemap/shaders/vertex.glsl", "resources/cubemap/shaders/fragment.glsl");
   skyBoxOne.Load(&skyBoxShader);
 
-  //equirectangularMap
-  equivShader.Load("resources/shader/EquiRectMap/vert.glsl", "resources/shader/EquiRectMap/frag.glsl");
-  irradianceShader.Load("resources/shader/IrradianceMap/vert.glsl", "resources/shader/IrradianceMap/frag.glsl");
-  diffuseIrradianceBuffer.CreateEnvironmentMapFromHdrEquirectangularMap(equivShader, "resources/imagedBasedLighting/small_cave_2k.hdr");
+  //PBR shading stuff
+  //Diffuse IBL
+  equirectangularToCubemapShader.Load("resources/shader/PBR/DiffuseIBL/EquiRectMap/vert.glsl",
+                                      "resources/shader/PBR/DiffuseIBL/EquiRectMap/frag.glsl");
+  irradianceShader.Load("resources/shader/PBR/DiffuseIBL/IrradianceMap/vert.glsl",
+                        "resources/shader/PBR/DiffuseIBL/IrradianceMap/frag.glsl");
+  //Specular IBL
+  prefilterShader.Load("resources/shader/PBR/SpecularIBL/BRDFLookUpTexture/vert.glsl",
+                       "resources/shader/PBR/SpecularIBL/BRDFLookUpTexture/frag.glsl");
+  brdfLookUpShader.Load("resources/shader/PBR/SpecularIBL/Prefilter/vert.glsl",
+                        "resources/shader/PBR/SpecularIBL/Prefilter/frag.glsl");
+
+  diffuseIrradianceBuffer.CreateEnvironmentMapFromHdrEquirectangularMap(equirectangularToCubemapShader,
+                                                     "resources/imagedBasedLighting/small_cave_2k.hdr");
   diffuseIrradianceBuffer.CreateIrradianceMapFromEnvironmentMap(irradianceShader);
   ///
 
@@ -62,7 +72,7 @@ void System::SystemInit(){
   gFrameBuffer.LoadGeometryBuffer();
   ///
 
-  pbrShader.Load("resources/shader/PBR/vert.glsl", "resources/shader/PBR/frag.glsl");
+  pbrShader.Load("resources/shader/PBR/Main/vert.glsl", "resources/shader/PBR/Main/frag.glsl");
   sceneLights.SetFixedAttributes(pbrShader);
   sceneLights.SetFixedShadowAttributes(pbrShader);
 

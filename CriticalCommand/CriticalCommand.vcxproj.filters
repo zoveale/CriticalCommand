@@ -192,18 +192,18 @@
     <None Include="resources\shader\Gbuffer\vert.glsl" />
     <None Include="resources\shader\Gbuffer\frag.glsl" />
     <None Include="resources\shader\Gbuffer\geo.glsl" />
-    <None Include="resources\shader\PBR\vert.glsl" />
-    <None Include="resources\shader\PBR\frag.glsl" />
-    <None Include="resources\shader\PBR\geo.glsl" />
-    <None Include="resources\shader\EquiRectMap\vert.glsl" />
-    <None Include="resources\shader\EquiRectMap\frag.glsl" />
-    <None Include="resources\shader\EquiRectMap\geo.glsl" />
-    <None Include="resources\shader\EnvironmentMap\frag.glsl" />
-    <None Include="resources\shader\EnvironmentMap\geo.glsl" />
-    <None Include="resources\shader\EnvironmentMap\vert.glsl" />
-    <None Include="resources\shader\IrradianceMap\frag.glsl" />
-    <None Include="resources\shader\IrradianceMap\geo.glsl" />
-    <None Include="resources\shader\IrradianceMap\vert.glsl" />
+    <None Include="resources\shader\PBR\Main\vert.glsl" />
+    <None Include="resources\shader\PBR\Main\frag.glsl" />
+    <None Include="resources\shader\PBR\Main\geo.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\IrradianceMap\frag.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\IrradianceMap\geo.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\IrradianceMap\vert.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\EquiRectMap\frag.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\EquiRectMap\geo.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\EquiRectMap\vert.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\EnvironmentMap\frag.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\EnvironmentMap\geo.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\EnvironmentMap\vert.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">

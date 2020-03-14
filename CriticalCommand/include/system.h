@@ -52,8 +52,10 @@ private:
   Shader multipleRenderTargetShader;
   
   Framebuffer diffuseIrradianceBuffer;
-  Shader equivShader;
+  Shader equirectangularToCubemapShader;
   Shader irradianceShader;
+  Shader prefilterShader;
+  Shader brdfLookUpShader;
   Shader enviromentShader;
 
 
