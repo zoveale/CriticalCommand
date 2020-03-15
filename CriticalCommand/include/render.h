@@ -22,8 +22,8 @@ public:
   void Display();
 
   struct Screen {
-    static const int WIDTH = 1920;
-    static const int HEIGHT = 1080;
+    static const int WIDTH = 1768;
+    static const int HEIGHT = 992;
   };
 };
 #endif // !RENDER_H

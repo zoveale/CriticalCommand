@@ -34,10 +34,15 @@ public:
   //PBR Area sampling
   //pbr: convert HDR equirectangular environment map to cubemap equivalent
   void CreateEnvironmentMapFromHdrEquirectangularMap(Shader equiShader, std::string hdrPath, unsigned int resolution = 1 << 9);
-  void CreateIrradianceMapFromEnvironmentMap(Shader equiShader, unsigned int resolution = 1 << 5);
+  void CreateIrradianceMapFromEnvironmentMap(Shader irradianceShader, unsigned int resolution = 1 << 5);
+  void CreatePrefilterMapFromEnvironmentMap(Shader prefilterShader, unsigned int resolution = 1 << 7);
+  void CreateBRDFLookUpTextureMap(Shader brdfLookUpShader, unsigned int resolution = 1 << 9);
   void DrawEnvironmentSkyBox(glm::mat4 view, glm::mat4 projection, Shader skyboxShader);
   void DrawIrradianceSkyBox(glm::mat4 view, glm::mat4 projection, Shader skyboxShader);
+  void DrawPrefilterSkyBox(glm::mat4 view, glm::mat4 projection, Shader skyboxShader);
   void SetIrradianceTexture(Shader pbrShader);
+  void SetPrefilterTexture(Shader pbrShader);
+  void SetBRDFLookUpTexture(Shader pbrShader);
   ///
   ~Framebuffer();
 private:
@@ -55,6 +60,8 @@ private:
   unsigned int captureFBO, captureRBO;
   unsigned int envCubemap;
   unsigned int irradianceMap;
+  unsigned int prefilterMap;
+  unsigned int brdfLUTTexture;
   unsigned int hdrTexture;
   Skybox basicCube;
   ///

@@ -277,6 +277,10 @@
     <None Include="resources\shader\PBR\Main\frag.glsl" />
     <None Include="resources\shader\PBR\Main\geo.glsl" />
     <None Include="resources\shader\PBR\Main\vert.glsl" />
+    <None Include="resources\shader\PBR\SpecularIBL\BRDFLookUpTexture\frag.glsl" />
+    <None Include="resources\shader\PBR\SpecularIBL\BRDFLookUpTexture\vert.glsl" />
+    <None Include="resources\shader\PBR\SpecularIBL\Prefilter\frag.glsl" />
+    <None Include="resources\shader\PBR\SpecularIBL\Prefilter\vert.glsl" />
     <None Include="resources\shader\PhysicsObjects\Fphysics.glsl" />
     <None Include="resources\shader\PhysicsObjects\Gphysics.glsl" />
     <None Include="resources\shader\PhysicsObjects\Vphysics.glsl" />

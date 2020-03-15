@@ -53,14 +53,17 @@ void System::SystemInit(){
   irradianceShader.Load("resources/shader/PBR/DiffuseIBL/IrradianceMap/vert.glsl",
                         "resources/shader/PBR/DiffuseIBL/IrradianceMap/frag.glsl");
   //Specular IBL
-  prefilterShader.Load("resources/shader/PBR/SpecularIBL/BRDFLookUpTexture/vert.glsl",
-                       "resources/shader/PBR/SpecularIBL/BRDFLookUpTexture/frag.glsl");
-  brdfLookUpShader.Load("resources/shader/PBR/SpecularIBL/Prefilter/vert.glsl",
-                        "resources/shader/PBR/SpecularIBL/Prefilter/frag.glsl");
+  prefilterShader.Load("resources/shader/PBR/SpecularIBL/Prefilter/vert.glsl",
+                       "resources/shader/PBR/SpecularIBL/Prefilter/frag.glsl");
+  brdfLookUpShader.Load("resources/shader/PBR/SpecularIBL/BRDFLookUpTexture/vert.glsl",
+                        "resources/shader/PBR/SpecularIBL/BRDFLookUpTexture/frag.glsl");
 
-  diffuseIrradianceBuffer.CreateEnvironmentMapFromHdrEquirectangularMap(equirectangularToCubemapShader,
+  //Buffers
+  specularIrradianceBuffer.CreateEnvironmentMapFromHdrEquirectangularMap(equirectangularToCubemapShader,
                                                      "resources/imagedBasedLighting/small_cave_2k.hdr");
-  diffuseIrradianceBuffer.CreateIrradianceMapFromEnvironmentMap(irradianceShader);
+  specularIrradianceBuffer.CreateIrradianceMapFromEnvironmentMap(irradianceShader);
+  specularIrradianceBuffer.CreatePrefilterMapFromEnvironmentMap(prefilterShader);
+  specularIrradianceBuffer.CreateBRDFLookUpTextureMap(brdfLookUpShader);
   ///
 
   model = glm::mat4(1.0f); 
@@ -135,7 +138,9 @@ void System::GameLoop(){
       pbrShader.Use();                 
       pbrShader.SetVec3("camPos", player.position);
       gFrameBuffer.SetDeferredShading(pbrShader);
-      diffuseIrradianceBuffer.SetIrradianceTexture(pbrShader);
+      specularIrradianceBuffer.SetIrradianceTexture(pbrShader);
+      specularIrradianceBuffer.SetPrefilterTexture(pbrShader);
+      specularIrradianceBuffer.SetBRDFLookUpTexture(pbrShader);
 
 
       glBindFramebuffer(GL_READ_FRAMEBUFFER, gFrameBuffer.GetGeometryBufferFBO());
@@ -165,8 +170,9 @@ void System::GameLoop(){
 
       //skybox
       //skyBoxOne.Draw(view, projection);
-      diffuseIrradianceBuffer.DrawEnvironmentSkyBox(view, projection, skyBoxShader);
-      //diffuseIrradianceBuffer.DrawIrradianceSkyBox(view, projection, skyBoxShader);
+      specularIrradianceBuffer.DrawEnvironmentSkyBox(view, projection, skyBoxShader);
+      //specularIrradianceBuffer.DrawPrefilterSkyBox(view, projection, skyBoxShader);
+      //specularIrradianceBuffer.DrawIrradianceSkyBox(view, projection, skyBoxShader);
       ///
 
       /* Swap front and back buffers */

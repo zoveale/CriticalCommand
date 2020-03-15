@@ -15,6 +15,7 @@ void Render::StartUp(){
   //MSAA-multisampled anti-aliasing
   glfwWindowHint(GLFW_SAMPLES, 4);
   /* Create a windowed mode window and its OpenGL context */
+  //glfwGetPrimaryMonitor() for fullscreen
   window = glfwCreateWindow(Screen::WIDTH, Screen::HEIGHT, "Welcome To Critical Command", NULL, NULL);
   if (!window)
   {
@@ -29,7 +30,7 @@ void Render::StartUp(){
     printf("Error GLEW_OK = %i", GLEW_OK);
   }
 
-  //TODO:: multisampling on framebuffers
+  //TODO::multisampling on framebuffers
   //glEnable(GL_MULTISAMPLE);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);

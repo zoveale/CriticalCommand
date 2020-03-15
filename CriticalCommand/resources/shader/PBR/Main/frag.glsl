@@ -1,6 +1,6 @@
 //PBR shading
 #version 460 core
-out vec4 FragColor;
+layout (location = 0) out vec4 FragColor;
 
 in vec2 TexCoords;
 
@@ -11,7 +11,8 @@ uniform sampler2D metalRoughAo;
 uniform sampler2D gAlbedo;
 
 uniform samplerCube irradianceMap;
-
+uniform samplerCube prefilterMap;
+uniform sampler2D brdfLookUpTexture;
 // lights
 const unsigned int MAX_SHADOW_CASTING_POINT_LIGHTS = 13;
 const unsigned int MAX_POINT_LIGHTS = 100;
@@ -116,12 +117,6 @@ void main(){
     vec3 F0 = material.albedo; 
     F0 = mix(F0, material.albedo, material.metallic);
 
-	 // ambient lighting (note that the next IBL tutorial will replace 
-    // this ambient lighting with environment lighting).
-	
-    //vec3 ambient = irradiance * material.albedo * material.ao;
-	//vec3 ambient = vec3(0.0);
-
     //  reflectance equation
     vec3 Lo = vec3(0.0);
 
@@ -130,17 +125,22 @@ void main(){
 	PointLightCalculator(pointLights, material, N, V, F0, Lo);
     
 	vec3 irradiance = texture(irradianceMap, -N).rgb;
-	vec3 kS = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, material.roughness);
-    vec3 kD = kS;
+	vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, material.roughness);
+    vec3 kD = F;
 	//kD *= 1.0 - material.metallic;	
 	//TODO:: metallic textures are in the wrong format? cant subtract by 1.0
-	kD *= material.metallic;	
+	kD *= 1.0 - material.metallic;	
     vec3 diffuse = irradiance * material.albedo;
-    vec3 ambient = (kD * diffuse) *  material.ao;
 
+	vec3 R = reflect(V, N); 
+	const float MAX_REFLECTION_LOD = 4.0;
+    vec3 prefilteredColor = textureLod(prefilterMap, R,  material.roughness * MAX_REFLECTION_LOD).rgb;    
+    vec2 brdf  = texture(brdfLookUpTexture, vec2(max(dot(N, V), 0.0), material.roughness)).rg;
+    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+
+    vec3 ambient = (kD * diffuse + specular);// *  material.ao;
 
     vec3 color =  ambient + Lo;
-	//color = color * diffuse;
     // HDR tonemapping
     color = color / (color + vec3(1.0));
     // gamma correct

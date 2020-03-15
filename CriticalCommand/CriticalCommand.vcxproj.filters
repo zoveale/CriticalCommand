@@ -204,6 +204,10 @@
     <None Include="resources\shader\PBR\DiffuseIBL\EnvironmentMap\frag.glsl" />
     <None Include="resources\shader\PBR\DiffuseIBL\EnvironmentMap\geo.glsl" />
     <None Include="resources\shader\PBR\DiffuseIBL\EnvironmentMap\vert.glsl" />
+    <None Include="resources\shader\PBR\SpecularIBL\BRDFLookUpTexture\frag.glsl" />
+    <None Include="resources\shader\PBR\SpecularIBL\BRDFLookUpTexture\vert.glsl" />
+    <None Include="resources\shader\PBR\SpecularIBL\Prefilter\frag.glsl" />
+    <None Include="resources\shader\PBR\SpecularIBL\Prefilter\vert.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\texture\wall.jpg">
