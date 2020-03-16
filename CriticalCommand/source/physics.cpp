@@ -140,7 +140,6 @@ void physx::Physics::CleanUp() {
   /*
   Must be in this order to exit correctly with out errors
   */
- 
 
   gScene->release();
   gDispatcher->release();

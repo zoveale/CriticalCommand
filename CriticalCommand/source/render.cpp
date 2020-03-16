@@ -30,6 +30,9 @@ void Render::StartUp(){
     printf("Error GLEW_OK = %i", GLEW_OK);
   }
 
+  //Fix seams in cubemaps
+  glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
   //TODO::multisampling on framebuffers
   //glEnable(GL_MULTISAMPLE);
   glEnable(GL_DEPTH_TEST);

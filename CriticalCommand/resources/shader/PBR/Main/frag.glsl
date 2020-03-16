@@ -132,6 +132,7 @@ void main(){
 	kD *= 1.0 - material.metallic;	
     vec3 diffuse = irradiance * material.albedo;
 
+	
 	vec3 R = reflect(V, N); 
 	const float MAX_REFLECTION_LOD = 4.0;
     vec3 prefilteredColor = textureLod(prefilterMap, R,  material.roughness * MAX_REFLECTION_LOD).rgb;    

@@ -24,8 +24,8 @@ void System::SystemInit(){
   cameraState = &Camera::overview;
   cameraState->StartUp();
 
-  //physx::Physics::StartUp();
-  //scenePhysics.TestA();
+  physx::Physics::StartUp();
+  scenePhysics.TestA();
   // \ or vise versa ?
   //camera.startup /
   
@@ -40,7 +40,7 @@ void System::SystemInit(){
   ///
 
   //
-  uvSphere.LoadModel("resources/imagedBasedLighting/sphere.dae");
+  uvSphere.Load("resources/imagedBasedLighting/sphere.dae", sceneLights, scenePhysics, true);
   
   //skybox
   skyBoxShader.Load("resources/cubemap/shaders/vertex.glsl", "resources/cubemap/shaders/fragment.glsl");
@@ -58,13 +58,7 @@ void System::SystemInit(){
   brdfLookUpShader.Load("resources/shader/PBR/SpecularIBL/BRDFLookUpTexture/vert.glsl",
                         "resources/shader/PBR/SpecularIBL/BRDFLookUpTexture/frag.glsl");
 
-  //Buffers
-  specularIrradianceBuffer.CreateEnvironmentMapFromHdrEquirectangularMap(equirectangularToCubemapShader,
-                                                     "resources/imagedBasedLighting/small_cave_2k.hdr");
-  specularIrradianceBuffer.CreateIrradianceMapFromEnvironmentMap(irradianceShader);
-  specularIrradianceBuffer.CreatePrefilterMapFromEnvironmentMap(prefilterShader);
-  specularIrradianceBuffer.CreateBRDFLookUpTextureMap(brdfLookUpShader);
-  ///
+  
 
   model = glm::mat4(1.0f); 
   view = glm::mat4(1.0f);
@@ -79,8 +73,20 @@ void System::SystemInit(){
   sceneLights.SetFixedAttributes(pbrShader);
   sceneLights.SetFixedShadowAttributes(pbrShader);
 
-  
-  
+
+  //Buffers
+  specularIrradianceBuffer.CreateEnvironmentMapFromHdrEquirectangularMap(equirectangularToCubemapShader,
+    "resources/imagedBasedLighting/small_cave_2k.hdr");
+  specularIrradianceBuffer.CreateIrradianceMapFromEnvironmentMap(irradianceShader);
+  specularIrradianceBuffer.CreatePrefilterMapFromEnvironmentMap(prefilterShader);
+  specularIrradianceBuffer.CreateBRDFLookUpTextureMap(brdfLookUpShader);
+  ///
+
+  //Static render probe from enviroment cubemap
+  specularIrradianceBuffer.SetIrradianceTexture(pbrShader);
+  specularIrradianceBuffer.SetPrefilterTexture(pbrShader);
+  specularIrradianceBuffer.SetBRDFLookUpTexture(pbrShader);
+  ///
 }
 
 
@@ -138,9 +144,6 @@ void System::GameLoop(){
       pbrShader.Use();                 
       pbrShader.SetVec3("camPos", player.position);
       gFrameBuffer.SetDeferredShading(pbrShader);
-      specularIrradianceBuffer.SetIrradianceTexture(pbrShader);
-      specularIrradianceBuffer.SetPrefilterTexture(pbrShader);
-      specularIrradianceBuffer.SetBRDFLookUpTexture(pbrShader);
 
 
       glBindFramebuffer(GL_READ_FRAMEBUFFER, gFrameBuffer.GetGeometryBufferFBO());
@@ -180,7 +183,7 @@ void System::GameLoop(){
     }
 
 
-    //scenePhysics.StepPhysics(deltaRate);
+    scenePhysics.StepPhysics(deltaRate);
 
     /* Poll for and process events */
     input.Process();

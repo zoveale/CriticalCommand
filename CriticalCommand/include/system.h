@@ -60,6 +60,8 @@ private:
 
 
   Camera* cameraState;
+
+  
 public:
 
   System();

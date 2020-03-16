@@ -36,10 +36,16 @@ public:
   void CreateEnvironmentMapFromHdrEquirectangularMap(Shader equiShader, std::string hdrPath, unsigned int resolution = 1 << 9);
   void CreateIrradianceMapFromEnvironmentMap(Shader irradianceShader, unsigned int resolution = 1 << 5);
   void CreatePrefilterMapFromEnvironmentMap(Shader prefilterShader, unsigned int resolution = 1 << 7);
+  
+  void CreateIrradianceMapFromCubemap(Shader irradianceShader, std::string cubemapTexturesPath, unsigned int resolution = 1 << 5);
+  void CreatePrefilterMapFromCubemap(Shader prefilterShader, unsigned int resolution = 1 << 7);
+
   void CreateBRDFLookUpTextureMap(Shader brdfLookUpShader, unsigned int resolution = 1 << 9);
+
   void DrawEnvironmentSkyBox(glm::mat4 view, glm::mat4 projection, Shader skyboxShader);
   void DrawIrradianceSkyBox(glm::mat4 view, glm::mat4 projection, Shader skyboxShader);
   void DrawPrefilterSkyBox(glm::mat4 view, glm::mat4 projection, Shader skyboxShader);
+  
   void SetIrradianceTexture(Shader pbrShader);
   void SetPrefilterTexture(Shader pbrShader);
   void SetBRDFLookUpTexture(Shader pbrShader);

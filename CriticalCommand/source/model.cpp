@@ -500,44 +500,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
 
   // process materials
   aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-  // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
-  // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
-  // Same applies to other texture as the following list summarizes:
-  // diffuse: texture_diffuseN
-  // specular: texture_specularN
-  // normal: texture_normalN
-  // 1. diffuse maps
+  
   FillPBRTextureVector(textures);
 
-  /*std::vector<Texture> diffuseMaps = LoadATexture(aiTextureType_DIFFUSE, "material.texture_diffuse");
-  textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-  std::vector<Texture> specularMaps = LoadATexture(aiTextureType_SPECULAR, "material.texture_specular");
-  textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-  std::vector<Texture> normalMaps = LoadATexture(aiTextureType_NORMALS, "material.texture_normal");
-  textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-  std::vector<Texture> heightMaps = LoadATexture(aiTextureType_HEIGHT, "material.texture_height");
-  textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());*/
-  /*
-  Albedo Map
-  std::vector<Texture> diffuseMaps = LoadATexture(aiTextureType_DIFFUSE, "material.texture_diffuse");
-  textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-
-  Normal Map
-  std::vector<Texture> normalMaps = LoadATexture(aiTextureType_NORMALS, "material.texture_normal");
-  textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-
-  Metallic Map
-  std::vector<Texture> metallicMaps = LoadATexture(aiTextureType_METALNESS, "material.texture_metallic");
-  textures.insert(textures.end(), metallicMaps.begin(), metallicMaps.end());
-
-  Roughness Map
-  std::vector<Texture> roughnessMaps = LoadATexture(aiTextureType_SHININESS, "material.texture_roughness");
-  textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
-
-  AO Map
-  std::vector<Texture> aoMaps = LoadATexture(aiTextureType_LIGHTMAP, "material.texture_ao");
-  textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
-  */
   return Mesh(vertices, indices, textures);
 }
 ///

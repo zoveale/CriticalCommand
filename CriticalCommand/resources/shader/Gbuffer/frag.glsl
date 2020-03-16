@@ -47,8 +47,8 @@ void main(){
     //gNormal = worldSpaceinverse * texture(material.texture_normal1, TexCoords).rgb;
 	//gNormal = normalize(texture(material.texture_normal1, TexCoords).rgb);
 	//gNormal = Normal * 2.0f - 1.0f;
-	//gNormal = getNormalFromMap();
-	gNormal = Normal;
+	gNormal = getNormalFromMap();
+	//gNormal = Normal;
     // and the diffuse per-fragment color
     metalRoughAo.r = texture(material.texture_metallic, TexCoords).r;
 	metalRoughAo.g = texture(material.texture_roughness, TexCoords).r;
