@@ -15,11 +15,15 @@ public:
   float acc;
   glm::vec3 front;
   glm::vec3 right;
+  //Starting position of an object
   glm::vec3 position;
   glm::vec3 direction;
   glm::vec2 look;
   glm::mat4 modelMatrix;
-
+  //Starting velocity of an object
+  glm::vec3 initalVelocity;
+  //Starting rotational velocity of an object
+  glm::vec3 intialRotation;
   GameObject();
   void Load(GraphicsComponent *graphics = nullptr,
             PhysicsComponent  *physics  = nullptr,

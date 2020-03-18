@@ -16,6 +16,8 @@ GameObject::GameObject() {
   velocity = 0.0f;
   acc = 0.0f;
   modelMatrix = glm::mat4(1.0f);
+  initalVelocity = glm::vec3(0.0f);
+  intialRotation = glm::vec3(0.0f);
 }
 
 
@@ -29,7 +31,7 @@ void GameObject::Load(GraphicsComponent* g, PhysicsComponent* p, InputComponent*
  
   deltaTime = 0.0f;
   right = glm::vec3(0.0f, 0.0f, 1.0f);
-  position = glm::vec3(0.0f);
+  //position = glm::vec3(0.0f);
   direction = glm::vec3(0.0f, -1.0f, 0.0f);
   front = glm::vec3(1.0f, 0.0f, 0.0f);
   velocity = 10.0f;

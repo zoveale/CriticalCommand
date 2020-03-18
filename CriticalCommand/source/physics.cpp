@@ -413,7 +413,9 @@ void physx::Physics::AddStaticBoxActor(glm::vec3 pos, glm::vec3 size, PxMaterial
 }
 
 //TODO:: reduces rotational velocity 
-unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius, PxMaterial* material) {
+unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius,
+                                                   glm::vec3 linearVelocity, glm::vec3 angularVelocity,
+                                                   PxMaterial* material) {
   //Physx uses "Halfextents" for length claculation
   //so inputing appropriate size into the function should
   //return the correct size;
@@ -426,9 +428,11 @@ unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius, 
 
   PxShape* sphereShape = PxRigidActorExt::createExclusiveShape(*body, sphere, *defaultMaterial);
   PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-
+  
   //rolls slower
-  body->setMaxAngularVelocity(PxReal(3.0f));
+  //body->setMaxAngularVelocity(PxReal(3.0f));
+  body->setLinearVelocity(PxVec3(linearVelocity.x, linearVelocity.y, linearVelocity.z));
+  body->setAngularVelocity(PxVec3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
   gScene->addActor(*body);
   
   

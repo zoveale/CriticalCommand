@@ -61,7 +61,19 @@ private:
 
   Camera* cameraState;
 
-  
+  //Objects
+  Model modelObject[10];
+  GameObject testObject;
+  IcoSphereGraphicsComponent gObject;
+  IcoSpherePhysicsComponent pObject;
+  DefaultInputComponent iObject;
+
+  //Player
+  Model playerModel;
+  GameObject playerObject;
+  PlayerGraphicsComponent playerGraphics;
+  PlayerPhysicsComponent playerPhysics;
+  PlayerInputComponent playerInput;
 public:
 
   System();

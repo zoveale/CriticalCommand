@@ -10,7 +10,6 @@ out vec3 FragPos;
 out vec2 TexCoords;
 out vec3 Normal;
 
-//uniform mat4 inverseModel;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;

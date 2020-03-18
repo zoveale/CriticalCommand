@@ -56,7 +56,7 @@ public:
     index = 0;
   }
   virtual void SetUp(GameObject& object) {
-    index = root->AddDynamicSphereActor(object.position, 2.0f);
+    index = root->AddDynamicSphereActor(object.position, 2.0f, object.initalVelocity, object.intialRotation);
   }
 
   virtual void Update(GameObject &object) {

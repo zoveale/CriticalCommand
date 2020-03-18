@@ -70,7 +70,7 @@ public:
     model = glm::mat4(1.0f);
   }
   virtual void SetUp(GameObject& object) {
-    object.position = modelPointer->Position();
+    object.position += modelPointer->Position();
   }
   virtual void Update(GameObject& object, const glm::mat4 P, const glm::mat4 V) {
     model = object.modelMatrix;
@@ -110,7 +110,7 @@ public:
     model = glm::mat4(1.0f);
   }
   virtual void SetUp(GameObject& object) {
-    object.position = glm::vec3(1.0f);
+    object.position += modelData->Position();
     object.modelMatrix = glm::translate(glm::mat4(1.0f), object.position);
   } 
   virtual void Update(GameObject& object, const glm::mat4 P, const glm::mat4 V) {

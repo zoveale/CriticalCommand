@@ -37,7 +37,8 @@ public:
   void CreateIrradianceMapFromEnvironmentMap(Shader irradianceShader, unsigned int resolution = 1 << 5);
   void CreatePrefilterMapFromEnvironmentMap(Shader prefilterShader, unsigned int resolution = 1 << 7);
   
-  void CreateIrradianceMapFromCubemap(Shader irradianceShader, std::string cubemapTexturesPath, unsigned int resolution = 1 << 5);
+  void CreateEnvironmentMapFromCubeMap(std::string cubemapTexturesPath, unsigned int resolution = 1 << 9);
+  void CreateIrradianceMapFromCubemap(Shader irradianceShader, unsigned int resolution = 1 << 5);
   void CreatePrefilterMapFromCubemap(Shader prefilterShader, unsigned int resolution = 1 << 7);
 
   void CreateBRDFLookUpTextureMap(Shader brdfLookUpShader, unsigned int resolution = 1 << 9);
