@@ -19,7 +19,7 @@ void main(){
     FragPos = worldPos.xyz; 
     TexCoords = aTexCoords;
     
-    
+    //no longer inverse?
     Normal = mat3(model) * aNormal;
     gl_Position = projection * view * worldPos;
 }    

@@ -21,7 +21,7 @@ void System::SystemInit(){
 
   //Camera::thirdPerson
   //Camera::overview
-  cameraState = &Camera::thirdPerson;
+  cameraState = &Camera::overview;
   cameraState->StartUp();
 
   physx::Physics::StartUp();
@@ -33,7 +33,7 @@ void System::SystemInit(){
 
   
   //light stuff
-  m_Lights.LoadLights("", sceneLights);
+  m_Lights.LoadLights("resources/imagedBasedLighting/massLights.dae", sceneLights);
   lamp.Load("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
   pointLamp.LoadModel("resources/surface/pointLamp.dae");
   spotLight.LoadModel("resources/surface/spotLight.dae");
@@ -73,11 +73,7 @@ void System::SystemInit(){
   sceneLights.SetFixedAttributes(pbrShader);
   sceneLights.SetFixedShadowAttributes(pbrShader);
 
-  lamp.Use();
-  for (unsigned int i = 0; i < sceneLights.NumPointLights(); i++)
-    lamp.SetVec3("lampColor", sceneLights.GetPointLightColor(i) * 0.01f);
-  for (unsigned int i = 0; i < sceneLights.NumSpotLights(); i++)
-    lamp.SetVec3("lampColor", sceneLights.GetSpotLightColor(i) * 0.01f);
+  
 
   //reflection Buffers
   specularIrradianceBuffer.CreateEnvironmentMapFromHdrEquirectangularMap(equirectangularToCubemapShader,
@@ -100,13 +96,18 @@ void System::SystemInit(){
   modelObject[0].LoadModel("resources/imagedBasedLighting/object/object.dae");
   gObject.Load(&modelObject[0], &multipleRenderTargetShader, &sceneLights);
   pObject.Load(&scenePhysics);
-  iObject.Load();
+  //iObject.Load();
 
-  testObject.position = glm::vec3(0.0f, 5.0f, 0.0f);
-  testObject.intialRotation = glm::vec3(0.0f , 5.0f, 0.0f);
-  //testObject.initalVelocity = glm::vec3(2.0f);
-  testObject.Load(&gObject, &pObject, &iObject);
+  //testObject[0].position = glm::vec3(0.0f, 5.0f, 0.0f);
+  //testObject[0].intialRotation = glm::vec3(0.0f , 5.0f, 0.0f);
+  ////testObject.initalVelocity = glm::vec3(2.0f);
+  //testObject[0].Load(&gObject, &pObject, &iObject);
 
+  for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
+    testObject[i].position = glm::vec3(glm::sin(i * 2.0f) * 5 + 0.0f, i + 5.0f, glm::cos(i * 2.0f) * 5 + 0.0f);
+    //testObject[i].intialRotation = glm::vec3(0.0f, 5.0f, 0.0f);
+    testObject[i].Load(&gObject, &pObject);
+  }
   /*
   Model playerModel;
   PlayerGraphicsComponent playerGraphics;
@@ -115,12 +116,13 @@ void System::SystemInit(){
   GameObject playerObject;
 
   */
-  playerModel.LoadModel("resources/imagedBasedLighting/object/object.dae");
+
+  /*playerModel.LoadModel("resources/imagedBasedLighting/object/object.dae");
   playerGraphics.Load(&playerModel, &multipleRenderTargetShader, &sceneLights);
   playerPhysics.Load(&scenePhysics);
   playerInput.Load();
   playerObject.position = glm::vec3(0.0f, 5.0f, 0.0f);
-  playerObject.Load(&playerGraphics, &playerPhysics, &playerInput);
+  playerObject.Load(&playerGraphics, &playerPhysics, &playerInput);*/
 }
 
 
@@ -142,7 +144,6 @@ void System::GameLoop(){
   view = glm::mat4(1.0f);
   ///
 
-  
 
   while (!input.KEY.ESC) {
     input.PollEvents();
@@ -151,17 +152,23 @@ void System::GameLoop(){
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    //player.HandleInput(input, deltaTime);
-    
+    player.HandleInput(input, deltaTime);
+   /* for (GameObject objects : testObject) {
+      objects.Update(deltaTime, projection, view);
+    }*/
+    for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
+      testObject[i].Update(deltaTime, projection, view);
+    }
+    //testObject[0].Update(deltaTime, projection, view);
+    //playerObject.Update(deltaTime, projection, view);
+    player.Update(deltaTime);
+    cameraState->Update(player);
 
     model = glm::mat4(1.0f);
     view = glm::mat4(1.0f);
     view = cameraState->View();
 
-    testObject.Update(deltaTime, projection, view);
-    playerObject.Update(deltaTime, projection, view);
-    player.Update(deltaTime);
-    cameraState->Update(playerObject);
+   
 
     //TODO:: reimplement stencil testing
     //TODO:: Implement multisampling on framebuffers
@@ -176,8 +183,13 @@ void System::GameLoop(){
       multipleRenderTargetShader.SetMat4("view", view);
       multipleRenderTargetShader.SetMat4("model", model);
       uvSphere.Draw(multipleRenderTargetShader);
-      testObject.Draw();
-      playerObject.Draw();
+     /* for (GameObject objects : testObject) {
+        objects.Draw();
+      }*/
+      for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
+        testObject[i].Draw();
+      }
+      //playerObject.Draw();
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
@@ -201,18 +213,19 @@ void System::GameLoop(){
           model = glm::mat4(1.0f);
           model = glm::translate(model, sceneLights.GetPointLightPos(i));
           model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+          lamp.SetVec3("lampColor", sceneLights.GetPointLightColor(i) * 0.01f);
           lamp.SetMat4("PVM", projection * view * model);
           pointLamp.DrawModelOnly(lamp);
         }
         for (unsigned int i = 0; i < sceneLights.NumSpotLights(); i++) {
           model = glm::mat4(1.0f);
           model = sceneLights.GetSpotLightTransformation(i);
+          lamp.SetVec3("lampColor", sceneLights.GetSpotLightColor(i) * 0.1f);
           model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
           lamp.SetMat4("PVM", projection * view * model);
           spotLight.DrawModelOnly(lamp);
         }
       }
-
       //skybox
       //skyBoxOne.Draw(view, projection);
       specularIrradianceBuffer.DrawEnvironmentSkyBox(view, projection, skyBoxShader);
@@ -225,7 +238,7 @@ void System::GameLoop(){
     }
 
 
-    scenePhysics.StepPhysics(deltaRate * 0.125f);
+    scenePhysics.StepPhysics(deltaRate);
 
     /* Poll for and process events */
     input.Process();

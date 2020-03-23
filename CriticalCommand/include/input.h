@@ -15,8 +15,12 @@ struct KEY_STATE {
   bool SPACE = false;
   bool ESC = false;
 
+
+
   bool UP = false;
   bool DOWN = false;
+  bool LEFT = false;
+  bool RIGHT = false;
 };
 
 class Input {

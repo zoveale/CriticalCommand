@@ -49,22 +49,24 @@ private:
 
 class IcoSpherePhysicsComponent : public PhysicsComponent{
 public:
-  IcoSpherePhysicsComponent() : root(nullptr), index(unsigned int(0)) {}
+  IcoSpherePhysicsComponent() : root(nullptr) {}
 
   void Load(physx::Physics* rootPhysics) {
     this->root = rootPhysics;
-    index = 0;
+    //index = 0;
   }
   virtual void SetUp(GameObject& object) {
-    index = root->AddDynamicSphereActor(object.position, 2.0f, object.initalVelocity, object.intialRotation);
+    object.index = root->AddDynamicSphereActor(object.position, 2.0f, object.initalVelocity, object.intialRotation);
+    object.modelMatrix = root->GetAPose(object.index);
+    //index = object.index;
   }
 
   virtual void Update(GameObject &object) {
-    object.modelMatrix = root->GetAPose(index);
+    object.modelMatrix = root->GetAPose(object.index);
   }
 private:
   physx::Physics* root;
-  unsigned int index;
+  //unsigned int index;
 };
 
 class PlayerPhysicsComponent : public PhysicsComponent {

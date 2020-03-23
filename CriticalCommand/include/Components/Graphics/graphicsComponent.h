@@ -12,7 +12,7 @@ public:
   virtual void Load(Model* modelPointers, Shader* shader, LightFactory* lightContainer) = 0;
   virtual void SetUp(GameObject& object) = 0;
   virtual void Update(GameObject &object, const glm::mat4 P, const glm::mat4 V) = 0;
-  virtual void Draw() = 0;
+  virtual void Draw(GameObject& object) = 0;
   
   
 };
@@ -70,23 +70,15 @@ public:
     model = glm::mat4(1.0f);
   }
   virtual void SetUp(GameObject& object) {
-    object.position += modelPointer->Position();
+    //object.position += modelPointer->Position();
   }
   virtual void Update(GameObject& object, const glm::mat4 P, const glm::mat4 V) {
-    model = object.modelMatrix;
-    //object.modelMatrix = glm::translate(object.modelMatrix, object.position);
-    /*icoShader->Use();
-    icoShader->SetMat4("model", object.modelMatrix);
-    icoShader->SetMat4("view", V);
-    icoShader->SetMat4("projection", P);*/
-    //icoShader->SetMat4("PVM", PV * object.modelMatrix);
-    //lights->SetDynamicAttributes(*icoShader);
+    //model = object.modelMatrix;
   }
 
-  virtual void Draw() {
+  virtual void Draw(GameObject& object) {
     icoShader->Use();
-    icoShader->SetMat4("model", model);
-    icoShader->SetMat4("inverseModel", glm::inverse(model));
+    icoShader->SetMat4("model", object.modelMatrix);
     modelPointer->Draw(*icoShader);
   }
 
@@ -119,7 +111,7 @@ public:
     //object.modelMatrix = model;
   }
 
-  virtual void Draw() {
+  virtual void Draw(GameObject& object) {
     shader->Use();
     shader->SetMat4("model", model);
     shader->SetMat4("inverseModel", glm::inverse(model));

@@ -24,6 +24,7 @@ public:
   glm::vec3 initalVelocity;
   //Starting rotational velocity of an object
   glm::vec3 intialRotation;
+  unsigned int index;
   GameObject();
   void Load(GraphicsComponent *graphics = nullptr,
             PhysicsComponent  *physics  = nullptr,

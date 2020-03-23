@@ -86,6 +86,18 @@ void Input::Process() {
   if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_RELEASE) {
     KEY.DOWN = false;
   }
+  if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+    KEY.LEFT = true;
+  }
+  if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_RELEASE) {
+    KEY.LEFT = false;
+  }
+  if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+    KEY.RIGHT = true;
+  }
+  if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_RELEASE) {
+    KEY.RIGHT = false;
+  }
 
 
 }

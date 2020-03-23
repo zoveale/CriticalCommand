@@ -29,16 +29,16 @@ public:
     object.look.x = (float)Input::xoffset;
     object.look.y = (float)Input::yoffset;
     
-    if (Input::KEY.W) {
+    if (Input::KEY.UP) {
       object.position += object.front * (object.deltaTime * object.velocity);
     }
-    if (Input::KEY.S) {
+    if (Input::KEY.DOWN) {
       object.position -= object.front * (object.deltaTime * object.velocity);
     }
-    if (Input::KEY.A) {
+    if (Input::KEY.LEFT) {
       object.position -= object.right * (object.deltaTime * object.velocity);
     }
-    if (Input::KEY.D) {
+    if (Input::KEY.RIGHT) {
       object.position += object.right * (object.deltaTime * object.velocity);
     }
 

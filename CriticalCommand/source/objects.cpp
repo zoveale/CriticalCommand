@@ -25,9 +25,9 @@ void GameObject::Load(GraphicsComponent* g, PhysicsComponent* p, InputComponent*
   graphics = g;
   physics = p;
   input = i;
-  if (input == nullptr) {
+  /*if (input == nullptr) {
     input = new DefaultInputComponent();
-  }
+  }*/
  
   deltaTime = 0.0f;
   right = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -42,19 +42,23 @@ void GameObject::Load(GraphicsComponent* g, PhysicsComponent* p, InputComponent*
   //Graphics needs to be first to set up proper position
   graphics->SetUp(*this);
   physics->SetUp(*this);
-  input->SetUp(*this);
+  if (input != nullptr) {
+    input->SetUp(*this);
+  }
 }
 
 
 void GameObject::Update(float dt, const glm::mat4 P, const glm::mat4 V) {
-  deltaTime = dt;
-  input->Update(*this);
+  if (input != nullptr) {
+    deltaTime = dt;
+    input->Update(*this);
+  }
   physics->Update(*this);
   graphics->Update(*this, P, V);
 }
 
 void GameObject::Draw() {
-  graphics->Draw();
+  graphics->Draw(*this);
 }
 
 
