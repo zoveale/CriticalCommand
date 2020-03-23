@@ -69,6 +69,28 @@ private:
   //unsigned int index;
 };
 
+class CubePhysicsComponent : public PhysicsComponent {
+public:
+  CubePhysicsComponent() : root(nullptr) {}
+
+  void Load(physx::Physics* rootPhysics) {
+    this->root = rootPhysics;
+    //index = 0;
+  }
+  virtual void SetUp(GameObject& object) {
+    object.index = root->AddDynamicBoxActor(object.position, glm::vec3(1.0f));
+    object.modelMatrix = root->GetAPose(object.index);
+    //index = object.index;
+  }
+
+  virtual void Update(GameObject& object) {
+    object.modelMatrix = root->GetAPose(object.index);
+  }
+private:
+  physx::Physics* root;
+  //unsigned int index;
+};
+
 class PlayerPhysicsComponent : public PhysicsComponent {
 public:
   PlayerPhysicsComponent() : root(nullptr), index(unsigned int(0)) {}

@@ -22,7 +22,7 @@ void System::SystemInit(){
   //Camera::thirdPerson
   //Camera::overview
   cameraState = &Camera::overview;
-  cameraState->StartUp();
+  cameraState->StartUp(); 
 
   physx::Physics::StartUp();
   scenePhysics.TestA();
@@ -33,7 +33,7 @@ void System::SystemInit(){
 
   
   //light stuff
-  m_Lights.LoadLights("resources/imagedBasedLighting/massLights.dae", sceneLights);
+  //m_Lights.LoadLights("resources/imagedBasedLighting/massLights.dae", sceneLights);
   lamp.Load("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
   pointLamp.LoadModel("resources/surface/pointLamp.dae");
   spotLight.LoadModel("resources/surface/spotLight.dae");
@@ -93,9 +93,12 @@ void System::SystemInit(){
   ///
 
   //Objects
-  modelObject[0].LoadModel("resources/imagedBasedLighting/object/object.dae");
-  gObject.Load(&modelObject[0], &multipleRenderTargetShader, &sceneLights);
-  pObject.Load(&scenePhysics);
+  modelObject[0].LoadModel("resources/imagedBasedLighting/object0/object.dae");
+  modelObject[1].LoadModel("resources/imagedBasedLighting/object1/cube.dae");
+  gObject[0].Load(&modelObject[0], &multipleRenderTargetShader, &sceneLights);
+  gObject[1].Load(&modelObject[1], &multipleRenderTargetShader, &sceneLights);
+  pObjectCube.Load(&scenePhysics);
+  pObjectSphere.Load(&scenePhysics);
   //iObject.Load();
 
   //testObject[0].position = glm::vec3(0.0f, 5.0f, 0.0f);
@@ -106,7 +109,10 @@ void System::SystemInit(){
   for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
     testObject[i].position = glm::vec3(glm::sin(i * 2.0f) * 5 + 0.0f, i + 5.0f, glm::cos(i * 2.0f) * 5 + 0.0f);
     //testObject[i].intialRotation = glm::vec3(0.0f, 5.0f, 0.0f);
-    testObject[i].Load(&gObject, &pObject);
+    if((i % 2) == 0)
+      testObject[i].Load(&gObject[0], &pObjectSphere);
+    else
+      testObject[i].Load(&gObject[1], &pObjectCube);
   }
   /*
   Model playerModel;
