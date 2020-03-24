@@ -33,7 +33,7 @@ void System::SystemInit(){
 
   
   //light stuff
-  //m_Lights.LoadLights("resources/imagedBasedLighting/massLights.dae", sceneLights);
+  m_Lights.LoadLights("resources/imagedBasedLighting/massLights.dae", sceneLights);
   lamp.Load("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
   pointLamp.LoadModel("resources/surface/pointLamp.dae");
   spotLight.LoadModel("resources/surface/spotLight.dae");
@@ -74,7 +74,7 @@ void System::SystemInit(){
   sceneLights.SetFixedShadowAttributes(pbrShader);
 
   
-
+  
   //reflection Buffers
   specularIrradianceBuffer.CreateEnvironmentMapFromHdrEquirectangularMap(equirectangularToCubemapShader,
     "resources/imagedBasedLighting/small_cave_2k.hdr");
@@ -107,22 +107,13 @@ void System::SystemInit(){
   //testObject[0].Load(&gObject, &pObject, &iObject);
 
   for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
-    testObject[i].position = glm::vec3(glm::sin(i * 2.0f) * 5 + 0.0f, i + 5.0f, glm::cos(i * 2.0f) * 5 + 0.0f);
-    //testObject[i].intialRotation = glm::vec3(0.0f, 5.0f, 0.0f);
+    testObject[i].position = glm::vec3(glm::sin(i * 0.50f) * 15 + 0.0f, i * (0.175) + 5.0f, glm::cos(i * 0.50f) * 15 + 0.0f);
+    
     if((i % 2) == 0)
       testObject[i].Load(&gObject[0], &pObjectSphere);
     else
       testObject[i].Load(&gObject[1], &pObjectCube);
   }
-  /*
-  Model playerModel;
-  PlayerGraphicsComponent playerGraphics;
-  PlayerPhysicsComponent playerPhysics;
-  PlayerInputComponent playerInput;
-  GameObject playerObject;
-
-  */
-
   /*playerModel.LoadModel("resources/imagedBasedLighting/object/object.dae");
   playerGraphics.Load(&playerModel, &multipleRenderTargetShader, &sceneLights);
   playerPhysics.Load(&scenePhysics);
@@ -150,7 +141,8 @@ void System::GameLoop(){
   view = glm::mat4(1.0f);
   ///
 
-
+  bool stepPhysics = false;
+  scenePhysics.StepPhysics(deltaRate);
   while (!input.KEY.ESC) {
     input.PollEvents();
 
@@ -243,8 +235,9 @@ void System::GameLoop(){
       render.Display();
     }
 
-
-    scenePhysics.StepPhysics(deltaRate);
+    input.IncrementDecrement(stepPhysics);
+    if(stepPhysics)
+      scenePhysics.StepPhysics(deltaRate);
 
     /* Poll for and process events */
     input.Process();

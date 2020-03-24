@@ -63,13 +63,13 @@ private:
 
   //Objects
   Model modelObject[10];
-  static const unsigned int MAX_OBJECTS = 1 << 8;
+  static const unsigned int MAX_OBJECTS = 1 << 7;
   GameObject testObject[MAX_OBJECTS];
   IcoSphereGraphicsComponent gObject[2];
   IcoSpherePhysicsComponent pObjectSphere;
   CubePhysicsComponent pObjectCube;
   DefaultInputComponent iObject;
-
+ 
   //Player
   Model playerModel;
   GameObject playerObject;
