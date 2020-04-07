@@ -63,11 +63,12 @@ private:
 
   //Objects
   Model modelObject[10];
-  static const unsigned int MAX_OBJECTS = 1 << 7;
+  static const unsigned int MAX_OBJECTS = 1 << 6;
   GameObject testObject[MAX_OBJECTS];
-  IcoSphereGraphicsComponent gObject[2];
+  DefaultGraphicsComponent gObject[3];
   IcoSpherePhysicsComponent pObjectSphere;
   CubePhysicsComponent pObjectCube;
+  DiamondPhysicsComponent pObjectDiamond;
   DefaultInputComponent iObject;
  
   //Player
@@ -76,6 +77,11 @@ private:
   PlayerGraphicsComponent playerGraphics;
   PlayerPhysicsComponent playerPhysics;
   PlayerInputComponent playerInput;
+
+  //animation
+  Model dummyModel;
+  Model mechModel;
+  Shader animatedShader;
 public:
 
   System();

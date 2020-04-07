@@ -2,7 +2,7 @@
 #define VEALE_AA1FE13E_F758_453D_B604_EF8EF26A9833_H
 
 #include "physics.h"
-
+#include "objects.h"
 
 class PhysicsComponent{
 public:
@@ -47,18 +47,18 @@ private:
   int timer;
 };
 
+
+
 class IcoSpherePhysicsComponent : public PhysicsComponent{
 public:
   IcoSpherePhysicsComponent() : root(nullptr) {}
 
   void Load(physx::Physics* rootPhysics) {
     this->root = rootPhysics;
-    //index = 0;
   }
   virtual void SetUp(GameObject& object) {
     object.index = root->AddDynamicSphereActor(object.position, 2.0f, object.initalVelocity, object.intialRotation);
     object.modelMatrix = root->GetAPose(object.index);
-    //index = object.index;
   }
 
   virtual void Update(GameObject &object) {
@@ -66,8 +66,8 @@ public:
   }
 private:
   physx::Physics* root;
-  //unsigned int index;
 };
+
 
 class CubePhysicsComponent : public PhysicsComponent {
 public:
@@ -75,12 +75,9 @@ public:
 
   void Load(physx::Physics* rootPhysics) {
     this->root = rootPhysics;
-    //index = 0;
   }
   virtual void SetUp(GameObject& object) {
     object.index = root->AddDynamicBoxActor(object.position, glm::vec3(1.0f));
-    object.modelMatrix = root->GetAPose(object.index);
-    //index = object.index;
   }
 
   virtual void Update(GameObject& object) {
@@ -88,7 +85,24 @@ public:
   }
 private:
   physx::Physics* root;
-  //unsigned int index;
+};
+
+class DiamondPhysicsComponent : public PhysicsComponent {
+public:
+  DiamondPhysicsComponent() : root(nullptr) {}
+
+  void Load(physx::Physics* rootPhysics) {
+    this->root = rootPhysics;
+  }
+  virtual void SetUp(GameObject& object) {
+    object.index = root->AddLoadedDynamicConvexMesh("resources/imagedBasedLighting/object1/cubeConvex.dae", object.position);
+  }
+
+  virtual void Update(GameObject& object) {
+    object.modelMatrix = root->GetAPose(object.index);
+  }
+private:
+  physx::Physics* root;
 };
 
 class PlayerPhysicsComponent : public PhysicsComponent {
@@ -101,7 +115,6 @@ public:
   }
   virtual void SetUp(GameObject& object) {
     index = root->CreateKinematicController(object.position);
-    //index = root->AddKinematicSphereActor(object.position, 2.0f);
   }
 
   virtual void Update(GameObject& object) {
@@ -128,4 +141,7 @@ private:
   physx::Physics* root;
   unsigned int index;
 };
+
+
+
 #endif // !VEALE_AA1FE13E_F758_453D_B604_EF8EF26A9833_H

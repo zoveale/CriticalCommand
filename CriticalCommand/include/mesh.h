@@ -20,11 +20,12 @@ using namespace std;
 
 class Mesh {
 public:
-  vector<Vertex> vertices;
-  vector<unsigned int> indices;
-  vector<Texture> textures;
-  unsigned int VAO;
   
+ 
+  unsigned int textureCount;
+  unsigned int indicesCount;
+  unsigned int VAO;
+  vector<Texture> textures;
 
   Mesh() {}
   static Mesh Empty() {
@@ -36,65 +37,11 @@ public:
   typedef vector<Texture> tVec;
   // constructor
   Mesh(vec vertices, iVec indices, tVec textures) {
-    this->vertices = vertices;
-    this->indices = indices;
+    
     this->textures = textures;
-    //FIXME::add joint
-
+    textureCount = textures.size(); 
+    indicesCount = indices.size();
     // now that we have all the required data, set the vertex buffers and its attribute pointers.
-    setupMesh();
-  }
-
-  // render the mesh
-  void Draw(Shader shader) {
-    for (unsigned int i = 0; i < textures.size(); i++) {
-      glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
-      // retrieve texture number (the N in diffuse_textureN)
-      string name = textures[i].type;
-      shader.SetInt((name).c_str(), i);
-      // and finally bind the texture
-      glBindTexture(GL_TEXTURE_2D, textures[i].id);
-    }
-
-    
-    // draw mesh
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    //bind default vertex array
-    glBindVertexArray(0);
-
-    // always good practice to set everything back to defaults once configured.
-    glActiveTexture(GL_TEXTURE0);
-  }
-
-   // render the mesh
-  void DrawMesh(Shader shader) {
-    
-    // draw mesh
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    //bind default vertex array
-    glBindVertexArray(0);
-
-    // always good practice to set everything back to defaults once configured.
-    glActiveTexture(GL_TEXTURE0);
-  }
-
-  void DepthDraw(Shader shader) {
-    // draw mesh
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-    // always good practice to set everything back to defaults once configured.
-    glActiveTexture(GL_TEXTURE0);
-  }
-private:
-  /*  Render data  */
-  unsigned int VBO, EBO;
-
-  /*  Functions    */
-  // initializes all the buffer objects/arrays
-  void setupMesh() {
     // create buffers/arrays
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -130,9 +77,62 @@ private:
     glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
     //vertex Joints
     //FIXME::add Joints
-    
+
     ///
     glBindVertexArray(0);
+  }
+
+  // render the mesh
+  void Draw(Shader shader) {
+    for (unsigned int i = 0; i < textureCount; i++) {
+      glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+      // retrieve texture number (the N in diffuse_textureN)
+      string name = textures[i].type;
+      shader.SetInt((name).c_str(), i);
+      // and finally bind the texture
+      glBindTexture(GL_TEXTURE_2D, textures[i].id);
+    }
+
+    
+    // draw mesh
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
+    //bind default vertex array
+    glBindVertexArray(0);
+
+    // always good practice to set everything back to defaults once configured.
+    glActiveTexture(GL_TEXTURE0);
+  }
+
+   // render the mesh
+  void DrawMesh(Shader shader) {
+    
+    // draw mesh
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
+    //bind default vertex array
+    glBindVertexArray(0);
+
+    // always good practice to set everything back to defaults once configured.
+    glActiveTexture(GL_TEXTURE0);
+  }
+
+  void DepthDraw(Shader shader) {
+    // draw mesh
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+    // always good practice to set everything back to defaults once configured.
+    glActiveTexture(GL_TEXTURE0);
+  }
+private:
+  /*  Render data  */
+  unsigned int VBO, EBO;
+
+  /*  Functions    */
+  // initializes all the buffer objects/arrays
+  void setupMesh() {
+    
   }
 };
 #endif

@@ -14,6 +14,7 @@
 #include <gtx/quaternion.hpp>
 #include <gtc/quaternion.hpp>
 #include <gtx/string_cast.hpp>
+#include <gtx/matrix_decompose.hpp>
 
 #include <string>
 #include <vector>
@@ -66,8 +67,6 @@ struct Texture {
   static unsigned int loadCubemap(std::vector<std::string> faces);
   static unsigned int LoadHDR(const char* path);
 };
-
-
 
 
 

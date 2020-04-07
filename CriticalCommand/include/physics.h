@@ -12,7 +12,8 @@
 #include <mat4x4.hpp>
 #include <unordered_map>
 
-
+//TODO::fix this workaround
+#include "modelUtility.h"
 
 #include "PxConfig.h"
 #include "PxPhysicsAPI.h"
@@ -94,8 +95,6 @@ public:
     const float                     variables[]);
 
   
-
- 
   void AddStaticTriangleMesh(
     const float*                    vertex,
     const unsigned int*             indices,
@@ -119,6 +118,20 @@ public:
     glm::vec3 linearVelocity = glm::vec3(0.0f),
     glm::vec3 angularVelocity = glm::vec3(0.0f),
     PxMaterial* material = defaultMaterial);
+
+  unsigned int AddDynamicConvexMesh(
+    const float* vertex,
+    const unsigned int* indices,
+    const unsigned int* indicesSize,
+    const glm::vec3                 position);
+
+  unsigned int AddLoadedDynamicConvexMesh(const char* location, const glm::vec3 position);
+
+  unsigned int AddDynamicConvexMeshCooking(
+    const float* vertex,
+    const unsigned int* indices,
+    const unsigned int* indicesSize,
+    const glm::vec3                 position);
 
   void SetKinematicActorTarget(unsigned int index, glm::vec3 position);
   
@@ -155,6 +168,10 @@ private:
     const unsigned int*              indices,
     const unsigned int*              numFaces) const;
 
+  PxConvexMesh* CreateConvexMesh(
+    const float* vertex,
+    const unsigned int* indices,
+    const unsigned int* numFaces) const;
 
   static PxPhysics* gPhysics;
   static PxMaterial* defaultMaterial;

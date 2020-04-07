@@ -294,6 +294,27 @@ physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
    return gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback());
 }
 
+physx::PxConvexMesh* physx::Physics::CreateConvexMesh(const float* vertex,
+                                                 const unsigned int* indices,
+                                                 const unsigned int* numFaces) const {
+ 
+
+  PxConvexMeshDesc convexDesc;
+  convexDesc.points.count = *numFaces * 3;
+  convexDesc.points.stride = sizeof(PxVec3);
+  convexDesc.points.data = vertex;
+  convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+
+  PxDefaultMemoryOutputStream buf;
+  PxConvexMeshCookingResult::Enum result;
+  if (!gCooking->cookConvexMesh(convexDesc, buf, &result))
+    return NULL;
+  PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+  PxConvexMesh* convexMesh = gPhysics->createConvexMesh(input);
+
+  return convexMesh;
+}
+
 glm::mat4 physx::Physics::GetAPose(int i) {
 
 
@@ -412,33 +433,7 @@ void physx::Physics::AddStaticBoxActor(glm::vec3 pos, glm::vec3 size, PxMaterial
 
 }
 
-//TODO:: reduces rotational velocity 
-unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius,
-                                                   glm::vec3 linearVelocity, glm::vec3 angularVelocity,
-                                                   PxMaterial* material) {
-  //Physx uses "Halfextents" for length claculation
-  //so inputing appropriate size into the function should
-  //return the correct size;
-  PxReal distance(radius * 0.5f);
-  PxSphereGeometry sphere(distance);
-  PxTransform location(PxVec3(pos.x, pos.y, pos.z));
-  
-  
-  PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
 
-  PxShape* sphereShape = PxRigidActorExt::createExclusiveShape(*body, sphere, *defaultMaterial);
-  PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-  
-  //rolls slower
-  //body->setMaxAngularVelocity(PxReal(3.0f));
-  body->setLinearVelocity(PxVec3(linearVelocity.x, linearVelocity.y, linearVelocity.z));
-  body->setAngularVelocity(PxVec3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
-  gScene->addActor(*body);
-  
-  
-  //UpdateDynamicActorArray();
-  return ++dynamicActorCount;
-}
 
 void physx::Physics::SetKinematicActorTarget(unsigned int index, glm::vec3 position) {
   PxVec3 nextPosition(position.x, position.y, position.z);
@@ -472,14 +467,97 @@ unsigned int physx::Physics::AddKinematicSphereActor(glm::vec3 pos, float radius
   return ++dynamicActorCount;
 }
 
+//TODO:: reduces rotational velocity 
+unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius,
+  glm::vec3 linearVelocity, glm::vec3 angularVelocity,
+  PxMaterial* material) {
+  //Physx uses "Halfextents" for length claculation
+  //so inputing appropriate size into the function should
+  //return the correct size;
+  PxReal size(radius * 0.5f);
+  PxSphereGeometry sphere(size);
+
+  PxQuat rotation(0.0f, PxVec3(1.0f, 0.0f, 0.0f));
+
+  PxTransform location(PxVec3(pos.x, pos.y, pos.z), rotation);
+
+
+  PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
+
+  PxShape* sphereShape = PxRigidActorExt::createExclusiveShape(*body, sphere, *defaultMaterial);
+  PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+
+  //rolls slower
+  //body->setMaxAngularVelocity(PxReal(3.0f));
+  body->setLinearVelocity(PxVec3(linearVelocity.x, linearVelocity.y, linearVelocity.z));
+  body->setAngularVelocity(PxVec3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
+  gScene->addActor(*body);
+
+
+  //UpdateDynamicActorArray();
+  return ++dynamicActorCount;
+}
+
+unsigned int physx::Physics::AddDynamicConvexMesh(const float* vertex,
+                                          const unsigned int* indices,
+                                          const unsigned int* indicesSize,
+                                          const glm::vec3 position) {
+  PxConvexMesh* mesh = CreateConvexMesh(vertex, indices, indicesSize);
+
+  PxTransform location(PxVec3(position.x, position.y, position.z));
+  
+  PxRigidDynamic* aConvexActor = gPhysics->createRigidDynamic(location);
+  
+
+  PxShape* aConvexShape = PxRigidActorExt::createExclusiveShape(*aConvexActor,
+    PxConvexMeshGeometry(mesh), *defaultMaterial);
+
+
+  gScene->addActor(*aConvexActor);
+
+  ///same as commented above
+  return ++dynamicActorCount;
+}
+
+unsigned int physx::Physics::AddLoadedDynamicConvexMesh(const char* meshPath, const glm::vec3 position) {
+  Assimp::Importer importer;
+  const aiScene* scene;
+  std::vector<unsigned int> indices;
+  scene = importer.ReadFile(meshPath, aiProcess_FindInvalidData);
+  aiNode* rootNode = scene->mRootNode;
+  aiMesh* mesh = scene->mMeshes[0];
+
+  for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+    aiFace face = mesh->mFaces[i];
+    // retrieve all indices of the face and store them in the indices vector
+    for (unsigned int j = 0; j < face.mNumIndices; j++) {
+      indices.push_back(face.mIndices[j]);
+    }
+  }
+
+  PxTransform location(PxVec3(position.x, position.y, position.z));
+  PxRigidDynamic* aConvexActor = gPhysics->createRigidDynamic(location);
+
+  PxConvexMesh* convexMesh = CreateConvexMesh(&mesh->mVertices[0].x, &indices[0], &mesh->mNumFaces);
+  PxShape* aConvexShape = PxRigidActorExt::createExclusiveShape(*aConvexActor, PxConvexMeshGeometry(convexMesh), *defaultMaterial);
+
+  gScene->addActor(*aConvexActor);
+
+  return ++dynamicActorCount;
+}
+
 unsigned int physx::Physics::AddDynamicBoxActor(glm::vec3 pos, glm::vec3 size, PxMaterial* material) {
 
 
   //Physx uses "Halfextents" for length claculation
   //so inputing appropriate size into the function should
   //return the correct size;
-  PxBoxGeometry box(PxReal(size.x), PxReal(size.y), PxReal(size.z));
-  PxTransform location(PxVec3(pos.x, pos.y, pos.z));
+  PxBoxGeometry box(PxReal(size.x ), PxReal(size.y), PxReal(size.z));
+
+  //45 degrees around the x axis
+  PxQuat rotation(0.382683456f, 0.0f, 0.0f, 0.923879564f);
+
+  PxTransform location(PxVec3(pos.x, pos.y, pos.z), rotation);
   PxShape* shape = gPhysics->createShape(box, *defaultMaterial);
   PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
   body->attachShape(*shape);

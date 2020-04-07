@@ -51,7 +51,7 @@ glm::vec3 Model::Position() {
 //private
   /*  Functions   */
   // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-void Model::loadModel(string const& path, LightFactory& light, physx::Physics& physicsScene) {
+void Model::loadModel(std::string const& path, LightFactory& light, physx::Physics& physicsScene) {
   //FIXME::add type file reading, so if .obj it isnt animated
   isAnimated = false;
 
@@ -73,7 +73,7 @@ void Model::loadModel(string const& path, LightFactory& light, physx::Physics& p
 
   // check for errors
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-    cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
+    std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
     return;
   }
 
@@ -301,8 +301,13 @@ void Model::processNode(aiNode* node, const aiScene* scene, physx::Physics& phys
   for (unsigned int i = 0; i < node->mNumMeshes; i++) {
     aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
     nodeTransform = aiToGlm(node->mTransformation);
+    /*glm::vec3 position(0.0f);
+    glm::vec3 scale(0.0f);
+    glm::quat rotation;
+    glm::vec3 h(0.0f);
+    glm::vec4 j(0.0f);
+    glm::decompose(nodeTransform, scale, rotation, position, h, j);*/
     meshes.push_back(processMesh(mesh, scene, physicsScene));
-
   }
   for (unsigned int i = 0; i < node->mNumChildren; i++) {
     processNode(node->mChildren[i], scene, physicsScene);
@@ -502,7 +507,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
   aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
   
   FillPBRTextureVector(textures);
-
+  
   return Mesh(vertices, indices, textures);
 }
 ///
@@ -716,6 +721,7 @@ void Model::ProcessNodesOnly(aiNode* node, const aiScene* scene) {
     aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
     nodeTransform = aiToGlm(node->mTransformation);
     meshes.push_back(ProcessMeshOnly(mesh, scene));
+    
   }
   for (unsigned int i = 0; i < node->mNumChildren; i++) {
     ProcessNodesOnly(node->mChildren[i], scene);
