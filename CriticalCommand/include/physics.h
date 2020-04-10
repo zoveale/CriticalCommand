@@ -125,13 +125,13 @@ public:
     const unsigned int* indicesSize,
     const glm::vec3                 position);
 
-  unsigned int AddLoadedDynamicConvexMesh(const char* location, const glm::vec3 position);
+  //Add a created convex mesh otherwise it will create one from the mesh provided.
+  //Must be condisdered a single mesh to be caluclated correctly
+  unsigned int AddLoadedDynamicConvexMesh(const char* meshPath, const glm::vec3 position);
 
-  unsigned int AddDynamicConvexMeshCooking(
-    const float* vertex,
-    const unsigned int* indices,
-    const unsigned int* indicesSize,
-    const glm::vec3                 position);
+  
+
+  //unsigned int AddQuickhullDynamicConvexMesh(const char* meshPath, const glm::vec3 position);
 
   void SetKinematicActorTarget(unsigned int index, glm::vec3 position);
   
@@ -172,6 +172,11 @@ private:
     const float* vertex,
     const unsigned int* indices,
     const unsigned int* numFaces) const;
+
+ /* PxConvexMesh* CreateConvexMeshCooking(
+    const float* vertex,
+    const unsigned int* indices,
+    const unsigned int* indicesSize);*/
 
   static PxPhysics* gPhysics;
   static PxMaterial* defaultMaterial;

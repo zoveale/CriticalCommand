@@ -142,6 +142,28 @@ private:
   unsigned int index;
 };
 
+class ConvexPhysicsComponent : public PhysicsComponent {
+public:
+  ConvexPhysicsComponent() : root(nullptr), convexDataFileLocation(""){}
+
+  void Load(physx::Physics* rootPhysics, std::string convexDataFileLocation) {
+    this->root = rootPhysics;
+    this->convexDataFileLocation = convexDataFileLocation;
+   
+  }
+  virtual void SetUp(GameObject& object) {
+    object.index = root->AddLoadedDynamicConvexMesh(convexDataFileLocation.c_str(), object.position);
+  }
+
+  virtual void Update(GameObject& object) {
+    object.modelMatrix = root->GetAPose(object.index);
+  }
+private:
+  physx::Physics* root;
+  std::string convexDataFileLocation;
+
+};
+
 
 
 #endif // !VEALE_AA1FE13E_F758_453D_B604_EF8EF26A9833_H

@@ -294,26 +294,7 @@ physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
    return gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback());
 }
 
-physx::PxConvexMesh* physx::Physics::CreateConvexMesh(const float* vertex,
-                                                 const unsigned int* indices,
-                                                 const unsigned int* numFaces) const {
- 
 
-  PxConvexMeshDesc convexDesc;
-  convexDesc.points.count = *numFaces * 3;
-  convexDesc.points.stride = sizeof(PxVec3);
-  convexDesc.points.data = vertex;
-  convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
-
-  PxDefaultMemoryOutputStream buf;
-  PxConvexMeshCookingResult::Enum result;
-  if (!gCooking->cookConvexMesh(convexDesc, buf, &result))
-    return NULL;
-  PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
-  PxConvexMesh* convexMesh = gPhysics->createConvexMesh(input);
-
-  return convexMesh;
-}
 
 glm::mat4 physx::Physics::GetAPose(int i) {
 
@@ -435,6 +416,7 @@ void physx::Physics::AddStaticBoxActor(glm::vec3 pos, glm::vec3 size, PxMaterial
 
 
 
+
 void physx::Physics::SetKinematicActorTarget(unsigned int index, glm::vec3 position) {
   PxVec3 nextPosition(position.x, position.y, position.z);
   PxTransform target(nextPosition);
@@ -537,7 +519,7 @@ unsigned int physx::Physics::AddLoadedDynamicConvexMesh(const char* meshPath, co
 
   PxTransform location(PxVec3(position.x, position.y, position.z));
   PxRigidDynamic* aConvexActor = gPhysics->createRigidDynamic(location);
-
+  //PxRigidBodyExt::updateMassAndInertia(*aConvexActor, 100.0f);
   PxConvexMesh* convexMesh = CreateConvexMesh(&mesh->mVertices[0].x, &indices[0], &mesh->mNumFaces);
   PxShape* aConvexShape = PxRigidActorExt::createExclusiveShape(*aConvexActor, PxConvexMeshGeometry(convexMesh), *defaultMaterial);
 
@@ -545,6 +527,98 @@ unsigned int physx::Physics::AddLoadedDynamicConvexMesh(const char* meshPath, co
 
   return ++dynamicActorCount;
 }
+
+physx::PxConvexMesh* physx::Physics::CreateConvexMesh(const float* vertex,
+                                                      const unsigned int* indices,
+                                                      const unsigned int* numFaces) const {
+
+
+  PxConvexMeshDesc convexDesc;
+  convexDesc.points.count = *numFaces * 3;
+  convexDesc.points.stride = sizeof(PxVec3);
+  convexDesc.points.data = vertex;
+  convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+
+  PxDefaultMemoryOutputStream buf;
+  PxConvexMeshCookingResult::Enum result;
+  if (!gCooking->cookConvexMesh(convexDesc, buf, &result))
+    return NULL;
+  PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+  PxConvexMesh* convexMesh = gPhysics->createConvexMesh(input);
+
+  return convexMesh;
+}
+
+//physx::PxConvexMesh* physx::Physics::CreateConvexMeshCooking(const float* vertex,
+//                                                       const unsigned int* indices,
+//                                                       const unsigned int* indicesSize) {
+//  
+////  PxConvexMeshDesc convexDesc;
+////  convexDesc.points.count = *indices * 3;
+////  convexDesc.points.stride = sizeof(PxVec3);
+////  convexDesc.points.data = vertex;
+////  convexDesc.vertexLimit = 30;
+////  convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+////
+////#ifdef _DEBUG
+////  // mesh should be validated before cooking without the mesh cleaning
+////  bool res = gCooking->validateConvexMesh(convexDesc);
+////  PX_ASSERT(res);
+////#endif
+////
+////  PxDefaultMemoryOutputStream buf;
+////  PxConvexMeshCookingResult::Enum result;
+////  if (!gCooking->cookConvexMesh(convexDesc, buf, &result))
+////    return NULL;
+////  PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+////  PxConvexMesh* convexMesh = gPhysics->createConvexMesh(input);
+////
+////  return convexMesh;
+//  PxConvexMeshDesc convexDesc;
+//  convexDesc.points.count = *indices * 3;
+//  convexDesc.points.stride = sizeof(PxVec3);
+//  convexDesc.points.data = vertex;
+//
+//
+//  convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+//
+//  PxDefaultMemoryOutputStream buf;
+//  PxConvexMeshCookingResult::Enum result;
+//  if (!gCooking->cookConvexMesh(convexDesc, buf, &result))
+//    return NULL;
+//  PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+//  PxConvexMesh* convexMesh = gPhysics->createConvexMesh(input);
+//
+//  return convexMesh;
+//}
+
+
+//unsigned int physx::Physics::AddQuickhullDynamicConvexMesh(const char* meshPath, const glm::vec3 position) {
+//  Assimp::Importer importer;
+//  const aiScene* scene;
+//  std::vector<unsigned int> indices;
+//  scene = importer.ReadFile(meshPath, aiProcess_FindInvalidData);
+//  aiNode* rootNode = scene->mRootNode;
+//  aiMesh* mesh = scene->mMeshes[0];
+//
+//  for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+//    aiFace face = mesh->mFaces[i];
+//    // retrieve all indices of the face and store them in the indices vector
+//    for (unsigned int j = 0; j < face.mNumIndices; j++) {
+//      indices.push_back(face.mIndices[j]);
+//    }
+//  }
+//  PxTransform location(PxVec3(position.x, position.y, position.z));
+//  PxRigidDynamic* aConvexActor = gPhysics->createRigidDynamic(location);
+//  //PxRigidBodyExt::updateMassAndInertia(*aConvexActor, 100.0f);
+//  PxConvexMesh* convexMesh = CreateConvexMeshCooking(&mesh->mVertices[0].x, &indices[0], &mesh->mNumFaces);
+//  PxShape* aConvexShape = PxRigidActorExt::createExclusiveShape(*aConvexActor, PxConvexMeshGeometry(convexMesh), *defaultMaterial);
+//
+//  gScene->addActor(*aConvexActor);
+//
+//  return ++dynamicActorCount;
+//}
+
 
 unsigned int physx::Physics::AddDynamicBoxActor(glm::vec3 pos, glm::vec3 size, PxMaterial* material) {
 

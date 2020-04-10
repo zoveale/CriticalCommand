@@ -109,16 +109,16 @@ void System::SystemInit() {
   ////testObject.initalVelocity = glm::vec3(2.0f);
   //testObject[0].Load(&gObject, &pObject, &iObject);
 
-  for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
-    testObject[i].position = glm::vec3(glm::sin(i * 0.50f) * 15 + 0.0f, i * (0.175) + 5.0f, glm::cos(i * 0.50f) * 15 + 0.0f);
-    
-    if((i % 3) == 0)
-      testObject[i].Load(&gObject[0], &pObjectSphere);
-    else if((i % 3) == 1)
-      testObject[i].Load(&gObject[1], &pObjectCube);
-    else
-      testObject[i].Load(&gObject[2], &pObjectDiamond);
-  }
+  //for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
+  //  testObject[i].position = glm::vec3(glm::sin(i * 0.50f) * 15 + 0.0f, i * (0.175) + 5.0f, glm::cos(i * 0.50f) * 15 + 0.0f);
+  //  
+  //  if((i % 3) == 0)
+  //    testObject[i].Load(&gObject[0], &pObjectSphere);
+  //  else if((i % 3) == 1)
+  //    testObject[i].Load(&gObject[1], &pObjectCube);
+  //  else
+  //    testObject[i].Load(&gObject[2], &pObjectDiamond);
+  //}
   /*playerModel.LoadModel("resources/imagedBasedLighting/object/object.dae");
   playerGraphics.Load(&playerModel, &multipleRenderTargetShader, &sceneLights);
   playerPhysics.Load(&scenePhysics);
@@ -127,6 +127,12 @@ void System::SystemInit() {
   playerObject.Load(&playerGraphics, &playerPhysics, &playerInput);*/
   
   mechModel.LoadModel("resources/Mechs/simpleTank.dae");
+  gMechComponent.Load(&mechModel, &multipleRenderTargetShader);
+  pMechComponent.Load(&scenePhysics, "resources/Mechs/simpleTank.dae");
+  mechaTank.position = glm::vec3(0.0f, 7.0f, 0.0f);
+  mechaTank.Load(&gMechComponent, &pMechComponent);
+
+
   dummyModel.LoadModel("resources/dummy/dummy.dae");
 }
 
@@ -162,9 +168,10 @@ void System::GameLoop(){
    /* for (GameObject objects : testObject) {
       objects.Update(deltaTime, projection, view);
     }*/
-    for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
+   /* for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
       testObject[i].Update(deltaTime, projection, view);
-    }
+    }*/
+    mechaTank.Update(deltaTime, projection, view);
     //testObject[0].Update(deltaTime, projection, view);
     //playerObject.Update(deltaTime, projection, view);
     player.Update(deltaTime);
@@ -189,11 +196,12 @@ void System::GameLoop(){
       multipleRenderTargetShader.SetMat4("view", view);
       multipleRenderTargetShader.SetMat4("model", model);
       uvSphere.Draw(multipleRenderTargetShader); 
-      mechModel.Draw(multipleRenderTargetShader);
       dummyModel.Draw(multipleRenderTargetShader);
-      for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
+      mechaTank.Draw();
+
+      /*for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
         testObject[i].Draw();
-      }
+      }*/
       //playerObject.Draw();
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

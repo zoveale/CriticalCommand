@@ -81,6 +81,9 @@ private:
   //animation
   Model dummyModel;
   Model mechModel;
+  GameObject mechaTank;
+  DefaultGraphicsComponent gMechComponent;
+  ConvexPhysicsComponent pMechComponent;
   Shader animatedShader;
 public:
 
