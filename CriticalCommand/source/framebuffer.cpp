@@ -230,18 +230,11 @@ void Framebuffer::SetShadowCubemap(Shader shader) {
 
 //PBR Area sampling
 //pbr: convert HDR equirectangular environment map to cubemap equivalent
-void Framebuffer::CreateEnvironmentMapFromHdrEquirectangularMap(Shader equirectangularToCubemapShader, std::string hdrPath, unsigned int resolution){
+void Framebuffer::CreateEnvironmentMapFromHdrEquirectangularMap(Shader equirectangularToCubemapShader,
+                  std::string hdrPath, unsigned int resolution){
 
   hdrTexture = Texture::LoadHDR(hdrPath.c_str());
   basicCube.LoadCubeOnly();
-
-  glGenFramebuffers(1, &captureFBO);
-  glGenRenderbuffers(1, &captureRBO);
-
-  glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-  glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, resolution, resolution);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
 
   glGenTextures(1, &envCubemap);
   glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
@@ -258,6 +251,15 @@ void Framebuffer::CreateEnvironmentMapFromHdrEquirectangularMap(Shader equirecta
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+  glGenFramebuffers(1, &captureFBO);
+  glGenRenderbuffers(1, &captureRBO);
+
+  glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+  glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, resolution, resolution);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
+
+  
   glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
   glm::mat4 captureViews[] =
   {
@@ -279,7 +281,8 @@ void Framebuffer::CreateEnvironmentMapFromHdrEquirectangularMap(Shader equirecta
   glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
   for (unsigned int i = 0; i < 6; ++i) {
     equirectangularToCubemapShader.SetMat4("view", captureViews[i]);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                           GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     basicCube.RenderCube();

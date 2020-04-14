@@ -33,7 +33,8 @@ public:
 
   //PBR Area sampling
   //pbr: convert HDR equirectangular environment map to cubemap equivalent
-  void CreateEnvironmentMapFromHdrEquirectangularMap(Shader equiShader, std::string hdrPath, unsigned int resolution = 1 << 9);
+  void CreateEnvironmentMapFromHdrEquirectangularMap(Shader equiShader, std::string hdrPath,
+                                                     unsigned int resolution = 1 << 9);
   void CreateIrradianceMapFromEnvironmentMap(Shader irradianceShader, unsigned int resolution = 1 << 5);
   void CreatePrefilterMapFromEnvironmentMap(Shader prefilterShader, unsigned int resolution = 1 << 7);
   

@@ -486,3 +486,8 @@ healthchecksdb
 /CriticalCommand/resources/imagedBasedLighting/object
 /CriticalCommand/resources/dummy
 /CriticalCommand/resources/Mechs
+/CriticalCommand/resources/shader/PBR/Main
+/CriticalCommand/resources/imagedBasedLighting/Milkyway_small.hdr
+/CriticalCommand/resources/imagedBasedLighting/blaubeuren_outskirts_8k.hdr
+/CriticalCommand/resources/imagedBasedLighting/basicGround.dae
+/CriticalCommand/resources/imagedBasedLighting/Equirectangular.hdr

@@ -148,7 +148,7 @@ public:
   void ExplosionEffect(glm::vec3 pos, float radius);
   void ReleaseActor(unsigned int index);
   void DisableActorSimulation(unsigned int index);
-
+  void DisableActorGravity(unsigned int index);
   //TODO:: test functions
   void TestA();
   //swap float to bool

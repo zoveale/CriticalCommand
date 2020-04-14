@@ -153,6 +153,7 @@ public:
   }
   virtual void SetUp(GameObject& object) {
     object.index = root->AddLoadedDynamicConvexMesh(convexDataFileLocation.c_str(), object.position);
+    //root->DisableActorGravity(object.index);
   }
 
   virtual void Update(GameObject& object) {

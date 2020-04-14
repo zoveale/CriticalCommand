@@ -40,5 +40,15 @@ private:
   InputComponent    *input;
 };
 
+//protected:
+//  GameObject* down;
+//  GameObject* branch;
+//class NodeBasedGameObject : public GameObject {
+//  NodeBasedGameObject();
+//  void Load(GameObject** gameObjects) {
+//  }
+//  void AddDownNode(GameObject* node) {
+//  }
+//};
 
 #endif // !VEALE_89485D62_A5D9_499F_B124_717C2346DAAD_H

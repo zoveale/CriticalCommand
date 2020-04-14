@@ -22,26 +22,25 @@ void System::SystemInit() {
   //Camera::thirdPerson
   //Camera::overview
   cameraState = &Camera::overview;
-  cameraState->StartUp(); 
+  cameraState->StartUp();
 
   physx::Physics::StartUp();
   scenePhysics.TestA();
   // \ or vise versa ?
   //camera.startup /
-  
+
   //printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 
-  
   //light stuff
-  //m_Lights.LoadLights("resources/imagedBasedLighting/massLights.dae", sceneLights);
+  //m_Lights.LoadLights("resources/imagedBasedLighting/lights.dae", sceneLights);
   lamp.Load("resources/shader/Lamp/lampV.glsl", "resources/shader/Lamp/lampF.glsl");
   pointLamp.LoadModel("resources/surface/pointLamp.dae");
   spotLight.LoadModel("resources/surface/spotLight.dae");
   ///
 
-  //
-  uvSphere.Load("resources/imagedBasedLighting/ground.dae", sceneLights, scenePhysics, true);
-  
+  ///Users/Zoe/Desktop/floor
+  uvSphere.Load("resources/imagedBasedLighting/basicGround.dae", sceneLights, scenePhysics, true);
+  //C:/Users/Zoe/Desktop/scene
   //skybox
   skyBoxShader.Load("resources/cubemap/shaders/vertex.glsl", "resources/cubemap/shaders/fragment.glsl");
   skyBoxOne.Load(&skyBoxShader);
@@ -49,18 +48,18 @@ void System::SystemInit() {
   //PBR shading stuff
   //Diffuse IBL
   equirectangularToCubemapShader.Load("resources/shader/PBR/DiffuseIBL/EquiRectMap/vert.glsl",
-                                      "resources/shader/PBR/DiffuseIBL/EquiRectMap/frag.glsl");
+    "resources/shader/PBR/DiffuseIBL/EquiRectMap/frag.glsl");
   irradianceShader.Load("resources/shader/PBR/DiffuseIBL/IrradianceMap/vert.glsl",
-                        "resources/shader/PBR/DiffuseIBL/IrradianceMap/frag.glsl");
+    "resources/shader/PBR/DiffuseIBL/IrradianceMap/frag.glsl");
   //Specular IBL
   prefilterShader.Load("resources/shader/PBR/SpecularIBL/Prefilter/vert.glsl",
-                       "resources/shader/PBR/SpecularIBL/Prefilter/frag.glsl");
+    "resources/shader/PBR/SpecularIBL/Prefilter/frag.glsl");
   brdfLookUpShader.Load("resources/shader/PBR/SpecularIBL/BRDFLookUpTexture/vert.glsl",
-                        "resources/shader/PBR/SpecularIBL/BRDFLookUpTexture/frag.glsl");
+    "resources/shader/PBR/SpecularIBL/BRDFLookUpTexture/frag.glsl");
 
-  
 
-  model = glm::mat4(1.0f); 
+
+  model = glm::mat4(1.0f);
   view = glm::mat4(1.0f);
   projection = glm::mat4(1.0f);
 
@@ -73,11 +72,11 @@ void System::SystemInit() {
   sceneLights.SetFixedAttributes(pbrShader);
   sceneLights.SetFixedShadowAttributes(pbrShader);
 
-  
+
   
   //reflection Buffers
   specularIrradianceBuffer.CreateEnvironmentMapFromHdrEquirectangularMap(equirectangularToCubemapShader,
-    "resources/imagedBasedLighting/monoLake.hdr");
+    "resources/imagedBasedLighting/blaubeuren_outskirts_8k.hdr", 1 << 11);
   specularIrradianceBuffer.CreateIrradianceMapFromEnvironmentMap(irradianceShader);
   specularIrradianceBuffer.CreatePrefilterMapFromEnvironmentMap(prefilterShader);
   /*
@@ -91,7 +90,7 @@ void System::SystemInit() {
   specularIrradianceBuffer.SetPrefilterTexture(pbrShader);
   specularIrradianceBuffer.SetBRDFLookUpTexture(pbrShader);
   ///
-
+  
   //Objects
   modelObject[0].LoadModel("resources/imagedBasedLighting/object0/object.dae");
   modelObject[1].LoadModel("resources/imagedBasedLighting/object1/cube.dae");
@@ -102,23 +101,20 @@ void System::SystemInit() {
   pObjectCube.Load(&scenePhysics);
   pObjectSphere.Load(&scenePhysics);
   pObjectDiamond.Load(&scenePhysics);
-  //iObject.Load();
 
-  //testObject[0].position = glm::vec3(0.0f, 5.0f, 0.0f);
-  //testObject[0].intialRotation = glm::vec3(0.0f , 5.0f, 0.0f);
-  ////testObject.initalVelocity = glm::vec3(2.0f);
-  //testObject[0].Load(&gObject, &pObject, &iObject);
+  for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
+    testObject[i].position = glm::vec3(glm::sin(i * 0.50f) * 10 + 0.0f,
+                                                    i * (0.175) + 5.0f,
+                                       glm::cos(i * 0.50f) * 10 + 0.0f);
+    
+    if((i % 3) == 0)
+      testObject[i].Load(&gObject[0], &pObjectSphere);
+    else if((i % 3) == 1)
+      testObject[i].Load(&gObject[1], &pObjectCube);
+    else
+      testObject[i].Load(&gObject[2], &pObjectDiamond);
+  }
 
-  //for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
-  //  testObject[i].position = glm::vec3(glm::sin(i * 0.50f) * 15 + 0.0f, i * (0.175) + 5.0f, glm::cos(i * 0.50f) * 15 + 0.0f);
-  //  
-  //  if((i % 3) == 0)
-  //    testObject[i].Load(&gObject[0], &pObjectSphere);
-  //  else if((i % 3) == 1)
-  //    testObject[i].Load(&gObject[1], &pObjectCube);
-  //  else
-  //    testObject[i].Load(&gObject[2], &pObjectDiamond);
-  //}
   /*playerModel.LoadModel("resources/imagedBasedLighting/object/object.dae");
   playerGraphics.Load(&playerModel, &multipleRenderTargetShader, &sceneLights);
   playerPhysics.Load(&scenePhysics);
@@ -165,14 +161,12 @@ void System::GameLoop(){
     lastFrame = currentFrame;
 
     player.HandleInput(input, deltaTime);
-   /* for (GameObject objects : testObject) {
-      objects.Update(deltaTime, projection, view);
-    }*/
-   /* for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
+   
+    for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
       testObject[i].Update(deltaTime, projection, view);
-    }*/
-    mechaTank.Update(deltaTime, projection, view);
-    //testObject[0].Update(deltaTime, projection, view);
+    }
+
+    //mechaTank.Update(deltaTime, projection, view);
     //playerObject.Update(deltaTime, projection, view);
     player.Update(deltaTime);
     cameraState->Update(player);
@@ -197,11 +191,12 @@ void System::GameLoop(){
       multipleRenderTargetShader.SetMat4("model", model);
       uvSphere.Draw(multipleRenderTargetShader); 
       dummyModel.Draw(multipleRenderTargetShader);
-      mechaTank.Draw();
+      //mechaTank.Draw();
 
-      /*for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
+      for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
         testObject[i].Draw();
-      }*/
+      }
+
       //playerObject.Draw();
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

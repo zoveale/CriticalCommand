@@ -116,10 +116,8 @@ public:
 
   void RenderCube() {
     glBindVertexArray(skyboxVAO);
-    glActiveTexture(GL_TEXTURE0);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
-    glActiveTexture(GL_TEXTURE0);
   }
   
 private:
