@@ -434,17 +434,14 @@ void physx::Physics::AddStaticBoxActor(glm::vec3 pos, glm::vec3 size, PxMaterial
   shape->release();
 
   gScene->addActor(*body);
-  
-
 }
 
-void physx::Physics::SetGlobalPose(unsigned int index, glm::vec3 position, glm::vec4 rotation) {
+void physx::Physics::SetGlobalPose(unsigned int index, glm::vec3 position, glm::quat rotation) {
+
   PxVec3 nextPosition(position.x, position.y, position.z);
+  PxQuat rotationQuat = PxQuat(rotation.x, rotation.y, rotation.z, rotation.w);
 
-  PxQuat rotat(rotation.x, rotation.y, rotation.z, rotation.w);
-  PxTransform target(nextPosition, rotat);
-  actors[index]->setGlobalPose(target);
-
+  actors[index]->setGlobalPose(PxTransform(nextPosition, rotationQuat));
 }
 
 

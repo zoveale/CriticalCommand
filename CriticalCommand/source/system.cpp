@@ -133,16 +133,18 @@ void System::SystemInit() {
   gMechComponent[1].Load(&baseTurret, &multipleRenderTargetShader);
   gMechComponent[2].Load(&baseBarrel, &multipleRenderTargetShader);
   baseChassisInput.Load();
+  baseTurretInput.Load();
+  baseBarrelInput.Load();
+
   standardPhysicsComponent.Load(&scenePhysics);
-  //mechaTank[0].position = glm::vec3(0.0f, 10.0f, 0.0f);
   pMechComponent.Load(&scenePhysics, "resources/Mechs/baseChassis.dae");
   ///
   kinematicPhysicsComponent.Load(&scenePhysics, "resources/Mechs/baseChassis.dae");
   mechaTank[0].Load(&gMechComponent[0], &kinematicPhysicsComponent, &baseChassisInput);
   pMechComponent.Load(&scenePhysics, "resources/Mechs/baseTurret.dae");
-  mechaTank[1].Load(&gMechComponent[1], &pMechComponent, &baseChassisInput);
+  mechaTank[1].Load(&gMechComponent[1], &pMechComponent, &baseTurretInput);
   pMechComponent.Load(&scenePhysics, "resources/Mechs/baseBarrel.dae");
-  mechaTank[2].Load(&gMechComponent[2], &pMechComponent, &baseChassisInput);
+  mechaTank[2].Load(&gMechComponent[2], &pMechComponent, &baseBarrelInput);
 
   dummyModel.LoadModel("resources/dummy/dummy.dae");
 }

@@ -85,6 +85,8 @@ private:
   Model mechModel;
   Model baseChassis;
   BaseChassisInputComponent baseChassisInput;
+  BaseTurretInputComponent baseTurretInput;
+  BaseBarrelInputComponent baseBarrelInput;
   Model baseTurret;
   Model baseBarrel;
   GameObject mechaTank[3];

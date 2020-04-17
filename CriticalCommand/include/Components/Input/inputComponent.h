@@ -85,7 +85,32 @@ public:
       object.direction = glm::normalize(glm::rotateY(object.direction, glm::radians(-0.50f)));
       //object.position += object.right * (object.deltaTime * object.velocity);
     }
+  }
+};
 
+class BaseTurretInputComponent : public InputComponent {
+public:
+  virtual void Load() {}
+  virtual void SetUp(GameObject& object) {}
+
+  virtual void Update(GameObject& object) {
+    object.look.x = (float)Input::xoffset;
+    object.look.y = (float)Input::yoffset;
+    
+    object.direction = glm::rotateY(object.direction, glm::radians(object.look.x));
+  }
+};
+
+class BaseBarrelInputComponent : public InputComponent {
+public:
+  virtual void Load() {}
+  virtual void SetUp(GameObject& object) {}
+
+  virtual void Update(GameObject& object) {
+    object.look.x = (float)Input::xoffset;
+    object.look.y = (float)Input::yoffset;
+
+    object.direction = glm::rotateX(object.direction, glm::radians(object.look.y));
   }
 };
 

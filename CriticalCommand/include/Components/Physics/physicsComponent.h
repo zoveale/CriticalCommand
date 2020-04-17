@@ -186,14 +186,8 @@ public:
   }
 
   virtual void Update(GameObject& object) {
-    float angle = glm::atan(object.direction.x, object.direction.z);
-    glm::vec4 rotTest;
-    rotTest.x = 0.0f;
-    rotTest.y = -1 * (glm::sin(angle / 2));
-    rotTest.z = 0.0f;
-    rotTest.w = glm::cos(angle / 2);
 
-    root->SetGlobalPose(object.index, object.position, rotTest);
+    root->SetGlobalPose(object.index, object.position, glm::quat(object.direction, object.front));
     object.modelMatrix = root->GetAPose(object.index);
   }
 private:

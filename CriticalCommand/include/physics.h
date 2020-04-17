@@ -87,7 +87,7 @@ public:
   PxU32 NumberOfActors();
   glm::mat4 GetAPose(int i);
 
-  void SetGlobalPose(unsigned int index, glm::vec3 position, glm::vec4 rotation);
+  void SetGlobalPose(unsigned int index, glm::vec3 position, glm::quat rotation);
 
   bool AddPhysxObject(
     const std::string               &name,
