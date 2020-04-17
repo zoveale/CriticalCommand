@@ -1,5 +1,5 @@
 #include "framebuffer.h"
-#include "render.h"
+
 unsigned int Framebuffer::count = 0;
 
 
@@ -232,7 +232,6 @@ void Framebuffer::SetShadowCubemap(Shader shader) {
 //pbr: convert HDR equirectangular environment map to cubemap equivalent
 void Framebuffer::CreateEnvironmentMapFromHdrEquirectangularMap(Shader equirectangularToCubemapShader,
                   std::string hdrPath, unsigned int resolution){
-
   hdrTexture = Texture::LoadHDR(hdrPath.c_str());
   basicCube.LoadCubeOnly();
 
@@ -258,7 +257,6 @@ void Framebuffer::CreateEnvironmentMapFromHdrEquirectangularMap(Shader equirecta
   glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, resolution, resolution);
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
-
   
   glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
   glm::mat4 captureViews[] =
@@ -270,7 +268,6 @@ void Framebuffer::CreateEnvironmentMapFromHdrEquirectangularMap(Shader equirecta
      glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
      glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
   };
-
   equirectangularToCubemapShader.Use();
   equirectangularToCubemapShader.SetInt("equirectangularMap", 0);
   equirectangularToCubemapShader.SetMat4("projection", captureProjection);
@@ -406,15 +403,7 @@ void Framebuffer::CreatePrefilterMapFromEnvironmentMap(Shader prefilterShader, u
 }
 
 void Framebuffer::CreateEnvironmentMapFromCubeMap(std::string cubemapTexturesPath, unsigned int resolution) {
-  std::vector<std::string> faces;
-  faces.push_back(cubemapTexturesPath +"/right.png");
-  faces.push_back(cubemapTexturesPath + "/left.png");
-  faces.push_back(cubemapTexturesPath + "/top.png");
-  faces.push_back(cubemapTexturesPath + "/bottom.png");
-  faces.push_back(cubemapTexturesPath + "/front.png");
-  faces.push_back(cubemapTexturesPath + "/back.png");
-
-  envCubemap = Texture::loadCubemap(faces);
+ 
 
 }
 

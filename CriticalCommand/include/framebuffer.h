@@ -1,14 +1,18 @@
 #ifndef FRAMEBUFFER_H
 #define FRAMEBUFFER_H
 
-#include <GL/glew.h>
 #include "shader.h"
-#include "modelUtility.h"
 #include "skybox.h"
+#include "render.h"
+
+
 
 class Framebuffer {
 public:
-  Framebuffer() {}
+ 
+
+  Framebuffer() {
+  }
   void Load(Shader screenShader);
   void Preprocess();
   void Postprocess(Shader screenShader);
@@ -53,6 +57,7 @@ public:
   void SetBRDFLookUpTexture(Shader pbrShader);
   ///
   ~Framebuffer();
+
 private:
   void Test();
 

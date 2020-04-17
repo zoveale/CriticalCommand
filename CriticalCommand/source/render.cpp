@@ -1,10 +1,15 @@
 #include "render.h"
 
-Render::Render() {
+RENDERDOC_API_1_4_1* Render::DebugApi;
 
+
+
+Render::Render() {
 }
 
 void Render::StartUp(){
+ 
+
   /* Initialize the library */
   if (!glfwInit())
     printf("!glfwInit()");

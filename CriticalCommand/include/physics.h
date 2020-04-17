@@ -86,7 +86,9 @@ public:
 
   PxU32 NumberOfActors();
   glm::mat4 GetAPose(int i);
-  void SetAPose(int i, glm::mat4 &pose);
+
+  void SetGlobalPose(unsigned int index, glm::vec3 position, glm::vec4 rotation);
+
   bool AddPhysxObject(
     const std::string               &name,
     const float*                    vertex,
@@ -128,12 +130,11 @@ public:
   //Add a created convex mesh otherwise it will create one from the mesh provided.
   //Must be condisdered a single mesh to be caluclated correctly
   unsigned int AddLoadedDynamicConvexMesh(const char* meshPath, const glm::vec3 position);
-
   
 
   //unsigned int AddQuickhullDynamicConvexMesh(const char* meshPath, const glm::vec3 position);
 
-  void SetKinematicActorTarget(unsigned int index, glm::vec3 position);
+  void SetKinematicActorTarget(unsigned int index, glm::vec3 position, glm::vec4 rotation);
   
   unsigned int AddKinematicSphereActor(
     glm::vec3 pos,
@@ -157,11 +158,13 @@ public:
   ///
   
   unsigned int GetDynamicActorCount();
-
+  void SetDynamicActorKinematicTarget(unsigned int index, glm::vec3 pos);
   //Kinematic Character Stuff
   unsigned int CreateKinematicController(glm::vec3 position);
   void SetKinematicControllerPosition(glm::vec3 newPos, float dt);
   ///
+  unsigned int AddKinematicConvexActor(const char* meshPath, const glm::vec3 position);
+  glm::mat4 KinmaticActorPose(unsigned int);
 private:
   PxTriangleMesh* CreateTriangleMesh(
     const float*                     vertex,

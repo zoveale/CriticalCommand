@@ -1,6 +1,8 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+
+
 #include "render.h"
 #include "shader.h"
 #include "framebuffer.h"
@@ -20,6 +22,7 @@
 #include "gtx/matrix_decompose.hpp"
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
+
 
 
 const unsigned int SHADOW_CASTING_POINT_LIGHTS = 13;
@@ -58,7 +61,6 @@ private:
   Shader brdfLookUpShader;
   Shader enviromentShader;
 
-
   Camera* cameraState;
 
   //Objects
@@ -81,11 +83,19 @@ private:
   //animation
   Model dummyModel;
   Model mechModel;
-  GameObject mechaTank;
-  DefaultGraphicsComponent gMechComponent;
+  Model baseChassis;
+  BaseChassisInputComponent baseChassisInput;
+  Model baseTurret;
+  Model baseBarrel;
+  GameObject mechaTank[3];
+  DefaultGraphicsComponent gMechComponent[3];
   ConvexPhysicsComponent pMechComponent;
   Shader animatedShader;
+
+  DefaultPhysicsComponent standardPhysicsComponent;
+  KinematicPhysicsComponent kinematicPhysicsComponent;
 public:
+
 
   System();
   void SystemInit();

@@ -47,8 +47,6 @@ private:
   int timer;
 };
 
-
-
 class IcoSpherePhysicsComponent : public PhysicsComponent{
 public:
   IcoSpherePhysicsComponent() : root(nullptr) {}
@@ -67,7 +65,6 @@ public:
 private:
   physx::Physics* root;
 };
-
 
 class CubePhysicsComponent : public PhysicsComponent {
 public:
@@ -119,9 +116,38 @@ public:
 
   virtual void Update(GameObject& object) {
     root->SetKinematicControllerPosition(object.position, object.deltaTime);
-    object.modelMatrix = root->GetAPose(index);
   }
 private:
+  physx::Physics* root;
+  unsigned int index;
+};
+
+class KinematicPhysicsComponent : public PhysicsComponent {
+public:
+  KinematicPhysicsComponent() : root(nullptr), index(unsigned int(0)) {}
+
+  void Load(physx::Physics* scene, std::string convexDataFileLocation) {
+    this->root = scene;
+    this->convexDataFileLocation = convexDataFileLocation;
+  }
+  virtual void SetUp(GameObject& object) {
+    object.index = root->AddKinematicConvexActor(convexDataFileLocation.c_str(), object.position);
+    //root->UpdateDynamicActorArray();
+    /*object.modelMatrix = root->GetAPose(object.index);
+    root->DisableActorSimulation(object.index);*/
+  }
+
+  virtual void Update(GameObject& object) {
+    float angle = glm::atan(object.direction.x, object.direction.z);
+    glm::vec4 rotTest;
+    rotTest.y = 1 * (glm::sin(angle / 2));
+    rotTest.w = glm::cos(angle / 2);
+
+    root->SetKinematicActorTarget(object.index, object.position, rotTest);
+    object.modelMatrix = root->KinmaticActorPose(object.index);
+  }
+private:
+  std::string convexDataFileLocation;
   physx::Physics* root;
   unsigned int index;
 };
@@ -130,9 +156,11 @@ class DefaultPhysicsComponent : public PhysicsComponent {
 public:
   DefaultPhysicsComponent() : root(nullptr), index(unsigned int(0)) {}
 
-  void Load(physx::Physics* rootPhysics) {
+  void Load(physx::Physics* scene) {
+    this->root = scene;
   }
   virtual void SetUp(GameObject& object) {
+    object.index = root->AddDynamicBoxActor(object.position, glm::vec3(0.50f));
   }
 
   virtual void Update(GameObject& object) {
@@ -153,10 +181,19 @@ public:
   }
   virtual void SetUp(GameObject& object) {
     object.index = root->AddLoadedDynamicConvexMesh(convexDataFileLocation.c_str(), object.position);
-    //root->DisableActorGravity(object.index);
+    root->UpdateDynamicActorArray();
+    root->DisableActorSimulation(object.index);
   }
 
   virtual void Update(GameObject& object) {
+    float angle = glm::atan(object.direction.x, object.direction.z);
+    glm::vec4 rotTest;
+    rotTest.x = 0.0f;
+    rotTest.y = -1 * (glm::sin(angle / 2));
+    rotTest.z = 0.0f;
+    rotTest.w = glm::cos(angle / 2);
+
+    root->SetGlobalPose(object.index, object.position, rotTest);
     object.modelMatrix = root->GetAPose(object.index);
   }
 private:

@@ -1,5 +1,7 @@
 #include "system.h"
 
+//static Render RenderDocApi;
+
 static LightFactory sceneLights;
 static physx::Physics scenePhysics;
 
@@ -12,6 +14,9 @@ System::System() {
   model = glm::mat4(1.0f);
   view = glm::mat4(1.0f);
   projection = glm::mat4(1.0f);
+  cameraState = nullptr;
+  //Render::RenderDocInit();
+  
 }
 
 void System::SystemInit() {
@@ -28,7 +33,7 @@ void System::SystemInit() {
   scenePhysics.TestA();
   // \ or vise versa ?
   //camera.startup /
-
+ 
   //printf("OpenGl version: %s\n", glGetString(GL_VERSION));
 
   //light stuff
@@ -38,7 +43,6 @@ void System::SystemInit() {
   spotLight.LoadModel("resources/surface/spotLight.dae");
   ///
 
-  ///Users/Zoe/Desktop/floor
   uvSphere.Load("resources/imagedBasedLighting/basicGround.dae", sceneLights, scenePhysics, true);
   //C:/Users/Zoe/Desktop/scene
   //skybox
@@ -72,11 +76,11 @@ void System::SystemInit() {
   sceneLights.SetFixedAttributes(pbrShader);
   sceneLights.SetFixedShadowAttributes(pbrShader);
 
-
-  
   //reflection Buffers
   specularIrradianceBuffer.CreateEnvironmentMapFromHdrEquirectangularMap(equirectangularToCubemapShader,
-    "resources/imagedBasedLighting/blaubeuren_outskirts_8k.hdr", 1 << 11);
+    "resources/imagedBasedLighting/output_skybox.hdr", 1 << 10);
+
+
   specularIrradianceBuffer.CreateIrradianceMapFromEnvironmentMap(irradianceShader);
   specularIrradianceBuffer.CreatePrefilterMapFromEnvironmentMap(prefilterShader);
   /*
@@ -89,8 +93,8 @@ void System::SystemInit() {
   specularIrradianceBuffer.SetIrradianceTexture(pbrShader);
   specularIrradianceBuffer.SetPrefilterTexture(pbrShader);
   specularIrradianceBuffer.SetBRDFLookUpTexture(pbrShader);
+
   ///
-  
   //Objects
   modelObject[0].LoadModel("resources/imagedBasedLighting/object0/object.dae");
   modelObject[1].LoadModel("resources/imagedBasedLighting/object1/cube.dae");
@@ -103,9 +107,9 @@ void System::SystemInit() {
   pObjectDiamond.Load(&scenePhysics);
 
   for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
-    testObject[i].position = glm::vec3(glm::sin(i * 0.50f) * 10 + 0.0f,
+    testObject[i].position = glm::vec3(glm::sin(i * 0.50f) * 20 + 0.0f,
                                                     i * (0.175) + 5.0f,
-                                       glm::cos(i * 0.50f) * 10 + 0.0f);
+                                       glm::cos(i * 0.50f) * 20 + 0.0f);
     
     if((i % 3) == 0)
       testObject[i].Load(&gObject[0], &pObjectSphere);
@@ -122,12 +126,23 @@ void System::SystemInit() {
   playerObject.position = glm::vec3(0.0f, 5.0f, 0.0f);
   playerObject.Load(&playerGraphics, &playerPhysics, &playerInput);*/
   
-  mechModel.LoadModel("resources/Mechs/simpleTank.dae");
-  gMechComponent.Load(&mechModel, &multipleRenderTargetShader);
-  pMechComponent.Load(&scenePhysics, "resources/Mechs/simpleTank.dae");
-  mechaTank.position = glm::vec3(0.0f, 7.0f, 0.0f);
-  mechaTank.Load(&gMechComponent, &pMechComponent);
-
+  baseChassis.LoadModel("resources/Mechs/baseChassis.dae");
+  baseTurret.LoadModel("resources/Mechs/baseTurret.dae");
+  baseBarrel.LoadModel("resources/Mechs/baseBarrel.dae");
+  gMechComponent[0].Load(&baseChassis, &multipleRenderTargetShader);
+  gMechComponent[1].Load(&baseTurret, &multipleRenderTargetShader);
+  gMechComponent[2].Load(&baseBarrel, &multipleRenderTargetShader);
+  baseChassisInput.Load();
+  standardPhysicsComponent.Load(&scenePhysics);
+  //mechaTank[0].position = glm::vec3(0.0f, 10.0f, 0.0f);
+  pMechComponent.Load(&scenePhysics, "resources/Mechs/baseChassis.dae");
+  ///
+  kinematicPhysicsComponent.Load(&scenePhysics, "resources/Mechs/baseChassis.dae");
+  mechaTank[0].Load(&gMechComponent[0], &kinematicPhysicsComponent, &baseChassisInput);
+  pMechComponent.Load(&scenePhysics, "resources/Mechs/baseTurret.dae");
+  mechaTank[1].Load(&gMechComponent[1], &pMechComponent, &baseChassisInput);
+  pMechComponent.Load(&scenePhysics, "resources/Mechs/baseBarrel.dae");
+  mechaTank[2].Load(&gMechComponent[2], &pMechComponent, &baseChassisInput);
 
   dummyModel.LoadModel("resources/dummy/dummy.dae");
 }
@@ -165,8 +180,9 @@ void System::GameLoop(){
     for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
       testObject[i].Update(deltaTime, projection, view);
     }
-
-    //mechaTank.Update(deltaTime, projection, view);
+    mechaTank[0].Update(deltaTime, projection, view);
+    mechaTank[1].Update(deltaTime, projection, view);
+    mechaTank[2].Update(deltaTime, projection, view);
     //playerObject.Update(deltaTime, projection, view);
     player.Update(deltaTime);
     cameraState->Update(player);
@@ -191,8 +207,9 @@ void System::GameLoop(){
       multipleRenderTargetShader.SetMat4("model", model);
       uvSphere.Draw(multipleRenderTargetShader); 
       dummyModel.Draw(multipleRenderTargetShader);
-      //mechaTank.Draw();
-
+      mechaTank[0].Draw();
+      mechaTank[1].Draw();
+      mechaTank[2].Draw();
       for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
         testObject[i].Draw();
       }

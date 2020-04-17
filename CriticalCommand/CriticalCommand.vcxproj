@@ -105,7 +105,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)CriticalCommand\CriticalCommand;C:\DevLibs\nvidiaPhysX\PhysX\pxshared\include;C:\DevLibs\nvidiaPhysX\PhysX\physx\include;$(SolutionDir)middleware\glew\include;$(SolutionDir)middleware\glfw\include;$(SolutionDir)CriticalCommand\include;$(SolutionDir)middleware\assimp;$(SolutionDir)middleware\glm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)CriticalCommand\CriticalCommand;C:\DevLibs\nvidiaPhysX\PhysX\pxshared\include;C:\DevLibs\nvidiaPhysX\PhysX\physx\include;$(SolutionDir)middleware\glew\include;$(SolutionDir)middleware\glfw\include;$(SolutionDir)CriticalCommand\include;$(SolutionDir)middleware\assimp;$(SolutionDir)middleware\glm;C:\Program Files\RenderDoc</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLEW_STATIC;_MBCS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -218,6 +218,7 @@
     <ClInclude Include="include\mesh.h" />
     <ClInclude Include="include\model.h" />
     <ClInclude Include="include\modelUtility.h" />
+    <ClInclude Include="include\nodeObjects.h" />
     <ClInclude Include="include\objects.h" />
     <ClInclude Include="include\physics.h" />
     <ClInclude Include="include\Components\Physics\physicsComponent.h" />

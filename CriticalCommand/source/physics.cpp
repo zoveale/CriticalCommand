@@ -104,7 +104,7 @@ void physx::Physics::AddActor(PxActor* actor) {
 }
 
 void physx::Physics::UpdateDynamicActorArray(/*PxActor** actor*/) {
-
+  PxActorTypeFlag::eRIGID_DYNAMIC;
   //typedef PxActorTypeFlag FLAG;
   nbActors = gScene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC);
   if (nbActors > MAX_ACTOR) {
@@ -221,6 +221,12 @@ void physx::Physics::SetKinematicControllerPosition(glm::vec3 newPos, float dt) 
   CCTcontroller->getActor()->setKinematicTarget(setPosition); 
 }
 
+void physx::Physics::SetDynamicActorKinematicTarget(unsigned int index, glm::vec3 newPos) {
+  PxTransform setPosition(PxVec3(newPos.x, newPos.y, newPos.z));
+  
+  //actors[index]->tar
+}
+
 void physx::Physics::ReleaseActor(unsigned int index) {
   gScene->removeActor(*actors[index]);
   dynamicActorCount--;
@@ -310,6 +316,30 @@ glm::mat4 physx::Physics::GetAPose(int i) {
     globalPoseArray[i].column3.z,
     globalPoseArray[i].column3.w);
 }
+
+glm::mat4 physx::Physics::KinmaticActorPose(unsigned int) {
+
+  PxMat44 outMat4 = kinematicActor->getGlobalPose();
+
+  return glm::mat4(outMat4.column0.x,
+    outMat4.column0.y,
+    outMat4.column0.z,
+    outMat4.column0.w,
+    outMat4.column1.x,
+    outMat4.column1.y,
+    outMat4.column1.z,
+    outMat4.column1.w, 
+    outMat4.column2.x,
+    outMat4.column2.y,
+    outMat4.column2.z,
+    outMat4.column2.w,
+    outMat4.column3.x,
+    outMat4.column3.y,
+    outMat4.column3.z,
+    outMat4.column3.w);
+}
+
+
 
 bool physx::Physics::AddPhysxObject(const std::string  &name, 
                                     const float        *vertex, 
@@ -408,13 +438,24 @@ void physx::Physics::AddStaticBoxActor(glm::vec3 pos, glm::vec3 size, PxMaterial
 
 }
 
-
-
-
-void physx::Physics::SetKinematicActorTarget(unsigned int index, glm::vec3 position) {
+void physx::Physics::SetGlobalPose(unsigned int index, glm::vec3 position, glm::vec4 rotation) {
   PxVec3 nextPosition(position.x, position.y, position.z);
-  PxTransform target(nextPosition);
+
+  PxQuat rotat(rotation.x, rotation.y, rotation.z, rotation.w);
+  PxTransform target(nextPosition, rotat);
+  actors[index]->setGlobalPose(target);
+
+}
+
+
+
+void physx::Physics::SetKinematicActorTarget(unsigned int index, glm::vec3 position, glm::vec4 rotation) {
+  PxVec3 nextPosition(position.x, position.y, position.z);
+
+  PxQuat rotat(0.0f, rotation.y, 0.0f, rotation.w);
+  PxTransform target(nextPosition, rotat);
   kinematicActor->setKinematicTarget(target);
+  
 }
 
 unsigned int physx::Physics::AddKinematicSphereActor(glm::vec3 pos, float radius, PxMaterial* material) {
@@ -434,11 +475,44 @@ unsigned int physx::Physics::AddKinematicSphereActor(glm::vec3 pos, float radius
   PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
 
   //rolls slower
-  body->setMaxAngularVelocity(PxReal(3.0f));
   kinematicActor = body;
   gScene->addActor(*body);
   
   
+  //UpdateDynamicActorArray();
+  return ++dynamicActorCount;
+}
+
+unsigned int physx::Physics::AddKinematicConvexActor(const char* meshPath, const glm::vec3 position){
+
+  Assimp::Importer importer;
+  const aiScene* scene;
+  std::vector<unsigned int> indices;
+  scene = importer.ReadFile(meshPath, aiProcess_FindInvalidData);
+  aiNode* rootNode = scene->mRootNode;
+  aiMesh* mesh = scene->mMeshes[0];
+
+  for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+    aiFace face = mesh->mFaces[i];
+    // retrieve all indices of the face and store them in the indices vector
+    for (unsigned int j = 0; j < face.mNumIndices; j++) {
+      indices.push_back(face.mIndices[j]);
+    }
+  }
+
+  PxTransform location(PxVec3(position.x, position.y, position.z));
+  PxRigidDynamic* aConvexActor = gPhysics->createRigidDynamic(location);
+  //PxRigidBodyExt::updateMassAndInertia(*aConvexActor, 100.0f);
+  PxConvexMesh* convexMesh = CreateConvexMesh(&mesh->mVertices[0].x, &indices[0], &mesh->mNumFaces);
+
+  aConvexActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
+
+  PxRigidActorExt::createExclusiveShape(*aConvexActor, PxConvexMeshGeometry(convexMesh), *defaultMaterial);
+
+  //rolls slower
+  kinematicActor = aConvexActor;
+  gScene->addActor(*aConvexActor);
+
   //UpdateDynamicActorArray();
   return ++dynamicActorCount;
 }
@@ -495,8 +569,10 @@ unsigned int physx::Physics::AddLoadedDynamicConvexMesh(const char* meshPath, co
   PxRigidDynamic* aConvexActor = gPhysics->createRigidDynamic(location);
   //PxRigidBodyExt::updateMassAndInertia(*aConvexActor, 100.0f);
   PxConvexMesh* convexMesh = CreateConvexMesh(&mesh->mVertices[0].x, &indices[0], &mesh->mNumFaces);
-  PxShape* aConvexShape = PxRigidActorExt::createExclusiveShape(*aConvexActor, PxConvexMeshGeometry(convexMesh), *defaultMaterial);
+  PxShape* aConvexShape = PxRigidActorExt::createExclusiveShape(*aConvexActor,
+    PxConvexMeshGeometry(convexMesh), *defaultMaterial);
   //aConvexActor->
+  
   AddActor(aConvexActor);
 
   return ++dynamicActorCount;
@@ -532,15 +608,17 @@ unsigned int physx::Physics::AddDynamicBoxActor(glm::vec3 pos, glm::vec3 size, P
   PxBoxGeometry box(PxReal(size.x ), PxReal(size.y), PxReal(size.z));
 
   //45 degrees around the x axis
-  PxQuat rotation(0.382683456f, 0.0f, 0.0f, 0.923879564f);
+  //PxQuat rotation(0.382683456f, 0.0f, 0.0f, 0.923879564f);
 
-  PxTransform location(PxVec3(pos.x, pos.y, pos.z), rotation);
+  PxTransform location(PxVec3(pos.x, pos.y, pos.z));//, rotation);
   PxShape* shape = gPhysics->createShape(box, *defaultMaterial);
   PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
   body->attachShape(*shape);
   shape->release();
 
   PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+
+  
   gScene->addActor(*body);
 
   return ++dynamicActorCount;

@@ -57,6 +57,38 @@ public:
 
 };
 
+class BaseChassisInputComponent : public InputComponent {
+public:
+  virtual void Load() {
+
+  }
+  virtual void SetUp(GameObject& object) {
+
+  }
+  //make a state machine? 
+
+  virtual void Update(GameObject& object) {
+    object.look.x = (float)Input::xoffset;
+    object.look.y = (float)Input::yoffset;
+
+    if (Input::KEY.UP) {
+      object.position += object.direction * (object.deltaTime * object.velocity);
+    }
+    if (Input::KEY.DOWN) {
+      object.position -= object.direction * (object.deltaTime * object.velocity);
+    }
+    if (Input::KEY.LEFT) {
+      object.direction = glm::normalize(glm::rotateY(object.direction, glm::radians(0.50f)));
+      //object.position -= object.right * (object.deltaTime * object.velocity);
+    }
+    if (Input::KEY.RIGHT) {
+      object.direction = glm::normalize(glm::rotateY(object.direction, glm::radians(-0.50f)));
+      //object.position += object.right * (object.deltaTime * object.velocity);
+    }
+
+  }
+};
+
 
 #endif // !INPUT_COMPONENT_H
 
