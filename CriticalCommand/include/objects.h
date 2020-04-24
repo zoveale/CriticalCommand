@@ -4,6 +4,10 @@
 #include "mat4x4.hpp"
 #include "vec3.hpp"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include "gtx/rotate_vector.hpp"
+#include "gtx/quaternion.hpp"
+
 class PhysicsComponent;
 class GraphicsComponent;
 class InputComponent;
@@ -15,9 +19,11 @@ public:
   float acc;
   glm::vec3 front;
   glm::vec3 right;
+  glm::vec3 up;
   //Starting position of an object
   glm::vec3 position;
   glm::vec3 direction;
+  //glm::vec3 deltaDirection;
   glm::vec2 look;
   glm::mat4 modelMatrix;
   //Starting velocity of an object

@@ -29,17 +29,15 @@ void Player::StartUp() {
 /*
 
 */
-  position = glm::vec3(0.0f, 25.0f, 0.0f);
+  position = glm::vec3(0.0f, 10.0f, -25.0f);
   //position = glm::vec3(0.0f);
-  front = glm::vec3(1.0f, 0.0f, -1.0f);
+  front = glm::vec3(1.0f, 0.0f, 0.0f);
   right = glm::vec3(0.0f, 1.0f, 0.0f);
   speed = 15.0f;
   dt = 0.0f;
   acc = 1.0f;
 
-  //camera = &Camera::firstPerson;
   state = &InputState::idel;
-  //camera->Update(*this);
   state->Update(*this);
 }
 

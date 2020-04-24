@@ -135,6 +135,7 @@ public:
   virtual void SetUp(GameObject& object) {
     if(object.position.x >= FLT_MAX - 1.0f)
       object.position = modelData->Position();
+
   }
   virtual void Update(GameObject& object, const glm::mat4 P, const glm::mat4 V) {
     //Component updates the object, object does not update the component 

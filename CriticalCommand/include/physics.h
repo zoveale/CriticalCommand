@@ -12,6 +12,10 @@
 #include <mat4x4.hpp>
 #include <unordered_map>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include "gtx/rotate_vector.hpp"
+#include "gtx/quaternion.hpp"
+
 //TODO::fix this workaround
 #include "modelUtility.h"
 
@@ -88,7 +92,8 @@ public:
   glm::mat4 GetAPose(int i);
 
   void SetGlobalPose(unsigned int index, glm::vec3 position, glm::quat rotation);
-
+  void SetGlobalPose(unsigned int index, glm::vec3 position, glm::vec3 rotation);
+  void SetGlobalPose(unsigned int index, glm::vec3 position, glm::vec3 normal, glm::vec3 up);
   bool AddPhysxObject(
     const std::string               &name,
     const float*                    vertex,
@@ -134,7 +139,7 @@ public:
 
   //unsigned int AddQuickhullDynamicConvexMesh(const char* meshPath, const glm::vec3 position);
 
-  void SetKinematicActorTarget(unsigned int index, glm::vec3 position, glm::vec4 rotation);
+  void SetKinematicActorTarget(unsigned int index, glm::vec3 position, glm::quat rotation);
   
   unsigned int AddKinematicSphereActor(
     glm::vec3 pos,

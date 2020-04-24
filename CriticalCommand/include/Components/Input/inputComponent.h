@@ -13,8 +13,6 @@ public:
   virtual void Update(GameObject& object) = 0;
 };
 
-//KEY_STATE Input::KEY;
-
 class PlayerInputComponent : public InputComponent {
 public:
   virtual void Load() {
@@ -59,13 +57,8 @@ public:
 
 class BaseChassisInputComponent : public InputComponent {
 public:
-  virtual void Load() {
-
-  }
-  virtual void SetUp(GameObject& object) {
-
-  }
-  //make a state machine? 
+  virtual void Load() {}
+  virtual void SetUp(GameObject& object) {}
 
   virtual void Update(GameObject& object) {
     object.look.x = (float)Input::xoffset;
@@ -78,12 +71,10 @@ public:
       object.position -= object.direction * (object.deltaTime * object.velocity);
     }
     if (Input::KEY.LEFT) {
-      object.direction = glm::normalize(glm::rotateY(object.direction, glm::radians(0.50f)));
-      //object.position -= object.right * (object.deltaTime * object.velocity);
+      object.direction = glm::rotate(object.direction, glm::radians(1.0f), object.up);
     }
     if (Input::KEY.RIGHT) {
-      object.direction = glm::normalize(glm::rotateY(object.direction, glm::radians(-0.50f)));
-      //object.position += object.right * (object.deltaTime * object.velocity);
+      object.direction = glm::rotate(object.direction, glm::radians(-1.0f), object.up);
     }
   }
 };
@@ -96,8 +87,10 @@ public:
   virtual void Update(GameObject& object) {
     object.look.x = (float)Input::xoffset;
     object.look.y = (float)Input::yoffset;
-    
-    object.direction = glm::rotateY(object.direction, glm::radians(object.look.x));
+    //object.deltaDirection = object.direction;
+
+    object.right = glm::rotate(object.right, glm::sin(glm::radians(float(0.1f * object.look.x))), object.up);
+    object.direction = glm::cross(glm::normalize(object.right), glm::normalize(object.up));
   }
 };
 
@@ -109,8 +102,11 @@ public:
   virtual void Update(GameObject& object) {
     object.look.x = (float)Input::xoffset;
     object.look.y = (float)Input::yoffset;
-
-    object.direction = glm::rotateX(object.direction, glm::radians(object.look.y));
+    //object.deltaDirection = object.direction;
+    object.up = glm::rotate(object.up, glm::sin(glm::radians(float(0.1f * object.look.y))), object.right);
+    /*object.up.y = glm::clamp(object.up.y, 0.5f, 1.0f);
+    object.right.x = glm::clamp(object.up.x, 0.0f, 0.10f);*/
+    object.direction = glm::cross(glm::normalize(object.right), glm::normalize(object.up));
   }
 };
 

@@ -12,9 +12,12 @@ GameObject::GameObject() {
 
   deltaTime = 0.0f;
   position = glm::vec3(FLT_MAX);
-  direction = glm::vec3(0.0f, 0.0f, 1.0f);
-  right = glm::vec3(-1.0f, 0.0f, 0.0f);
-  front = glm::vec3(0.0f, 0.0f, 1.0f);
+
+  up = glm::vec3(0.0f, 1.0f, 0.0f);
+  right = glm::vec3(1.0f, 0.0f, 0.0f);
+  front = glm::cross(glm::normalize(right), glm::normalize(up));
+  direction = glm::cross(glm::normalize(right), glm::normalize(up));
+  //deltaDirection = glm::cross(glm::normalize(right), glm::normalize(up));
   velocity = 10.0f;
   acc = 2.0f;
   modelMatrix = glm::mat4(1.0f);

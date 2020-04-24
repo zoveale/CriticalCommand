@@ -437,19 +437,43 @@ void physx::Physics::AddStaticBoxActor(glm::vec3 pos, glm::vec3 size, PxMaterial
 }
 
 void physx::Physics::SetGlobalPose(unsigned int index, glm::vec3 position, glm::quat rotation) {
+  //glm::orientation(object.direction, object.up);
 
+  PxVec3 nextPosition(position.x, position.y, position.z);
+  glm::clamp(0.0f, 1.0f, rotation.x);
+  PxQuat rotationQuat = PxQuat(rotation.x, rotation.y, rotation.z, rotation.w);
+  
+  PxTransform newPose(nextPosition, rotationQuat);
+  
+  actors[index]->setGlobalPose(newPose);
+}
+
+void physx::Physics::SetGlobalPose(unsigned int index, glm::vec3 position, glm::vec3 rotation) {
+  ////glm::vec3 degrees = glm::eulerAngles(rotation);
+  ////glm::toQuat(glm::mat4(1.0f));
+  //PxVec3 nextPosition(position.x, position.y, position.z);
+  //PxTransform orintation(nextPosition);
+  //orintation.rotate(PxVec3(rotation.x, rotation.y, rotation.z));
+  //actors[index]->setGlobalPose(orintation);
+}
+
+void physx::Physics::SetGlobalPose(unsigned int index, glm::vec3 position, glm::vec3 normal, glm::vec3 up) {
+  glm::orientation(normal, up);
+  
+  glm::quat rotation = glm::toQuat(glm::orientation(normal, up));
+  glm::clamp(0.0f, 1.0f, rotation.x);
   PxVec3 nextPosition(position.x, position.y, position.z);
   PxQuat rotationQuat = PxQuat(rotation.x, rotation.y, rotation.z, rotation.w);
 
-  actors[index]->setGlobalPose(PxTransform(nextPosition, rotationQuat));
+  PxTransform newPose(nextPosition, rotationQuat);
+  actors[index]->setGlobalPose(newPose);
 }
 
 
-
-void physx::Physics::SetKinematicActorTarget(unsigned int index, glm::vec3 position, glm::vec4 rotation) {
+void physx::Physics::SetKinematicActorTarget(unsigned int index, glm::vec3 position, glm::quat rotation) {
   PxVec3 nextPosition(position.x, position.y, position.z);
 
-  PxQuat rotat(0.0f, rotation.y, 0.0f, rotation.w);
+  PxQuat rotat(rotation.x, rotation.y, rotation.z, rotation.w);
   PxTransform target(nextPosition, rotat);
   kinematicActor->setKinematicTarget(target);
   

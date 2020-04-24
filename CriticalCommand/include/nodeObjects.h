@@ -15,6 +15,7 @@ class TankTreeObject {
 public:
 
 private:
+  GameObject objects[];
 };
 #endif // !VEALE_350AB969_DA46_4C06_9B9D_5E1C5F526ABA_H
 

@@ -138,18 +138,48 @@ public:
   }
 
   virtual void Update(GameObject& object) {
-    float angle = glm::atan(object.direction.x, object.direction.z);
-    glm::vec4 rotTest;
-    rotTest.y = 1 * (glm::sin(angle / 2));
-    rotTest.w = glm::cos(angle / 2);
 
-    root->SetKinematicActorTarget(object.index, object.position, rotTest);
+    root->SetKinematicActorTarget(object.index, object.position, glm::quat(object.front, object.direction));
     object.modelMatrix = root->KinmaticActorPose(object.index);
   }
 private:
   std::string convexDataFileLocation;
   physx::Physics* root;
   unsigned int index;
+};
+
+class ConvexPhysicsComponent : public PhysicsComponent {
+public:
+  ConvexPhysicsComponent() : root(nullptr), convexDataFileLocation(""){}
+
+  void Load(physx::Physics* rootPhysics, std::string convexDataFileLocation) {
+    this->root = rootPhysics;
+    this->convexDataFileLocation = convexDataFileLocation;
+  }
+
+  virtual void SetUp(GameObject& object) {
+    object.index = root->AddLoadedDynamicConvexMesh(convexDataFileLocation.c_str(), object.position);
+    root->UpdateDynamicActorArray();
+    root->DisableActorSimulation(object.index);
+    object.modelMatrix = root->GetAPose(object.index);
+  }
+
+  virtual void Update(GameObject& object) {
+    glm::quat rot = glm::rotation(glm::normalize(object.front), glm::normalize(object.direction));
+    glm::normalize(rot);
+
+    root->SetGlobalPose(object.index, object.position, rot);
+    object.modelMatrix = glm::mat4(1.0f);
+
+    glm::vec3 flatDirection = glm::vec3(object.direction.x, 0.0f, object.direction.z);
+    glm::normalize(flatDirection);
+    object.modelMatrix = glm::translate(object.modelMatrix, object.position);
+    object.modelMatrix *= glm::orientation(flatDirection, object.front);
+    object.modelMatrix *= glm::orientation(flatDirection, glm::normalize(object.direction));
+  }
+private:
+  physx::Physics* root;
+  std::string convexDataFileLocation;
 };
 
 class DefaultPhysicsComponent : public PhysicsComponent {
@@ -169,33 +199,5 @@ private:
   physx::Physics* root;
   unsigned int index;
 };
-
-class ConvexPhysicsComponent : public PhysicsComponent {
-public:
-  ConvexPhysicsComponent() : root(nullptr), convexDataFileLocation(""){}
-
-  void Load(physx::Physics* rootPhysics, std::string convexDataFileLocation) {
-    this->root = rootPhysics;
-    this->convexDataFileLocation = convexDataFileLocation;
-   
-  }
-  virtual void SetUp(GameObject& object) {
-    object.index = root->AddLoadedDynamicConvexMesh(convexDataFileLocation.c_str(), object.position);
-    root->UpdateDynamicActorArray();
-    root->DisableActorSimulation(object.index);
-  }
-
-  virtual void Update(GameObject& object) {
-
-    root->SetGlobalPose(object.index, object.position, glm::quat(object.direction, object.front));
-    object.modelMatrix = root->GetAPose(object.index);
-  }
-private:
-  physx::Physics* root;
-  std::string convexDataFileLocation;
-
-};
-
-
 
 #endif // !VEALE_AA1FE13E_F758_453D_B604_EF8EF26A9833_H

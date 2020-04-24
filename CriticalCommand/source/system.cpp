@@ -182,10 +182,18 @@ void System::GameLoop(){
     for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
       testObject[i].Update(deltaTime, projection, view);
     }
+
     mechaTank[0].Update(deltaTime, projection, view);
+    mechaTank[1].position.x = mechaTank[0].position.x;
+    mechaTank[1].position.z = mechaTank[0].position.z;
+    mechaTank[1].up = mechaTank[0].up;
     mechaTank[1].Update(deltaTime, projection, view);
+    mechaTank[2].right = mechaTank[1].right;
+    mechaTank[2].position.x = mechaTank[1].position.x;
+    mechaTank[2].position.z = mechaTank[1].position.z;
     mechaTank[2].Update(deltaTime, projection, view);
     //playerObject.Update(deltaTime, projection, view);
+
     player.Update(deltaTime);
     cameraState->Update(player);
 
