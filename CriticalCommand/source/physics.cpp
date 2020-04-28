@@ -19,9 +19,12 @@ physx::Physics::Physics() {
   defaultMaterial = NULL;
   gPvd = NULL;
   nbActors = NULL;
-
+  AggregateIndex = 0;
   dynamicActorCount = -1;
   freeActors.reserve(MAX_ACTOR);
+
+ 
+
 }
 
 
@@ -41,7 +44,7 @@ void physx::Physics::TestA() {
   sceneDesc.kineKineFilteringMode = PxPairFilteringMode::eKEEP;
   gScene = gPhysics->createScene(sceneDesc);
 
-
+  
 }
 
 //TODO::make less awful
@@ -101,6 +104,17 @@ void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius) {
 void physx::Physics::AddActor(PxActor* actor) {
   gScene->addActor(*actor);
   UpdateDynamicActorArray();
+}
+
+unsigned int physx::Physics::CreateAggregateActorSet() {
+  aggregateActorSets[AggregateIndex] = gPhysics->createAggregate(1 << 3, false);
+  gScene->addAggregate(*aggregateActorSets[AggregateIndex]);
+  return AggregateIndex++;
+}
+
+void physx::Physics::AddAggregateActorToSet(unsigned int actorIndex, unsigned int aggregateIndex) {
+  
+  aggregateActorSets[aggregateIndex]->addActor(*actors[actorIndex]);
 }
 
 void physx::Physics::UpdateDynamicActorArray(/*PxActor** actor*/) {
@@ -298,7 +312,6 @@ physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
 
 glm::mat4 physx::Physics::GetAPose(int i) {
 
-
   return glm::mat4(globalPoseArray[i].column0.x,
     globalPoseArray[i].column0.y,
     globalPoseArray[i].column0.z,
@@ -317,7 +330,7 @@ glm::mat4 physx::Physics::GetAPose(int i) {
     globalPoseArray[i].column3.w);
 }
 
-glm::mat4 physx::Physics::KinmaticActorPose(unsigned int) {
+glm::mat4 physx::Physics::KinmaticActorPose(unsigned int index) {
 
   PxMat44 outMat4 = kinematicActor->getGlobalPose();
 
@@ -432,20 +445,18 @@ void physx::Physics::AddStaticBoxActor(glm::vec3 pos, glm::vec3 size, PxMaterial
   PxRigidStatic* body = gPhysics->createRigidStatic(location);
   body->attachShape(*shape);
   shape->release();
-
+  
   gScene->addActor(*body);
 }
 
 void physx::Physics::SetGlobalPose(unsigned int index, glm::vec3 position, glm::quat rotation) {
-  //glm::orientation(object.direction, object.up);
 
   PxVec3 nextPosition(position.x, position.y, position.z);
-  glm::clamp(0.0f, 1.0f, rotation.x);
   PxQuat rotationQuat = PxQuat(rotation.x, rotation.y, rotation.z, rotation.w);
   
   PxTransform newPose(nextPosition, rotationQuat);
   
-  actors[index]->setGlobalPose(newPose);
+  actors[index]->setGlobalPose(newPose, false);
 }
 
 void physx::Physics::SetGlobalPose(unsigned int index, glm::vec3 position, glm::vec3 rotation) {
@@ -475,8 +486,18 @@ void physx::Physics::SetKinematicActorTarget(unsigned int index, glm::vec3 posit
 
   PxQuat rotat(rotation.x, rotation.y, rotation.z, rotation.w);
   PxTransform target(nextPosition, rotat);
-  kinematicActor->setKinematicTarget(target);
+  reinterpret_cast<PxRigidDynamic*>(actors[index])->setKinematicTarget(target);
+}
+
+void physx::Physics::AddForceOnDynamicActor(unsigned int index, glm::vec3 force) {
+
+  reinterpret_cast<PxRigidDynamic*>(actors[index])->addForce(PxVec3(force.x, force.y, force.z));
+}
+
+void physx::Physics::AddVelocityToDynamicActor(unsigned int index, glm::vec3 velocity) {
   
+  reinterpret_cast<PxRigidDynamic*>(actors[index])->addForce(PxVec3(velocity.x, velocity.y, velocity.z),
+                                                             PxForceMode::eVELOCITY_CHANGE);
 }
 
 unsigned int physx::Physics::AddKinematicSphereActor(glm::vec3 pos, float radius, PxMaterial* material) {
@@ -520,7 +541,7 @@ unsigned int physx::Physics::AddKinematicConvexActor(const char* meshPath, const
       indices.push_back(face.mIndices[j]);
     }
   }
-
+  
   PxTransform location(PxVec3(position.x, position.y, position.z));
   PxRigidDynamic* aConvexActor = gPhysics->createRigidDynamic(location);
   //PxRigidBodyExt::updateMassAndInertia(*aConvexActor, 100.0f);

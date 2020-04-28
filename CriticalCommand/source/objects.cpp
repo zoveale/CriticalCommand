@@ -10,6 +10,9 @@ GameObject::GameObject() {
   this->input = nullptr;
   look = glm::vec2(0.0f);
 
+  aggregateIndex = 0;
+  index = 0;
+
   deltaTime = 0.0f;
   position = glm::vec3(FLT_MAX);
 
@@ -19,7 +22,7 @@ GameObject::GameObject() {
   direction = glm::cross(glm::normalize(right), glm::normalize(up));
   //deltaDirection = glm::cross(glm::normalize(right), glm::normalize(up));
   velocity = 10.0f;
-  acc = 2.0f;
+  acceleration = 2.0f;
   modelMatrix = glm::mat4(1.0f);
   initalVelocity = glm::vec3(0.0f);
   intialRotation = glm::vec3(0.0f);

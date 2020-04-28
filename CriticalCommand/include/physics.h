@@ -82,6 +82,9 @@ public:
   
   void AddynamicActor(PxActor* actor);
   void AddActor(PxActor* actor);
+  
+  unsigned int CreateAggregateActorSet();
+  void AddAggregateActorToSet(unsigned int actorIndex, unsigned int aggregateIndex);
 
   void UpdateDynamicActorArray();
   void StepPhysics(float dt);
@@ -141,6 +144,9 @@ public:
 
   void SetKinematicActorTarget(unsigned int index, glm::vec3 position, glm::quat rotation);
   
+  void AddForceOnDynamicActor(unsigned int index, glm::vec3 force);
+  void AddVelocityToDynamicActor(unsigned int index, glm::vec3 velocity);
+
   unsigned int AddKinematicSphereActor(
     glm::vec3 pos,
     float radius,
@@ -157,11 +163,8 @@ public:
   void DisableActorGravity(unsigned int index);
   //TODO:: test functions
   void TestA();
-  //swap float to bool
-  
-  //void RayCastEffect()
-  ///
-  
+
+
   unsigned int GetDynamicActorCount();
   void SetDynamicActorKinematicTarget(unsigned int index, glm::vec3 pos);
   //Kinematic Character Stuff
@@ -207,6 +210,10 @@ private:
   //TODO:: recycleing actors vector
   std::vector<unsigned int> freeActors;
 
+
+  PxAggregate* aggregateActorSets[1 << 4];
+  unsigned int AggregateIndex;
+
   PxScene* gScene;
   PxRigidActor* actors[MAX_ACTOR];
   PxU32 nbActors;
@@ -214,12 +221,6 @@ private:
 
   PxMat44 globalPoseArray[MAX_ACTOR];
   PxReal stackZ = 10.0f;
-  //PxTriangleMesh* triMesh;
-  //PxRigidStatic* meshActor;
-  /*struct Triangle {
-    PxU32 ind0, ind1, ind2;
-  };*/
-
 
 
   static std::unordered_map<std::string, unsigned int> geometryMap;

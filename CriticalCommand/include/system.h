@@ -92,10 +92,13 @@ private:
   GameObject mechaTank[3];
   DefaultGraphicsComponent gMechComponent[3];
   ConvexPhysicsComponent pMechComponent;
-  Shader animatedShader;
 
   DefaultPhysicsComponent standardPhysicsComponent;
   KinematicPhysicsComponent kinematicPhysicsComponent;
+
+  /*VelocityBasedInputComponent velocityBasedInputComponent;
+  VelocityPhysicsComponent velocityPhysicsComponent;*/
+
 public:
 
 

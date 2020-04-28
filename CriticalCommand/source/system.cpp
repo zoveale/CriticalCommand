@@ -78,7 +78,7 @@ void System::SystemInit() {
 
   //reflection Buffers
   specularIrradianceBuffer.CreateEnvironmentMapFromHdrEquirectangularMap(equirectangularToCubemapShader,
-    "resources/imagedBasedLighting/output_skybox.hdr", 1 << 10);
+    "resources/imagedBasedLighting/monoLake.hdr");// , 1 << 10);
 
 
   specularIrradianceBuffer.CreateIrradianceMapFromEnvironmentMap(irradianceShader);
@@ -137,7 +137,7 @@ void System::SystemInit() {
   baseBarrelInput.Load();
 
   standardPhysicsComponent.Load(&scenePhysics);
-  pMechComponent.Load(&scenePhysics, "resources/Mechs/baseChassis.dae");
+  //pMechComponent.Load(&scenePhysics, "resources/Mechs/baseChassis.dae");
   ///
   kinematicPhysicsComponent.Load(&scenePhysics, "resources/Mechs/baseChassis.dae");
   mechaTank[0].Load(&gMechComponent[0], &kinematicPhysicsComponent, &baseChassisInput);
@@ -274,9 +274,9 @@ void System::GameLoop(){
       render.Display();
     }
 
-    input.IncrementDecrement(stepPhysics);
-    if(stepPhysics)
-      scenePhysics.StepPhysics(deltaRate);
+    //input.IncrementDecrement(stepPhysics);
+    //if(stepPhysics)
+    scenePhysics.StepPhysics(deltaRate);
 
     /* Poll for and process events */
     input.Process();

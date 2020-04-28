@@ -16,7 +16,7 @@ class GameObject {
 public:
   float deltaTime;
   float velocity;
-  float acc;
+  float acceleration;
   glm::vec3 front;
   glm::vec3 right;
   glm::vec3 up;
@@ -31,6 +31,7 @@ public:
   //Starting rotational velocity of an object
   glm::vec3 intialRotation;
   unsigned int index;
+  unsigned int aggregateIndex;
   GameObject();
   void Load(GraphicsComponent *graphics = nullptr,
             PhysicsComponent  *physics  = nullptr,
