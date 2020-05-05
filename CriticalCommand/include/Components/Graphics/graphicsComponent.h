@@ -1,6 +1,7 @@
 #ifndef VEALE_1FE65B4A_908C_414D_A4E1_D59A282CFB13_H
 #define VEALE_1FE65B4A_908C_414D_A4E1_D59A282CFB13_H
 
+#include <memory> 
 #include "model.h"
 #include "objects.h"
 
@@ -61,12 +62,12 @@ public:
 
 class IcoSphereGraphicsComponent : public GraphicsComponent {
 public:
-  IcoSphereGraphicsComponent():modelPointer(nullptr), icoShader(nullptr), lights(nullptr) {}
+  IcoSphereGraphicsComponent():modelPointer(nullptr), icoShader(nullptr)/*, lights(nullptr)*/ {}
 
-  virtual void Load(Model* modelPointers, Shader* shader, LightFactory* lightContainer = nullptr) {
+  virtual void Load(Model* modelPointers, Shader* shader/*, LightFactory* lightContainer = nullptr*/) {
     modelPointer = modelPointers;
     icoShader = shader;
-    lights = lightContainer;
+    //lights = lightContainer;
     model = glm::mat4(1.0f);
   }
   virtual void SetUp(GameObject& object) {
@@ -86,7 +87,7 @@ private:
   Model* modelPointer;
   Shader* icoShader;
   //TODO::below not need right now
-  LightFactory* lights;
+  //LightFactory* lights;
   glm::mat4 model;
 };
 
@@ -129,10 +130,11 @@ public:
   DefaultGraphicsComponent() : modelData(nullptr), shader(nullptr){}
 
   virtual void Load(Model* m, Shader* s, LightFactory* l = nullptr) {
-    modelData = m;
-    shader = s;
+    modelData.reset(m);  // takes ownership of pointer
+    shader.reset(s); 
   }
   virtual void SetUp(GameObject& object) {
+    //check is posotion was set from code, otherwise use model information
     if(object.position.x >= FLT_MAX - 1.0f)
       object.position = modelData->Position();
 
@@ -148,7 +150,7 @@ public:
   }
 
 private:
-  Model* modelData;
-  Shader* shader;
+  std::unique_ptr<Model> modelData;
+  std::unique_ptr <Shader> shader;
 };
 #endif // !VEALE_1FE65B4A_908C_414D_A4E1_D59A282CFB13_H

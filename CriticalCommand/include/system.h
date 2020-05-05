@@ -63,6 +63,9 @@ private:
 
   Camera* cameraState;
 
+
+  //TODO:: Make object factory
+  ///
   //Objects
   Model modelObject[10];
   static const unsigned int MAX_OBJECTS = 1 << 6;
