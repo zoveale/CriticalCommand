@@ -41,6 +41,7 @@ public:
               const glm::mat4 V = glm::mat4(1.0f));
   void Draw();
 
+  ~GameObject();
 private:
   GraphicsComponent *graphics;
   PhysicsComponent  *physics;

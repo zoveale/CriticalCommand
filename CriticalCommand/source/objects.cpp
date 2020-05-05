@@ -59,4 +59,10 @@ void GameObject::Draw() {
   graphics->Draw(*this);
 }
 
+GameObject::~GameObject() {
+  delete graphics;
+  delete physics;
+  delete input;
+}
+
 
