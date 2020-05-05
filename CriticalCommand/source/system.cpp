@@ -16,7 +16,6 @@ System::System() {
   projection = glm::mat4(1.0f);
   cameraState = nullptr;
   //Render::RenderDocInit();
-  
 }
 
 void System::SystemInit() {
