@@ -105,7 +105,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)CriticalCommand\CriticalCommand;C:\DevLibs\nvidiaPhysX\PhysX\pxshared\include;C:\DevLibs\nvidiaPhysX\PhysX\physx\include;$(SolutionDir)middleware\glew\include;$(SolutionDir)middleware\glfw\include;$(SolutionDir)CriticalCommand\include;$(SolutionDir)middleware\assimp;$(SolutionDir)middleware\glm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)CriticalCommand\CriticalCommand;C:\DevLibs\nvidiaPhysX\PhysX\pxshared\include;C:\DevLibs\nvidiaPhysX\PhysX\physx\include;$(SolutionDir)middleware\glew\include;$(SolutionDir)middleware\glfw\include;$(SolutionDir)CriticalCommand\include;$(SolutionDir)middleware\assimp;$(SolutionDir)middleware\glm;C:\Program Files\RenderDoc</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GLEW_STATIC;_MBCS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -218,6 +218,7 @@
     <ClInclude Include="include\mesh.h" />
     <ClInclude Include="include\model.h" />
     <ClInclude Include="include\modelUtility.h" />
+    <ClInclude Include="include\nodeObjects.h" />
     <ClInclude Include="include\objects.h" />
     <ClInclude Include="include\physics.h" />
     <ClInclude Include="include\Components\Physics\physicsComponent.h" />
@@ -246,6 +247,12 @@
     <None Include="resources\shader\DeferredShading\frag.glsl" />
     <None Include="resources\shader\DeferredShading\geo.glsl" />
     <None Include="resources\shader\DeferredShading\vert.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\EnvironmentMap\frag.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\EnvironmentMap\geo.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\EnvironmentMap\vert.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\EquiRectMap\frag.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\EquiRectMap\geo.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\EquiRectMap\vert.glsl" />
     <None Include="resources\shader\Fmodel.glsl" />
     <None Include="resources\shader\Framebuffer\Fframebuffer.glsl" />
     <None Include="resources\shader\Framebuffer\Gframebuffer.glsl" />
@@ -257,6 +264,9 @@
     <None Include="resources\shader\HDR\frag.glsl" />
     <None Include="resources\shader\HDR\geo.glsl" />
     <None Include="resources\shader\HDR\vert.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\IrradianceMap\frag.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\IrradianceMap\geo.glsl" />
+    <None Include="resources\shader\PBR\DiffuseIBL\IrradianceMap\vert.glsl" />
     <None Include="resources\shader\Lamp\lampF.glsl" />
     <None Include="resources\shader\Lamp\lampV.glsl" />
     <None Include="resources\shader\Model\Fmodel.glsl" />
@@ -265,9 +275,13 @@
     <None Include="resources\shader\NormalShader\Fnormal.glsl" />
     <None Include="resources\shader\NormalShader\Gnormal.glsl" />
     <None Include="resources\shader\NormalShader\Vnormal.glsl" />
-    <None Include="resources\shader\PBR\frag.glsl" />
-    <None Include="resources\shader\PBR\geo.glsl" />
-    <None Include="resources\shader\PBR\vert.glsl" />
+    <None Include="resources\shader\PBR\Main\frag.glsl" />
+    <None Include="resources\shader\PBR\Main\geo.glsl" />
+    <None Include="resources\shader\PBR\Main\vert.glsl" />
+    <None Include="resources\shader\PBR\SpecularIBL\BRDFLookUpTexture\frag.glsl" />
+    <None Include="resources\shader\PBR\SpecularIBL\BRDFLookUpTexture\vert.glsl" />
+    <None Include="resources\shader\PBR\SpecularIBL\Prefilter\frag.glsl" />
+    <None Include="resources\shader\PBR\SpecularIBL\Prefilter\vert.glsl" />
     <None Include="resources\shader\PhysicsObjects\Fphysics.glsl" />
     <None Include="resources\shader\PhysicsObjects\Gphysics.glsl" />
     <None Include="resources\shader\PhysicsObjects\Vphysics.glsl" />

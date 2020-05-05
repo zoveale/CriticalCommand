@@ -12,7 +12,12 @@
 #include <mat4x4.hpp>
 #include <unordered_map>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include "gtx/rotate_vector.hpp"
+#include "gtx/quaternion.hpp"
 
+//TODO::fix this workaround
+#include "modelUtility.h"
 
 #include "PxConfig.h"
 #include "PxPhysicsAPI.h"
@@ -77,6 +82,9 @@ public:
   
   void AddynamicActor(PxActor* actor);
   void AddActor(PxActor* actor);
+  
+  unsigned int CreateAggregateActorSet();
+  void AddAggregateActorToSet(unsigned int actorIndex, unsigned int aggregateIndex);
 
   void UpdateDynamicActorArray();
   void StepPhysics(float dt);
@@ -85,7 +93,10 @@ public:
 
   PxU32 NumberOfActors();
   glm::mat4 GetAPose(int i);
-  void SetAPose(int i, glm::mat4 &pose);
+
+  void SetGlobalPose(unsigned int index, glm::vec3 position, glm::quat rotation);
+  void SetGlobalPose(unsigned int index, glm::vec3 position, glm::vec3 rotation);
+  void SetGlobalPose(unsigned int index, glm::vec3 position, glm::vec3 normal, glm::vec3 up);
   bool AddPhysxObject(
     const std::string               &name,
     const float*                    vertex,
@@ -94,8 +105,6 @@ public:
     const float                     variables[]);
 
   
-
- 
   void AddStaticTriangleMesh(
     const float*                    vertex,
     const unsigned int*             indices,
@@ -116,10 +125,28 @@ public:
   unsigned int AddDynamicSphereActor(
     glm::vec3 pos,
     float radius,
+    glm::vec3 linearVelocity = glm::vec3(0.0f),
+    glm::vec3 angularVelocity = glm::vec3(0.0f),
     PxMaterial* material = defaultMaterial);
 
-  void SetKinematicActorTarget(unsigned int index, glm::vec3 position);
+  unsigned int AddDynamicConvexMesh(
+    const float* vertex,
+    const unsigned int* indices,
+    const unsigned int* indicesSize,
+    const glm::vec3                 position);
+
+  //Add a created convex mesh otherwise it will create one from the mesh provided.
+  //Must be condisdered a single mesh to be caluclated correctly
+  unsigned int AddLoadedDynamicConvexMesh(const char* meshPath, const glm::vec3 position);
   
+
+  //unsigned int AddQuickhullDynamicConvexMesh(const char* meshPath, const glm::vec3 position);
+
+  void SetKinematicActorTarget(unsigned int index, glm::vec3 position, glm::quat rotation);
+  
+  void AddForceOnDynamicActor(unsigned int index, glm::vec3 force);
+  void AddVelocityToDynamicActor(unsigned int index, glm::vec3 velocity);
+
   unsigned int AddKinematicSphereActor(
     glm::vec3 pos,
     float radius,
@@ -133,26 +160,34 @@ public:
   void ExplosionEffect(glm::vec3 pos, float radius);
   void ReleaseActor(unsigned int index);
   void DisableActorSimulation(unsigned int index);
-
+  void DisableActorGravity(unsigned int index);
   //TODO:: test functions
   void TestA();
-  //swap float to bool
-  
-  //void RayCastEffect()
-  ///
-  
-  unsigned int GetDynamicActorCount();
 
+
+  unsigned int GetDynamicActorCount();
+  void SetDynamicActorKinematicTarget(unsigned int index, glm::vec3 pos);
   //Kinematic Character Stuff
   unsigned int CreateKinematicController(glm::vec3 position);
   void SetKinematicControllerPosition(glm::vec3 newPos, float dt);
   ///
+  unsigned int AddKinematicConvexActor(const char* meshPath, const glm::vec3 position);
+  glm::mat4 KinmaticActorPose(unsigned int);
 private:
   PxTriangleMesh* CreateTriangleMesh(
     const float*                     vertex,
     const unsigned int*              indices,
     const unsigned int*              numFaces) const;
 
+  PxConvexMesh* CreateConvexMesh(
+    const float* vertex,
+    const unsigned int* indices,
+    const unsigned int* numFaces) const;
+
+ /* PxConvexMesh* CreateConvexMeshCooking(
+    const float* vertex,
+    const unsigned int* indices,
+    const unsigned int* indicesSize);*/
 
   static PxPhysics* gPhysics;
   static PxMaterial* defaultMaterial;
@@ -175,6 +210,10 @@ private:
   //TODO:: recycleing actors vector
   std::vector<unsigned int> freeActors;
 
+
+  PxAggregate* aggregateActorSets[1 << 4];
+  unsigned int AggregateIndex;
+
   PxScene* gScene;
   PxRigidActor* actors[MAX_ACTOR];
   PxU32 nbActors;
@@ -182,12 +221,6 @@ private:
 
   PxMat44 globalPoseArray[MAX_ACTOR];
   PxReal stackZ = 10.0f;
-  //PxTriangleMesh* triMesh;
-  //PxRigidStatic* meshActor;
-  /*struct Triangle {
-    PxU32 ind0, ind1, ind2;
-  };*/
-
 
 
   static std::unordered_map<std::string, unsigned int> geometryMap;

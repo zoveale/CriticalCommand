@@ -49,7 +49,6 @@ void ThirdPerson::Update(GameObject& object) {
   yaw -= yawChange;
   pitch -= pitchChange;
 
-
   
   float offsetX = distanceOffset * glm::sin(glm::radians(yaw));
   this->position.x = object.position.x - offsetX;
@@ -59,25 +58,10 @@ void ThirdPerson::Update(GameObject& object) {
 
   //float offsetY = distanceOffset * glm::sin(glm::radians(pitch));
   this->position.y = object.position.y + distanceOffset;
-  
-
 
   this->lookAtPosition = object.position - glm::vec3(0.0f, -1.0f, -1.0f);
   this->front = glm::vec3(object.front.x, 0.0f, object.front.z);
   this->right = glm::vec3(object.right.x, 0.0f, object.right.z);
-
-
-  //cool fixed cam positon effect
-  //this->position.x *= glm::sin(glm::radians(pitch));
-  //this->position.z *= glm::sin(glm::radians(pitch));
-
-  // Make sure that when pitch is out of bounds, screen doesn't get flipped
-  //if (constrainPitch) {
- /* if (pitch > 89.0f)
-    pitch = 89.0f;
-  if (pitch < -89.0f)
-    pitch = -89.0f;*/
-  //}
 
   // Update Front, Right and Up Vectors using the updated Euler angles
   CAMERA_FUNCTIONS::SET_FRONT_VECTOR(*this);

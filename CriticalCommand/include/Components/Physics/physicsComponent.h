@@ -2,7 +2,7 @@
 #define VEALE_AA1FE13E_F758_453D_B604_EF8EF26A9833_H
 
 #include "physics.h"
-
+#include "objects.h"
 
 class PhysicsComponent{
 public:
@@ -11,7 +11,6 @@ public:
   virtual void Update(GameObject& object) = 0;
   virtual void SetUp(GameObject& object) = 0;
 };
-
 
 class BombPhysicsComponent : public PhysicsComponent {
 public:
@@ -49,22 +48,60 @@ private:
 
 class IcoSpherePhysicsComponent : public PhysicsComponent{
 public:
-  IcoSpherePhysicsComponent() : root(nullptr), index(unsigned int(0)) {}
+  IcoSpherePhysicsComponent() : root(nullptr) {}
 
   void Load(physx::Physics* rootPhysics) {
     this->root = rootPhysics;
-    index = 0;
   }
   virtual void SetUp(GameObject& object) {
-    index = root->AddDynamicSphereActor(object.position, 2.0f);
+    object.index = root->AddDynamicSphereActor(object.position, 2.0f, object.initalVelocity, object.intialRotation);
+    object.modelMatrix = root->GetAPose(object.index);
   }
 
   virtual void Update(GameObject &object) {
-    object.modelMatrix = root->GetAPose(index);
+    //root->AddForceOnDynamicActor(object.index, glm::vec3(0.0f, 9.81f, 0.0f));
+    object.modelMatrix = root->GetAPose(object.index);
   }
 private:
   physx::Physics* root;
-  unsigned int index;
+};
+
+class CubePhysicsComponent : public PhysicsComponent {
+public:
+  CubePhysicsComponent() : root(nullptr) {}
+
+  void Load(physx::Physics* rootPhysics) {
+    this->root = rootPhysics;
+  }
+  virtual void SetUp(GameObject& object) {
+    object.index = root->AddDynamicBoxActor(object.position, glm::vec3(1.0f));
+  }
+
+  virtual void Update(GameObject& object) {
+    //root->AddForceOnDynamicActor(object.index, glm::vec3(0.0f, 9.81f, 0.0f));
+    object.modelMatrix = root->GetAPose(object.index);
+  }
+private:
+  physx::Physics* root;
+};
+
+class DiamondPhysicsComponent : public PhysicsComponent {
+public:
+  DiamondPhysicsComponent() : root(nullptr) {}
+
+  void Load(physx::Physics* rootPhysics) {
+    this->root = rootPhysics;
+  }
+  virtual void SetUp(GameObject& object) {
+    object.index = root->AddLoadedDynamicConvexMesh("resources/imagedBasedLighting/object1/cubeConvex.dae", object.position);
+  }
+
+  virtual void Update(GameObject& object) {
+    root->AddForceOnDynamicActor(object.index, glm::vec3(0.0f, 9.81f, 0.0f));
+    object.modelMatrix = root->GetAPose(object.index);
+  }
+private:
+  physx::Physics* root;
 };
 
 class PlayerPhysicsComponent : public PhysicsComponent {
@@ -77,12 +114,103 @@ public:
   }
   virtual void SetUp(GameObject& object) {
     index = root->CreateKinematicController(object.position);
-    //index = root->AddKinematicSphereActor(object.position, 2.0f);
   }
 
   virtual void Update(GameObject& object) {
     root->SetKinematicControllerPosition(object.position, object.deltaTime);
-    object.modelMatrix = root->GetAPose(index);
+  }
+private:
+  physx::Physics* root;
+  unsigned int index;
+};
+
+class KinematicPhysicsComponent : public PhysicsComponent {
+public:
+  KinematicPhysicsComponent() : root(nullptr), index(unsigned int(0)) {}
+
+  void Load(physx::Physics* scene, std::string convexDataFileLocation) {
+    this->root = scene;
+    this->convexDataFileLocation = convexDataFileLocation;
+  }
+  virtual void SetUp(GameObject& object) {
+    object.index = root->AddKinematicConvexActor(convexDataFileLocation.c_str(), object.position);
+    //root->UpdateDynamicActorArray();
+    /*object.modelMatrix = root->GetAPose(object.index);
+    root->DisableActorSimulation(object.index);*/
+    
+    convexDataFileLocation.clear();
+  }
+
+  virtual void Update(GameObject& object) {
+    directionQuaternion = glm::quatLookAtRH(glm::normalize(object.direction), glm::normalize(object.up));
+    root->SetKinematicActorTarget(object.index, object.position, directionQuaternion);
+    object.modelMatrix = root->GetAPose(object.index);
+
+    /*object.modelMatrix = glm::mat4(1.0f);
+    object.modelMatrix = glm::translate(object.modelMatrix, object.position);
+    object.modelMatrix *= glm::toMat4(directionQuaternion);*/
+  }
+private:
+  std::string convexDataFileLocation;
+  physx::Physics* root;
+  glm::quat directionQuaternion;
+  unsigned int index;
+};
+
+class ConvexPhysicsComponent : public PhysicsComponent {
+public:
+  ConvexPhysicsComponent() : root(nullptr), convexDataFileLocation(""){}
+
+  void Load(physx::Physics* rootPhysics, std::string convexDataFileLocation) {
+    this->root = rootPhysics;
+    this->convexDataFileLocation = convexDataFileLocation;
+  }
+
+  virtual void SetUp(GameObject& object) {
+    object.index = root->AddLoadedDynamicConvexMesh(convexDataFileLocation.c_str(), object.position);
+    //root->UpdateDynamicActorArray();
+    //root->DisableActorSimulation(object.index);
+    object.modelMatrix = root->GetAPose(object.index);
+    convexDataFileLocation.clear();
+    root->DisableActorGravity(object.index);
+
+    root->CreateAggregateActorSet();
+
+    object.aggregateIndex = 0;
+    root->AddAggregateActorToSet(object.index, 0);
+  }
+
+  virtual void Update(GameObject& object) {
+    directionQuaternion = glm::quatLookAtRH(glm::normalize(object.direction), glm::normalize(object.up));
+    root->SetGlobalPose(object.index, object.position, directionQuaternion);
+
+    /*object.modelMatrix = glm::mat4(1.0f);
+    object.modelMatrix = glm::translate(object.modelMatrix, object.position);
+    object.modelMatrix *= glm::toMat4(directionQuaternion);*/
+
+    object.modelMatrix = root->GetAPose(object.index);
+
+  }
+private:
+  glm::quat directionQuaternion;
+  physx::Physics* root;
+  std::string convexDataFileLocation;
+};
+
+class VelocityPhysicsComponent : public PhysicsComponent {
+public:
+  VelocityPhysicsComponent() : root(nullptr), index(unsigned int(0)) {}
+
+  void Load(physx::Physics* scene) {
+    this->root = scene;
+  }
+  virtual void SetUp(GameObject& object) {
+    object.index = root->AddDynamicBoxActor(object.position, glm::vec3(0.50f));
+  }
+
+  virtual void Update(GameObject& object) {
+    root->AddForceOnDynamicActor(object.index, object.direction * object.velocity);
+    object.modelMatrix = root->GetAPose(object.index);
   }
 private:
   physx::Physics* root;
@@ -93,19 +221,18 @@ class DefaultPhysicsComponent : public PhysicsComponent {
 public:
   DefaultPhysicsComponent() : root(nullptr), index(unsigned int(0)) {}
 
-  void Load(physx::Physics* rootPhysics) {
-    this->root = rootPhysics;
-    index = 0;
+  void Load(physx::Physics* scene) {
+    this->root = scene;
   }
   virtual void SetUp(GameObject& object) {
-    //index = root->AddDynamicSphereActor(object.position, 2.0f);
+    object.index = root->AddDynamicBoxActor(object.position, glm::vec3(0.50f));
   }
 
   virtual void Update(GameObject& object) {
-    //object.modelMatrix = root->GetAPose(index);
   }
 private:
   physx::Physics* root;
   unsigned int index;
 };
+
 #endif // !VEALE_AA1FE13E_F758_453D_B604_EF8EF26A9833_H

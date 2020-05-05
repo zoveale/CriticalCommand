@@ -19,9 +19,12 @@ physx::Physics::Physics() {
   defaultMaterial = NULL;
   gPvd = NULL;
   nbActors = NULL;
-
+  AggregateIndex = 0;
   dynamicActorCount = -1;
   freeActors.reserve(MAX_ACTOR);
+
+ 
+
 }
 
 
@@ -41,7 +44,7 @@ void physx::Physics::TestA() {
   sceneDesc.kineKineFilteringMode = PxPairFilteringMode::eKEEP;
   gScene = gPhysics->createScene(sceneDesc);
 
-
+  
 }
 
 //TODO::make less awful
@@ -90,19 +93,8 @@ void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius) {
   
   
   
-  //PxSceneQueryUpdateMode
-  //for (int i = 0; i < 3; i++) {
-    gScene->simulate(1.0f / 60.0f);
-    gScene->fetchResults(true);/*
-    gScene->simulate(1.0f / 60.0f);
-    gScene->fetchResults(true);
-    /*
-    gScene->simulate(1.0f / 60.0f);
-    gScene->fetchResults(true);*/
-  //}
-    
-  //
-  
+  gScene->simulate(1.0f / 60.0f);
+  gScene->fetchResults(true);
 
   gScene->removeActor(*body);
   gScene->removeActor(*bodyA);
@@ -111,10 +103,22 @@ void physx::Physics::ExplosionEffect(glm::vec3 pos, float radius) {
 
 void physx::Physics::AddActor(PxActor* actor) {
   gScene->addActor(*actor);
+  UpdateDynamicActorArray();
+}
+
+unsigned int physx::Physics::CreateAggregateActorSet() {
+  aggregateActorSets[AggregateIndex] = gPhysics->createAggregate(1 << 3, false);
+  gScene->addAggregate(*aggregateActorSets[AggregateIndex]);
+  return AggregateIndex++;
+}
+
+void physx::Physics::AddAggregateActorToSet(unsigned int actorIndex, unsigned int aggregateIndex) {
+  
+  aggregateActorSets[aggregateIndex]->addActor(*actors[actorIndex]);
 }
 
 void physx::Physics::UpdateDynamicActorArray(/*PxActor** actor*/) {
-
+  PxActorTypeFlag::eRIGID_DYNAMIC;
   //typedef PxActorTypeFlag FLAG;
   nbActors = gScene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC);
   if (nbActors > MAX_ACTOR) {
@@ -140,7 +144,6 @@ void physx::Physics::CleanUp() {
   /*
   Must be in this order to exit correctly with out errors
   */
- 
 
   gScene->release();
   gDispatcher->release();
@@ -232,6 +235,12 @@ void physx::Physics::SetKinematicControllerPosition(glm::vec3 newPos, float dt) 
   CCTcontroller->getActor()->setKinematicTarget(setPosition); 
 }
 
+void physx::Physics::SetDynamicActorKinematicTarget(unsigned int index, glm::vec3 newPos) {
+  PxTransform setPosition(PxVec3(newPos.x, newPos.y, newPos.z));
+  
+  //actors[index]->tar
+}
+
 void physx::Physics::ReleaseActor(unsigned int index) {
   gScene->removeActor(*actors[index]);
   dynamicActorCount--;
@@ -240,6 +249,10 @@ void physx::Physics::ReleaseActor(unsigned int index) {
 void physx::Physics::DisableActorSimulation(unsigned int index) {
   actors[index]->setActorFlag(PxActorFlag::eDISABLE_SIMULATION, true);
   freeActors.push_back(index);
+}
+
+void physx::Physics::DisableActorGravity(unsigned int index) {
+  actors[index]->setActorFlag(PxActorFlag::PxActorFlag::eDISABLE_GRAVITY, true);
 }
 
 physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
@@ -295,8 +308,9 @@ physx::PxTriangleMesh* physx::Physics::CreateTriangleMesh(
    return gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback());
 }
 
-glm::mat4 physx::Physics::GetAPose(int i) {
 
+
+glm::mat4 physx::Physics::GetAPose(int i) {
 
   return glm::mat4(globalPoseArray[i].column0.x,
     globalPoseArray[i].column0.y,
@@ -315,6 +329,30 @@ glm::mat4 physx::Physics::GetAPose(int i) {
     globalPoseArray[i].column3.z,
     globalPoseArray[i].column3.w);
 }
+
+glm::mat4 physx::Physics::KinmaticActorPose(unsigned int index) {
+
+  PxMat44 outMat4 = kinematicActor->getGlobalPose();
+
+  return glm::mat4(outMat4.column0.x,
+    outMat4.column0.y,
+    outMat4.column0.z,
+    outMat4.column0.w,
+    outMat4.column1.x,
+    outMat4.column1.y,
+    outMat4.column1.z,
+    outMat4.column1.w, 
+    outMat4.column2.x,
+    outMat4.column2.y,
+    outMat4.column2.z,
+    outMat4.column2.w,
+    outMat4.column3.x,
+    outMat4.column3.y,
+    outMat4.column3.z,
+    outMat4.column3.w);
+}
+
+
 
 bool physx::Physics::AddPhysxObject(const std::string  &name, 
                                     const float        *vertex, 
@@ -407,40 +445,59 @@ void physx::Physics::AddStaticBoxActor(glm::vec3 pos, glm::vec3 size, PxMaterial
   PxRigidStatic* body = gPhysics->createRigidStatic(location);
   body->attachShape(*shape);
   shape->release();
-
-  gScene->addActor(*body);
   
-
+  gScene->addActor(*body);
 }
 
-//TODO:: reduces rotational velocity 
-unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius, PxMaterial* material) {
-  //Physx uses "Halfextents" for length claculation
-  //so inputing appropriate size into the function should
-  //return the correct size;
-  PxReal distance(radius * 0.5f);
-  PxSphereGeometry sphere(distance);
-  PxTransform location(PxVec3(pos.x, pos.y, pos.z));
-  
-  
-  PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
+void physx::Physics::SetGlobalPose(unsigned int index, glm::vec3 position, glm::quat rotation) {
 
-  PxShape* sphereShape = PxRigidActorExt::createExclusiveShape(*body, sphere, *defaultMaterial);
-  PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-
-  //rolls slower
-  body->setMaxAngularVelocity(PxReal(3.0f));
-  gScene->addActor(*body);
-  
-  
-  //UpdateDynamicActorArray();
-  return ++dynamicActorCount;
-}
-
-void physx::Physics::SetKinematicActorTarget(unsigned int index, glm::vec3 position) {
   PxVec3 nextPosition(position.x, position.y, position.z);
-  PxTransform target(nextPosition);
-  kinematicActor->setKinematicTarget(target);
+  PxQuat rotationQuat = PxQuat(rotation.x, rotation.y, rotation.z, rotation.w);
+  
+  PxTransform newPose(nextPosition, rotationQuat);
+  
+  actors[index]->setGlobalPose(newPose, false);
+}
+
+void physx::Physics::SetGlobalPose(unsigned int index, glm::vec3 position, glm::vec3 rotation) {
+  ////glm::vec3 degrees = glm::eulerAngles(rotation);
+  ////glm::toQuat(glm::mat4(1.0f));
+  //PxVec3 nextPosition(position.x, position.y, position.z);
+  //PxTransform orintation(nextPosition);
+  //orintation.rotate(PxVec3(rotation.x, rotation.y, rotation.z));
+  //actors[index]->setGlobalPose(orintation);
+}
+
+void physx::Physics::SetGlobalPose(unsigned int index, glm::vec3 position, glm::vec3 normal, glm::vec3 up) {
+  glm::orientation(normal, up);
+  
+  glm::quat rotation = glm::toQuat(glm::orientation(normal, up));
+  glm::clamp(0.0f, 1.0f, rotation.x);
+  PxVec3 nextPosition(position.x, position.y, position.z);
+  PxQuat rotationQuat = PxQuat(rotation.x, rotation.y, rotation.z, rotation.w);
+
+  PxTransform newPose(nextPosition, rotationQuat);
+  actors[index]->setGlobalPose(newPose);
+}
+
+
+void physx::Physics::SetKinematicActorTarget(unsigned int index, glm::vec3 position, glm::quat rotation) {
+  PxVec3 nextPosition(position.x, position.y, position.z);
+
+  PxQuat rotat(rotation.x, rotation.y, rotation.z, rotation.w);
+  PxTransform target(nextPosition, rotat);
+  reinterpret_cast<PxRigidDynamic*>(actors[index])->setKinematicTarget(target);
+}
+
+void physx::Physics::AddForceOnDynamicActor(unsigned int index, glm::vec3 force) {
+
+  reinterpret_cast<PxRigidDynamic*>(actors[index])->addForce(PxVec3(force.x, force.y, force.z));
+}
+
+void physx::Physics::AddVelocityToDynamicActor(unsigned int index, glm::vec3 velocity) {
+  
+  reinterpret_cast<PxRigidDynamic*>(actors[index])->addForce(PxVec3(velocity.x, velocity.y, velocity.z),
+                                                             PxForceMode::eVELOCITY_CHANGE);
 }
 
 unsigned int physx::Physics::AddKinematicSphereActor(glm::vec3 pos, float radius, PxMaterial* material) {
@@ -460,7 +517,6 @@ unsigned int physx::Physics::AddKinematicSphereActor(glm::vec3 pos, float radius
   PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
 
   //rolls slower
-  body->setMaxAngularVelocity(PxReal(3.0f));
   kinematicActor = body;
   gScene->addActor(*body);
   
@@ -469,140 +525,163 @@ unsigned int physx::Physics::AddKinematicSphereActor(glm::vec3 pos, float radius
   return ++dynamicActorCount;
 }
 
+unsigned int physx::Physics::AddKinematicConvexActor(const char* meshPath, const glm::vec3 position){
+
+  Assimp::Importer importer;
+  const aiScene* scene;
+  std::vector<unsigned int> indices;
+  scene = importer.ReadFile(meshPath, aiProcess_FindInvalidData);
+  aiNode* rootNode = scene->mRootNode;
+  aiMesh* mesh = scene->mMeshes[0];
+
+  for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+    aiFace face = mesh->mFaces[i];
+    // retrieve all indices of the face and store them in the indices vector
+    for (unsigned int j = 0; j < face.mNumIndices; j++) {
+      indices.push_back(face.mIndices[j]);
+    }
+  }
+  
+  PxTransform location(PxVec3(position.x, position.y, position.z));
+  PxRigidDynamic* aConvexActor = gPhysics->createRigidDynamic(location);
+  //PxRigidBodyExt::updateMassAndInertia(*aConvexActor, 100.0f);
+  PxConvexMesh* convexMesh = CreateConvexMesh(&mesh->mVertices[0].x, &indices[0], &mesh->mNumFaces);
+
+  aConvexActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
+
+  PxRigidActorExt::createExclusiveShape(*aConvexActor, PxConvexMeshGeometry(convexMesh), *defaultMaterial);
+
+  //rolls slower
+  kinematicActor = aConvexActor;
+  gScene->addActor(*aConvexActor);
+
+  //UpdateDynamicActorArray();
+  return ++dynamicActorCount;
+}
+
+//TODO:: reduces rotational velocity 
+unsigned int physx::Physics::AddDynamicSphereActor(glm::vec3 pos, float radius,
+  glm::vec3 linearVelocity, glm::vec3 angularVelocity,
+  PxMaterial* material) {
+  //Physx uses "Halfextents" for length claculation
+  //so inputing appropriate size into the function should
+  //return the correct size;
+  PxReal size(radius * 0.5f);
+  PxSphereGeometry sphere(size);
+
+  PxQuat rotation(0.0f, PxVec3(1.0f, 0.0f, 0.0f));
+
+  PxTransform location(PxVec3(pos.x, pos.y, pos.z), rotation);
+
+
+  PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
+
+  PxShape* sphereShape = PxRigidActorExt::createExclusiveShape(*body, sphere, *defaultMaterial);
+  PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+
+  //rolls slower
+  //body->setMaxAngularVelocity(PxReal(3.0f));
+  body->setLinearVelocity(PxVec3(linearVelocity.x, linearVelocity.y, linearVelocity.z));
+  body->setAngularVelocity(PxVec3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
+  gScene->addActor(*body);
+
+
+  //UpdateDynamicActorArray();
+  return ++dynamicActorCount;
+}
+
+
+unsigned int physx::Physics::AddLoadedDynamicConvexMesh(const char* meshPath, const glm::vec3 position) {
+  Assimp::Importer importer;
+  const aiScene* scene;
+  std::vector<unsigned int> indices;
+  scene = importer.ReadFile(meshPath, aiProcess_FindInvalidData);
+  aiNode* rootNode = scene->mRootNode;
+  aiMesh* mesh = scene->mMeshes[0];
+
+  for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+    aiFace face = mesh->mFaces[i];
+    // retrieve all indices of the face and store them in the indices vector
+    for (unsigned int j = 0; j < face.mNumIndices; j++) {
+      indices.push_back(face.mIndices[j]);
+    }
+  }
+
+  PxTransform location(PxVec3(position.x, position.y, position.z));
+  PxRigidDynamic* aConvexActor = gPhysics->createRigidDynamic(location);
+  //PxRigidBodyExt::updateMassAndInertia(*aConvexActor, 100.0f);
+  PxConvexMesh* convexMesh = CreateConvexMesh(&mesh->mVertices[0].x, &indices[0], &mesh->mNumFaces);
+  PxShape* aConvexShape = PxRigidActorExt::createExclusiveShape(*aConvexActor,
+    PxConvexMeshGeometry(convexMesh), *defaultMaterial);
+  //aConvexActor->
+  
+  AddActor(aConvexActor);
+
+  return ++dynamicActorCount;
+}
+
+physx::PxConvexMesh* physx::Physics::CreateConvexMesh(const float* vertex,
+                                                      const unsigned int* indices,
+                                                      const unsigned int* numFaces) const {
+
+
+  PxConvexMeshDesc convexDesc;
+  convexDesc.points.count = *numFaces * 3;
+  convexDesc.points.stride = sizeof(PxVec3);
+  convexDesc.points.data = vertex;
+  convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+
+  PxDefaultMemoryOutputStream buf;
+  PxConvexMeshCookingResult::Enum result;
+  if (!gCooking->cookConvexMesh(convexDesc, buf, &result))
+    return NULL;
+  PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+  PxConvexMesh* convexMesh = gPhysics->createConvexMesh(input);
+
+  return convexMesh;
+}
+
 unsigned int physx::Physics::AddDynamicBoxActor(glm::vec3 pos, glm::vec3 size, PxMaterial* material) {
 
 
   //Physx uses "Halfextents" for length claculation
   //so inputing appropriate size into the function should
   //return the correct size;
-  PxBoxGeometry box(PxReal(size.x), PxReal(size.y), PxReal(size.z));
-  PxTransform location(PxVec3(pos.x, pos.y, pos.z));
+  PxBoxGeometry box(PxReal(size.x ), PxReal(size.y), PxReal(size.z));
+
+  //45 degrees around the x axis
+  //PxQuat rotation(0.382683456f, 0.0f, 0.0f, 0.923879564f);
+
+  PxTransform location(PxVec3(pos.x, pos.y, pos.z));//, rotation);
   PxShape* shape = gPhysics->createShape(box, *defaultMaterial);
   PxRigidDynamic* body = gPhysics->createRigidDynamic(location);
   body->attachShape(*shape);
   shape->release();
 
   PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+
+  
   gScene->addActor(*body);
 
   return ++dynamicActorCount;
 }
 
 
+
+//void physx::Physics::ShootBall(glm::vec3 front, glm::vec3 pos) {
 //
-////void physx::Physics::ShootBall(glm::vec3 front, glm::vec3 pos) {
-////
-////  PxShape* shape = gPhysics->createShape(PxBoxGeometry(PxVec3(1.0)), *defaultMaterial);
-//// 
-////  PxTransform localTm(PxVec3(pos.x, pos.y, pos.z));
-////
-////  PxRigidDynamic* body_0 = gPhysics->createRigidDynamic(localTm);
-////  body_0->attachShape(*shape);
-////  PxRigidBodyExt::updateMassAndInertia(*body_0, 100.0f);
-////  body_0->setAngularDamping(0.5f);
-////  glm::vec3 dot = glm::cross(front, pos);
-////  body_0->setLinearVelocity(25*PxVec3(dot.x, dot.y, dot.z));
-////  PxActor* cube_0 = body_0;
-////  //TODO:: cube or body?
-////  gScene->addActor(*cube_0);
-////  shape->release();
-////}
-////
-////void physx::Physics::updateVertices(PxVec3* verts, float amplitude = 10.0f) {
-////  const PxU32 gridSize = GRID_SIZE;
-////  const PxReal gridStep = GRID_STEP;
-////
-////  for (PxU32 a = 0; a < gridSize; a++) {
-////    const float coeffA = float(a) / float(gridSize);
-////    for (PxU32 b = 0; b < gridSize; b++) {
-////      const float coeffB = float(b) / float(gridSize);
-////
-////      const float y = 20.0f + sinf(coeffA * PxTwoPi) * cosf(coeffB * PxTwoPi) * amplitude;
-////      //floats h and k effect position
-////      float h = -25.0f, k = -25.0f;
-////      verts[a * gridSize + b] = PxVec3(h + b * gridStep, y, k + a * gridStep);
-////    }
-////  }
-////}
-////
-////physx::PxTriangleMesh* physx::Physics::createMeshGround() {
-////  
-////  const PxU32 gridSize = GRID_SIZE;
-////
-////  PxVec3 verts[gridSize * gridSize];
-////
-////  const PxU32 nbTriangles = 2 * (gridSize - 1) * (gridSize - 1);
-////
-////  std::vector<Triangle> indices;
-////  indices.resize(nbTriangles);
-////
-////  updateVertices(verts);
-////  
-////  for (PxU32 a = 0; a < (gridSize - 1); ++a) {
-////    for (PxU32 b = 0; b < (gridSize - 1); ++b) {
-////      Triangle& tri0 = indices[(a * (gridSize - 1) + b) * 2];
-////      Triangle& tri1 = indices[((a * (gridSize - 1) + b) * 2) + 1];
-////
-////      tri0.ind0 = a * gridSize + b + 1;
-////      tri0.ind1 = a * gridSize + b;
-////      tri0.ind2 = (a + 1) * gridSize + b + 1;
-////
-////      tri1.ind0 = (a + 1) * gridSize + b + 1;
-////      tri1.ind1 = a * gridSize + b;
-////      tri1.ind2 = (a + 1) * gridSize + b;
-////    }
-////  }
-//// 
-////  PxCookingParams params = gCooking->getParams();
-////  //PxTolerancesScale scalex = PxTolerancesScale();
-////  params.midphaseDesc = PxMeshMidPhase::eBVH33;
-////  params.scale = gPhysics->getTolerancesScale();
-////  params.midphaseDesc.mBVH33Desc.meshCookingHint = PxMeshCookingHint::eSIM_PERFORMANCE;
-////  params.midphaseDesc.mBVH33Desc.meshSizePerformanceTradeOff = 0.5f;
-////  gCooking->setParams(params);
-////
-////  PxTriangleMeshDesc meshDesc;
-////  meshDesc.points.data = verts;
-////  meshDesc.points.count = gridSize * gridSize;
-////  meshDesc.points.stride = sizeof(PxVec3);
-////  meshDesc.triangles.count = nbTriangles;
-////  /*
-////  std::vector<Triangle> test;
-////  test.resize(100);
-////  meshDesc.triangles.data = &test[0];
-////  */
-////  ///TODO::to set up with vector?
-////  meshDesc.triangles.data = &indices[0];
-////  ///yes
-////  meshDesc.triangles.stride = sizeof(Triangle);
-////
-////  gCooking->validateTriangleMesh(meshDesc);
-////  
-////  PxTriangleMeshCookingResult::Enum result;
-////  PxTriangleMesh* triMesh = gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback(),&result);
-////  
-////  return triMesh;
-////}
-// return glm::mat4(
-//    globalPoseArray[i].column0.x,
-//    globalPoseArray[i].column1.x,
-//    globalPoseArray[i].column2.x,
-//    globalPoseArray[i].column3.x,
-//    globalPoseArray[i].column0.y,
-//    globalPoseArray[i].column1.y,
-//    globalPoseArray[i].column2.y,
-//    globalPoseArray[i].column3.y,
-//    globalPoseArray[i].column0.z,
-//    globalPoseArray[i].column1.z,
-//    globalPoseArray[i].column2.z,
-//    globalPoseArray[i].column3.z,
-//    globalPoseArray[i].column0.w,
-//    globalPoseArray[i].column1.w,
-//    globalPoseArray[i].column2.w,
-//    globalPoseArray[i].column3.w);
-//    
-//    
-//    static const physx::PxU32 GRID_SIZE = 8;
-//    static const physx::PxReal GRID_STEP = 56.0f / physx::PxReal(GRID_SIZE - 1);
+//  PxShape* shape = gPhysics->createShape(PxBoxGeometry(PxVec3(1.0)), *defaultMaterial);
+// 
+//  PxTransform localTm(PxVec3(pos.x, pos.y, pos.z));
 //
-//  
+//  PxRigidDynamic* body_0 = gPhysics->createRigidDynamic(localTm);
+//  body_0->attachShape(*shape);
+//  PxRigidBodyExt::updateMassAndInertia(*body_0, 100.0f);
+//  body_0->setAngularDamping(0.5f);
+//  glm::vec3 dot = glm::cross(front, pos);
+//  body_0->setLinearVelocity(25*PxVec3(dot.x, dot.y, dot.z));
+//  PxActor* cube_0 = body_0;
+//  //TODO:: cube or body?
+//  gScene->addActor(*cube_0);
+//  shape->release();
+//}

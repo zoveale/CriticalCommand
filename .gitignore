@@ -478,3 +478,17 @@ healthchecksdb
 /CriticalCommand/resources/pbrTesting/models/icoSphere/images/ao.png
 /CriticalCommand/resources/pbrTesting/models/icoSphere/images/albedo.png
 /CriticalCommand/resources/pbrTesting/models/icoSphere/ico.dae
+/CriticalCommand/resources/imagedBasedLighting/scene.dae
+/CriticalCommand/resources/imagedBasedLighting/images/old
+/CriticalCommand/resources/imagedBasedLighting/kloppenheim.hdr
+/CriticalCommand/resources/imagedBasedLighting/monoLake.hdr
+/CriticalCommand/resources/imagedBasedLighting/images/0.png
+/CriticalCommand/resources/imagedBasedLighting/object
+/CriticalCommand/resources/dummy
+/CriticalCommand/resources/Mechs
+/CriticalCommand/resources/shader/PBR/Main
+/CriticalCommand/resources/imagedBasedLighting/Milkyway_small.hdr
+/CriticalCommand/resources/imagedBasedLighting/blaubeuren_outskirts_8k.hdr
+/CriticalCommand/resources/imagedBasedLighting/basicGround.dae
+/CriticalCommand/resources/imagedBasedLighting/Equirectangular.hdr
+/CriticalCommand/resources/imagedBasedLighting/output_skybox.hdr

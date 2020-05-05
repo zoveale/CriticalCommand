@@ -12,11 +12,15 @@ struct KEY_STATE {
   bool S = false;
   bool A = false;
   bool D = false;
-  bool SPACE = false;
-  bool ESC = false;
 
   bool UP = false;
   bool DOWN = false;
+  bool LEFT = false;
+  bool RIGHT = false;
+
+  bool SPACE = false;
+  bool ESC = false;
+  bool LEFT_ALT = false;
 };
 
 class Input {

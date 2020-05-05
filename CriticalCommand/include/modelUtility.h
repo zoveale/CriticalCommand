@@ -1,6 +1,8 @@
 #ifndef MODEL_UTILITY_H
 #define MODEL_UTILITY_H
 
+
+
 #include <GL/glew.h>
 
 
@@ -14,6 +16,7 @@
 #include <gtx/quaternion.hpp>
 #include <gtc/quaternion.hpp>
 #include <gtx/string_cast.hpp>
+#include <gtx/matrix_decompose.hpp>
 
 #include <string>
 #include <vector>
@@ -24,6 +27,8 @@ extern glm::mat3 aiToGlm(const aiMatrix3x3& load);
 extern glm::mat4 aiToGlm(const aiMatrix4x4& load);
 extern glm::vec3 aiToGlm(const aiVector3D& vec);
 extern glm::quat aiToGlm(const aiQuaternion& quat);
+
+
 
 
 struct Vertex {
@@ -66,8 +71,6 @@ struct Texture {
   static unsigned int loadCubemap(std::vector<std::string> faces);
   static unsigned int LoadHDR(const char* path);
 };
-
-
 
 
 

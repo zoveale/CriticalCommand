@@ -65,9 +65,7 @@ void Overview::Update(Player& player) {
 }
 
 glm::mat4 Overview::View() {
-  //keep camera on the xz plane
- // position.y = 0.0f;
-  ///
+  
   return glm::lookAt(position, (position + front), up);
 }
 

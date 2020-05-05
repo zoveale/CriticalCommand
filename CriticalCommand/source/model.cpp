@@ -51,7 +51,7 @@ glm::vec3 Model::Position() {
 //private
   /*  Functions   */
   // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-void Model::loadModel(string const& path, LightFactory& light, physx::Physics& physicsScene) {
+void Model::loadModel(std::string const& path, LightFactory& light, physx::Physics& physicsScene) {
   //FIXME::add type file reading, so if .obj it isnt animated
   isAnimated = false;
 
@@ -73,7 +73,7 @@ void Model::loadModel(string const& path, LightFactory& light, physx::Physics& p
 
   // check for errors
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-    cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
+    std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
     return;
   }
 
@@ -301,8 +301,13 @@ void Model::processNode(aiNode* node, const aiScene* scene, physx::Physics& phys
   for (unsigned int i = 0; i < node->mNumMeshes; i++) {
     aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
     nodeTransform = aiToGlm(node->mTransformation);
+    /*glm::vec3 position(0.0f);
+    glm::vec3 scale(0.0f);
+    glm::quat rotation;
+    glm::vec3 h(0.0f);
+    glm::vec4 j(0.0f);
+    glm::decompose(nodeTransform, scale, rotation, position, h, j);*/
     meshes.push_back(processMesh(mesh, scene, physicsScene));
-
   }
   for (unsigned int i = 0; i < node->mNumChildren; i++) {
     processNode(node->mChildren[i], scene, physicsScene);
@@ -500,44 +505,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
 
   // process materials
   aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-  // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
-  // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
-  // Same applies to other texture as the following list summarizes:
-  // diffuse: texture_diffuseN
-  // specular: texture_specularN
-  // normal: texture_normalN
-  // 1. diffuse maps
+  
   FillPBRTextureVector(textures);
-
-  /*std::vector<Texture> diffuseMaps = LoadATexture(aiTextureType_DIFFUSE, "material.texture_diffuse");
-  textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-  std::vector<Texture> specularMaps = LoadATexture(aiTextureType_SPECULAR, "material.texture_specular");
-  textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-  std::vector<Texture> normalMaps = LoadATexture(aiTextureType_NORMALS, "material.texture_normal");
-  textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-  std::vector<Texture> heightMaps = LoadATexture(aiTextureType_HEIGHT, "material.texture_height");
-  textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());*/
-  /*
-  Albedo Map
-  std::vector<Texture> diffuseMaps = LoadATexture(aiTextureType_DIFFUSE, "material.texture_diffuse");
-  textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-
-  Normal Map
-  std::vector<Texture> normalMaps = LoadATexture(aiTextureType_NORMALS, "material.texture_normal");
-  textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-
-  Metallic Map
-  std::vector<Texture> metallicMaps = LoadATexture(aiTextureType_METALNESS, "material.texture_metallic");
-  textures.insert(textures.end(), metallicMaps.begin(), metallicMaps.end());
-
-  Roughness Map
-  std::vector<Texture> roughnessMaps = LoadATexture(aiTextureType_SHININESS, "material.texture_roughness");
-  textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
-
-  AO Map
-  std::vector<Texture> aoMaps = LoadATexture(aiTextureType_LIGHTMAP, "material.texture_ao");
-  textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
-  */
+  
   return Mesh(vertices, indices, textures);
 }
 ///
@@ -751,6 +721,7 @@ void Model::ProcessNodesOnly(aiNode* node, const aiScene* scene) {
     aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
     nodeTransform = aiToGlm(node->mTransformation);
     meshes.push_back(ProcessMeshOnly(mesh, scene));
+    
   }
   for (unsigned int i = 0; i < node->mNumChildren; i++) {
     ProcessNodesOnly(node->mChildren[i], scene);

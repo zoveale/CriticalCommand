@@ -1,10 +1,15 @@
 #include "render.h"
 
-Render::Render() {
+RENDERDOC_API_1_4_1* Render::DebugApi;
 
+
+
+Render::Render() {
 }
 
 void Render::StartUp(){
+ 
+
   /* Initialize the library */
   if (!glfwInit())
     printf("!glfwInit()");
@@ -15,6 +20,7 @@ void Render::StartUp(){
   //MSAA-multisampled anti-aliasing
   glfwWindowHint(GLFW_SAMPLES, 4);
   /* Create a windowed mode window and its OpenGL context */
+  //glfwGetPrimaryMonitor() for fullscreen
   window = glfwCreateWindow(Screen::WIDTH, Screen::HEIGHT, "Welcome To Critical Command", NULL, NULL);
   if (!window)
   {
@@ -29,16 +35,20 @@ void Render::StartUp(){
     printf("Error GLEW_OK = %i", GLEW_OK);
   }
 
-  glEnable(GL_MULTISAMPLE);
+  //Fix seams in cubemaps
+  glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+  //TODO::multisampling on framebuffers
+  //glEnable(GL_MULTISAMPLE);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
 
-  glEnable(GL_STENCIL_TEST);
-  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+  //TODO::reimplment stencil testing 
+  //glEnable(GL_STENCIL_TEST);
+  //glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
-  //glFrontFace(GL_CCW);
 
   
 }

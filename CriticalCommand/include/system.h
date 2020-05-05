@@ -1,6 +1,8 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+
+
 #include "render.h"
 #include "shader.h"
 #include "framebuffer.h"
@@ -22,6 +24,7 @@
 #include "gtc/type_ptr.hpp"
 
 
+
 const unsigned int SHADOW_CASTING_POINT_LIGHTS = 13;
 const unsigned int SHADOW_CASTING_SPOT_LIGHTS = 1;
 
@@ -31,55 +34,73 @@ private:
   Render render;
   Input input;
 
-  Shader skyBox;
+  Shader skyBoxShader;
   Skybox skyBoxOne;
 
   Shader lamp;
 
-  Model shadowLights;
+  Model m_Lights;
   Model pointLamp;
   Model spotLight;
-
-  
-  Framebuffer pointShadowCastersBuffer[SHADOW_CASTING_POINT_LIGHTS];
-  std::vector<glm::mat4> pointShadowMatrix;
-  Shader depthShadowCubeShader;
+ 
+  Model uvSphere;
 
   Shader pbrShader;
-  Model scene[9];
   
-  Model sceneP;
-
-  Model icoSphereModel;
-  IcoSphereGraphicsComponent gComp;
-  IcoSpherePhysicsComponent pComp;
-  GameObject icoSphereObject;
-
   glm::mat4 model;
   glm::mat4 view;
   glm::mat4 projection;
 
   Framebuffer gFrameBuffer;
   Shader multipleRenderTargetShader;
-
-  GameObject playerObject;
-  Model playerModel;
-  PlayerGraphicsComponent playerGraphicsComp;
-  PlayerPhysicsComponent playerPhysicsComp;
-  PlayerInputComponent playerInputComp;
+  
+  Framebuffer specularIrradianceBuffer;
+  Shader equirectangularToCubemapShader;
+  Shader irradianceShader;
+  Shader prefilterShader;
+  Shader brdfLookUpShader;
+  Shader enviromentShader;
 
   Camera* cameraState;
-  //const float near_plane = 1.0f, far_plane = 115.0f;
-  //glm::mat4 lightProjection;
-  //glm::vec3 pointLightPos;
-  //glm::mat4 shadowTransforms1[6];
 
-/*
-  Framebuffer geometryBuffer;
-  Shader multipleRenderTargetShader;
-  Shader deferredLightingPass;*/
+  //Objects
+  Model modelObject[10];
+  static const unsigned int MAX_OBJECTS = 1 << 6;
+  GameObject testObject[MAX_OBJECTS];
+  DefaultGraphicsComponent gObject[3];
+  IcoSpherePhysicsComponent pObjectSphere;
+  CubePhysicsComponent pObjectCube;
+  DiamondPhysicsComponent pObjectDiamond;
+  DefaultInputComponent iObject;
+ 
+  //Player
+  Model playerModel;
+  GameObject playerObject;
+  PlayerGraphicsComponent playerGraphics;
+  PlayerPhysicsComponent playerPhysics;
+  PlayerInputComponent playerInput;
+
+  //animation
+  Model dummyModel;
+  Model mechModel;
+  Model baseChassis;
+  BaseChassisInputComponent baseChassisInput;
+  BaseTurretInputComponent baseTurretInput;
+  BaseBarrelInputComponent baseBarrelInput;
+  Model baseTurret;
+  Model baseBarrel;
+  GameObject mechaTank[3];
+  DefaultGraphicsComponent gMechComponent[3];
+  ConvexPhysicsComponent pMechComponent;
+
+  DefaultPhysicsComponent standardPhysicsComponent;
+  KinematicPhysicsComponent kinematicPhysicsComponent;
+
+  /*VelocityBasedInputComponent velocityBasedInputComponent;
+  VelocityPhysicsComponent velocityPhysicsComponent;*/
 
 public:
+
 
   System();
   void SystemInit();
@@ -87,6 +108,28 @@ public:
   void Shutdown();
 
 };
+
+/*
+  Framebuffer geometryBuffer;
+  Shader multipleRenderTargetShader;
+  Shader deferredLightingPass;*/
+  /* Framebuffer pointShadowCastersBuffer[SHADOW_CASTING_POINT_LIGHTS];
+  std::vector<glm::mat4> pointShadowMatrix;
+  Shader depthShadowCubeShader;
+*/
+/*Model scene[9];*/
+
+/*Model sceneP;*/
+
+/* Model icoSphereModel;
+ IcoSphereGraphicsComponent gComp;
+ IcoSpherePhysicsComponent pComp;
+ GameObject icoSphereObject;*/
+ /*GameObject playerObject;
+ Model playerModel;
+ PlayerGraphicsComponent playerGraphicsComp;
+ PlayerPhysicsComponent playerPhysicsComp;
+ PlayerInputComponent playerInputComp;*/
 #endif // !SYSTEM_H
 
 
