@@ -104,7 +104,7 @@ void Framebuffer::CreateDepthCubeMap() {
 }
 
 void Framebuffer::SetPointLightDepthToCubemap(glm::mat4 lightProjection, 
-                                              glm::mat4(&transformArray)[6],
+                                              std::array <glm::mat4&, 6> transformArray,
                                               glm::vec3 lightPosition) {
 
   transformArray[0] = lightProjection * glm::lookAt(lightPosition,
