@@ -73,7 +73,7 @@ glm::mat4 ThirdPerson::View() {
   return glm::lookAt(position, (lookAtPosition), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
-void CAMERA_FUNCTIONS::SET_FRONT_VECTOR(ThirdPerson& camera) {
+inline void CAMERA_FUNCTIONS::SET_FRONT_VECTOR(ThirdPerson& camera) {
   camera.front = glm::vec3(0.0f);
   //calculate the new front vector
   camera.front.x = glm::cos(glm::radians(camera.yaw - 90.0f)) * glm::cos(glm::radians(camera.pitch));

@@ -82,6 +82,13 @@ public:
   }
 };
 
+
+/*
+
+   TODO:: move math functions to PhysicsComponent?
+
+*/
+
 class BaseTurretInputComponent : public InputComponent {
 public:
   virtual void Load() {}

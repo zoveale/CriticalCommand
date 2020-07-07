@@ -1,6 +1,7 @@
 #ifndef VEALE_89485D62_A5D9_499F_B124_717C2346DAAD_H
 #define VEALE_89485D62_A5D9_499F_B124_717C2346DAAD_H
 
+#include <memory>
 #include "mat4x4.hpp"
 #include "vec3.hpp"
 
@@ -43,9 +44,9 @@ public:
 
   ~GameObject();
 private:
-  GraphicsComponent *graphics;
-  PhysicsComponent  *physics;
-  InputComponent    *input;
+  std::unique_ptr<GraphicsComponent> graphics;
+  std::unique_ptr<PhysicsComponent>  physics;
+  std::unique_ptr<InputComponent>    input;
 };
 
 

@@ -10,12 +10,10 @@ public:
 
   GraphicsComponent() {}
   virtual ~GraphicsComponent() {}
-  virtual void Load(Model* modelPointers, Shader* shader, LightFactory* lightContainer) = 0;
+  virtual void Load(Model* modelPointers, Shader* shader) = 0;
   virtual void SetUp(GameObject& object) = 0;
   virtual void Update(GameObject &object, const glm::mat4 P, const glm::mat4 V) = 0;
   virtual void Draw(GameObject& object) = 0;
-  
-  
 };
 
 //class BombGraphicsComponent : public GraphicsComponent {
@@ -62,13 +60,12 @@ public:
 
 class IcoSphereGraphicsComponent : public GraphicsComponent {
 public:
-  IcoSphereGraphicsComponent():modelPointer(nullptr), icoShader(nullptr)/*, lights(nullptr)*/ {}
+  IcoSphereGraphicsComponent():modelPointer(nullptr), icoShader(nullptr), model(glm::mat4(1.0f))/*, lights(nullptr)*/ {}
 
-  virtual void Load(Model* modelPointers, Shader* shader/*, LightFactory* lightContainer = nullptr*/) {
+  virtual void Load(Model* modelPointers, Shader* shader) {
     modelPointer = modelPointers;
     icoShader = shader;
     //lights = lightContainer;
-    model = glm::mat4(1.0f);
   }
   virtual void SetUp(GameObject& object) {
     //Component sets up the object, object does not set up the component 
@@ -97,10 +94,9 @@ public:
   PlayerGraphicsComponent() : modelData(nullptr), shader(nullptr),
                               lights(nullptr), model(glm::mat4(1.0f)) {}
 
-  virtual void Load(Model* m, Shader* s, LightFactory* l = nullptr) {
+  virtual void Load(Model* m, Shader* s) {
     modelData = m;
     shader = s;
-    lights = l;
     model = glm::mat4(1.0f);
   }
   virtual void SetUp(GameObject& object) {
@@ -129,12 +125,12 @@ class DefaultGraphicsComponent : public GraphicsComponent {
 public:
   DefaultGraphicsComponent() : modelData(nullptr), shader(nullptr){}
 
-  virtual void Load(Model* m, Shader* s, LightFactory* l = nullptr) {
+  virtual void Load(Model* m, Shader* s) {
     modelData.reset(m);  // takes ownership of pointer
     shader.reset(s); 
   }
   virtual void SetUp(GameObject& object) {
-    //check is posotion was set from code, otherwise use model information
+    //check is position was set from code, otherwise use model information
     if(object.position.x >= FLT_MAX - 1.0f)
       object.position = modelData->Position();
 

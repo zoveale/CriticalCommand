@@ -1,10 +1,12 @@
 #ifndef FRAMEBUFFER_H
 #define FRAMEBUFFER_H
 
+#include <array>
+
+
 #include "shader.h"
 #include "skybox.h"
 #include "render.h"
-
 
 
 class Framebuffer {
@@ -26,7 +28,9 @@ public:
   void SetShadowMap(Shader shader);
   void SetShadowCubemap(Shader shader);
   void CreateDepthCubeMap();
-  void SetPointLightDepthToCubemap(glm::mat4 lightProjection, glm::mat4 (&transformArray)[6], glm::vec3 lightPosition);
+  void SetPointLightDepthToCubemap(glm::mat4 lightProjection,
+                                   std::array< glm::mat4, 6> &transformArray,
+                                   glm::vec3 lightPosition);
 
   //
   void LoadGeometryBuffer();

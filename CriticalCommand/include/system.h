@@ -3,6 +3,7 @@
 
 
 
+
 #include "render.h"
 #include "shader.h"
 #include "framebuffer.h"
@@ -67,10 +68,10 @@ private:
   //TODO:: Make object factory
   ///
   //Objects
-  Model modelObject[10];
+  std::array <Model, 10> modelObject;
   static const unsigned int MAX_OBJECTS = 1 << 6;
-  GameObject testObject[MAX_OBJECTS];
-  DefaultGraphicsComponent gObject[3];
+  std::array<GameObject, MAX_OBJECTS> testObject;
+  std::array<DefaultGraphicsComponent, 3> gObject;
   IcoSpherePhysicsComponent pObjectSphere;
   CubePhysicsComponent pObjectCube;
   DiamondPhysicsComponent pObjectDiamond;
@@ -92,8 +93,8 @@ private:
   BaseBarrelInputComponent baseBarrelInput;
   Model baseTurret;
   Model baseBarrel;
-  GameObject mechaTank[3];
-  DefaultGraphicsComponent gMechComponent[3];
+  std::array<GameObject, 3> mechaTank;
+  std::array<DefaultGraphicsComponent, 3> gMechComponent;
   ConvexPhysicsComponent pMechComponent;
 
   DefaultPhysicsComponent standardPhysicsComponent;

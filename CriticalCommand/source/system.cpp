@@ -1,5 +1,4 @@
 #include "system.h"
-
 //static Render RenderDocApi;
 
 static LightFactory sceneLights;
@@ -20,6 +19,7 @@ System::System() {
 }
 
 void System::SystemInit() {
+  
   render.StartUp();
   input.StartUp(render.Window());
   player.StartUp();
@@ -89,7 +89,7 @@ void System::SystemInit() {
   specularIrradianceBuffer.CreatePrefilterMapFromCubemap(prefilterShader);*/
   specularIrradianceBuffer.CreateBRDFLookUpTextureMap(brdfLookUpShader);
   ///
-  //Static render probe from enviroment cubemap
+  //Static render probe from environment cube map
   specularIrradianceBuffer.SetIrradianceTexture(pbrShader);
   specularIrradianceBuffer.SetPrefilterTexture(pbrShader);
   specularIrradianceBuffer.SetBRDFLookUpTexture(pbrShader);
@@ -99,9 +99,9 @@ void System::SystemInit() {
   modelObject[0].LoadModel("resources/imagedBasedLighting/object0/object.dae");
   modelObject[1].LoadModel("resources/imagedBasedLighting/object1/cube.dae");
   modelObject[2].LoadModel("resources/imagedBasedLighting/object2/diamond.dae");
-  gObject[0].Load(&modelObject[0], &multipleRenderTargetShader, &sceneLights);
-  gObject[1].Load(&modelObject[1], &multipleRenderTargetShader, &sceneLights);
-  gObject[2].Load(&modelObject[2], &multipleRenderTargetShader, &sceneLights);
+  gObject.at(0).Load(&modelObject.at(0), &multipleRenderTargetShader);
+  gObject.at(1).Load(&modelObject.at(1), &multipleRenderTargetShader);
+  gObject.at(2).Load(&modelObject.at(2), &multipleRenderTargetShader);
   pObjectCube.Load(&scenePhysics);
   pObjectSphere.Load(&scenePhysics);
   pObjectDiamond.Load(&scenePhysics);
@@ -179,20 +179,21 @@ void System::GameLoop(){
 
     player.HandleInput(input, deltaTime);
    
-    for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
-      testObject[i].Update(deltaTime, projection, view);
+    for (GameObject &updateObjects : testObject) {
+      updateObjects.Update(deltaTime, projection, view);
     }
 
-    mechaTank[0].Update(deltaTime, projection, view);
-    mechaTank[1].position.x = mechaTank[0].position.x;
-    mechaTank[1].position.z = mechaTank[0].position.z;
-    mechaTank[1].up = mechaTank[0].up;
-    mechaTank[1].Update(deltaTime, projection, view);
-    mechaTank[2].right = mechaTank[1].right;
-    mechaTank[2].position.x = mechaTank[1].position.x;
-    mechaTank[2].position.z = mechaTank[1].position.z;
-    mechaTank[2].Update(deltaTime, projection, view);
-    //playerObject.Update(deltaTime, projection, view);
+
+    mechaTank.at(0).Update(deltaTime, projection, view);
+    mechaTank.at(1).position.x = mechaTank.at(0).position.x;
+    mechaTank.at(1).position.z = mechaTank.at(0).position.z;
+    mechaTank.at(1).up = mechaTank.at(0).up;
+    mechaTank.at(1).Update(deltaTime, projection, view);
+    mechaTank.at(2).right = mechaTank.at(1).right;
+    mechaTank.at(2).position.x = mechaTank.at(1).position.x;
+    mechaTank.at(2).position.z = mechaTank.at(1).position.z;
+    mechaTank.at(2).Update(deltaTime, projection, view);
+
 
     player.Update(deltaTime);
     cameraState->Update(player);
@@ -217,11 +218,11 @@ void System::GameLoop(){
       multipleRenderTargetShader.SetMat4("model", model);
       uvSphere.Draw(multipleRenderTargetShader); 
       dummyModel.Draw(multipleRenderTargetShader);
-      mechaTank[0].Draw();
-      mechaTank[1].Draw();
-      mechaTank[2].Draw();
-      for (unsigned int i = 0; i < MAX_OBJECTS; ++i) {
-        testObject[i].Draw();
+      mechaTank.at(0).Draw();
+      mechaTank.at(1).Draw();
+      mechaTank.at(2).Draw();
+      for (GameObject& drawObjects : testObject) {
+        drawObjects.Draw();
       }
 
       //playerObject.Draw();

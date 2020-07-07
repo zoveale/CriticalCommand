@@ -30,9 +30,9 @@ GameObject::GameObject() {
 
 
 void GameObject::Load(GraphicsComponent* g, PhysicsComponent* p, InputComponent* i) {
-  graphics = g;
-  physics = p;
-  input = i;
+  graphics.reset(g);
+  physics.reset(p);
+  input.reset(i);
 
   //TODO:: fix this workaround?? or its a feature 
   //Graphics needs to be first to set up proper position
@@ -60,9 +60,9 @@ void GameObject::Draw() {
 }
 
 GameObject::~GameObject() {
-  delete graphics;
+  /*delete graphics;
   delete physics;
-  delete input;
+  delete input;*/
 }
 
 
