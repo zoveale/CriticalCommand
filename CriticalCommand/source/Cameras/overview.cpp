@@ -69,7 +69,7 @@ glm::mat4 Overview::View() {
   return glm::lookAt(position, (position + front), up);
 }
 
-void CAMERA_FUNCTIONS::SET_FRONT_VECTOR(Overview& camera) {
+inline void CAMERA_FUNCTIONS::SET_FRONT_VECTOR(Overview& camera) {
   camera.front = glm::vec3(0.0f);
   //calculate the new front vector
   camera.front.x = glm::cos(glm::radians(camera.yaw)) * glm::cos(glm::radians(camera.pitch));

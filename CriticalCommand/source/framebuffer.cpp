@@ -104,7 +104,7 @@ void Framebuffer::CreateDepthCubeMap() {
 }
 
 void Framebuffer::SetPointLightDepthToCubemap(glm::mat4 lightProjection, 
-                                              std::array <glm::mat4&, 6> transformArray,
+                                              std::array <glm::mat4, 6> &transformArray,
                                               glm::vec3 lightPosition) {
 
   transformArray[0] = lightProjection * glm::lookAt(lightPosition,
@@ -381,9 +381,9 @@ void Framebuffer::CreatePrefilterMapFromEnvironmentMap(Shader prefilterShader, u
   glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
   unsigned int maxMipLevels = 5;
   for (unsigned int mip = 0; mip < maxMipLevels; ++mip) {
-    // reisze framebuffer according to mip-level size.
-    unsigned int mipWidth = resolution * glm::pow(0.5, mip);
-    unsigned int mipHeight = resolution * glm::pow(0.5, mip);
+    // resize framebuffer according to mip-level size.
+    unsigned int mipWidth = unsigned int(resolution * glm::pow(0.5, mip));
+    unsigned int mipHeight = unsigned int(resolution * glm::pow(0.5, mip));
     glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
     glViewport(0, 0, mipWidth, mipHeight);
@@ -486,7 +486,7 @@ void Framebuffer::CreatePrefilterMapFromCubemap(Shader prefilterShader, unsigned
   // generate mipmaps for the cubemap so OpenGL automatically allocates the required memory.
   glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
-  // pbr: run a quasi monte-carlo simulation on the environment lighting to create a prefilter (cube)map.
+  // pbr: run a quasi monte-carlo simulation on the environment lighting to create a Prefilter (cube)map.
   // ----------------------------------------------------------------------------------------------------
   prefilterShader.Use();
   prefilterShader.SetInt("environmentMap", 0);
@@ -498,9 +498,9 @@ void Framebuffer::CreatePrefilterMapFromCubemap(Shader prefilterShader, unsigned
   glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
   unsigned int maxMipLevels = 5;
   for (unsigned int mip = 0; mip < maxMipLevels; ++mip) {
-    // reisze framebuffer according to mip-level size.
-    unsigned int mipWidth = resolution * glm::pow(0.5, mip);
-    unsigned int mipHeight = resolution * glm::pow(0.5, mip);
+    // resize framebuffer according to mip-level size.
+    unsigned int mipWidth = unsigned int(resolution * glm::pow(0.5, mip));
+    unsigned int mipHeight = unsigned int(resolution * glm::pow(0.5, mip));
     glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
     glViewport(0, 0, mipWidth, mipHeight);

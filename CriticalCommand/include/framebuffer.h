@@ -29,7 +29,7 @@ public:
   void SetShadowCubemap(Shader shader);
   void CreateDepthCubeMap();
   void SetPointLightDepthToCubemap(glm::mat4 lightProjection,
-                                   std::array< glm::mat4&, 6> transformArray,
+                                   std::array< glm::mat4, 6> &transformArray,
                                    glm::vec3 lightPosition);
 
   //

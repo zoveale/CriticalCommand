@@ -102,7 +102,7 @@ private:
   Mesh ProcessMeshOnly(aiMesh* mesh, const aiScene* scene);
 
   //void LoadTextures();
-  vector<Texture> LoadATexture(aiTextureType type, string typeName);
+  std::vector<Texture> LoadATexture(aiTextureType type, string typeName);
   void ProcessLights(const aiScene* scene, LightFactory& lights);
   void ProcessAnimatedNode(aiNode* node, const aiScene* scene);
   
@@ -121,7 +121,7 @@ private:
   void FillTextureVector(std::vector<Texture>& textureVector);
 
   void FillPBRTextureVector(std::vector<Texture>& pbrTextureVector);
-  vector<Texture> LoadPBRTexture(aiTextureType type, string typeName);
+  std::vector<Texture> LoadPBRTexture(aiTextureType type, string typeName);
 
 };
 

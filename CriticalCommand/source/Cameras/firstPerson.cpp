@@ -71,7 +71,7 @@ glm::mat4 FirstPerson::View() {
   return glm::lookAt(position, (position + front), up);
 }
 
-void CAMERA_FUNCTIONS::SET_FRONT_VECTOR(FirstPerson& camera) {
+inline void CAMERA_FUNCTIONS::SET_FRONT_VECTOR(FirstPerson& camera) {
   camera.front = glm::vec3(0.0f);
   //calculate the new front vector
   camera.front.x = glm::cos(glm::radians(camera.yaw)) * glm::cos(glm::radians(camera.pitch));

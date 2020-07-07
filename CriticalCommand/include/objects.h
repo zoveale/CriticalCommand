@@ -45,8 +45,8 @@ public:
   ~GameObject();
 private:
   std::unique_ptr<GraphicsComponent> graphics;
-  std::unique_ptr <PhysicsComponent>  physics;
-  std::unique_ptr <InputComponent>    input;
+  std::unique_ptr<PhysicsComponent>  physics;
+  std::unique_ptr<InputComponent>    input;
 };
 
 
