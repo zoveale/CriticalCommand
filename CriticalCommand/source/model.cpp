@@ -298,20 +298,38 @@ Animated Model::ProcessAnimatedMesh(aiMesh* mesh, const aiScene* scene) {
 // this process on its children nodes (if any).
 //TODO:: remove physics comments
 void Model::processNode(aiNode* node, const aiScene* scene, physx::Physics& physicsScene/*, again*/) {
-  for (unsigned int i = 0; i < node->mNumMeshes; i++) {
-    aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-    nodeTransform = aiToGlm(node->mTransformation);
-    /*glm::vec3 position(0.0f);
-    glm::vec3 scale(0.0f);
-    glm::quat rotation;
-    glm::vec3 h(0.0f);
-    glm::vec4 j(0.0f);
-    glm::decompose(nodeTransform, scale, rotation, position, h, j);*/
-    meshes.push_back(processMesh(mesh, scene, physicsScene));
+
+  std::queue<aiNode*> nodeQueue;
+  aiNode* currentNode = node;
+
+  nodeQueue.push(currentNode);
+
+  while (!nodeQueue.empty()) {
+
+    aiNode* qNode = nodeQueue.front();
+    nodeQueue.pop();
+    for (unsigned int i = 0; i < qNode->mNumMeshes; ++i) {
+      aiMesh* mesh = scene->mMeshes[qNode->mMeshes[i]];
+      nodeTransform = aiToGlm(qNode->mTransformation);
+      meshes.push_back(processMesh(mesh, scene, physicsScene));
+    }
+
+    for (int i = 0; i < qNode->mNumChildren; ++i) {
+      nodeQueue.push(qNode->mChildren[i]);
+    }
+
   }
-  for (unsigned int i = 0; i < node->mNumChildren; i++) {
-    processNode(node->mChildren[i], scene, physicsScene);
-  }
+
+  //for (unsigned int i = 0; i < node->mNumMeshes; i++) {
+  //  aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+  //  nodeTransform = aiToGlm(node->mTransformation);
+  //  meshes.push_back(processMesh(mesh, scene, physicsScene));
+  //}
+  //for (unsigned int i = 0; i < node->mNumChildren; i++) {
+  //  processNode(node->mChildren[i], scene, physicsScene);
+  //}
+
+
 }
 
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& physicsScene/*, again*/) {
@@ -325,7 +343,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
   // data to fill
   std::vector<Vertex> vertices;
   std::vector<unsigned int> indices;
-  std::vector<Texture> textures;
   //TODO:: possibly switch to a set of pre allocated arrays with max limit
   ///Swapped to pointers
   //std::vector<float> triMeshPos;
@@ -506,52 +523,66 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
   // process materials
   aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
   
-  FillPBRTextureVector(textures);
+  std::vector<Texture> textures{ FillPBRTextureVector() };
+  
   
   return Mesh(vertices, indices, textures);
 }
-///
 
-//
-///
+static unsigned char* threadData[5];
+std::vector<Texture> Model::FillPBRTextureVector() {
+  std::array <aiTextureType, 5> textureTypes{ aiTextureType_DIFFUSE,
+                       aiTextureType_NORMALS,
+                       aiTextureType_METALNESS, 
+                       aiTextureType_SHININESS,
+                       aiTextureType_AMBIENT_OCCLUSION };
 
+  std::array <std::string, 5> materialNames{ "material.texture_diffuse",
+                                "material.texture_normal",
+                                "material.texture_metallic",
+                                "material.texture_roughness",
+                                "material.texture_ao" };
 
+  std::vector<std::future<std::vector<Texture>>> futures;
 
-void Model::FillTextureVector(std::vector<Texture> &textureVector) {
-  std::vector<Texture> diffuseMaps = LoadATexture(aiTextureType_DIFFUSE, "material.texture_diffuse");
-  textureVector.insert(textureVector.end(), diffuseMaps.begin(), diffuseMaps.end());
-  std::vector<Texture> specularMaps = LoadATexture(aiTextureType_SPECULAR, "material.texture_specular");
-  textureVector.insert(textureVector.end(), specularMaps.begin(), specularMaps.end());
-  std::vector<Texture> normalMaps = LoadATexture(aiTextureType_NORMALS, "material.texture_normal");
-  textureVector.insert(textureVector.end(), normalMaps.begin(), normalMaps.end());
-  std::vector<Texture> heightMaps = LoadATexture(aiTextureType_HEIGHT, "material.texture_height");
-  textureVector.insert(textureVector.end(), heightMaps.begin(), heightMaps.end());
+  for (int i = 0; i < 5; ++i) {
+    auto f = std::async(std::launch::async, [=] {
+      return LoadPBRTexture(textureTypes[i], materialNames.at(i));
+    });
+    futures.push_back(std::move(f));
+  }
+  
+  
+  std::vector<Texture> diffuseMaps{ futures[0].get() };
+  std::vector<Texture> normalMaps{ futures[1].get() };
+  std::vector<Texture> metallicMaps{ futures[2].get() };
+  std::vector<Texture> roughnessMaps{ futures[3].get() };
+  std::vector<Texture> aoMaps{ futures[4].get() };
 
-}
-
-void Model::FillPBRTextureVector(std::vector<Texture>& pbrTextureVector) {
-  //Albedo Map
-  std::vector<Texture> diffuseMaps = LoadPBRTexture(aiTextureType_DIFFUSE, "material.texture_diffuse");
+  if (!diffuseMaps.empty()) {
+    diffuseMaps.at(0).id = diffuseMaps.at(0).SendToGPU();
+    normalMaps.at(0).id = normalMaps.at(0).SendToGPU();
+    metallicMaps.at(0).id = metallicMaps.at(0).SendToGPU();
+    roughnessMaps.at(0).id = roughnessMaps.at(0).SendToGPU();
+    aoMaps.at(0).id = aoMaps.at(0).SendToGPU();
+  }
+  /*std::vector<Texture> diffuseMaps{ std::move(LoadPBRTexture(aiTextureType_DIFFUSE, "material.texture_diffuse")) };
+  std::vector<Texture> normalMaps{ std::move(LoadPBRTexture(aiTextureType_NORMALS, "material.texture_normal")) };
+  std::vector<Texture> metallicMaps{ std::move(LoadPBRTexture(aiTextureType_METALNESS, "material.texture_metallic")) };
+  std::vector<Texture> roughnessMaps{ std::move(LoadPBRTexture(aiTextureType_SHININESS, "material.texture_roughness")) };
+  std::vector<Texture> aoMaps{ std::move(LoadPBRTexture(aiTextureType_AMBIENT_OCCLUSION, "material.texture_ao")) };
+  */
+  std::vector<Texture> pbrTextureVector;
   pbrTextureVector.insert(pbrTextureVector.end(), diffuseMaps.begin(), diffuseMaps.end());
-
-  //Normal Map
-  std::vector<Texture> normalMaps = LoadPBRTexture(aiTextureType_NORMALS, "material.texture_normal");
   pbrTextureVector.insert(pbrTextureVector.end(), normalMaps.begin(), normalMaps.end());
-
-  //Metallic Map
-  std::vector<Texture> metallicMaps = LoadPBRTexture(aiTextureType_METALNESS, "material.texture_metallic");
   pbrTextureVector.insert(pbrTextureVector.end(), metallicMaps.begin(), metallicMaps.end());
-
-  //Roughness Map
-  std::vector<Texture> roughnessMaps = LoadPBRTexture(aiTextureType_SHININESS, "material.texture_roughness");
   pbrTextureVector.insert(pbrTextureVector.end(), roughnessMaps.begin(), roughnessMaps.end());
-
-  //AO Map
-  std::vector<Texture> aoMaps = LoadPBRTexture(aiTextureType_LIGHTMAP, "material.texture_ao");
   pbrTextureVector.insert(pbrTextureVector.end(), aoMaps.begin(), aoMaps.end());
+
+  return pbrTextureVector;
 }
 
-vector<Texture> Model::LoadPBRTexture(aiTextureType type, string typeName) {
+std::vector<Texture> Model::LoadPBRTexture(aiTextureType type, const std::string typeName) {
 
   std::string textureType;
   switch (type) {
@@ -568,34 +599,38 @@ vector<Texture> Model::LoadPBRTexture(aiTextureType type, string typeName) {
   case aiTextureType_SHININESS:
     textureType = "roughness.png";
     break;
-  case aiTextureType_LIGHTMAP:
+  case aiTextureType_AMBIENT_OCCLUSION:
     textureType = "ao.png";
     break;
   default:
     break;
   }
-  vector<Texture> textures;
-  bool skip = false;
-  for (unsigned int j = 0; j < textures_loaded.size(); j++) {
-    if (std::strcmp(textures_loaded[j].path.data(), textureType.c_str()) == 0) {
-      textures.push_back(textures_loaded[j]);
-      skip = true;
-      break;
-    }
-  }
-  if (!skip) {
-    // if texture hasn't been loaded already, load it
-    Texture texture;
-    texture.id = Texture::Load(textureType.c_str(), this->directory + "/images");
-    if (texture.id < 0)
-      return textures;
-    texture.type = typeName;
-    texture.path = textureType.c_str();
-    textures.push_back(texture);
-    textures_loaded.push_back(texture);
-  }
+  std::vector<Texture> textures;
+
+  // if texture hasn't been loaded already, load it
+  Texture texture;
+  texture.Load(textureType.c_str(), this->directory + "/images");
+  //texture.id = texture.SendToGPU();
+  if (texture.id < 0)
+    return textures;
+  texture.type = typeName;
+  texture.path = textureType.c_str();
+  textures.push_back(texture);
+  textures_loaded.push_back(texture);
 
   return textures;
+}
+
+void Model::FillTextureVector(std::vector<Texture>& textureVector) {
+  std::vector<Texture> diffuseMaps = LoadATexture(aiTextureType_DIFFUSE, "material.texture_diffuse");
+  textureVector.insert(textureVector.end(), diffuseMaps.begin(), diffuseMaps.end());
+  std::vector<Texture> specularMaps = LoadATexture(aiTextureType_SPECULAR, "material.texture_specular");
+  textureVector.insert(textureVector.end(), specularMaps.begin(), specularMaps.end());
+  std::vector<Texture> normalMaps = LoadATexture(aiTextureType_NORMALS, "material.texture_normal");
+  textureVector.insert(textureVector.end(), normalMaps.begin(), normalMaps.end());
+  std::vector<Texture> heightMaps = LoadATexture(aiTextureType_HEIGHT, "material.texture_height");
+  textureVector.insert(textureVector.end(), heightMaps.begin(), heightMaps.end());
+
 }
 ///
 //FIXME::Joint Loading
@@ -766,12 +801,11 @@ Mesh Model::ProcessMeshOnly(aiMesh* mesh, const aiScene* scene) {
     }
   }
 
-  std::vector<Texture> textures;
   aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-
-  FillPBRTextureVector(textures);
+  std::vector<Texture> textures{ FillPBRTextureVector()};
   //TODO::add emission textures
+
   modelPosition = glm::vec3(nodeTransform[3][0], nodeTransform[3][1], nodeTransform[3][2]);
 
   return Mesh(vertices, indices, textures);
@@ -809,7 +843,8 @@ vector<Texture> Model::LoadATexture(aiTextureType type, string typeName) {
   if (!skip) {
     // if texture hasn't been loaded already, load it
     Texture texture;
-    texture.id = Texture::Load(textureType.c_str(), this->directory + "/images");
+    texture.Load(textureType.c_str(), this->directory + "/images");
+    texture.id = texture.SendToGPU();
     if(texture.id < 0)
       return textures;
     texture.type = typeName;
