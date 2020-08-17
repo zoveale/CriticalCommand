@@ -552,7 +552,9 @@ std::vector<Texture> Model::FillPBRTextureVector() {
     futures.push_back(std::move(f));
   }
   
-  
+  if (!futures[0].valid())
+    futures[0].wait();
+
   std::vector<Texture> diffuseMaps{ futures[0].get() };
   std::vector<Texture> normalMaps{ futures[1].get() };
   std::vector<Texture> metallicMaps{ futures[2].get() };
