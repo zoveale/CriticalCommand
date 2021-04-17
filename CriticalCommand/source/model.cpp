@@ -314,7 +314,7 @@ void Model::processNode(aiNode* node, const aiScene* scene, physx::Physics& phys
       meshes.push_back(processMesh(mesh, scene, physicsScene));
     }
 
-    for (int i = 0; i < qNode->mNumChildren; ++i) {
+    for (unsigned int i = 0; i < qNode->mNumChildren; ++i) {
       nodeQueue.push(qNode->mChildren[i]);
     }
 
@@ -386,18 +386,18 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
     vector.x = mesh->mVertices[i].x;
     vector.y = mesh->mVertices[i].y;
     vector.z = mesh->mVertices[i].z;
-    //position realtive to scene
+    //position relative to scene
     //vector += glm::vec3(nodeTransform[3][0], nodeTransform[3][1], nodeTransform[3][2]);
    /* physxPosition.push_back(vector.x + nodeTransform[3][0]);
     physxPosition.push_back(vector.y + nodeTransform[3][1]);
     physxPosition.push_back(vector.z + nodeTransform[3][2]);*/
     /*
-    TODO: to find height estimate of object for PHYSX primatives.
+    TODO: to find height estimate of object for PHYSX primitives.
     maybe similar to find width and length
     no idea how to solve for capsules right now
     but should work for Sphere, Boxes, and Planes
     TODO::most likely going to need the vector position for each min max position
-    for capsule primative shape
+    for capsule primitive shape
     */
     if (vector.x > maxX)
       maxX = vector.x;
@@ -476,7 +476,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
     }
   }
 
-  // now wak through each of the mesh's faces (a face is a mesh its triangle)
+  // now walk through each of the mesh's faces (a face is a mesh its triangle)
   // and retrieve the corresponding vertex indices.
   //indices.resize(mesh->mNumFaces * 3);
   for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
@@ -487,7 +487,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
     }
   }
 
-  //Physx primative sizeing
+  //Physx primitive sizing
   
   float xHalfextent = ((maxX - minX) / 2.0f);
   float yHalfextent = ((maxY - minY) / 2.0f);
@@ -529,25 +529,29 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene, physx::Physics& phys
   return Mesh(vertices, indices, textures);
 }
 
-static unsigned char* threadData[5];
+//Async
 std::vector<Texture> Model::FillPBRTextureVector() {
-  std::array <aiTextureType, 5> textureTypes{ aiTextureType_DIFFUSE,
-                       aiTextureType_NORMALS,
-                       aiTextureType_METALNESS, 
-                       aiTextureType_SHININESS,
-                       aiTextureType_AMBIENT_OCCLUSION };
+  std::array <aiTextureType, 5> textureTypes{ 
+    aiTextureType_DIFFUSE,
+    aiTextureType_NORMALS,
+    aiTextureType_METALNESS,
+    aiTextureType_SHININESS,
+    aiTextureType_AMBIENT_OCCLUSION
+  };
 
-  std::array <std::string, 5> materialNames{ "material.texture_diffuse",
-                                "material.texture_normal",
-                                "material.texture_metallic",
-                                "material.texture_roughness",
-                                "material.texture_ao" };
+  std::array <std::string, 5> materialNames{ 
+    "material.texture_diffuse",
+    "material.texture_normal",
+    "material.texture_metallic",
+    "material.texture_roughness",
+    "material.texture_ao"
+  };
 
   std::vector<std::future<std::vector<Texture>>> futures;
 
   for (int i = 0; i < 5; ++i) {
     auto f = std::async(std::launch::async, [=] {
-      return LoadPBRTexture(textureTypes[i], materialNames.at(i));
+      return LoadPBRTexture(textureTypes[i], materialNames[i]);
     });
     futures.push_back(std::move(f));
   }
@@ -568,12 +572,7 @@ std::vector<Texture> Model::FillPBRTextureVector() {
     roughnessMaps.at(0).id = roughnessMaps.at(0).SendToGPU();
     aoMaps.at(0).id = aoMaps.at(0).SendToGPU();
   }
-  /*std::vector<Texture> diffuseMaps{ std::move(LoadPBRTexture(aiTextureType_DIFFUSE, "material.texture_diffuse")) };
-  std::vector<Texture> normalMaps{ std::move(LoadPBRTexture(aiTextureType_NORMALS, "material.texture_normal")) };
-  std::vector<Texture> metallicMaps{ std::move(LoadPBRTexture(aiTextureType_METALNESS, "material.texture_metallic")) };
-  std::vector<Texture> roughnessMaps{ std::move(LoadPBRTexture(aiTextureType_SHININESS, "material.texture_roughness")) };
-  std::vector<Texture> aoMaps{ std::move(LoadPBRTexture(aiTextureType_AMBIENT_OCCLUSION, "material.texture_ao")) };
-  */
+
   std::vector<Texture> pbrTextureVector;
   pbrTextureVector.insert(pbrTextureVector.end(), diffuseMaps.begin(), diffuseMaps.end());
   pbrTextureVector.insert(pbrTextureVector.end(), normalMaps.begin(), normalMaps.end());

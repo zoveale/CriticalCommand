@@ -46,7 +46,6 @@ glm::quat aiToGlm(const aiQuaternion& quat) {
 
 
 
-static unsigned char* threadData[5];
 int Texture::Load(const char* path, const std::string& directory, bool gamma) {
   std::string filename{ path };
   filename = directory + '/' + filename;
