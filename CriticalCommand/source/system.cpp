@@ -146,7 +146,6 @@ void System::SystemInit() {
   pMechComponent.Load(&scenePhysics, "resources/Mechs/baseBarrel.dae");
   mechaTank[2].Load(&gMechComponent[2], &pMechComponent, &baseBarrelInput);
 
-  dummyModel.LoadModel("resources/dummy/dummy.dae");
 }
 
 
