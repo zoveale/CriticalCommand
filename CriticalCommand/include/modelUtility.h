@@ -61,25 +61,15 @@ struct Lights {
 
 
 struct Texture {
-  int id;
+  unsigned int id;
   std::string type;
   std::string path;
-  unsigned char* data;
-  int width;
-  int height;
-  int nrComponents;
-  GLenum format;
-
-  int Load(const char* path,
+  static unsigned int Load(const char* path,
                       const std::string& directory,
                       bool gamma = false);
-  
-  unsigned int SendToGPU();
 
   static unsigned int loadCubemap(std::vector<std::string> faces);
   static unsigned int LoadHDR(const char* path);
-
-  
 };
 
 

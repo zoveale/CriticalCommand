@@ -13,13 +13,12 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <queue>
-#include <utility>
-#include <array>
-#include <thread>
-#include <future>
+
+
 
 //#define PRINT_ASSIMP_INFO
+
+
 class Model {
 public:
   
@@ -121,8 +120,8 @@ private:
   //std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
   void FillTextureVector(std::vector<Texture>& textureVector);
 
-  std::vector<Texture> FillPBRTextureVector();
-  std::vector<Texture> LoadPBRTexture(aiTextureType type, const string typeName);
+  void FillPBRTextureVector(std::vector<Texture>& pbrTextureVector);
+  std::vector<Texture> LoadPBRTexture(aiTextureType type, string typeName);
 
 };
 
