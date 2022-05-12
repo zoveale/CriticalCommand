@@ -1,6 +1,6 @@
 #include "render.h"
 
-RENDERDOC_API_1_4_1* Render::DebugApi;
+//RENDERDOC_API_1_4_1* Render::DebugApi;
 
 
 

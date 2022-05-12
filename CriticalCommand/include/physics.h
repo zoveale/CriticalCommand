@@ -54,7 +54,7 @@ public:
 
     //Can make new scale
     PxTolerancesScale scale = PxTolerancesScale();
-    /*pass in new scale for cenitmeters for example
+    /*pass in new scale for centimeters for example
     scale.length = 100;
     scale.speed = 981;*/
     ///
